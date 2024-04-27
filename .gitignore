@@ -1,6 +1,6 @@
-*.i
-*.ii
-*.gpu
-*.ptx
-*.cubin
-*.fatbin
+.vscode
+.vs
+bin
+obj
+*.db
+appsettings.json
