@@ -1,0 +1,42 @@
+﻿@using CountOnIt.Shared.Models.present.toShow
+@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toEdit
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
+
+<h3>@subCategoryTitle</h3>
+<button> @totalSpendings/@budget</button>
+
+<button @onclick="openAddTransOverlay">+</button>
+
+@if (openOverlay)
+{
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay"></AddTransactionComponent>
+}
+
+@code {
+
+
+    [Parameter]
+    public string subCategoryTitle { get; set; }
+
+    [Parameter]
+    public string categoryTitle { get; set; }
+
+    [Parameter]
+    public int subCategoryIDToGet { get; set; }
+
+    [Parameter]
+    public double totalSpendings { get; set; }
+
+    [Parameter]
+    public double budget { get; set; }
+
+    public bool openOverlay = false;
+
+    public void openAddTransOverlay()
+    {
+        openOverlay = !openOverlay;
+    }
+
+}

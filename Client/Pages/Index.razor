@@ -1,0 +1,164 @@
+﻿@page "/homePage"
+@using CountOnIt.Shared.Models.present.toShow
+@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toEdit
+@using CountOnIt.Client.Components
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject DateService DateService
+
+<meta name="google-signin-client_id" content="1019975699349-h4jb6mru41g9tobof0f2i4dl96df2bkp.apps.googleusercontent.com">
+<div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+@if(user != null)
+{
+    <h1>היי @user.firstName 👋🏼</h1>
+
+    <h2>מבט על חודש @currentMonth </h2>
+
+    //שורת חיפוש
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ניצלתי</th>
+                <th>הכנסתי</th>   
+                <th>הוצאתי</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@user.budgetFullValue% </td>               
+                <td>@user.incomeValueFullList</td>
+                <td>@user.spendingValueFullList</td>
+                
+            </tr>       
+        </tbody>
+    </table>
+
+
+    <button>מצב החודש כרגע</button>
+    <label>מעבר בין הכנסות/הוצאות:</label>
+    <input type="checkbox" @bind="isChecked" />
+    @*<label>הוצאות</label>*@
+
+    @if (isChecked) // עובר להכנסות
+    {
+        <p>הכנסות</p>
+
+
+
+    }
+    else
+    {
+        <p>הוצאות</p>
+
+        <button>הוספת קטגוריה חדשה</button>
+
+        foreach (CategoryToShow category in user.categoriesFullList)
+        {
+
+            <CategoryComponent Category=category categoryTitle="category.categroyTitle" doRefresh="@doRefresh"> </CategoryComponent>
+
+        }
+
+        @if (doRefresh)
+        {
+            refreshBudgetsOfSubCats(true);
+        }
+    }
+    <div id="bottomNav">
+    <button>מבט לעבר</button>
+        <button>מבט להווה</button>
+        <button>מבט לעתיד</button>
+</div>
+}
+
+
+
+
+
+
+@code{
+
+
+    userToShow user;
+    //List<CategoryToShow> categoriesList;
+
+    private string currentMonth;
+    private bool isChecked = false;
+    string msg = "";
+    int userID = 1;
+    bool doRefresh = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Simulating an asynchronous operation (e.g., fetching data)
+        await Task.Delay(1); // This is just to simulate an async process.
+
+        int currentMonthNumber = DateTime.Now.Month; // Gets the current month number
+        currentMonth = GetHebrewMonthName(currentMonthNumber);
+        StateHasChanged();
+
+        var userRes = await Http.GetAsync("api/Present/userToShow/" + userID);
+
+        if (userRes.IsSuccessStatusCode)
+        {
+            user = userRes.Content.ReadFromJsonAsync<userToShow> ().Result;
+        }
+        else
+        {
+            string error = userRes.Content.ReadAsStringAsync().Result;
+            switch (error)
+            {
+                case "User Not Found":
+                    msg = "User not found ";
+                    break;
+            }
+        }
+
+    }
+
+    private string GetHebrewMonthName(int monthNumber)
+    {
+        switch (monthNumber)
+        {
+            case 1:
+                return "ינואר";
+            case 2:
+                return "פברואר";
+            case 3:
+                return "מרץ";
+            case 4:
+                return "אפריל";
+            case 5:
+                return "מאי";
+            case 6:
+                return "יוני";
+            case 7:
+                return "יולי";
+            case 8:
+                return "אוגוסט";
+            case 9:
+                return "ספטמבר";
+            case 10:
+                return "אוקטובר";
+            case 11:
+                return "נובמבר";
+            case 12:
+                return "דצמבר";
+            default:
+                return "חודש לא תקין"; // Handle invalid month numbers
+        }
+    }
+
+
+    public void refreshBudgetsOfSubCats(bool refreshBudget)
+    {
+        if (refreshBudget)
+        {
+            doRefresh = refreshBudget;
+            Nav.NavigateTo("./",true);
+        }
+    }
+}

@@ -1,0 +1,227 @@
+﻿@using CountOnIt.Shared.Models.present.toShow
+@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toEdit
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
+
+<div>
+    <img />
+    <h2>@Category.categroyTitle</h2>
+    <button>options</button>
+    <button @onclick="getSubCategories">open accordion</button>
+    @if (isAccordionClick)
+    {
+        <button @onclick="getUserCategories">תת קטגוריה חדשה +</button>
+    }
+
+    @if (subCategories.Count > 0)
+    {
+        @foreach (SubCategoryToShow subcategory in subCategories)
+        {
+            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id"></SubCategoryComponent>
+        }
+    }
+
+
+    @if (isSubCategoryAddOverlayOpen)
+    {
+        <div>
+            <div>
+                <h2>הוספת תת קטגוריה</h2>
+                <button class="modal-close-btn" @onclick="() => isSubCategoryAddOverlayOpen = !isSubCategoryAddOverlayOpen">&times;</button>
+            </div>
+
+
+            @if (userCategories.Count > 0)
+            {
+            <span>הוספת תת קטגוריה ל</span>
+                <select @bind="selectedCategoryForNewSubCat">
+                   
+                    @foreach (AllUserCategories userCategory in userCategories)
+                    {
+                        
+                            <option value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+                        
+
+                    }
+                </select>
+            }
+
+            <div>
+                <label for="amount">שם תת קטגוריה</label>
+                <input type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="newSubCategory.subCategoryTitle" />
+            </div>
+
+            <div>
+                <label for="description">מה התקציב החודשי שלך עבור @newSubCategory.subCategoryTitle? </label>
+                <input type="number" id="description" placeholder="0" @bind="newSubCategory.monthlyPlannedBudget" />
+            </div>
+            <div>
+                <label for="importance">עדיפות תת הקטגוריה</label>
+                <span>@newSubCategory.importance</span>
+                <input type="radio" 
+                   name="importance" @onchange="@(() => newSubCategory.importance = 0)" />
+                <label>רצון</label>
+
+                <input type="radio" @onchange="@(() => newSubCategory.importance = 1)"
+                   name="importance"  />
+                <label>צורך</label>
+
+                <input type="radio" @onchange="@(() => newSubCategory.importance = 2)"
+                   name="importance"/>
+                <label>חובה</label>
+            </div>
+            <div>
+                <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
+            </div>
+            <br/>
+            <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
+            <button class="submit-btn" @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
+        </div>
+    }
+            @if (openTransactionOverlay)
+            {
+        <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" refreshBudget="(()=>generateRefresh(true))"></AddTransactionComponent>
+            }
+</div>
+
+
+@code {
+
+    [CascadingParameter]
+    public int userID { get; set; }
+
+    [Parameter]
+    public CategoryToShow Category { get; set; }
+
+    [Parameter]
+    public string categoryTitle { get; set; }
+
+
+    [Parameter]
+    public bool doRefresh { get; set; }
+
+    public bool isAccordionClick = false;
+    public bool isSubCategoryAddOverlayOpen = false;
+
+    List<SubCategoryToShow> subCategories = new List<SubCategoryToShow>();
+    List<AllUserCategories> userCategories = new List<AllUserCategories>();
+
+    SubCategoryToAdd newSubCategory = new SubCategoryToAdd();
+    AllUserCategories userCategory = new AllUserCategories();
+
+    string selectedCategoryForNewSubCat ="";
+    bool openTransactionOverlay = false;
+    int newSubCatID = 0;
+    string newSubCatTitle = "";
+
+    public async Task getSubCategories()
+    {
+        isAccordionClick = true;
+        var subCatRes = await Http.GetAsync("api/Present/subCategoryToShow/" + Category.id);
+        if (subCatRes.IsSuccessStatusCode)
+        {
+            subCategories = subCatRes.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
+        }
+        else
+        {
+            Console.WriteLine("no subcategories found");
+        }
+    }
+
+    public async Task getUserCategories()
+    {
+        isSubCategoryAddOverlayOpen = true;
+        selectedCategoryForNewSubCat = Category.categroyTitle;
+
+        userID = 1;
+        var getAllUserCategories = await Http.GetAsync("api/Present/GetUserCategories/" + userID);
+        if (getAllUserCategories.IsSuccessStatusCode)
+        {
+            userCategories = getAllUserCategories.Content.ReadFromJsonAsync<List<AllUserCategories>>().Result;
+        }
+        else
+        {
+            Console.WriteLine("no Categories found");
+        }
+    }
+
+
+
+
+
+    public async Task addSubCategoryAndEnd()
+    {
+        foreach (AllUserCategories userCategory in userCategories)
+        {
+            if (userCategory.categroyTitle == selectedCategoryForNewSubCat)
+            {
+                newSubCategory.categoryID = userCategory.id;
+            }
+        }
+
+        var subCatToAddRes = await Http.PostAsJsonAsync("api/Present/AddSubCategory", newSubCategory);
+        if (subCatToAddRes.IsSuccessStatusCode)
+        {
+            // להפעיל מחדש פונקציה שמושכת את האלמנטים בדף הבית
+            Console.WriteLine("new sub category added");
+            newSubCategory = new SubCategoryToAdd();
+            isSubCategoryAddOverlayOpen = false;
+        }
+        else
+        {
+            Console.WriteLine("failed to add new sub category");
+        }
+    }
+
+
+    public async Task addSubCategoryAndTransaction()
+    {
+        newSubCatTitle = "";
+        newSubCatID = 0;
+        foreach (AllUserCategories userCategory in userCategories)
+        {
+            if (userCategory.categroyTitle == selectedCategoryForNewSubCat)
+            {
+                newSubCategory.categoryID = userCategory.id;
+            }
+        }
+
+        var subCatToAddRes1 = await Http.PostAsJsonAsync("api/Present/AddSubCategory", newSubCategory);
+        if (subCatToAddRes1.IsSuccessStatusCode)
+        {
+            // Use 'await' to asynchronously read the content of the response.
+            SubCategoryToAdd tempSubCat = await subCatToAddRes1.Content.ReadFromJsonAsync<SubCategoryToAdd>();
+            newSubCatID = tempSubCat.id;
+            newSubCatTitle = tempSubCat.subCategoryTitle;
+            Console.WriteLine("New sub-category added, ID: " + newSubCatID);
+
+            // Reset the newSubCategory object for a new entry.
+            newSubCategory = new SubCategoryToAdd();
+
+            // Close the sub-category add overlay and open the transaction overlay.
+            isSubCategoryAddOverlayOpen = false;
+            openTransactionOverlay = true;
+
+            // If there's a method to refresh the UI or update elements on the homepage, call it here.
+            // await RefreshHomeElementsAsync();
+        }
+        else
+        {
+            // Consider reading the content of the response even if the status code is not successful.
+            var errorContent = await subCatToAddRes1.Content.ReadAsStringAsync();
+            Console.WriteLine("Failed to add new sub-category. Error: " + errorContent);
+        }
+    }
+
+    public void AddTransOverlay()
+    {
+        openTransactionOverlay = !openTransactionOverlay;
+        isSubCategoryAddOverlayOpen = false;
+    }
+
+    public void generateRefresh(bool refresh)
+    {
+        doRefresh = refresh;
+    }
+}
