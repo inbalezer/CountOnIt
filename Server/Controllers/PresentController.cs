@@ -368,8 +368,8 @@ namespace CountOnIt.Server.Controllers
             {
                 categoryID = subCategoryToAdd.categoryID,
                 subCategoryTitle = subCategoryToAdd.subCategoryTitle,
-                monthlyPlannedBudget = subCategoryToAdd.monthlyPlannedBudget,
-                importance = subCategoryToAdd.importance
+                monthlyPlannedBudget = subCategoryToAdd.monthlyPlannedBudget ?? (int?)null,
+                importance = subCategoryToAdd.importance ?? (int?)null
             };
 
             string insertSubCategoryQuery = "INSERT INTO subcategories (categoryID,subCategoryTitle,monthlyPlannedBudget, importance) values (@categoryID ,@subCategoryTitle ,@monthlyPlannedBudget ,@importance)";
@@ -439,17 +439,19 @@ namespace CountOnIt.Server.Controllers
             {
                 googleID = userGoogleID,
                 firstName = userToAdd.firstName,
-                lastName = userToAdd.lastName
+                lastName = userToAdd.lastName,
+                profilePicOrIcon = userToAdd.profilePicOrIcon,
+                monthStartDate = userToAdd.monthStartDate
 
             };
 
-            string insertUserQuery = "INSERT INTO users (googleID,firstName,lastName) values (@googleID ,@firstName ,@lastName)";
+            string insertUserQuery = "INSERT INTO users (googleID,firstName,lastName,profilePicOrIcon,monthStartDate) values (@googleID ,@firstName ,@lastName, @profilePicOrIcon, @monthStartDate)";
 
             int newUserId = await _db.InsertReturnId(insertUserQuery, userToAddParam);
 
             if (newUserId != 0)
             {
-                return Ok();
+                return Ok(newUserId);
             }
 
             return BadRequest("user not created");

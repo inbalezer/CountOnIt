@@ -80,11 +80,42 @@
     </div>
 }
 
-@if (currentUser == null)
+@if (currentUser == null && isOnInitializedOver)
 {
+    <div>
+        <div>
+            <p>
+                אז אנחנו Count On It,
+                אבל כל החבר׳ה קוראים לנו COI.
 
-    <input type="text" @bind=newUser.firstName placeholder=" שם פרטי:" />
-    <input type="text" @bind=newUser.lastName placeholder=" שם משפחה:" />
+                אנחנו אפליקציה לניהול תקציב מבית איה תמרי - יועצת
+                פיננסית לכלכלת המשפחה.
+                אנחנו כאן ללוות אותך בדרך לניהול תקציב נכון.
+                ועכשיו קצת עלייך :)
+            </p>
+        </div>
+        <input type="text" @bind=newUser.firstName placeholder=" שם פרטי:" />
+        <input type="text" @bind=newUser.lastName placeholder=" שם משפחה:" />
+        <p>
+            תמונת פרופיל: (לא חובה)
+            נ.ב. אם כן, כדאי אחת מייצגת או אמוג’י
+        </p>
+        <input type="text" @bind=newUser.profilePicOrIcon placeholder="תמונה או אייקון" />
+
+        <p>באיזה יום התזרים החודשי שלך מתחיל?</p>
+        @if(newUser.monthStartDate == null)
+        {
+            newUser.monthStartDate = 1;
+        }     
+        <select @bind="newUser.monthStartDate">
+            <option value="1">ה-1 לחודש</option>
+            <option value="2">ה-2 לחודש</option>
+            <option value="10">ה-10 לחודש</option>
+            <option value="15">ה-15 לחודש</option>
+           
+        </select>
+    </div>
+
     <button @onclick="@(async () => await createNewUser())">שמירה</button>
 
 }
@@ -95,13 +126,17 @@
 
     userToShow currentUser;
     UserToAdd newUser = new UserToAdd();
+    CategoryToShow defaultCategory = new CategoryToShow();
     //List<CategoryToShow> categoriesList;
 
     private string currentMonth;
     private bool isChecked = false;
     private string userGoogleId;
     string msg = "";
+    int newCurrentUserId;
+
     bool doRefresh = false;
+    bool isOnInitializedOver = false;
 
 
 
@@ -119,12 +154,14 @@
         if (user.Identity.IsAuthenticated)
         {
             userGoogleId = user.FindFirst("sub")?.Value;
+            isOnInitializedOver = true;
 
             var userRes = await Http.GetAsync("api/Present/userToShow/" + userGoogleId);
 
             if (userRes.IsSuccessStatusCode)
             {
                 currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
+
             }
             else
             {
@@ -205,7 +242,109 @@
             if (newUserRes.IsSuccessStatusCode)
             {
 
-                Console.WriteLine("בסוף עבד הקקה");
+                newCurrentUserId = newUserRes.Content.ReadFromJsonAsync<int>().Result;
+                UserToAdd newUser = new UserToAdd();
+                isOnInitializedOver = false;
+
+                List<CategoryToAdd> defualtCategoriesList = new List<CategoryToAdd>()
+                {
+                    new CategoryToAdd{userID = newCurrentUserId, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
+                    new CategoryToAdd{userID = newCurrentUserId, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
+                    new CategoryToAdd{userID = newCurrentUserId, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" }           
+                };
+
+                foreach (CategoryToAdd defualtCategory in defualtCategoriesList)
+                {
+                    var defaultCategories = await Http.PostAsJsonAsync("api/Present/AddCategory/" + defualtCategory.userID, defualtCategory);
+
+                    if (defaultCategories.IsSuccessStatusCode)
+                    {
+
+                        defaultCategory = defaultCategories.Content.ReadFromJsonAsync<CategoryToShow>().Result;
+
+                        switch (defaultCategory.categroyTitle)
+                        {
+                            case "משק בית":
+
+                                List<SubCategoryToAdd> defaultSubCategory1List = new List<SubCategoryToAdd>()
+                                {
+                                    new SubCategoryToAdd{subCategoryTitle = "חשבונות", categoryID = defaultCategory.id},
+                                    new SubCategoryToAdd{subCategoryTitle = "מזון", categoryID = defaultCategory.id}
+                                };
+
+                                foreach (SubCategoryToAdd defaultSubCategory1 in defaultSubCategory1List)
+                                {
+                                    var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory1);
+
+                                    if (defaultCategories.IsSuccessStatusCode)
+                                    {
+                                        msg = "ווהוו לא מעניין את מלכית";
+                                    }
+                                    else
+                                    {
+                                        msg = "לא ווהו, כן מעניין את מלכית";
+                                    }
+                                }
+                                // Code for when number is 1
+                                break;
+                            case "רכב ותחבורה":
+
+                                List<SubCategoryToAdd> defaultSubCategory2List = new List<SubCategoryToAdd>()
+                                {
+                                    new SubCategoryToAdd{subCategoryTitle = "דלק", categoryID = defaultCategory.id},
+                                    new SubCategoryToAdd{subCategoryTitle = "תחבורה ציבורית", categoryID = defaultCategory.id}
+                                };
+
+                                foreach (SubCategoryToAdd defaultSubCategory2 in defaultSubCategory2List)
+                                {
+                                    var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory2);
+
+                                    if (defaultCategories.IsSuccessStatusCode)
+                                    {
+                                        msg = "ווהוו לא מעניין את מלכית";
+                                    }
+                                    else
+                                    {
+                                        msg = "לא ווהו, כן מעניין את מלכית";
+                                    }
+                                }
+                                break;
+                            case "בריאות וטיפוח":
+                                List<SubCategoryToAdd> defaultSubCategory3List = new List<SubCategoryToAdd>()
+                                {
+                                    new SubCategoryToAdd{subCategoryTitle = "קופת חולים", categoryID = defaultCategory.id},
+                                    new SubCategoryToAdd{subCategoryTitle = "טואלטיקה", categoryID = defaultCategory.id}
+                                };
+
+                                foreach (SubCategoryToAdd defaultSubCategory3 in defaultSubCategory3List)
+                                {
+                                    var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory3);
+
+                                    if (defaultCategories.IsSuccessStatusCode)
+                                    {
+                                        msg = "ווהוו לא מעניין את מלכית";
+                                    }
+                                    else
+                                    {
+                                        msg = "לא ווהו, כן מעניין את מלכית";
+                                    }
+                                }
+                                break;
+
+                            default:
+                                msg = "Error creating new sub category";
+                                break;
+                        }
+
+                        Navigation.NavigateTo("/PastHomePage");
+                    }
+
+                    else
+                    {
+                        msg = "Error creating new category";
+                    }
+                }
+
             }
 
             else
@@ -214,4 +353,8 @@
             }
         }
     }
+
+
+  
+
 }

@@ -10,6 +10,8 @@ namespace CountOnIt.Shared.Models.present.toAdd
     {
         public string firstName { get; set; }
         public string lastName { get; set; }
+        public string profilePicOrIcon { get; set; }
+        public int monthStartDate { get; set; }
        
     }
 }
