@@ -80,11 +80,21 @@
     </div>
 }
 
+@if (currentUser == null)
+{
+
+    <input type="text" @bind=newUser.firstName placeholder=" שם פרטי:" />
+    <input type="text" @bind=newUser.lastName placeholder=" שם משפחה:" />
+    <button @onclick=createNewUser>שמירה</button>
+
+}
+
 
 @code{
 
 
     userToShow currentUser;
+    UserToAdd newUser = new UserToAdd();
     //List<CategoryToShow> categoriesList;
 
     private string currentMonth;
@@ -125,9 +135,15 @@
                         msg = "User not found ";
                         break;
                 }
+
             }
         }
+        else
+        {
+            msg = "user not authenticated";
+        }
     }
+
 
     private string GetHebrewMonthName(int monthNumber)
     {
@@ -175,5 +191,20 @@
 
 
 
+    public async Task createNewUser()
+    {
 
+        var newUserRes = await Http.PostAsJsonAsync("api/Google/AddUser/" + userGoogleId, newUser);
+
+        if (newUserRes.IsSuccessStatusCode)
+        {
+
+            Console.WriteLine("בסוף עבד הקקה");
+        }
+
+        else
+        {
+            msg = "Error adding new user";
+        }
+    }
 }
