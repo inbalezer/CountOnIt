@@ -20,48 +20,51 @@ namespace CountOnIt.Server.Controllers
 
 
 
-        [HttpGet("userToShow/{userID}")] // שליפה של התצוגה הראשונית בסביבה השניה לפני לחיצות על כפתורים
-        public async Task<IActionResult> GetUser(int userID)
+        [HttpGet("userToShow/{userGoogleID}")] // שליפה של התצוגה הראשונית בסביבה השניה לפני לחיצות על כפתורים
+        public async Task<IActionResult> GetUser(string userGoogleID)
         {
             // Initialize the SQL queries
-            var userQuery = "SELECT id, firstName, profilePicOrIcon FROM users WHERE id = @ID";
+            var userQuery = "SELECT id, firstName, profilePicOrIcon FROM users WHERE googleID = @ID";
             var categoryQuery = "SELECT id, categroyTitle, icon, color FROM categories WHERE userID = @ID";
             var subCategoryBudgetQuery = "SELECT COALESCE(SUM(monthlyPlannedBudget), 0) FROM subcategories WHERE categoryID = @ID";
             var transactionSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND transType = @TransType";
 
             // Get user details
-            var user = (await _db.GetRecordsAsync<userToShow>(userQuery, new { ID = userID })).FirstOrDefault();
+            var user = (await _db.GetRecordsAsync<userToShow>(userQuery, new { ID = userGoogleID })).FirstOrDefault();
             if (user == null)
             {
                 return BadRequest("User not found");
             }
-
-            // Get categories for the user
-            var categories = (await _db.GetRecordsAsync<CategoryToShow>(categoryQuery, new { ID = userID })).ToList();
-            if (categories.Any())
+            else
             {
-                user.categoriesFullList = categories;
-
-                double totalBudget = 0;
-                foreach (var category in categories)
+                // Get categories for the user
+                var categories = (await _db.GetRecordsAsync<CategoryToShow>(categoryQuery, new { ID = user.id })).ToList();
+                if (categories.Any())
                 {
-                    // Get total budget for each category
-                    double categoryBudget = (await _db.GetRecordsAsync<double>(subCategoryBudgetQuery, new { ID = category.id })).FirstOrDefault();
-                    totalBudget += categoryBudget;
+                    user.categoriesFullList = categories;
 
-                    if (category.id == categories.First().id) // Assuming you want to calculate transactions for the first category only.
+                    double totalBudget = 0;
+                    foreach (var category in categories)
                     {
-                        // Calculate transaction sums for the first category
-                        user.spendingValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 1 })).FirstOrDefault();
-                        user.incomeValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 2 })).FirstOrDefault();
+                        // Get total budget for each category
+                        double categoryBudget = (await _db.GetRecordsAsync<double>(subCategoryBudgetQuery, new { ID = category.id })).FirstOrDefault();
+                        totalBudget += categoryBudget;
+
+                        if (category.id == categories.First().id) // Assuming you want to calculate transactions for the first category only.
+                        {
+                            // Calculate transaction sums for the first category
+                            user.spendingValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 1 })).FirstOrDefault();
+                            user.incomeValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 2 })).FirstOrDefault();
+                        }
                     }
+
+                    // Calculate the budget usage percentage
+                    user.budgetFullValue = CalculateBudgetPercentage(totalBudget, user.spendingValueFullList);
                 }
 
-                // Calculate the budget usage percentage
-                user.budgetFullValue = CalculateBudgetPercentage(totalBudget, user.spendingValueFullList);
+                return Ok(user);
             }
 
-            return Ok(user);
         }
 
         private double CalculateBudgetPercentage(double budget, double spending)

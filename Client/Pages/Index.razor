@@ -3,16 +3,22 @@
 @using CountOnIt.Shared.Models.present.toAdd
 @using CountOnIt.Shared.Models.present.toEdit
 @using CountOnIt.Client.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject HttpClient Http
 @inject NavigationManager Nav
 @inject DateService DateService
+@inject NavigationManager Navigation
+@inject SignOutSessionStateManager SignOutManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 
 <meta name="google-signin-client_id" content="1019975699349-h4jb6mru41g9tobof0f2i4dl96df2bkp.apps.googleusercontent.com">
 <div class="g-signin2" data-onsuccess="onSignIn"></div>
 
-@if(user != null)
+@if (currentUser != null)
 {
-    <h1>היי @user.firstName 👋🏼</h1>
+    <h1>היי @currentUser.firstName 👋🏼</h1>
 
     <h2>מבט על חודש @currentMonth </h2>
 
@@ -22,17 +28,17 @@
         <thead>
             <tr>
                 <th>ניצלתי</th>
-                <th>הכנסתי</th>   
+                <th>הכנסתי</th>
                 <th>הוצאתי</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>@user.budgetFullValue% </td>               
-                <td>@user.incomeValueFullList</td>
-                <td>@user.spendingValueFullList</td>
-                
-            </tr>       
+                <td>@currentUser.budgetFullValue% </td>
+                <td>@currentUser.incomeValueFullList</td>
+                <td>@currentUser.spendingValueFullList</td>
+
+            </tr>
         </tbody>
     </table>
 
@@ -40,7 +46,7 @@
     <button>מצב החודש כרגע</button>
     <label>מעבר בין הכנסות/הוצאות:</label>
     <input type="checkbox" @bind="isChecked" />
-    @*<label>הוצאות</label>*@
+    @<label>הוצאות</label>@
 
     @if (isChecked) // עובר להכנסות
     {
@@ -55,7 +61,7 @@
 
         <button>הוספת קטגוריה חדשה</button>
 
-        foreach (CategoryToShow category in user.categoriesFullList)
+        foreach (CategoryToShow category in currentUser.categoriesFullList)
         {
 
             <CategoryComponent Category=category categoryTitle="category.categroyTitle" doRefresh="@doRefresh"> </CategoryComponent>
@@ -68,55 +74,59 @@
         }
     }
     <div id="bottomNav">
-    <button>מבט לעבר</button>
+        <button>מבט לעבר</button>
         <button>מבט להווה</button>
         <button>מבט לעתיד</button>
-</div>
+    </div>
 }
-
-
-
-
 
 
 @code{
 
 
-    userToShow user;
+    userToShow currentUser;
     //List<CategoryToShow> categoriesList;
 
     private string currentMonth;
     private bool isChecked = false;
+    private string userGoogleId;
     string msg = "";
-    int userID = 1;
     bool doRefresh = false;
+
+
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulating an asynchronous operation (e.g., fetching data)
         await Task.Delay(1); // This is just to simulate an async process.
 
         int currentMonthNumber = DateTime.Now.Month; // Gets the current month number
         currentMonth = GetHebrewMonthName(currentMonthNumber);
         StateHasChanged();
 
-        var userRes = await Http.GetAsync("api/Present/userToShow/" + userID);
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-        if (userRes.IsSuccessStatusCode)
+        if (user.Identity.IsAuthenticated)
         {
-            user = userRes.Content.ReadFromJsonAsync<userToShow> ().Result;
-        }
-        else
-        {
-            string error = userRes.Content.ReadAsStringAsync().Result;
-            switch (error)
+            userGoogleId = user.FindFirst("sub")?.Value;
+
+            var userRes = await Http.GetAsync("api/Present/userToShow/" + userGoogleId);
+
+            if (userRes.IsSuccessStatusCode)
             {
-                case "User Not Found":
-                    msg = "User not found ";
-                    break;
+                currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
+            }
+            else
+            {
+                string error = userRes.Content.ReadAsStringAsync().Result;
+                switch (error)
+                {
+                    case "User Not Found":
+                        msg = "User not found ";
+                        break;
+                }
             }
         }
-
     }
 
     private string GetHebrewMonthName(int monthNumber)
@@ -158,7 +168,12 @@
         if (refreshBudget)
         {
             doRefresh = refreshBudget;
-            Nav.NavigateTo("./",true);
+            Nav.NavigateTo("./", true);
         }
     }
+
+
+
+
+
 }
