@@ -46,7 +46,7 @@
     <button>מצב החודש כרגע</button>
     <label>מעבר בין הכנסות/הוצאות:</label>
     <input type="checkbox" @bind="isChecked" />
-    @<label>הוצאות</label>@
+    
 
     @if (isChecked) // עובר להכנסות
     {
@@ -85,7 +85,7 @@
 
     <input type="text" @bind=newUser.firstName placeholder=" שם פרטי:" />
     <input type="text" @bind=newUser.lastName placeholder=" שם משפחה:" />
-    <button @onclick=createNewUser>שמירה</button>
+    <button @onclick="@(async () => await createNewUser())">שמירה</button>
 
 }
 
@@ -193,18 +193,25 @@
 
     public async Task createNewUser()
     {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-        var newUserRes = await Http.PostAsJsonAsync("api/Google/AddUser/" + userGoogleId, newUser);
-
-        if (newUserRes.IsSuccessStatusCode)
+        if (user.Identity.IsAuthenticated)
         {
+            userGoogleId = user.FindFirst("sub")?.Value;
 
-            Console.WriteLine("בסוף עבד הקקה");
-        }
+            var newUserRes = await Http.PostAsJsonAsync("api/Present/AddUser/" + userGoogleId, newUser);
 
-        else
-        {
-            msg = "Error adding new user";
+            if (newUserRes.IsSuccessStatusCode)
+            {
+
+                Console.WriteLine("בסוף עבד הקקה");
+            }
+
+            else
+            {
+                msg = "Error adding new user";
+            }
         }
     }
 }

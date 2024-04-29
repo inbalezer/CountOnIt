@@ -1,44 +1,44 @@
 ﻿using CountOnIt.Shared.Models.present.toAdd;
+using CountOnIt.Shared.Models.present.toEdit;
 using CountOnIt.Shared.Models.present.toShow;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using TriangleDbRepository;
 
-[Route("api/[controller]")]
-[ApiController]
-public class GoogleController : ControllerBase
+
+namespace CountOnIt.Server.Controllers
 {
-
-    private readonly DbRepository _db;
-    public GoogleController(DbRepository db)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class GoogleController : ControllerBase
     {
-        _db = db;
-    }
-
-    [HttpPost("Adduser/{userGoogleID}")] // יצירת משתמש חזש
-    public async Task<IActionResult> Adduser(string userGoogleID, UserToAdd userToAdd)
-    {
-        object userToAddParam = new
+        private readonly DbRepository _db;
+        public GoogleController(DbRepository db)
         {
-            googleID = userGoogleID,
-            firstName = userToAdd.firstName,
-            lastName = userToAdd.lastName
-
-        };
-
-        string insertUserQuery = "INSERT INTO users (googleID,firstName, lastName) values (@googleID ,@firstName ,@lastName)";
-
-        int newUserId = await _db.InsertReturnId(insertUserQuery, userToAddParam);
-
-        if (newUserId != 0)
-        {
-            return Ok();
+            _db = db;
         }
 
-        return BadRequest("user not created");
+        [HttpPost("AddUser/{userGoogleID}")] // יצירת משתמש חזש
+        public async Task<IActionResult> Adduser(string userGoogleID, UserToAdd userToAdd)
+        {
+            object userToAddParam = new
+            {
+                googleID = userGoogleID,
+                firstName = userToAdd.firstName,
+                lastName = userToAdd.lastName
+
+            };
+
+            string insertUserQuery = "INSERT INTO users (googleID,firstName,lastName) values (@googleID ,@firstName ,@lastName)";
+
+            int newUserId = await _db.InsertReturnId(insertUserQuery, userToAddParam);
+
+            if (newUserId != 0)
+            {
+                return Ok();
+            }
+
+            return BadRequest("user not created");
+        }
     }
-
-
 }

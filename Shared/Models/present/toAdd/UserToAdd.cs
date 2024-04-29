@@ -10,5 +10,6 @@ namespace CountOnIt.Shared.Models.present.toAdd
     {
         public string firstName { get; set; }
         public string lastName { get; set; }
+       
     }
 }

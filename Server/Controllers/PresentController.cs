@@ -431,5 +431,29 @@ namespace CountOnIt.Server.Controllers
             }
             return BadRequest("Category not found");
         }
+
+        [HttpPost("AddUser/{userGoogleID}")] // יצירת משתמש חזש
+        public async Task<IActionResult> Adduser(string userGoogleID, UserToAdd userToAdd)
+        {
+            object userToAddParam = new
+            {
+                googleID = userGoogleID,
+                firstName = userToAdd.firstName,
+                lastName = userToAdd.lastName
+
+            };
+
+            string insertUserQuery = "INSERT INTO users (googleID,firstName,lastName) values (@googleID ,@firstName ,@lastName)";
+
+            int newUserId = await _db.InsertReturnId(insertUserQuery, userToAddParam);
+
+            if (newUserId != 0)
+            {
+                return Ok();
+            }
+
+            return BadRequest("user not created");
+        }
     }
+    
 }
