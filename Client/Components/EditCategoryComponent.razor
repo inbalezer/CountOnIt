@@ -1,0 +1,81 @@
+﻿@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toShow
+@using CountOnIt.Shared.Models.present.toEdit
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
+<h3>עריכת קטגוריה</h3>
+<input type="text" @bind="categoryToEdit.categroyTitle"/>
+<button>הוספת אייקון</button>
+<div>
+    <label for="categoryColors">צבע</label>
+    <span>@categoryToEdit.color</span>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F4B367")" />
+    <label>#F4B367</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#7B67F4")" />
+    <label>#7B67F4</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F467AB")" />
+    <label>#F467AB</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F47867")" />
+    <label>#F47867</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#678EF4")" />
+    <label>#678EF4</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#85E7A0")" />
+    <label>#85E7A0</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#67CAF4")" />
+    <label>#67CAF4</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#FFEF9D")" />
+    <label>#FFEF9D</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#FBEBD7")" />
+    <label>#FBEBD7</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#04905E")" />
+    <label>#04905E</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F95050")" />
+    <label>#F95050</label>
+    <input type="radio"
+           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#DADADA")" />
+    <label>#DADADA</label>
+</div>
+<button @onclick="saveUpdatedCat">שמירה וסיום</button>
+@code {
+    [Parameter]
+    public CategoryToShow categoryToEdit { get; set; }
+
+    public CategoryToEdit editedCategory = new CategoryToEdit();
+
+    public async Task saveUpdatedCat()
+    {
+        editedCategory.categroyTitle = categoryToEdit.categroyTitle;
+        editedCategory.color = categoryToEdit.color;
+        editedCategory.icon = categoryToEdit.icon;
+        editedCategory.id = categoryToEdit.id;
+
+        var updateCatRes = await Http.PostAsJsonAsync("api/Present/EditCategory/", editedCategory);
+        if (updateCatRes.IsSuccessStatusCode)
+        {
+            CategoryToEdit updatedCategory = await updateCatRes.Content.ReadFromJsonAsync<CategoryToEdit>();
+            categoryToEdit.categroyTitle = updatedCategory.categroyTitle;
+            categoryToEdit.icon = updatedCategory.icon;
+            categoryToEdit.color = updatedCategory.color;
+
+            //need to refresh the home page
+
+            Console.WriteLine("category updated");
+
+        }
+        else
+        {
+            Console.WriteLine("failed to update category");
+        }
+    }
+}

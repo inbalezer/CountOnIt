@@ -8,7 +8,11 @@
     <img />
     <h2>@Category.categroyTitle</h2>
     @userID
-    <button>options</button>
+    <button @onclick="showEditCategory">options</button>
+    @if (optionsBtnClicked)
+    {
+        <EditCategoryComponent categoryToEdit="@Category"></EditCategoryComponent>
+    }
     <button @onclick="getSubCategories">open accordion</button>
     @if (isAccordionClick)
     {
@@ -127,6 +131,9 @@
     int newSubCatID = 0;
     string newSubCatTitle = "";
 
+    //---------edit category stuff:
+    public bool optionsBtnClicked = false;
+
     public async Task getSubCategories()
     {
         isAccordionClick = true;
@@ -147,7 +154,7 @@
         isSubCategoryAddOverlayOpen = true;
         selectedCategoryForNewSubCat = Category.categroyTitle;
 
-        
+
         var getAllUserCategories = await Http.GetAsync("api/Present/GetUserCategories/" + userID);
         if (getAllUserCategories.IsSuccessStatusCode)
         {
@@ -233,4 +240,13 @@
     {
         doRefresh = refresh;
     }
+
+
+    //get category to edit:
+    public void showEditCategory()
+    {
+        optionsBtnClicked = !optionsBtnClicked;
+    }
+
+
 }
