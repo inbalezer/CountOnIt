@@ -7,6 +7,7 @@
 <div>
     <img />
     <h2>@Category.categroyTitle</h2>
+    @userID
     <button>options</button>
     <button @onclick="getSubCategories">open accordion</button>
     @if (isAccordionClick)
@@ -18,7 +19,7 @@
     {
         @foreach (SubCategoryToShow subcategory in subCategories)
         {
-            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id"></SubCategoryComponent>
+            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" refreshPage="refreshPage"></SubCategoryComponent>
         }
     }
 
@@ -81,14 +82,17 @@
     }
             @if (openTransactionOverlay)
             {
-        <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" refreshBudget="(()=>generateRefresh(true))"></AddTransactionComponent>
+        <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" userID="@userID" refreshBudget="refreshPage"></AddTransactionComponent>
             }
 </div>
-
+@if (subCatRefreshed)
+{
+    getSubCategories();
+}
 
 @code {
 
-    [CascadingParameter]
+    [Parameter]
     public int userID { get; set; }
 
     [Parameter]
@@ -101,7 +105,15 @@
     [Parameter]
     public bool doRefresh { get; set; }
 
+    [Parameter]
+
+    public EventCallback refreshPage { get; set; }
+
+    [Parameter]
+    public bool subCatRefreshed { get; set; }
+
     public bool isAccordionClick = false;
+
     public bool isSubCategoryAddOverlayOpen = false;
 
     List<SubCategoryToShow> subCategories = new List<SubCategoryToShow>();
@@ -122,6 +134,7 @@
         if (subCatRes.IsSuccessStatusCode)
         {
             subCategories = subCatRes.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
+            subCatRefreshed = false;
         }
         else
         {
@@ -134,7 +147,7 @@
         isSubCategoryAddOverlayOpen = true;
         selectedCategoryForNewSubCat = Category.categroyTitle;
 
-        userID = 1;
+        
         var getAllUserCategories = await Http.GetAsync("api/Present/GetUserCategories/" + userID);
         if (getAllUserCategories.IsSuccessStatusCode)
         {
@@ -145,10 +158,6 @@
             Console.WriteLine("no Categories found");
         }
     }
-
-
-
-
 
     public async Task addSubCategoryAndEnd()
     {

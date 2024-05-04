@@ -46,7 +46,7 @@
     <button>מצב החודש כרגע</button>
     <label>מעבר בין הכנסות/הוצאות:</label>
     <input type="checkbox" @bind="isChecked" />
-    
+
 
     @if (isChecked) // עובר להכנסות
     {
@@ -64,7 +64,7 @@
         foreach (CategoryToShow category in currentUser.categoriesFullList)
         {
 
-            <CategoryComponent Category=category categoryTitle="category.categroyTitle" doRefresh="@doRefresh"> </CategoryComponent>
+            <CategoryComponent Category=category categoryTitle="category.categroyTitle" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" subCatRefreshed="@accordionRefresh"> </CategoryComponent>
 
         }
 
@@ -103,16 +103,16 @@
         <input type="text" @bind=newUser.profilePicOrIcon placeholder="תמונה או אייקון" />
 
         <p>באיזה יום התזרים החודשי שלך מתחיל?</p>
-        @if(newUser.monthStartDate == null)
+        @if (newUser.monthStartDate == null)
         {
             newUser.monthStartDate = 1;
-        }     
+        }
         <select @bind="newUser.monthStartDate">
             <option value="1">ה-1 לחודש</option>
             <option value="2">ה-2 לחודש</option>
             <option value="10">ה-10 לחודש</option>
             <option value="15">ה-15 לחודש</option>
-           
+
         </select>
     </div>
 
@@ -121,22 +121,27 @@
 }
 
 
-@code{
+@code {
 
+    [Parameter]
+    public int userID { get; set; }
 
     userToShow currentUser;
     UserToAdd newUser = new UserToAdd();
     CategoryToShow defaultCategory = new CategoryToShow();
-    //List<CategoryToShow> categoriesList;
+
 
     private string currentMonth;
-    private bool isChecked = false;
     private string userGoogleId;
+    private bool isChecked = false;
     string msg = "";
+
     int newCurrentUserId;
+    private int refreshKey;
 
     bool doRefresh = false;
     bool isOnInitializedOver = false;
+    bool accordionRefresh = false;
 
 
 
@@ -161,6 +166,7 @@
             if (userRes.IsSuccessStatusCode)
             {
                 currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
+                userID = currentUser.id;
 
             }
             else
@@ -242,15 +248,15 @@
             if (newUserRes.IsSuccessStatusCode)
             {
 
-                newCurrentUserId = newUserRes.Content.ReadFromJsonAsync<int>().Result;
+                userID = newUserRes.Content.ReadFromJsonAsync<int>().Result;
                 UserToAdd newUser = new UserToAdd();
                 isOnInitializedOver = false;
 
                 List<CategoryToAdd> defualtCategoriesList = new List<CategoryToAdd>()
                 {
-                    new CategoryToAdd{userID = newCurrentUserId, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
-                    new CategoryToAdd{userID = newCurrentUserId, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
-                    new CategoryToAdd{userID = newCurrentUserId, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" }           
+                    new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
+                    new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
+                    new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" }
                 };
 
                 foreach (CategoryToAdd defualtCategory in defualtCategoriesList)
@@ -354,7 +360,32 @@
         }
     }
 
+    public async Task RefreshComponent()
+    {
 
-  
+
+        var userRes = await Http.GetAsync("api/Present/userToShow/" + userGoogleId);
+
+        if (userRes.IsSuccessStatusCode)
+        {
+            currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
+            userID = currentUser.id;
+            accordionRefresh = true;
+
+        }
+        else
+        {
+            string error = userRes.Content.ReadAsStringAsync().Result;
+            switch (error)
+            {
+                case "User Not Found":
+                    msg = "User not found ";
+                    break;
+            }
+
+        }
+    }
 
 }
+
+

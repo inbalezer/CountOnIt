@@ -113,6 +113,10 @@
 }
  
 @code {
+
+    [Parameter]
+    public int userID { get; set; }
+
     [Parameter]
     public string subCategoryTitle { get; set; }
 
@@ -123,7 +127,7 @@
     public EventCallback<bool> isTransactionOverlayOpen { get; set; }
 
     [Parameter]
-    public EventCallback<bool> refreshBudget { get; set; }
+    public EventCallback refreshBudget { get; set; }
 
     private DateTime? selectedDate = DateTime.Today; // Initialize selectedDate to today
 
@@ -165,7 +169,7 @@
             {
                 Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                 isTransactionOverlayOpen.InvokeAsync(false);
-                refreshBudget.InvokeAsync(true);
+                refreshBudget.InvokeAsync();
             }
         }
         else
@@ -221,13 +225,14 @@
         Console.WriteLine(overDraftSubCategory.monthlyPlannedBudget);
 
         await updateSubCategoryBudget(budgetToUpdate);
+        await refreshBudget.InvokeAsync();
     }
 
     public async Task checkOverdraft()
     {
 
 
-        var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + newTransaction.subCategoryID);
+        var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + newTransaction.subCategoryID + "/" + userID);
         if (overdraftRes.IsSuccessStatusCode)
         {
             overdraftDetected = true;
@@ -237,6 +242,7 @@
             overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
             overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
             chosenSubCategory = closeOverdraftOpts[0];
+            
 
         }
         else
@@ -254,7 +260,7 @@
             Console.WriteLine("התקציבים עודכנו בהצלחה :)");
             overdraftDetected = false;
             isTransactionOverlayOpen.InvokeAsync(false);
-            refreshBudget.InvokeAsync(true);
+            refreshBudget.InvokeAsync();
 
 
         }
@@ -268,7 +274,7 @@
     {
         overdraftDetected = false;
         isTransactionOverlayOpen.InvokeAsync(false);
-        refreshBudget.InvokeAsync(true);
+        refreshBudget.InvokeAsync();
     }
 
 }

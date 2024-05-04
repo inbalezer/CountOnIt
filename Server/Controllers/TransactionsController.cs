@@ -47,10 +47,11 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("Transaction not created");
         }
 
-        [HttpGet("showOverdraft/{subCatID}")]
-        public async Task<IActionResult> showOverdraft(int subCatID)
+        [HttpGet("showOverdraft/{subCatID}/{userID}")]
+        public async Task<IActionResult> showOverdraft(int subCatID, int userID)
         {
             List<OverBudgetToShow> subcategoriesToCloseGap = new List<OverBudgetToShow>();
+            List<OverBudgetToShow> subcategoriesToCloseGapAfterLoop = new List<OverBudgetToShow>();
             OverBudgetToShow currentOverdraft = new OverBudgetToShow();
 
             object param = new
@@ -80,33 +81,53 @@ namespace CountOnIt.Server.Controllers
                         Console.WriteLine("the budget gap is- " + gap);
 
 
-
-                        object gapParam = new
+                        object userCatParam = new
                         {
-                            gap = gap
+                            userID = userID
                         };
 
-                        string getFittingSubCats = "SELECT subcategories.id, subcategories.subCategoryTitle, subcategories.monthlyPlannedBudget, (monthlyPlannedBudget - COALESCE(SUM(transValue), 0)) AS remainingBudget FROM subcategories LEFT JOIN transactions ON subcategories.id = transactions.subCategoryID WHERE importance = 0 GROUP BY subcategories.id HAVING remainingBudget > @gap";
+                        string getUserCategories = "SELECT id FROM categories where userID = @userID";
+                        var recordUserCategories = await _db.GetRecordsAsync<int>(getUserCategories, userCatParam);
+                        List<int> userCatesList = recordUserCategories.ToList();
 
-                        var optionalSubcategories = await _db.GetRecordsAsync<OverBudgetToShow>(getFittingSubCats, gapParam);
-
-                        if (optionalSubcategories != null)
+                        if (userCatesList.Count > 0)
                         {
-                            subcategoriesToCloseGap = optionalSubcategories.ToList();
-                            subcategoriesToCloseGap.Add(currentOverdraft);
+                            foreach (var category in userCatesList)
+                            {
+                                if (category != null && category > 0)
+                                {
 
-                            return Ok(subcategoriesToCloseGap);
+                                    object gapParam = new
+                                    {
+                                        gap = gap,
+                                        categoryID = category
+                                    };
 
+                                    string getFittingSubCats = "SELECT subcategories.id, subcategories.subCategoryTitle, subcategories.monthlyPlannedBudget, (monthlyPlannedBudget - COALESCE(SUM(transValue), 0)) AS remainingBudget FROM subcategories LEFT JOIN transactions ON subcategories.id = transactions.subCategoryID WHERE importance = 0 AND categoryID = @categoryID GROUP BY subcategories.id HAVING remainingBudget > @gap";
+
+                                    var optionalSubcategories = await _db.GetRecordsAsync<OverBudgetToShow>(getFittingSubCats, gapParam);
+
+                                    if (optionalSubcategories != null )
+                                    {
+                                        subcategoriesToCloseGap = optionalSubcategories.ToList();     
+                                        
+                                        foreach(OverBudgetToShow subCatToShow in subcategoriesToCloseGap)
+                                        {
+                                            subcategoriesToCloseGapAfterLoop.Add(subCatToShow);
+                                        }
+                                    }                                  
+                                }                                
+                            }
+                            subcategoriesToCloseGapAfterLoop.Add(currentOverdraft);
+                            return Ok(subcategoriesToCloseGapAfterLoop);
                         }
-                        return BadRequest("no optional subcategories found");
+                        return BadRequest("no category found");
                     }
-
-                    return BadRequest("nosub category name found");
-
+                    return BadRequest("no sub category found");
                 }
-                return BadRequest("no budget found in this subcategory");
+                return BadRequest("no linked transactions found to this subcategory");
             }
-            return BadRequest("no linked transactions found to this subcategory");
+            return BadRequest("couldnt find sum");
         }
 
         [HttpPost("EditSubCategoriesNewBudgets")]  // עריכת תקציב חדש לאחר העברה בחריגה

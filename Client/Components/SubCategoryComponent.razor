@@ -11,11 +11,13 @@
 
 @if (openOverlay)
 {
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" refreshBudget="refreshPage"></AddTransactionComponent>
 }
 
 @code {
 
+    [Parameter]
+    public int userID { get; set; }
 
     [Parameter]
     public string subCategoryTitle { get; set; }
@@ -28,6 +30,10 @@
 
     [Parameter]
     public double totalSpendings { get; set; }
+
+    [Parameter]
+
+    public EventCallback refreshPage { get; set; }
 
     [Parameter]
     public double budget { get; set; }
