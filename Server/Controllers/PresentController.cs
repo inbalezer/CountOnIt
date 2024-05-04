@@ -44,22 +44,28 @@ namespace CountOnIt.Server.Controllers
                     user.categoriesFullList = categories;
 
                     double totalBudget = 0;
+                    double totalSpendings = 0;
+                    double totalIncome = 0;
                     foreach (var category in categories)
                     {
                         // Get total budget for each category
                         double categoryBudget = (await _db.GetRecordsAsync<double>(subCategoryBudgetQuery, new { ID = category.id })).FirstOrDefault();
                         totalBudget += categoryBudget;
 
-                        if (category.id == categories.First().id) // Assuming you want to calculate transactions for the first category only.
-                        {
+                        //if (category.id == categories.First().id) // Assuming you want to calculate transactions for the first category only.
+                        //{
                             // Calculate transaction sums for the first category
                             user.spendingValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 1 })).FirstOrDefault();
+                        totalSpendings += user.spendingValueFullList;
                             user.incomeValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 2 })).FirstOrDefault();
-                        }
+                        totalIncome+= user.incomeValueFullList;
+                        //}
                     }
 
                     // Calculate the budget usage percentage
-                    user.budgetFullValue = CalculateBudgetPercentage(totalBudget, user.spendingValueFullList);
+                    user.budgetFullValue = CalculateBudgetPercentage(totalBudget, totalSpendings);
+                    user.spendingValueFullList = totalSpendings;
+                    user.incomeValueFullList= totalIncome;
                 }
 
                 return Ok(user);
@@ -71,7 +77,7 @@ namespace CountOnIt.Server.Controllers
         {
             if (spending == 0)
                 return 0;
-            return Math.Round((budget / spending) * 100, 2);
+            return Math.Round((spending / budget) * 100, 2);
         }
 
 
