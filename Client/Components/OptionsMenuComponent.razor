@@ -1,0 +1,38 @@
+﻿@using CountOnIt.Shared.Models.present.toShow
+@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toEdit
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
+
+<h3>optionsMenu</h3>
+
+<button @onclick="(() => iseditBtnClicked = !iseditBtnClicked)">עריכה</button>
+<button @onclick="(() => isdeleteBtnClicked = !isdeleteBtnClicked)">מחיקה</button>
+
+@if (iseditBtnClicked)
+{
+    editBtnClicked.InvokeAsync();
+}
+
+@if (isdeleteBtnClicked)
+{
+    deleteBtnClicked.InvokeAsync();
+}
+
+
+
+@code {
+
+
+    [Parameter]
+    public EventCallback editBtnClicked { get; set; }
+
+    [Parameter]
+    public EventCallback deleteBtnClicked { get; set; }
+
+    public bool iseditBtnClicked;
+    public bool isdeleteBtnClicked;
+
+
+
+}

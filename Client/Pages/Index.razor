@@ -64,7 +64,7 @@
         foreach (CategoryToShow category in currentUser.categoriesFullList)
         {
 
-            <CategoryComponent Category=category categoryTitle="category.categroyTitle" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" subCatRefreshed="@accordionRefresh"> </CategoryComponent>
+            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" subCatRefreshed="@accordionRefresh"> </CategoryComponent>
 
         }
 

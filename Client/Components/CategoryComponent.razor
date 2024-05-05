@@ -7,12 +7,28 @@
 <div>
     <img />
     <h2>@Category.categroyTitle</h2>
+    <span>@Category.icon</span>
+    <span>@Category.color</span>
     @userID
-    <button @onclick="showEditCategory">options</button>
-    @if (optionsBtnClicked)
+    <button @onclick="OpetionsBtnClicked">
+    </button>
+    @if(isOpetionsBtnClicked)
     {
-        <EditCategoryComponent categoryToEdit="@Category"></EditCategoryComponent>
+        <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked"></OptionsMenuComponent>
     }
+
+    @if (editBtnClicked)
+    {
+        <EditCategoryComponent categoryToEdit="@Category" isEditCategoryOverlayOpen="showEditCategory"></EditCategoryComponent>
+
+        <p>נפתחה קומפוננטת עריכה</p>
+    }
+    @if (deleteBtnClicked)
+    {
+        <p>נפתחה קומפוננטת מחיקה</p>
+    }
+
+
     <button @onclick="getSubCategories">open accordion</button>
     @if (isAccordionClick)
     {
@@ -100,25 +116,46 @@
     public int userID { get; set; }
 
     [Parameter]
-    public CategoryToShow Category { get; set; }
-
-    [Parameter]
     public string categoryTitle { get; set; }
 
+    [Parameter]
+    public string icon { get; set; }
+
+    [Parameter]
+    public string categoryColor { get; set; }
 
     [Parameter]
     public bool doRefresh { get; set; }
+
+    [Parameter]
+    public bool subCatRefreshed { get; set; }
+
+    [Parameter]
+    public CategoryToShow Category { get; set; }
 
     [Parameter]
 
     public EventCallback refreshPage { get; set; }
 
     [Parameter]
-    public bool subCatRefreshed { get; set; }
 
+    public EventCallback isEditClicked { get; set; }
+
+    [Parameter]
+
+    public EventCallback isDeleteClicked { get; set; }
+
+
+    string selectedCategoryForNewSubCat = "";
+    string newSubCatTitle = "";
+    string msg = "";
+    int newSubCatID = 0; 
     public bool isAccordionClick = false;
-
     public bool isSubCategoryAddOverlayOpen = false;
+    public bool editBtnClicked = false;
+    public bool deleteBtnClicked = false;
+    bool openTransactionOverlay = false;
+    bool isOpetionsBtnClicked = false;
 
     List<SubCategoryToShow> subCategories = new List<SubCategoryToShow>();
     List<AllUserCategories> userCategories = new List<AllUserCategories>();
@@ -126,13 +163,7 @@
     SubCategoryToAdd newSubCategory = new SubCategoryToAdd();
     AllUserCategories userCategory = new AllUserCategories();
 
-    string selectedCategoryForNewSubCat ="";
-    bool openTransactionOverlay = false;
-    int newSubCatID = 0;
-    string newSubCatTitle = "";
 
-    //---------edit category stuff:
-    public bool optionsBtnClicked = false;
 
     public async Task getSubCategories()
     {
@@ -230,6 +261,25 @@
         }
     }
 
+
+    //private async Task deleteCategory()
+    //{
+
+    //    var deleteCategoryResponse = await Http.DeleteAsync("api/Present/deleteCategory" + Category.id);
+
+    //    if (deleteCategoryResponse.IsSuccessStatusCode)
+    //    {
+    //        Console.WriteLine("התמונות נמחקו בהצלחה");
+
+    //        userCategories.Remove(Category.id);
+    //    }
+    //    else
+    //    {
+    //        msg = "בעיה במחיקה, נסה שוב ";
+
+    //    }
+    //}
+
     public void AddTransOverlay()
     {
         openTransactionOverlay = !openTransactionOverlay;
@@ -241,12 +291,32 @@
         doRefresh = refresh;
     }
 
-
     //get category to edit:
     public void showEditCategory()
     {
-        optionsBtnClicked = !optionsBtnClicked;
+        editBtnClicked = !editBtnClicked;
+        deleteBtnClicked = false;
+        isOpetionsBtnClicked = false;
+    }  
+
+    public void OpetionsBtnClicked()
+    {
+        isOpetionsBtnClicked = !isOpetionsBtnClicked;
+
     }
 
+    public void deleteCategoryBtnClciked()
+    {
+        deleteBtnClicked = !deleteBtnClicked;
+        editBtnClicked = false;
+        isOpetionsBtnClicked = false;
+
+
+    }
+
+
+
+    
+ 
 
 }
