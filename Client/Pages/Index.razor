@@ -64,7 +64,7 @@
         foreach (CategoryToShow category in currentUser.categoriesFullList)
         {
 
-            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" subCatRefreshed="@accordionRefresh"> </CategoryComponent>
+            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" deleteCat="removeCat " subCatRefreshed="@accordionRefresh"> </CategoryComponent>
 
         }
 
@@ -142,6 +142,7 @@
     bool doRefresh = false;
     bool isOnInitializedOver = false;
     bool accordionRefresh = false;
+    CategoryToShow catToDelete = new CategoryToShow();
 
 
 
@@ -384,6 +385,13 @@
             }
 
         }
+    }
+
+    public void removeCat(CategoryToShow catallToDelete)
+    {
+        catToDelete = catallToDelete;
+        currentUser.categoriesFullList.Remove(catallToDelete);
+        Console.WriteLine(catToDelete);
     }
 
 }

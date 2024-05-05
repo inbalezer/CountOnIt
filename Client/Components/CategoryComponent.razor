@@ -25,7 +25,7 @@
     }
     @if (deleteBtnClicked)
     {
-        <p>נפתחה קומפוננטת מחיקה</p>
+        <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="מחיקה" makeAction=@deleteCategory></GeneralPopUpComponent>
     }
 
 
@@ -127,6 +127,10 @@
     [Parameter]
     public bool doRefresh { get; set; }
 
+    [Parameter] 
+    public bool delete { get; set; }
+
+
     [Parameter]
     public bool subCatRefreshed { get; set; }
 
@@ -144,11 +148,18 @@
     [Parameter]
 
     public EventCallback isDeleteClicked { get; set; }
+    [Parameter]
+
+    public EventCallback<CategoryToShow> deleteCat { get; set; }
 
 
     string selectedCategoryForNewSubCat = "";
     string newSubCatTitle = "";
     string msg = "";
+    string popupTitle = "מחיקת קטגוריה";
+    string popupBodyText = "אתה עומד למחוק את קטגוריית ";
+
+
     int newSubCatID = 0; 
     public bool isAccordionClick = false;
     public bool isSubCategoryAddOverlayOpen = false;
@@ -312,6 +323,18 @@
         isOpetionsBtnClicked = false;
 
 
+    }
+
+    protected async Task deleteCategory()
+    {
+        var deleteRes = await Http.DeleteAsync("api/Present/deleteCategory/" + Category.id);
+        if (deleteRes.IsSuccessStatusCode)
+        {
+            deleteCat.InvokeAsync(Category);
+        }
+        else{
+            Console.WriteLine(" בעיה במחיקת קטגוריה");
+        }
     }
 
 
