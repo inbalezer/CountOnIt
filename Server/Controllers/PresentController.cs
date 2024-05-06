@@ -20,55 +20,64 @@ namespace CountOnIt.Server.Controllers
 
 
 
-        [HttpGet("userToShow/{userID}")] // שליפה של התצוגה הראשונית בסביבה השניה לפני לחיצות על כפתורים
-        public async Task<IActionResult> GetUser(int userID)
+        [HttpGet("userToShow/{userGoogleID}")] // שליפה של התצוגה הראשונית בסביבה השניה לפני לחיצות על כפתורים
+        public async Task<IActionResult> GetUser(string userGoogleID)
         {
             // Initialize the SQL queries
-            var userQuery = "SELECT id, firstName, profilePicOrIcon FROM users WHERE id = @ID";
+            var userQuery = "SELECT id, firstName, profilePicOrIcon FROM users WHERE googleID = @ID";
             var categoryQuery = "SELECT id, categroyTitle, icon, color FROM categories WHERE userID = @ID";
             var subCategoryBudgetQuery = "SELECT COALESCE(SUM(monthlyPlannedBudget), 0) FROM subcategories WHERE categoryID = @ID";
             var transactionSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND transType = @TransType";
 
             // Get user details
-            var user = (await _db.GetRecordsAsync<userToShow>(userQuery, new { ID = userID })).FirstOrDefault();
+            var user = (await _db.GetRecordsAsync<userToShow>(userQuery, new { ID = userGoogleID })).FirstOrDefault();
             if (user == null)
             {
                 return BadRequest("User not found");
             }
-
-            // Get categories for the user
-            var categories = (await _db.GetRecordsAsync<CategoryToShow>(categoryQuery, new { ID = userID })).ToList();
-            if (categories.Any())
+            else
             {
-                user.categoriesFullList = categories;
-
-                double totalBudget = 0;
-                foreach (var category in categories)
+                // Get categories for the user
+                var categories = (await _db.GetRecordsAsync<CategoryToShow>(categoryQuery, new { ID = user.id })).ToList();
+                if (categories.Any())
                 {
-                    // Get total budget for each category
-                    double categoryBudget = (await _db.GetRecordsAsync<double>(subCategoryBudgetQuery, new { ID = category.id })).FirstOrDefault();
-                    totalBudget += categoryBudget;
+                    user.categoriesFullList = categories;
 
-                    if (category.id == categories.First().id) // Assuming you want to calculate transactions for the first category only.
+                    double totalBudget = 0;
+                    double totalSpendings = 0;
+                    double totalIncome = 0;
+                    foreach (var category in categories)
                     {
-                        // Calculate transaction sums for the first category
-                        user.spendingValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 1 })).FirstOrDefault();
-                        user.incomeValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 2 })).FirstOrDefault();
+                        // Get total budget for each category
+                        double categoryBudget = (await _db.GetRecordsAsync<double>(subCategoryBudgetQuery, new { ID = category.id })).FirstOrDefault();
+                        totalBudget += categoryBudget;
+
+                        //if (category.id == categories.First().id) // Assuming you want to calculate transactions for the first category only.
+                        //{
+                            // Calculate transaction sums for the first category
+                            user.spendingValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 1 })).FirstOrDefault();
+                        totalSpendings += user.spendingValueFullList;
+                            user.incomeValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 2 })).FirstOrDefault();
+                        totalIncome+= user.incomeValueFullList;
+                        //}
                     }
+
+                    // Calculate the budget usage percentage
+                    user.budgetFullValue = CalculateBudgetPercentage(totalBudget, totalSpendings);
+                    user.spendingValueFullList = totalSpendings;
+                    user.incomeValueFullList= totalIncome;
                 }
 
-                // Calculate the budget usage percentage
-                user.budgetFullValue = CalculateBudgetPercentage(totalBudget, user.spendingValueFullList);
+                return Ok(user);
             }
 
-            return Ok(user);
         }
 
         private double CalculateBudgetPercentage(double budget, double spending)
         {
             if (spending == 0)
                 return 0;
-            return Math.Round((budget / spending) * 100, 2);
+            return Math.Round((spending / budget) * 100, 2);
         }
 
 
@@ -365,8 +374,8 @@ namespace CountOnIt.Server.Controllers
             {
                 categoryID = subCategoryToAdd.categoryID,
                 subCategoryTitle = subCategoryToAdd.subCategoryTitle,
-                monthlyPlannedBudget = subCategoryToAdd.monthlyPlannedBudget,
-                importance = subCategoryToAdd.importance
+                monthlyPlannedBudget = subCategoryToAdd.monthlyPlannedBudget ?? (int?)null,
+                importance = subCategoryToAdd.importance ?? (int?)null
             };
 
             string insertSubCategoryQuery = "INSERT INTO subcategories (categoryID,subCategoryTitle,monthlyPlannedBudget, importance) values (@categoryID ,@subCategoryTitle ,@monthlyPlannedBudget ,@importance)";
@@ -428,5 +437,31 @@ namespace CountOnIt.Server.Controllers
             }
             return BadRequest("Category not found");
         }
+
+        [HttpPost("AddUser/{userGoogleID}")] // יצירת משתמש חזש
+        public async Task<IActionResult> Adduser(string userGoogleID, UserToAdd userToAdd)
+        {
+            object userToAddParam = new
+            {
+                googleID = userGoogleID,
+                firstName = userToAdd.firstName,
+                lastName = userToAdd.lastName,
+                profilePicOrIcon = userToAdd.profilePicOrIcon,
+                monthStartDate = userToAdd.monthStartDate
+
+            };
+
+            string insertUserQuery = "INSERT INTO users (googleID,firstName,lastName,profilePicOrIcon,monthStartDate) values (@googleID ,@firstName ,@lastName, @profilePicOrIcon, @monthStartDate)";
+
+            int newUserId = await _db.InsertReturnId(insertUserQuery, userToAddParam);
+
+            if (newUserId != 0)
+            {
+                return Ok(newUserId);
+            }
+
+            return BadRequest("user not created");
+        }
     }
+    
 }

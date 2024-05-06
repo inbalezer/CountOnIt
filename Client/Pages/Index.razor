@@ -3,16 +3,22 @@
 @using CountOnIt.Shared.Models.present.toAdd
 @using CountOnIt.Shared.Models.present.toEdit
 @using CountOnIt.Client.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject HttpClient Http
 @inject NavigationManager Nav
 @inject DateService DateService
+@inject NavigationManager Navigation
+@inject SignOutSessionStateManager SignOutManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 
 <meta name="google-signin-client_id" content="1019975699349-h4jb6mru41g9tobof0f2i4dl96df2bkp.apps.googleusercontent.com">
 <div class="g-signin2" data-onsuccess="onSignIn"></div>
 
-@if(user != null)
+@if (currentUser != null)
 {
-    <h1>היי @user.firstName 👋🏼</h1>
+    <h1>היי @currentUser.firstName 👋🏼</h1>
 
     <h2>מבט על חודש @currentMonth </h2>
 
@@ -22,17 +28,17 @@
         <thead>
             <tr>
                 <th>ניצלתי</th>
-                <th>הכנסתי</th>   
+                <th>הכנסתי</th>
                 <th>הוצאתי</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>@user.budgetFullValue% </td>               
-                <td>@user.incomeValueFullList</td>
-                <td>@user.spendingValueFullList</td>
-                
-            </tr>       
+                <td>@currentUser.budgetFullValue% </td>
+                <td>@currentUser.incomeValueFullList</td>
+                <td>@currentUser.spendingValueFullList</td>
+
+            </tr>
         </tbody>
     </table>
 
@@ -40,7 +46,7 @@
     <button>מצב החודש כרגע</button>
     <label>מעבר בין הכנסות/הוצאות:</label>
     <input type="checkbox" @bind="isChecked" />
-    @*<label>הוצאות</label>*@
+
 
     @if (isChecked) // עובר להכנסות
     {
@@ -55,10 +61,10 @@
 
         <button>הוספת קטגוריה חדשה</button>
 
-        foreach (CategoryToShow category in user.categoriesFullList)
+        foreach (CategoryToShow category in currentUser.categoriesFullList)
         {
 
-            <CategoryComponent Category=category categoryTitle="category.categroyTitle" doRefresh="@doRefresh"> </CategoryComponent>
+            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" deleteCat="removeCat " subCatRefreshed="@accordionRefresh"> </CategoryComponent>
 
         }
 
@@ -69,56 +75,120 @@
     }
   
     <div id="bottomNav">
-    <button>מבט לעבר</button>
+        <button>מבט לעבר</button>
         <button>מבט להווה</button>
         <button>מבט לעתיד</button>
-</div>
+    </div>
+}
+
+@if (currentUser == null && isOnInitializedOver)
+{
+    <div>
+        <div>
+            <p>
+                אז אנחנו Count On It,
+                אבל כל החבר׳ה קוראים לנו COI.
+
+                אנחנו אפליקציה לניהול תקציב מבית איה תמרי - יועצת
+                פיננסית לכלכלת המשפחה.
+                אנחנו כאן ללוות אותך בדרך לניהול תקציב נכון.
+                ועכשיו קצת עלייך :)
+            </p>
+        </div>
+        <input type="text" @bind=newUser.firstName placeholder=" שם פרטי:" />
+        <input type="text" @bind=newUser.lastName placeholder=" שם משפחה:" />
+        <p>
+            תמונת פרופיל: (לא חובה)
+            נ.ב. אם כן, כדאי אחת מייצגת או אמוג’י
+        </p>
+        <input type="text" @bind=newUser.profilePicOrIcon placeholder="תמונה או אייקון" />
+
+        <p>באיזה יום התזרים החודשי שלך מתחיל?</p>
+        @if (newUser.monthStartDate == null)
+        {
+            newUser.monthStartDate = 1;
+        }
+        <select @bind="newUser.monthStartDate">
+            <option value="1">ה-1 לחודש</option>
+            <option value="2">ה-2 לחודש</option>
+            <option value="10">ה-10 לחודש</option>
+            <option value="15">ה-15 לחודש</option>
+
+        </select>
+    </div>
+
+    <button @onclick="@(async () => await createNewUser())">שמירה</button>
+
 }
 
 
+@code {
 
+    [Parameter]
+    public int userID { get; set; }
 
+    userToShow currentUser;
+    UserToAdd newUser = new UserToAdd();
+    CategoryToShow defaultCategory = new CategoryToShow();
 
-
-@code{
-
-
-    userToShow user;
-    //List<CategoryToShow> categoriesList;
 
     private string currentMonth;
+    private string userGoogleId;
     private bool isChecked = false;
     string msg = "";
-    int userID = 1;
+
+    int newCurrentUserId;
+    private int refreshKey;
+
     bool doRefresh = false;
+    bool isOnInitializedOver = false;
+    bool accordionRefresh = false;
+    CategoryToShow catToDelete = new CategoryToShow();
+
+
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulating an asynchronous operation (e.g., fetching data)
         await Task.Delay(1); // This is just to simulate an async process.
 
         int currentMonthNumber = DateTime.Now.Month; // Gets the current month number
         currentMonth = GetHebrewMonthName(currentMonthNumber);
         StateHasChanged();
 
-        var userRes = await Http.GetAsync("api/Present/userToShow/" + userID);
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
-        if (userRes.IsSuccessStatusCode)
+        if (user.Identity.IsAuthenticated)
         {
-            user = userRes.Content.ReadFromJsonAsync<userToShow> ().Result;
+            userGoogleId = user.FindFirst("sub")?.Value;
+            isOnInitializedOver = true;
+
+            var userRes = await Http.GetAsync("api/Present/userToShow/" + userGoogleId);
+
+            if (userRes.IsSuccessStatusCode)
+            {
+                currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
+                userID = currentUser.id;
+
+            }
+            else
+            {
+                string error = userRes.Content.ReadAsStringAsync().Result;
+                switch (error)
+                {
+                    case "User Not Found":
+                        msg = "User not found ";
+                        break;
+                }
+
+            }
         }
         else
         {
-            string error = userRes.Content.ReadAsStringAsync().Result;
-            switch (error)
-            {
-                case "User Not Found":
-                    msg = "User not found ";
-                    break;
-            }
+            msg = "user not authenticated";
         }
-
     }
+
 
     private string GetHebrewMonthName(int monthNumber)
     {
@@ -159,7 +229,172 @@
         if (refreshBudget)
         {
             doRefresh = refreshBudget;
-            Nav.NavigateTo("./",true);
+            Nav.NavigateTo("./", true);
         }
     }
+
+
+
+
+    public async Task createNewUser()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            userGoogleId = user.FindFirst("sub")?.Value;
+
+            var newUserRes = await Http.PostAsJsonAsync("api/Present/AddUser/" + userGoogleId, newUser);
+
+            if (newUserRes.IsSuccessStatusCode)
+            {
+
+                userID = newUserRes.Content.ReadFromJsonAsync<int>().Result;
+                UserToAdd newUser = new UserToAdd();
+                isOnInitializedOver = false;
+
+                List<CategoryToAdd> defualtCategoriesList = new List<CategoryToAdd>()
+                {
+                    new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
+                    new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
+                    new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" }
+                };
+
+                foreach (CategoryToAdd defualtCategory in defualtCategoriesList)
+                {
+                    var defaultCategories = await Http.PostAsJsonAsync("api/Present/AddCategory/" + defualtCategory.userID, defualtCategory);
+
+                    if (defaultCategories.IsSuccessStatusCode)
+                    {
+
+                        defaultCategory = defaultCategories.Content.ReadFromJsonAsync<CategoryToShow>().Result;
+
+                        switch (defaultCategory.categroyTitle)
+                        {
+                            case "משק בית":
+
+                                List<SubCategoryToAdd> defaultSubCategory1List = new List<SubCategoryToAdd>()
+                                {
+                                    new SubCategoryToAdd{subCategoryTitle = "חשבונות", categoryID = defaultCategory.id},
+                                    new SubCategoryToAdd{subCategoryTitle = "מזון", categoryID = defaultCategory.id}
+                                };
+
+                                foreach (SubCategoryToAdd defaultSubCategory1 in defaultSubCategory1List)
+                                {
+                                    var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory1);
+
+                                    if (defaultCategories.IsSuccessStatusCode)
+                                    {
+                                        msg = "ווהוו לא מעניין את מלכית";
+                                    }
+                                    else
+                                    {
+                                        msg = "לא ווהו, כן מעניין את מלכית";
+                                    }
+                                }
+                                // Code for when number is 1
+                                break;
+                            case "רכב ותחבורה":
+
+                                List<SubCategoryToAdd> defaultSubCategory2List = new List<SubCategoryToAdd>()
+                                {
+                                    new SubCategoryToAdd{subCategoryTitle = "דלק", categoryID = defaultCategory.id},
+                                    new SubCategoryToAdd{subCategoryTitle = "תחבורה ציבורית", categoryID = defaultCategory.id}
+                                };
+
+                                foreach (SubCategoryToAdd defaultSubCategory2 in defaultSubCategory2List)
+                                {
+                                    var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory2);
+
+                                    if (defaultCategories.IsSuccessStatusCode)
+                                    {
+                                        msg = "ווהוו לא מעניין את מלכית";
+                                    }
+                                    else
+                                    {
+                                        msg = "לא ווהו, כן מעניין את מלכית";
+                                    }
+                                }
+                                break;
+                            case "בריאות וטיפוח":
+                                List<SubCategoryToAdd> defaultSubCategory3List = new List<SubCategoryToAdd>()
+                                {
+                                    new SubCategoryToAdd{subCategoryTitle = "קופת חולים", categoryID = defaultCategory.id},
+                                    new SubCategoryToAdd{subCategoryTitle = "טואלטיקה", categoryID = defaultCategory.id}
+                                };
+
+                                foreach (SubCategoryToAdd defaultSubCategory3 in defaultSubCategory3List)
+                                {
+                                    var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory3);
+
+                                    if (defaultCategories.IsSuccessStatusCode)
+                                    {
+                                        msg = "ווהוו לא מעניין את מלכית";
+                                    }
+                                    else
+                                    {
+                                        msg = "לא ווהו, כן מעניין את מלכית";
+                                    }
+                                }
+                                break;
+
+                            default:
+                                msg = "Error creating new sub category";
+                                break;
+                        }
+
+                        Navigation.NavigateTo("/PastHomePage");
+                    }
+
+                    else
+                    {
+                        msg = "Error creating new category";
+                    }
+                }
+
+            }
+
+            else
+            {
+                msg = "Error adding new user";
+            }
+        }
+    }
+
+    public async Task RefreshComponent()
+    {
+
+
+        var userRes = await Http.GetAsync("api/Present/userToShow/" + userGoogleId);
+
+        if (userRes.IsSuccessStatusCode)
+        {
+            currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
+            userID = currentUser.id;
+            accordionRefresh = true;
+
+        }
+        else
+        {
+            string error = userRes.Content.ReadAsStringAsync().Result;
+            switch (error)
+            {
+                case "User Not Found":
+                    msg = "User not found ";
+                    break;
+            }
+
+        }
+    }
+
+    public void removeCat(CategoryToShow catallToDelete)
+    {
+        catToDelete = catallToDelete;
+        currentUser.categoriesFullList.Remove(catallToDelete);
+        Console.WriteLine(catToDelete);
+    }
+
 }
+
+

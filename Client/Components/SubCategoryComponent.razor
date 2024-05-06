@@ -11,11 +11,13 @@
 
 @if (openOverlay)
 {
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" refreshBudget="refreshPage" gapsToUpdateBudgets="gapsToUpdateTheBudget"></AddTransactionComponent>
 }
 
 @code {
 
+    [Parameter]
+    public int userID { get; set; }
 
     [Parameter]
     public string subCategoryTitle { get; set; }
@@ -30,6 +32,14 @@
     public double totalSpendings { get; set; }
 
     [Parameter]
+
+    public EventCallback refreshPage { get; set; }
+
+    [Parameter]
+
+    public EventCallback<List<OverDraftBudgetToEdit>> subCatTakenBudget { get; set; }
+
+    [Parameter]
     public double budget { get; set; }
 
     public bool openOverlay = false;
@@ -37,6 +47,12 @@
     public void openAddTransOverlay()
     {
         openOverlay = !openOverlay;
+    }
+
+    public void gapsToUpdateTheBudget(List<OverDraftBudgetToEdit> gaps)
+    {
+        subCatTakenBudget.InvokeAsync(gaps);
+        //budget = gaps[1].monthlyPlannedBudget;
     }
 
 }

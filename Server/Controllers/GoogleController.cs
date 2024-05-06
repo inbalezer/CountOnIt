@@ -1,40 +1,44 @@
-﻿using CountOnIt.Server.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using CountOnIt.Shared.Models.present.toAdd;
+using CountOnIt.Shared.Models.present.toEdit;
+using CountOnIt.Shared.Models.present.toShow;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TriangleDbRepository;
-using static System.Net.WebRequestMethods;
+
 
 namespace CountOnIt.Server.Controllers
 {
-    [Authorize]
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("[controller]")]
     public class GoogleController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly DbRepository _db;
-
-        public GoogleController(UserManager<ApplicationUser> userManager)
-        {
-            _userManager = userManager;
-        }
-
         public GoogleController(DbRepository db)
         {
             _db = db;
         }
 
-        [HttpGet("GetUserId")]
-        public async Task<IActionResult> GetUserId()
+        [HttpPost("AddUser/{userGoogleID}")] // יצירת משתמש חזש
+        public async Task<IActionResult> Adduser(string userGoogleID, UserToAdd userToAdd)
         {
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            if (user != null)
+            object userToAddParam = new
             {
-                return Ok(user.Id);
+                googleID = userGoogleID,
+                firstName = userToAdd.firstName,
+                lastName = userToAdd.lastName
+
+            };
+
+            string insertUserQuery = "INSERT INTO users (googleID,firstName,lastName) values (@googleID ,@firstName ,@lastName)";
+
+            int newUserId = await _db.InsertReturnId(insertUserQuery, userToAddParam);
+
+            if (newUserId != 0)
+            {
+                return Ok();
             }
-            return NotFound();
-        }     
+
+            return BadRequest("user not created");
+        }
     }
 }

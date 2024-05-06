@@ -7,7 +7,28 @@
 <div>
     <img />
     <h2>@Category.categroyTitle</h2>
-    <button>options</button>
+    <span>@Category.icon</span>
+    <span>@Category.color</span>
+    @userID
+    <button @onclick="OpetionsBtnClicked">
+    </button>
+    @if(isOpetionsBtnClicked)
+    {
+        <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked"></OptionsMenuComponent>
+    }
+
+    @if (editBtnClicked)
+    {
+        <EditCategoryComponent categoryToEdit="@Category" isEditCategoryOverlayOpen="showEditCategory"></EditCategoryComponent>
+
+        <p>נפתחה קומפוננטת עריכה</p>
+    }
+    @if (deleteBtnClicked)
+    {
+        <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="מחיקה" makeAction=@deleteCategory></GeneralPopUpComponent>
+    }
+
+
     <button @onclick="getSubCategories">open accordion</button>
     @if (isAccordionClick)
     {
@@ -18,7 +39,7 @@
     {
         @foreach (SubCategoryToShow subcategory in subCategories)
         {
-            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id"></SubCategoryComponent>
+            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" refreshPage="refreshPage" subCatTakenBudget="updateTakenSubCatBudget"></SubCategoryComponent>
         }
     }
 
@@ -81,28 +102,71 @@
     }
             @if (openTransactionOverlay)
             {
-        <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" refreshBudget="(()=>generateRefresh(true))"></AddTransactionComponent>
+        <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" userID="@userID" refreshBudget="refreshPage"></AddTransactionComponent>
             }
 </div>
-
+@if (subCatRefreshed)
+{
+    getSubCategories();
+}
 
 @code {
 
-    [CascadingParameter]
+    [Parameter]
     public int userID { get; set; }
+
+    [Parameter]
+    public string categoryTitle { get; set; }
+
+    [Parameter]
+    public string icon { get; set; }
+
+    [Parameter]
+    public string categoryColor { get; set; }
+
+    [Parameter]
+    public bool doRefresh { get; set; }
+
+    [Parameter] 
+    public bool delete { get; set; }
+
+
+    [Parameter]
+    public bool subCatRefreshed { get; set; }
 
     [Parameter]
     public CategoryToShow Category { get; set; }
 
     [Parameter]
-    public string categoryTitle { get; set; }
 
+    public EventCallback refreshPage { get; set; }
 
     [Parameter]
-    public bool doRefresh { get; set; }
 
+    public EventCallback isEditClicked { get; set; }
+
+    [Parameter]
+
+    public EventCallback isDeleteClicked { get; set; }
+    [Parameter]
+
+    public EventCallback<CategoryToShow> deleteCat { get; set; }
+
+
+    string selectedCategoryForNewSubCat = "";
+    string newSubCatTitle = "";
+    string msg = "";
+    string popupTitle = "מחיקת קטגוריה";
+    string popupBodyText = "אתה עומד למחוק את קטגוריית ";
+
+
+    int newSubCatID = 0; 
     public bool isAccordionClick = false;
     public bool isSubCategoryAddOverlayOpen = false;
+    public bool editBtnClicked = false;
+    public bool deleteBtnClicked = false;
+    bool openTransactionOverlay = false;
+    bool isOpetionsBtnClicked = false;
 
     List<SubCategoryToShow> subCategories = new List<SubCategoryToShow>();
     List<AllUserCategories> userCategories = new List<AllUserCategories>();
@@ -110,10 +174,7 @@
     SubCategoryToAdd newSubCategory = new SubCategoryToAdd();
     AllUserCategories userCategory = new AllUserCategories();
 
-    string selectedCategoryForNewSubCat ="";
-    bool openTransactionOverlay = false;
-    int newSubCatID = 0;
-    string newSubCatTitle = "";
+
 
     public async Task getSubCategories()
     {
@@ -122,6 +183,7 @@
         if (subCatRes.IsSuccessStatusCode)
         {
             subCategories = subCatRes.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
+            subCatRefreshed = false;
         }
         else
         {
@@ -134,7 +196,7 @@
         isSubCategoryAddOverlayOpen = true;
         selectedCategoryForNewSubCat = Category.categroyTitle;
 
-        userID = 1;
+
         var getAllUserCategories = await Http.GetAsync("api/Present/GetUserCategories/" + userID);
         if (getAllUserCategories.IsSuccessStatusCode)
         {
@@ -145,10 +207,6 @@
             Console.WriteLine("no Categories found");
         }
     }
-
-
-
-
 
     public async Task addSubCategoryAndEnd()
     {
@@ -214,6 +272,25 @@
         }
     }
 
+
+    //private async Task deleteCategory()
+    //{
+
+    //    var deleteCategoryResponse = await Http.DeleteAsync("api/Present/deleteCategory" + Category.id);
+
+    //    if (deleteCategoryResponse.IsSuccessStatusCode)
+    //    {
+    //        Console.WriteLine("התמונות נמחקו בהצלחה");
+
+    //        userCategories.Remove(Category.id);
+    //    }
+    //    else
+    //    {
+    //        msg = "בעיה במחיקה, נסה שוב ";
+
+    //    }
+    //}
+
     public void AddTransOverlay()
     {
         openTransactionOverlay = !openTransactionOverlay;
@@ -224,4 +301,56 @@
     {
         doRefresh = refresh;
     }
+
+    //get category to edit:
+    public void showEditCategory()
+    {
+        editBtnClicked = !editBtnClicked;
+        deleteBtnClicked = false;
+        isOpetionsBtnClicked = false;
+    }  
+
+    public void OpetionsBtnClicked()
+    {
+        isOpetionsBtnClicked = !isOpetionsBtnClicked;
+
+    }
+
+    public void deleteCategoryBtnClciked()
+    {
+        deleteBtnClicked = !deleteBtnClicked;
+        editBtnClicked = false;
+        isOpetionsBtnClicked = false;
+
+    }
+
+    protected async Task deleteCategory()
+    {
+        var deleteRes = await Http.DeleteAsync("api/Present/deleteCategory/" + Category.id);
+        if (deleteRes.IsSuccessStatusCode)
+        {
+            deleteCat.InvokeAsync(Category);
+        }
+        else{
+            Console.WriteLine(" בעיה במחיקת קטגוריה");
+        }
+    }
+
+    public async void updateTakenSubCatBudget(List<OverDraftBudgetToEdit> subNewBudget)
+    {
+        foreach (OverDraftBudgetToEdit budgetToUpdate in subNewBudget)
+        {
+            foreach (SubCategoryToShow subCatToUpdate in subCategories)
+            {
+                if (subCatToUpdate.id == budgetToUpdate.id)
+                {
+                    subCatToUpdate.monthlyPlannedBudget = budgetToUpdate.monthlyPlannedBudget;
+                }
+            }
+        }
+
+        await getSubCategories();
+
+    }
+
 }

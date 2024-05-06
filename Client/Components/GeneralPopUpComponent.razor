@@ -1,0 +1,39 @@
+﻿@using CountOnIt.Shared.Models.present.toShow
+@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toEdit
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
+
+
+<h3> @popupTypeTitle</h3>
+<p>@middleText</p><span>@name</span>
+<button >ביטול</button>
+<button @onclick=doAction>@action</button>
+
+
+@code {
+    [Parameter]
+    public string popupTypeTitle { get; set; }
+    [Parameter]
+    public string middleText { get; set; }
+    [Parameter]
+    public string action { get; set; }
+    [Parameter]
+    public string name { get; set; }
+
+    [Parameter]
+
+    public EventCallback makeAction { get; set; }
+
+    public void doAction()
+    {
+        makeAction.InvokeAsync();
+
+    }
+
+
+
+
+
+
+}
