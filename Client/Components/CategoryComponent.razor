@@ -39,7 +39,7 @@
     {
         @foreach (SubCategoryToShow subcategory in subCategories)
         {
-            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" refreshPage="refreshPage"></SubCategoryComponent>
+            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" refreshPage="refreshPage" subCatTakenBudget="updateTakenSubCatBudget"></SubCategoryComponent>
         }
     }
 
@@ -322,7 +322,6 @@
         editBtnClicked = false;
         isOpetionsBtnClicked = false;
 
-
     }
 
     protected async Task deleteCategory()
@@ -337,9 +336,21 @@
         }
     }
 
+    public async void updateTakenSubCatBudget(List<OverDraftBudgetToEdit> subNewBudget)
+    {
+        foreach (OverDraftBudgetToEdit budgetToUpdate in subNewBudget)
+        {
+            foreach (SubCategoryToShow subCatToUpdate in subCategories)
+            {
+                if (subCatToUpdate.id == budgetToUpdate.id)
+                {
+                    subCatToUpdate.monthlyPlannedBudget = budgetToUpdate.monthlyPlannedBudget;
+                }
+            }
+        }
 
+        await getSubCategories();
 
-    
- 
+    }
 
 }

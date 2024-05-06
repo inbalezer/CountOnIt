@@ -77,6 +77,11 @@ namespace CountOnIt.Server.Controllers
                         currentOverdraft.remainingBudget = recordSubCatCurrentSum.FirstOrDefault();
                         currentOverdraft.id = subCatID;
 
+                        if(currentOverdraft.monthlyPlannedBudget >= currentOverdraft.remainingBudget)
+                        {
+                            return BadRequest("אין חריגה");
+                        }
+
                         double gap = (currentOverdraft.remainingBudget - currentOverdraft.monthlyPlannedBudget);
                         Console.WriteLine("the budget gap is- " + gap);
 
@@ -159,5 +164,6 @@ namespace CountOnIt.Server.Controllers
 
 
         }
+
     }
 }

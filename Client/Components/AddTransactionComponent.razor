@@ -124,6 +124,9 @@
     public int subCategoryIDTOGet { get; set; }
 
     [Parameter]
+    public EventCallback<List<OverDraftBudgetToEdit>> gapsToUpdateBudgets { get; set; }
+
+    [Parameter]
     public EventCallback<bool> isTransactionOverlayOpen { get; set; }
 
     [Parameter]
@@ -142,6 +145,7 @@
     double currentGap = 0;
 
     List<OverBudgetToShow> closeOverdraftOpts = new List<OverBudgetToShow>();
+    List<OverDraftBudgetToEdit> budgetToUpdate = new List<OverDraftBudgetToEdit>();
 
 
     OverBudgetToShow chosenSubCategory = new OverBudgetToShow();
@@ -203,7 +207,7 @@
 
     public async Task manageBudgetsToTranfer()
     {
-        List<OverDraftBudgetToEdit> budgetToUpdate = new List<OverDraftBudgetToEdit>();
+        
 
         budgetToUpdate.Add(new OverDraftBudgetToEdit
             {
@@ -248,6 +252,7 @@
         else
         {
             Console.WriteLine("No overdraft detected");
+
         }
     }
 
@@ -258,9 +263,11 @@
         if (budgetToSaveRes.IsSuccessStatusCode)
         {
             Console.WriteLine("התקציבים עודכנו בהצלחה :)");
+
             overdraftDetected = false;
             isTransactionOverlayOpen.InvokeAsync(false);
-            refreshBudget.InvokeAsync();
+            gapsToUpdateBudgets.InvokeAsync(budgetsToUpdate);
+            //refreshBudget.InvokeAsync();
 
 
         }
@@ -274,7 +281,7 @@
     {
         overdraftDetected = false;
         isTransactionOverlayOpen.InvokeAsync(false);
-        refreshBudget.InvokeAsync();
+        //refreshBudget.InvokeAsync();
     }
 
 }
