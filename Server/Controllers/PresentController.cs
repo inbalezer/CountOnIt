@@ -462,6 +462,26 @@ namespace CountOnIt.Server.Controllers
 
             return BadRequest("user not created");
         }
+
+        [HttpGet("GetSubCatImportance/{subCatID}")] // שליפת עדיפות תת קטגוריה בעריכה
+        public async Task<IActionResult> GetSubCatImportance(int subCatID)
+        {
+
+            object param = new
+            {
+                ID = subCatID
+            };
+
+            var subCatImportanceQuery = "SELECT importance FROM subcategories WHERE id=@ID";
+            var importanceRec = await _db.GetRecordsAsync<int>(subCatImportanceQuery, param);
+            int subCatImportance = importanceRec.FirstOrDefault();
+
+            if (subCatImportance != null)
+            {
+                return Ok(subCatImportance);
+            }
+            return BadRequest("importance not found");
+        }
     }
     
 }

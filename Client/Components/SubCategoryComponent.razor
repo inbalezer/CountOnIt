@@ -3,15 +3,109 @@
 @using CountOnIt.Shared.Models.present.toEdit
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
-
+<button @onclick="(() => isOptBtnClicked = !isOptBtnClicked)">options</button>
+@if (isOptBtnClicked)
+{
+    <OptionsMenuComponent editBtnClicked="getUserCategories"></OptionsMenuComponent>
+}
 <h3>@subCategoryTitle</h3>
 <button> @totalSpendings/@budget</button>
-
+@if (totalSpendings > budget)
+{
+    <span>⚠️</span>
+}
 <button @onclick="openAddTransOverlay">+</button>
 
-@if (openOverlay)
+@if (openTransOverlay)
 {
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" refreshBudget="refreshPage" gapsToUpdateBudgets="gapsToUpdateTheBudget"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" refreshBudget="refreshPage" gapsToUpdateBudgets="gapsToUpdateTheBudget" refreshSubCategories="refreshSubCats"></AddTransactionComponent>
+}
+@if (editSubCatBtnClicked)
+{
+    <div>
+        <div>
+            <h2>הוספת תת קטגוריה</h2>
+            <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked">&times;</button>
+        </div>
+
+
+        @if (userCategories.Count > 0)
+        {
+            <span>עריכת תת קטגוריה ל</span>
+            @if (subCatToEdit.categroyTitle == null)
+            {
+                subCatToEdit.categroyTitle = categoryTitle;
+            }
+            <select @bind="subCatToEdit.categroyTitle">
+
+                @foreach (AllUserCategories userCategory in userCategories)
+                {
+
+                    <option value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+
+
+                }
+            </select>
+            <span>@subCatToEdit.categroyTitle</span>
+
+        }
+
+        <div>
+            <label for="amount">שם תת קטגוריה</label>
+            <input type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
+        </div>
+
+        <div>
+            <label for="description">מה התקציב החודשי שלך עבור @subCatToEdit.subCategoryTitle? </label>
+            <input type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
+        </div>
+        <div>
+            <label for="importance">עדיפות תת הקטגוריה</label>
+            <span>@subCatToEdit.importance</span>
+            @if (subCatToEdit.importance == 0)
+            {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
+                <label>רצון</label>
+            }
+            else
+            {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
+                <label>רצון</label>
+            }
+            @if (subCatToEdit.importance == 1)
+            {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
+                <label>צורך</label>
+            }
+            else
+            {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
+                <label>צורך</label>
+            }
+            @if (subCatToEdit.importance == 2)
+            {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
+                <label>חובה</label>
+            }
+            else
+            {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
+                <label>חובה</label>
+            }
+        </div>
+        <div>
+            <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
+        </div>
+        <br />
+        @* <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>*@
+        <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+    </div>
 }
 
 @code {
@@ -40,13 +134,31 @@
     public EventCallback<List<OverDraftBudgetToEdit>> subCatTakenBudget { get; set; }
 
     [Parameter]
+
+    public EventCallback refreshSubCats { get; set; }
+
+    [Parameter]
     public double budget { get; set; }
 
-    public bool openOverlay = false;
+    [Parameter]
+    public EventCallback<SubCategoryToEdit> updateEditedSubCat { get; set; }
+
+    [Parameter]
+    public int categoryID { get; set; }
+
+    SubCategoryToEdit subCatToEdit = new SubCategoryToEdit();
+    SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
+
+    List<AllUserCategories> userCategories = new List<AllUserCategories>();
+
+    bool isOptBtnClicked = false; //the options button
+    bool editSubCatBtnClicked = false;
+
+    public bool openTransOverlay = false;
 
     public void openAddTransOverlay()
     {
-        openOverlay = !openOverlay;
+        openTransOverlay = !openTransOverlay;
     }
 
     public void gapsToUpdateTheBudget(List<OverDraftBudgetToEdit> gaps)
@@ -55,4 +167,76 @@
         //budget = gaps[1].monthlyPlannedBudget;
     }
 
+    //public async Task editSubCatBtn()
+    //{
+    //    editSubCatBtnClicked = !editSubCatBtnClicked;
+    //    await getUserCategories();
+    //}
+
+    public async Task getUserCategories()
+    {
+        //editSubCatBtnClicked = true;
+        subCatToEdit.categroyTitle = categoryTitle;
+        subCatToEdit.monthlyPlannedBudget = budget;
+        subCatToEdit.subCategoryTitle = subCategoryTitle;
+        subCatToEdit.id = subCategoryIDToGet;
+        subCatToEdit.categoryID = categoryID;
+        var getSubCatImportance = await Http.GetAsync("api/Present/GetSubCatImportance/" + subCatToEdit.id);
+        if (getSubCatImportance.IsSuccessStatusCode)
+        {
+            subCatToEdit.importance = await getSubCatImportance.Content.ReadFromJsonAsync<int>();
+        }
+        else
+        {
+            Console.WriteLine("couldn't find this sub cat's importance");
+        }
+
+
+        var getAllUserCategories = await Http.GetAsync("api/Present/GetUserCategories/" + userID);
+        if (getAllUserCategories.IsSuccessStatusCode)
+        {
+            userCategories = await getAllUserCategories.Content.ReadFromJsonAsync<List<AllUserCategories>>().ConfigureAwait(false);
+            editSubCatBtnClicked = !editSubCatBtnClicked;
+        }
+        else
+        {
+            Console.WriteLine("no Categories found");
+        }
+    }
+
+    public async Task saveUpdatedSubCat()
+    {
+        subCategoryToUpdate.subCategoryTitle = subCatToEdit.subCategoryTitle;
+        subCategoryToUpdate.importance = subCatToEdit.importance;
+        foreach (AllUserCategories category in userCategories)
+        {
+            if (category.categroyTitle == subCatToEdit.categroyTitle)
+            {
+                subCatToEdit.categoryID = category.id;
+            }
+        }
+        subCategoryToUpdate.categoryID = subCatToEdit.categoryID;
+        subCategoryToUpdate.id = subCatToEdit.id;
+        subCategoryToUpdate.monthlyPlannedBudget = subCatToEdit.monthlyPlannedBudget;
+
+        var updateCatRes = await Http.PostAsJsonAsync("api/Present/EditSubCategory/", subCategoryToUpdate);
+        if (updateCatRes.IsSuccessStatusCode)
+        {
+            SubCategoryToUpdate updatedSubCat = await updateCatRes.Content.ReadFromJsonAsync<SubCategoryToUpdate>();
+            subCatToEdit.subCategoryTitle = updatedSubCat.subCategoryTitle;
+            subCatToEdit.importance = updatedSubCat.importance;
+            subCatToEdit.monthlyPlannedBudget = updatedSubCat.monthlyPlannedBudget;
+
+            updateEditedSubCat.InvokeAsync(subCatToEdit);
+
+            editSubCatBtnClicked = false; //closeing the edit overlay
+
+            Console.WriteLine("sub category updated");
+
+        }
+        else
+        {
+            Console.WriteLine("failed to update category");
+        }
+    }
 }

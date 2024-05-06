@@ -32,7 +32,19 @@
             });
         }
     </script>
+    <!--<script src="./script.js"></script>-->
+    <script src="https://unpkg.com/@joeattardi/emoji-button@latest"></script>
+    <script>
+        const button = document.getElementById('emoji-trigger');
+        const picker = new EmojiButton();
 
+        picker.on('emoji', selection => {
+            const input = document.getElementById('emoji-input');
+            input.value += selection.emoji; // Append the selected emoji to the input field
+        });
+
+        button.addEventListener('click', () => picker.togglePicker(button));
+    </script>
 </body>
 
 </html>

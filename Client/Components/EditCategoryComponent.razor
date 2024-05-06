@@ -3,10 +3,13 @@
 @using CountOnIt.Shared.Models.present.toEdit
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
-<h3>עריכת קטגוריה</h3>
+<h3>@popupTitle</h3>
 <input type="text" @bind="categoryToEdit.categroyTitle"/>
-<button>הוספת אייקון</button>
+<button id="emoji-trigger">הוספת אייקון 😊</button>
+<input type="text" id="emoji-input" @bind="categoryToEdit.icon">
+
 <span>@categoryToEdit.icon</span>
+
 <div>
     <label for="categoryColors">צבע</label>
     <span>@categoryToEdit.color</span>
@@ -47,10 +50,27 @@
            name="categoryColors" @onchange="@(() => categoryToEdit.color = "#DADADA")" />
     <label>#DADADA</label>
 </div>
-<button @onclick="saveUpdatedCat">שמירה וסיום</button>
+@if (popupTitle=="עריכת קטגוריה")
+{
+    
+    <button @onclick="saveUpdatedCat">שמירה וסיום</button>
+}
+else if (popupTitle == "הוספת קטגוריה")
+{
+    <button @onclick="addNewCategory">שמירה וסיום</button>
+}
 @code {
+
     [Parameter]
-    public CategoryToShow categoryToEdit { get; set; }
+    public string popupTitle { get; set; }
+
+    [Parameter]
+    public int userID { get; set; }
+
+    //[Parameter]
+    //public CategoryToShow categoryToEdit { get; set; }
+    [Parameter]
+    public CategoryToShow categoryToEdit { get; set; } = new CategoryToShow(); // Default initialization
 
     [Parameter]
     public string icon { get; set; }
@@ -59,9 +79,17 @@
     public string categoryColor { get; set; }
 
     [Parameter]
-    public EventCallback<bool> isEditCategoryOverlayOpen { get; set; }
+    public EventCallback<bool> isCategoryOverlayOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<CategoryToShow> addNewCatToIndex { get; set; }
+
+    [Parameter]
+    public CategoryToAdd newCategory { get; set; }
 
     public CategoryToEdit editedCategory = new CategoryToEdit();
+    
+    //[Inject] IJSRuntime JS { get; set; }
 
     public async Task saveUpdatedCat()
     {
@@ -77,7 +105,7 @@
             categoryToEdit.categroyTitle = updatedCategory.categroyTitle;
             categoryToEdit.icon = updatedCategory.icon;
             categoryToEdit.color = updatedCategory.color;
-            isEditCategoryOverlayOpen.InvokeAsync(false);
+            isCategoryOverlayOpen.InvokeAsync(false);
 
             //need to refresh the home page
 
@@ -89,4 +117,39 @@
             Console.WriteLine("failed to update category");
         }
     }
+
+    public async Task addNewCategory()
+    {
+        newCategory.categroyTitle = categoryToEdit.categroyTitle;
+        newCategory.color = categoryToEdit.color;
+        newCategory.icon = categoryToEdit.icon;
+        newCategory.userID = userID;
+
+        var CatToAddRes = await Http.PostAsJsonAsync("api/Present/AddCategory/" + userID, newCategory);
+        if (CatToAddRes.IsSuccessStatusCode)
+        {
+            // Use 'await' to asynchronously read the content of the response.
+            CategoryToShow newCat = await CatToAddRes.Content.ReadFromJsonAsync<CategoryToShow>();
+
+            Console.WriteLine("New category added, ID: " + newCat.id);
+            addNewCatToIndex.InvokeAsync(newCat);
+            isCategoryOverlayOpen.InvokeAsync(false);
+            newCategory = new CategoryToAdd();
+        }
+        else
+        {
+            // Consider reading the content of the response even if the status code is not successful.
+            var errorContent = await CatToAddRes.Content.ReadAsStringAsync();
+            Console.WriteLine("Failed to add new category. Error: " + errorContent);
+        }
+    }
+
+    //private ElementReference textInput;
+
+    //private async Task FocusInput()
+    //{
+    //    await JS.InvokeVoidAsync("focusInput", textInput);
+    //}
+
+   
 }

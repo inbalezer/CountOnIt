@@ -10,7 +10,7 @@ namespace CountOnIt.Shared.Models.present.toEdit
     {
         public int id { get; set; }
         public string categroyTitle { get; set; }
-        public string icon { get; set; }
-        public string color { get; set; }
+        public string? icon { get; set; }
+        public string? color { get; set; }
     }
 }

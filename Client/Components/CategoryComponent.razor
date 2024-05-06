@@ -5,9 +5,16 @@
 @inject HttpClient Http
 
 <div>
-    <img />
-    <h2>@Category.categroyTitle</h2>
     <span>@Category.icon</span>
+    <h2>@Category.categroyTitle</h2>
+    @foreach (SubCategoryToShow overDraftsubcategory in subCategories)
+    {
+        if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget)
+        {
+            <span>חריגה⚠️</span>
+            break;
+        }
+    }
     <span>@Category.color</span>
     @userID
     <button @onclick="OpetionsBtnClicked">
@@ -19,9 +26,8 @@
 
     @if (editBtnClicked)
     {
-        <EditCategoryComponent categoryToEdit="@Category" isEditCategoryOverlayOpen="showEditCategory"></EditCategoryComponent>
-
-        <p>נפתחה קומפוננטת עריכה</p>
+        popupTitle = "עריכת קטגוריה";
+        <EditCategoryComponent categoryToEdit="@Category" isCategoryOverlayOpen="showEditCategory" popupTitle="@popupTitle"></EditCategoryComponent>
     }
     @if (deleteBtnClicked)
     {
@@ -39,7 +45,7 @@
     {
         @foreach (SubCategoryToShow subcategory in subCategories)
         {
-            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" refreshPage="refreshPage" subCatTakenBudget="updateTakenSubCatBudget"></SubCategoryComponent>
+            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" refreshPage="refreshPage" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" ></SubCategoryComponent>
         }
     }
 
@@ -105,10 +111,7 @@
         <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" userID="@userID" refreshBudget="refreshPage"></AddTransactionComponent>
             }
 </div>
-@if (subCatRefreshed)
-{
-    getSubCategories();
-}
+
 
 @code {
 
@@ -152,6 +155,9 @@
 
     public EventCallback<CategoryToShow> deleteCat { get; set; }
 
+    [Parameter]
+
+    public EventCallback<OverDraftBudgetToEdit> givingSubCatBudget { get; set; }
 
     string selectedCategoryForNewSubCat = "";
     string newSubCatTitle = "";
@@ -182,6 +188,7 @@
         var subCatRes = await Http.GetAsync("api/Present/subCategoryToShow/" + Category.id);
         if (subCatRes.IsSuccessStatusCode)
         {
+            subCategories = new List<SubCategoryToShow>();
             subCategories = subCatRes.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
             subCatRefreshed = false;
         }
@@ -350,7 +357,31 @@
         }
 
         await getSubCategories();
+        var updatedGivingSubCatBudget = await Http.GetAsync("api/Transactions/updateGivingSubCat/" + subNewBudget[0].id);
+        if (updatedGivingSubCatBudget.IsSuccessStatusCode)
+        {
+            double newBudget = await updatedGivingSubCatBudget.Content.ReadFromJsonAsync<double>();
+            OverDraftBudgetToEdit givingSubCat = new OverDraftBudgetToEdit();
+            givingSubCat.id = subNewBudget[0].id;
+            givingSubCat.monthlyPlannedBudget = newBudget;
+            givingSubCatBudget.InvokeAsync(givingSubCat);
+        }
 
     }
 
+    public void updateEditedSubCat(SubCategoryToEdit editedSubCat)
+    {
+        foreach (SubCategoryToShow subcategory in subCategories)
+        {
+            if (editedSubCat.categoryID != Category.id)
+            {
+                subCategories.Remove(subcategory);
+            } 
+            else if (editedSubCat.id==subcategory.id)
+            {
+                subcategory.subCategoryTitle = editedSubCat.subCategoryTitle;
+                subcategory.monthlyPlannedBudget = editedSubCat.monthlyPlannedBudget;
+            }
+        }
+    }
 }

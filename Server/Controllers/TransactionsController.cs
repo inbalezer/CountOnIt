@@ -165,5 +165,24 @@ namespace CountOnIt.Server.Controllers
 
         }
 
+        [HttpGet("updateGivingSubCat/{subCatID}")]
+        public async Task<IActionResult> updateGivingSubCat(int subCatID)
+        {
+            object param = new
+            {
+                ID = subCatID
+            };
+
+            string GetSubCatCurrentBudgetQuery = "SELECT monthlyPlannedBudget FROM subcategories WHERE id = @ID";
+            var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetSubCatCurrentBudgetQuery, param);
+            double newBudget= recordSubCatCurrentSum.FirstOrDefault();
+            if (newBudget!=null)
+            {
+                return Ok(newBudget);
+            }
+
+            return BadRequest("Couldn't find this sub cat's budget");
+        }
+
     }
 }

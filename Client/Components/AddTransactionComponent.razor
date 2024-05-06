@@ -132,6 +132,9 @@
     [Parameter]
     public EventCallback refreshBudget { get; set; }
 
+    [Parameter]
+    public EventCallback refreshSubCategories { get; set; }
+
     private DateTime? selectedDate = DateTime.Today; // Initialize selectedDate to today
 
     TransactionToAdd newTransaction = new TransactionToAdd()
@@ -174,6 +177,7 @@
                 Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                 isTransactionOverlayOpen.InvokeAsync(false);
                 refreshBudget.InvokeAsync();
+                refreshSubCategories.InvokeAsync();
             }
         }
         else
@@ -207,7 +211,7 @@
 
     public async Task manageBudgetsToTranfer()
     {
-        
+        budgetToUpdate = new List<OverDraftBudgetToEdit>();
 
         budgetToUpdate.Add(new OverDraftBudgetToEdit
             {
@@ -240,6 +244,7 @@
         if (overdraftRes.IsSuccessStatusCode)
         {
             overdraftDetected = true;
+            closeOverdraftOpts = new List<OverBudgetToShow>();
             closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
             currentGap = (closeOverdraftOpts[closeOverdraftOpts.Count - 1].remainingBudget) - (closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget);
 
@@ -281,6 +286,7 @@
     {
         overdraftDetected = false;
         isTransactionOverlayOpen.InvokeAsync(false);
+        refreshSubCategories.InvokeAsync();
         //refreshBudget.InvokeAsync();
     }
 

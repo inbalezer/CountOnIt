@@ -3,6 +3,7 @@
 @using CountOnIt.Shared.Models.present.toAdd
 @using CountOnIt.Shared.Models.present.toEdit
 @using CountOnIt.Client.Components
+@using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @inject HttpClient Http
@@ -59,12 +60,16 @@
     {
         <p>הוצאות</p>
 
-        <button>הוספת קטגוריה חדשה</button>
+        <button @onclick="openCategoryOverlay">הוספת קטגוריה חדשה</button>
+        @if (openAddCatOverlay)
+        {
+            <EditCategoryComponent popupTitle="הוספת קטגוריה" userID="@userID" newCategory="newCategory" isCategoryOverlayOpen="openCategoryOverlay" addNewCatToIndex="AddNewCat"></EditCategoryComponent>
+        }
 
-        foreach (CategoryToShow category in currentUser.categoriesFullList)
+foreach (CategoryToShow category in currentUser.categoriesFullList)
         {
 
-            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" deleteCat="removeCat " subCatRefreshed="@accordionRefresh"> </CategoryComponent>
+            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" deleteCat="removeCat " subCatRefreshed="@accordionRefresh" > </CategoryComponent>
 
         }
 
@@ -145,7 +150,8 @@
     bool accordionRefresh = false;
     CategoryToShow catToDelete = new CategoryToShow();
 
-
+    CategoryToAdd newCategory = new CategoryToAdd();
+    bool openAddCatOverlay = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -395,6 +401,29 @@
         Console.WriteLine(catToDelete);
     }
 
+    //public void changeGivingSubCatBudget(OverDraftBudgetToEdit givingSubCat)
+    //{
+    //    foreach (CategoryToShow category in currentUser.categoriesFullList)
+    //    {
+    //        foreach ()
+    //        {
+
+    //        }
+    //    }
+    //}
+
+    public void openCategoryOverlay()
+    {
+        openAddCatOverlay = !openAddCatOverlay;
+    }
+
+    public void AddNewCat(CategoryToShow newCategory)
+    {
+        if (newCategory!=null)
+        {
+            currentUser.categoriesFullList.Add(newCategory);
+        }
+    }
 }
 
 

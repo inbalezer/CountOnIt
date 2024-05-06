@@ -11,7 +11,7 @@ namespace CountOnIt.Shared.Models.present.toAdd
         public int id { get; set; }
         public int userID { get; set; }
         public string categroyTitle { get; set; }
-        public string icon { get; set; }
-        public string color { get; set; }
+        public string? icon { get; set; }
+        public string? color { get; set; }
     }
 }
