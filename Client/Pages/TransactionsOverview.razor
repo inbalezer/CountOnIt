@@ -8,6 +8,7 @@
 @inject NavigationManager Nav
 @inject DateService DateService
 
+
 <button @onclick="goToHomePage">🔙</button>
 <button>Profile avatar</button>
 <span>@categoryTitle > @subCategoryTitle</span>
@@ -16,20 +17,26 @@
 <div id="searchBar"></div>
 <div id="sortAndFilterBtns"></div>
 <div id="transactions">
+    @if (allTransactions != null && allTransactions.Count>0)
+    {
     @foreach (TransactionOverviewToShow transaction in allTransactions)
     {
         <TransOverviewComponent transaction="transaction"></TransOverviewComponent>
     }
+    }
 </div>
 
 @code {
+    [Parameter]
+    public int userID { get; set; }
+
     [Parameter]
     public int subCatID { get; set; }
 
     [Parameter]
     public int categoryID { get; set; }
 
-    public string categoryTitle;
+    public string categoryTitle="";
     public string subCategoryTitle = "";
     List<TransactionOverviewToShow> allTransactions = new List<TransactionOverviewToShow>();
 
@@ -39,7 +46,13 @@
         var catTitle = await Http.GetAsync("api/Present/getCategoryTitle/" + categoryID);
         if (catTitle.IsSuccessStatusCode)
         {
-            categoryTitle = await catTitle.Content.ReadFromJsonAsync<string?>();
+
+            //categoryTitle = catTitle.Content.ReadFromJsonAsync<string>().Result;
+            categoryTitle = catTitle.Content.ReadFromJsonAsync<string>().Result;
+           
+            //categoryTitle = await catTitle.Content.ReadAsStringAsync();
+            //categoryTitle = cTitle;
+            Console.WriteLine("catTitle had a successful request ");
         }
         else
         {
@@ -50,7 +63,7 @@
         var subCatTitle = await Http.GetAsync("api/Present/getSubCategoryTitle/" + subCatID);
         if (subCatTitle.IsSuccessStatusCode)
         {
-            subCategoryTitle = await subCatTitle.Content.ReadFromJsonAsync<string>();
+            subCategoryTitle = subCatTitle.Content.ReadFromJsonAsync<string>().Result;
         }
         else
         {

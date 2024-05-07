@@ -511,16 +511,17 @@ namespace CountOnIt.Server.Controllers
                 ID = catID
             };
 
-            var catIDQuery = "SELECT categroyTitle FROM categories where id=@ID";
-            var catIDRec = await _db.GetRecordsAsync<string>(catIDQuery, param);
-            string categoryTitle = catIDRec.FirstOrDefault();
+            var catNameQuery = "SELECT categroyTitle FROM categories where id=@ID";
+            var categoryRec = await _db.GetRecordsAsync<string>(catNameQuery, param);
+            string categoryTitle = categoryRec.FirstOrDefault();
 
             if (categoryTitle != null)
             {
-                return Ok(categoryTitle);
+                return Ok(new { categoryTitle = categoryTitle });
             }
             return BadRequest("couldn't find this category's title");
         }
+
         [HttpGet("getSubCategoryTitle/{subCatID}")]
         public async Task<IActionResult> getSubCategoryTitle(int subCatID)
         {
@@ -535,7 +536,7 @@ namespace CountOnIt.Server.Controllers
 
             if (subcategoryTitle != null)
             {
-                return Ok(subcategoryTitle);
+                return Ok(new { subCategoryTitle = subcategoryTitle });
             }
             return BadRequest("couldn't find this sub category's title");
         }
