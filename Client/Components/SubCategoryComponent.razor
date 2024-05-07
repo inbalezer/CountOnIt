@@ -3,13 +3,14 @@
 @using CountOnIt.Shared.Models.present.toEdit
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
+@inject NavigationManager nav
 <button @onclick="(() => isOptBtnClicked = !isOptBtnClicked)">options</button>
 @if (isOptBtnClicked)
 {
     <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCat"></OptionsMenuComponent>
 }
 <h3>@subCategoryTitle</h3>
-<button> @totalSpendings/@budget</button>
+<button @onclick="goToTransactionsPage"> @totalSpendings/@budget</button>
 @if (totalSpendings > budget)
 {
     <span>⚠️</span>
@@ -272,5 +273,10 @@
     public void addNewTransToTotalSpendings(double transactionValue)
     {
         totalSpendings += transactionValue;
+    }
+
+    public void goToTransactionsPage()
+    {
+        nav.NavigateTo("./TransactionsOverview/" + subCategoryIDToGet+"/"+categoryID);
     }
 }

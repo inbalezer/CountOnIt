@@ -1,0 +1,85 @@
+﻿@page "/TransactionsOverview/{subCatID:int}/{categoryID:int}"
+@using CountOnIt.Shared.Models.present.toShow
+@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toEdit
+@using CountOnIt.Client.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject DateService DateService
+
+<button @onclick="goToHomePage">🔙</button>
+<button>Profile avatar</button>
+<span>@categoryTitle > @subCategoryTitle</span>
+<h3>מבט על: "@subCategoryTitle"</h3>
+<OptionsMenuComponent></OptionsMenuComponent>
+<div id="searchBar"></div>
+<div id="sortAndFilterBtns"></div>
+<div id="transactions">
+    @foreach (TransactionOverviewToShow transaction in allTransactions)
+    {
+        <TransOverviewComponent transaction="transaction"></TransOverviewComponent>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int subCatID { get; set; }
+
+    [Parameter]
+    public int categoryID { get; set; }
+
+    public string categoryTitle;
+    public string subCategoryTitle = "";
+    List<TransactionOverviewToShow> allTransactions = new List<TransactionOverviewToShow>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //get category title:
+        var catTitle = await Http.GetAsync("api/Present/getCategoryTitle/" + categoryID);
+        if (catTitle.IsSuccessStatusCode)
+        {
+            categoryTitle = await catTitle.Content.ReadFromJsonAsync<string?>();
+        }
+        else
+        {
+            var errorContent = await catTitle.Content.ReadAsStringAsync();
+            Console.WriteLine("Failed to find category title. Error: " + errorContent);
+        }
+        //get subcategory title:
+        var subCatTitle = await Http.GetAsync("api/Present/getSubCategoryTitle/" + subCatID);
+        if (subCatTitle.IsSuccessStatusCode)
+        {
+            subCategoryTitle = await subCatTitle.Content.ReadFromJsonAsync<string>();
+        }
+        else
+        {
+            var subCatErrorContent = await subCatTitle.Content.ReadAsStringAsync();
+            Console.WriteLine("Failed to find category title. Error: " + subCatErrorContent);
+        }
+        //get transactions: (-----------still not filtered by month-----------)
+        var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactions/" + subCatID);
+        if (getAllTransactions.IsSuccessStatusCode)
+        {
+            var checkTransList = getAllTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
+            if (checkTransList != null && checkTransList.Count>0)
+            {
+                allTransactions = getAllTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
+
+            }
+            else
+            {
+                Console.WriteLine("No transactions found related to this sub category");
+            }
+        }
+        else
+        {
+            var transErrorContent = await getAllTransactions.Content.ReadAsStringAsync();
+            Console.WriteLine("Failed to find transactions. Error: " + transErrorContent);
+        }
+    }
+    public void goToHomePage()
+    {
+        Nav.NavigateTo("./homePage");
+    }
+}

@@ -1,0 +1,30 @@
+﻿@using CountOnIt.Shared.Models.present.toShow
+@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toEdit
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
+<h4>@transaction.transTitle</h4>
+<span>@transaction.transValue ₪</span>
+<OptionsMenuComponent></OptionsMenuComponent>
+<br/>
+<span>@transaction.transDate</span>
+<br/>
+@if (transaction.description!=null)
+{
+    <span>@transaction.description</span>
+}
+@if (transaction.tagID!=null)
+{
+    <span>Tag name</span>
+}
+<span>@transaction.valueType</span>
+@if (transaction.fixedMonthly==true)
+{
+    <span>הוצאה חוזרת</span>
+}
+
+
+@code {
+    [Parameter]
+    public TransactionOverviewToShow transaction { get; set; }
+}

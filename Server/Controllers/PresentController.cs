@@ -503,6 +503,43 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("couldn't find this sub cat's category ID");
         }
 
+        [HttpGet("getCategoryTitle/{catID}")]
+        public async Task<IActionResult> getCategoryTitle(int catID)
+        {
+            object param = new
+            {
+                ID = catID
+            };
+
+            var catIDQuery = "SELECT categroyTitle FROM categories where id=@ID";
+            var catIDRec = await _db.GetRecordsAsync<string>(catIDQuery, param);
+            string categoryTitle = catIDRec.FirstOrDefault();
+
+            if (categoryTitle != null)
+            {
+                return Ok(categoryTitle);
+            }
+            return BadRequest("couldn't find this category's title");
+        }
+        [HttpGet("getSubCategoryTitle/{subCatID}")]
+        public async Task<IActionResult> getSubCategoryTitle(int subCatID)
+        {
+            object param = new
+            {
+                ID = subCatID
+            };
+
+            var subcatIDQuery = "SELECT subCategoryTitle FROM subcategories where id=@ID";
+            var subcatIDRec = await _db.GetRecordsAsync<string>(subcatIDQuery, param);
+            string subcategoryTitle = subcatIDRec.FirstOrDefault();
+
+            if (subcategoryTitle != null)
+            {
+                return Ok(subcategoryTitle);
+            }
+            return BadRequest("couldn't find this sub category's title");
+        }
+
     }
     
 }

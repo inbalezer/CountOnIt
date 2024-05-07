@@ -48,6 +48,14 @@
                 {
                     subcategory.monthlyPlannedBudget = givingSubCat.monthlyPlannedBudget;
                 }
+                if (subcategory.transactionsValue == null)
+                {
+                    subcategory.transactionsValue = 0;
+                }
+                if (subcategory.monthlyPlannedBudget == null)
+                {
+                    subcategory.monthlyPlannedBudget = 0;
+                }
                 <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" refreshPage="refreshPage" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat"></SubCategoryComponent>
             }
         }

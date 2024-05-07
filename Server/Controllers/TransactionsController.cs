@@ -184,5 +184,24 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("Couldn't find this sub cat's budget");
         }
 
+        [HttpGet("getAllTransactions/{subCatID}")] //צריך לזהות אם מדובר בהזנות של הוצאות או הכנסות, ככל הנראה דרך הURL
+        public async Task<IActionResult> getAllTransactions(int subCatID)
+        {
+            object param = new
+            {
+                ID = subCatID
+            };
+
+            string GetAllSubCatTransactionsQuery = "SELECT id, transType, transValue, valueType, transDate, description, fixedMonthly, tagID, transTitle, parentTransID FROM finaldb.transactions where subCategoryID=@ID and transType=1;";
+            var recordSubCatCurrentTrans = await _db.GetRecordsAsync<TransactionOverviewToShow>(GetAllSubCatTransactionsQuery, param);
+            var subCatTransactions = recordSubCatCurrentTrans.ToList();
+
+            if (subCatTransactions != null)
+            {
+                return Ok(subCatTransactions);
+            }
+
+            return BadRequest("Couldn't find this sub cat's budget");
+        }
     }
 }
