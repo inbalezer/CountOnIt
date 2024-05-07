@@ -135,6 +135,9 @@
     [Parameter]
     public EventCallback refreshSubCategories { get; set; }
 
+    [Parameter]
+    public EventCallback<double> addTransactionToTotal { get; set; }
+
     private DateTime? selectedDate = DateTime.Today; // Initialize selectedDate to today
 
     TransactionToAdd newTransaction = new TransactionToAdd()
@@ -175,6 +178,7 @@
             if (!overdraftDetected)
             {
                 Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                 isTransactionOverlayOpen.InvokeAsync(false);
                 refreshBudget.InvokeAsync();
                 refreshSubCategories.InvokeAsync();
@@ -199,6 +203,7 @@
             await checkOverdraft();
             if (!overdraftDetected)
             {
+                addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                 newTransaction = new TransactionToAdd();
             }
 

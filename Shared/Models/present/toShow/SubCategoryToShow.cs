@@ -10,7 +10,7 @@ namespace CountOnIt.Shared.Models.present.toShow
     {
         public int id { get; set; }
         public string subCategoryTitle { get; set; }
-        public double monthlyPlannedBudget { get; set; }
+        public double? monthlyPlannedBudget { get; set; }
         public double transactionsValue { get; set; }
     }
 }

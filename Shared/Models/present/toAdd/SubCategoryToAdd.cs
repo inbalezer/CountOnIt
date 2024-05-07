@@ -11,7 +11,7 @@ namespace CountOnIt.Shared.Models.present.toAdd
         public int id { get; set; }
         public int categoryID { get; set; }
         public string subCategoryTitle { get; set; }
-        public int? monthlyPlannedBudget { get; set; }
+        public double? monthlyPlannedBudget { get; set; }
         public int? importance { get; set; }
     }
 }

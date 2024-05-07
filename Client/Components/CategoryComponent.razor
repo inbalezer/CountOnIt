@@ -19,7 +19,7 @@
     @userID
     <button @onclick="OpetionsBtnClicked">
     </button>
-    @if(isOpetionsBtnClicked)
+    @if (isOpetionsBtnClicked)
     {
         <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked"></OptionsMenuComponent>
     }
@@ -35,21 +35,21 @@
     }
 
 
-    <button @onclick="getSubCategories">open accordion</button>
+    <button @onclick="accordionControl">open accordion</button>
     @if (isAccordionClick)
     {
         <button @onclick="getUserCategories">תת קטגוריה חדשה +</button>
-    }
 
-    @if (subCategories.Count > 0)
-    {
-        @foreach (SubCategoryToShow subcategory in subCategories)
+        @if (subCategories.Count > 0)
         {
-            if (givingSubCat!=null && subcategory.id==givingSubCat.id)
+            @foreach (SubCategoryToShow subcategory in subCategories)
             {
-                subcategory.monthlyPlannedBudget = givingSubCat.monthlyPlannedBudget;
+                if (givingSubCat != null && subcategory.id == givingSubCat.id)
+                {
+                    subcategory.monthlyPlannedBudget = givingSubCat.monthlyPlannedBudget;
+                }
+                <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" refreshPage="refreshPage" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat"></SubCategoryComponent>
             }
-            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" refreshPage="refreshPage" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" ></SubCategoryComponent>
         }
     }
 
@@ -65,14 +65,14 @@
 
             @if (userCategories.Count > 0)
             {
-            <span>הוספת תת קטגוריה ל</span>
+                <span>הוספת תת קטגוריה ל</span>
                 <select @bind="selectedCategoryForNewSubCat">
-                   
+
                     @foreach (AllUserCategories userCategory in userCategories)
                     {
-                        
-                            <option value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
-                        
+
+                        <option value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+
 
                     }
                 </select>
@@ -90,30 +90,30 @@
             <div>
                 <label for="importance">עדיפות תת הקטגוריה</label>
                 <span>@newSubCategory.importance</span>
-                <input type="radio" 
+                <input type="radio"
                    name="importance" @onchange="@(() => newSubCategory.importance = 0)" />
                 <label>רצון</label>
 
                 <input type="radio" @onchange="@(() => newSubCategory.importance = 1)"
-                   name="importance"  />
+                   name="importance" />
                 <label>צורך</label>
 
                 <input type="radio" @onchange="@(() => newSubCategory.importance = 2)"
-                   name="importance"/>
+                   name="importance" />
                 <label>חובה</label>
             </div>
             <div>
                 <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
             </div>
-            <br/>
+            <br />
             <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
             <button class="submit-btn" @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
         </div>
     }
-            @if (openTransactionOverlay)
-            {
+    @if (openTransactionOverlay)
+    {
         <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" userID="@userID" refreshBudget="refreshPage"></AddTransactionComponent>
-            }
+    }
 </div>
 
 
@@ -134,7 +134,7 @@
     [Parameter]
     public bool doRefresh { get; set; }
 
-    [Parameter] 
+    [Parameter]
     public bool delete { get; set; }
 
 
@@ -173,7 +173,7 @@
     string popupBodyText = "אתה עומד למחוק את קטגוריית ";
 
 
-    int newSubCatID = 0; 
+    int newSubCatID = 0;
     public bool isAccordionClick = false;
     public bool isSubCategoryAddOverlayOpen = false;
     public bool editBtnClicked = false;
@@ -185,9 +185,17 @@
     List<AllUserCategories> userCategories = new List<AllUserCategories>();
 
     SubCategoryToAdd newSubCategory = new SubCategoryToAdd();
+    SubCategoryToShow newSubCatToShow = new SubCategoryToShow();
     AllUserCategories userCategory = new AllUserCategories();
 
-
+    public async Task accordionControl()
+    {
+        isAccordionClick = !isAccordionClick;
+        if (isAccordionClick)
+        {
+            await getSubCategories();
+        }
+    }
 
     public async Task getSubCategories()
     {
@@ -235,8 +243,18 @@
         var subCatToAddRes = await Http.PostAsJsonAsync("api/Present/AddSubCategory", newSubCategory);
         if (subCatToAddRes.IsSuccessStatusCode)
         {
+            SubCategoryToAdd tempSubCat = await subCatToAddRes.Content.ReadFromJsonAsync<SubCategoryToAdd>();
+            newSubCatID = tempSubCat.id;
+            newSubCatTitle = tempSubCat.subCategoryTitle;
+            newSubCatToShow.id = tempSubCat.id;
+            newSubCatToShow.subCategoryTitle = tempSubCat.subCategoryTitle;
+            newSubCatToShow.monthlyPlannedBudget = tempSubCat.monthlyPlannedBudget;
+            newSubCatToShow.transactionsValue = 0;
+            subCategories.Add(newSubCatToShow);
+            newSubCatToShow = new SubCategoryToShow();
             // להפעיל מחדש פונקציה שמושכת את האלמנטים בדף הבית
             Console.WriteLine("new sub category added");
+
             newSubCategory = new SubCategoryToAdd();
             isSubCategoryAddOverlayOpen = false;
         }
@@ -266,6 +284,14 @@
             SubCategoryToAdd tempSubCat = await subCatToAddRes1.Content.ReadFromJsonAsync<SubCategoryToAdd>();
             newSubCatID = tempSubCat.id;
             newSubCatTitle = tempSubCat.subCategoryTitle;
+            newSubCatToShow.id=tempSubCat.id;
+            newSubCatToShow.subCategoryTitle = tempSubCat.subCategoryTitle;
+            newSubCatToShow.monthlyPlannedBudget = tempSubCat.monthlyPlannedBudget;
+            newSubCatToShow.transactionsValue = 0;
+            subCategories.Add(newSubCatToShow);
+            newSubCatToShow = new SubCategoryToShow();
+
+
             Console.WriteLine("New sub-category added, ID: " + newSubCatID);
 
             // Reset the newSubCategory object for a new entry.
@@ -287,24 +313,6 @@
     }
 
 
-    //private async Task deleteCategory()
-    //{
-
-    //    var deleteCategoryResponse = await Http.DeleteAsync("api/Present/deleteCategory" + Category.id);
-
-    //    if (deleteCategoryResponse.IsSuccessStatusCode)
-    //    {
-    //        Console.WriteLine("התמונות נמחקו בהצלחה");
-
-    //        userCategories.Remove(Category.id);
-    //    }
-    //    else
-    //    {
-    //        msg = "בעיה במחיקה, נסה שוב ";
-
-    //    }
-    //}
-
     public void AddTransOverlay()
     {
         openTransactionOverlay = !openTransactionOverlay;
@@ -322,7 +330,7 @@
         editBtnClicked = !editBtnClicked;
         deleteBtnClicked = false;
         isOpetionsBtnClicked = false;
-    }  
+    }
 
     public void OpetionsBtnClicked()
     {
@@ -345,7 +353,8 @@
         {
             deleteCat.InvokeAsync(Category);
         }
-        else{
+        else
+        {
             Console.WriteLine(" בעיה במחיקת קטגוריה");
         }
     }
@@ -383,11 +392,22 @@
             if (editedSubCat.categoryID != Category.id)
             {
                 subCategories.Remove(subcategory);
-            } 
-            else if (editedSubCat.id==subcategory.id)
+            }
+            else if (editedSubCat.id == subcategory.id)
             {
                 subcategory.subCategoryTitle = editedSubCat.subCategoryTitle;
                 subcategory.monthlyPlannedBudget = editedSubCat.monthlyPlannedBudget;
+            }
+        }
+    }
+
+    public void deleteSubCat(int subCatIDtoRemove)
+    {
+        foreach (SubCategoryToShow subCat in subCategories)
+        {
+            if (subCat.id == subCatIDtoRemove)
+            {
+                subCategories.Remove(subCat);
             }
         }
     }

@@ -6,7 +6,7 @@
 <button @onclick="(() => isOptBtnClicked = !isOptBtnClicked)">options</button>
 @if (isOptBtnClicked)
 {
-    <OptionsMenuComponent editBtnClicked="getUserCategories"></OptionsMenuComponent>
+    <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCat"></OptionsMenuComponent>
 }
 <h3>@subCategoryTitle</h3>
 <button> @totalSpendings/@budget</button>
@@ -18,13 +18,13 @@
 
 @if (openTransOverlay)
 {
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" refreshBudget="refreshPage" gapsToUpdateBudgets="gapsToUpdateTheBudget" refreshSubCategories="refreshSubCats"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" refreshBudget="refreshPage" gapsToUpdateBudgets="gapsToUpdateTheBudget" refreshSubCategories="refreshSubCats" addTransactionToTotal="addNewTransToTotalSpendings"></AddTransactionComponent>
 }
 @if (editSubCatBtnClicked)
 {
     <div>
         <div>
-            <h2>הוספת תת קטגוריה</h2>
+            <h2>עריכת תת קטגוריה</h2>
             <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked">&times;</button>
         </div>
 
@@ -37,7 +37,7 @@
                 subCatToEdit.categroyTitle = categoryTitle;
             }
             <select @bind="subCatToEdit.categroyTitle">
-
+                
                 @foreach (AllUserCategories userCategory in userCategories)
                 {
 
@@ -138,13 +138,16 @@
     public EventCallback refreshSubCats { get; set; }
 
     [Parameter]
-    public double budget { get; set; }
+    public double? budget { get; set; }
 
     [Parameter]
     public EventCallback<SubCategoryToEdit> updateEditedSubCat { get; set; }
 
     [Parameter]
     public int categoryID { get; set; }
+
+    [Parameter]
+    public EventCallback<int> subCatDeleted { get; set; }
 
     SubCategoryToEdit subCatToEdit = new SubCategoryToEdit();
     SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
@@ -153,6 +156,7 @@
 
     bool isOptBtnClicked = false; //the options button
     bool editSubCatBtnClicked = false;
+    bool deleteBtnClicked = false;
 
     public bool openTransOverlay = false;
 
@@ -167,11 +171,7 @@
         //budget = gaps[1].monthlyPlannedBudget;
     }
 
-    //public async Task editSubCatBtn()
-    //{
-    //    editSubCatBtnClicked = !editSubCatBtnClicked;
-    //    await getUserCategories();
-    //}
+
 
     public async Task getUserCategories()
     {
@@ -196,6 +196,22 @@
         if (getAllUserCategories.IsSuccessStatusCode)
         {
             userCategories = await getAllUserCategories.Content.ReadFromJsonAsync<List<AllUserCategories>>().ConfigureAwait(false);
+
+            //arranges the category dropdown so the current category will be the one initially displayed
+            List<AllUserCategories> tempUserCategories = new List<AllUserCategories>();
+            foreach (AllUserCategories category in userCategories)
+            {
+                if (category.id==categoryID)
+                {
+                    tempUserCategories.Insert(0,category);
+                }
+                else
+                {
+                    tempUserCategories.Add(category);
+                }
+
+            }
+            userCategories = tempUserCategories;
             editSubCatBtnClicked = !editSubCatBtnClicked;
         }
         else
@@ -238,5 +254,23 @@
         {
             Console.WriteLine("failed to update category");
         }
+    }
+
+    public async Task deleteSubCat()
+    {
+        var deleteRes = await Http.DeleteAsync("api/Present/deleteSubCategory/" + subCategoryIDToGet);
+        if (deleteRes.IsSuccessStatusCode)
+        {
+            subCatDeleted.InvokeAsync(subCategoryIDToGet);
+        }
+        else
+        {
+            Console.WriteLine(" בעיה במחיקת תת- קטגוריה");
+        }
+    }
+
+    public void addNewTransToTotalSpendings(double transactionValue)
+    {
+        totalSpendings += transactionValue;
     }
 }
