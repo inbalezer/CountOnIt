@@ -45,6 +45,10 @@
     {
         @foreach (SubCategoryToShow subcategory in subCategories)
         {
+            if (givingSubCat!=null && subcategory.id==givingSubCat.id)
+            {
+                subcategory.monthlyPlannedBudget = givingSubCat.monthlyPlannedBudget;
+            }
             <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" refreshPage="refreshPage" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" ></SubCategoryComponent>
         }
     }
@@ -158,6 +162,9 @@
     [Parameter]
 
     public EventCallback<OverDraftBudgetToEdit> givingSubCatBudget { get; set; }
+
+    [Parameter]
+    public OverDraftBudgetToEdit givingSubCat { get; set; }
 
     string selectedCategoryForNewSubCat = "";
     string newSubCatTitle = "";

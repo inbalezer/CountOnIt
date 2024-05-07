@@ -482,6 +482,27 @@ namespace CountOnIt.Server.Controllers
             }
             return BadRequest("importance not found");
         }
+
+
+        [HttpGet("getGivingCatID/{subCatID}")] //getting a giving sub-category's category ID
+        public async Task<IActionResult> gettingCatID( int subCatID)
+        {
+            object param = new
+            {
+                ID = subCatID
+            };
+
+            var catIDQuery = "SELECT categoryID FROM subcategories where id=@ID";
+            var catIDRec = await _db.GetRecordsAsync<int>(catIDQuery, param);
+            int subCatParentID = catIDRec.FirstOrDefault();
+
+            if (subCatParentID != null)
+            {
+                return Ok(subCatParentID);
+            }
+            return BadRequest("couldn't find this sub cat's category ID");
+        }
+
     }
     
 }

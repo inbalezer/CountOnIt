@@ -66,10 +66,15 @@
             <EditCategoryComponent popupTitle="הוספת קטגוריה" userID="@userID" newCategory="newCategory" isCategoryOverlayOpen="openCategoryOverlay" addNewCatToIndex="AddNewCat"></EditCategoryComponent>
         }
 
-foreach (CategoryToShow category in currentUser.categoriesFullList)
+        foreach (CategoryToShow category in currentUser.categoriesFullList)
         {
+            if (givingsubCatCategoryID > 0 && category.id == givingsubCatCategoryID)
+            {
+                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" deleteCat="removeCat " subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"> </CategoryComponent>
+            }else{
 
-            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" deleteCat="removeCat " subCatRefreshed="@accordionRefresh" > </CategoryComponent>
+            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" deleteCat="removeCat " subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"> </CategoryComponent>
+            }
 
         }
 
@@ -152,6 +157,9 @@ foreach (CategoryToShow category in currentUser.categoriesFullList)
 
     CategoryToAdd newCategory = new CategoryToAdd();
     bool openAddCatOverlay = false;
+
+    OverDraftBudgetToEdit givingSubCatToUpdate = new OverDraftBudgetToEdit();
+    public int givingsubCatCategoryID = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -401,16 +409,16 @@ foreach (CategoryToShow category in currentUser.categoriesFullList)
         Console.WriteLine(catToDelete);
     }
 
-    //public void changeGivingSubCatBudget(OverDraftBudgetToEdit givingSubCat)
-    //{
-    //    foreach (CategoryToShow category in currentUser.categoriesFullList)
-    //    {
-    //        foreach ()
-    //        {
-
-    //        }
-    //    }
-    //}
+    public async Task changeGivingSubCatBudget(OverDraftBudgetToEdit givingSubCat)
+    {
+        var getCatID = await Http.GetAsync("api/Present/getGivingCatID/" + givingSubCat.id);
+        if (getCatID.IsSuccessStatusCode)
+        {
+            givingsubCatCategoryID = await getCatID.Content.ReadFromJsonAsync<int>();
+            givingSubCatToUpdate.id = givingSubCat.id;
+            givingSubCatToUpdate.monthlyPlannedBudget = givingSubCat.monthlyPlannedBudget;
+        }
+    }
 
     public void openCategoryOverlay()
     {
