@@ -517,30 +517,26 @@ namespace CountOnIt.Server.Controllers
 
             if (categoryTitle != null)
             {
-                return Ok(new { categoryTitle = categoryTitle });
+                return Ok( categoryTitle);
             }
             return BadRequest("couldn't find this category's title");
         }
 
-        [HttpGet("getSubCategoryTitle/{subCatID}")]
-        public async Task<IActionResult> getSubCategoryTitle(int subCatID)
-        {
-            object param = new
-            {
-                ID = subCatID
-            };
 
-            var subcatIDQuery = "SELECT subCategoryTitle FROM subcategories where id=@ID";
+        [HttpGet("getSubCategoryTitle/{subCatID}")]
+        public async Task<ActionResult<string>> getSubCategoryTitle(int subCatID)
+        {
+            object param = new { ID = subCatID };
+            var subcatIDQuery = "SELECT subCategoryTitle FROM subcategories WHERE id=@ID";
             var subcatIDRec = await _db.GetRecordsAsync<string>(subcatIDQuery, param);
             string subcategoryTitle = subcatIDRec.FirstOrDefault();
 
             if (subcategoryTitle != null)
             {
-                return Ok(new { subCategoryTitle = subcategoryTitle });
+                return Ok(subcategoryTitle);  // Return the string directly
             }
-            return BadRequest("couldn't find this sub category's title");
+            return BadRequest("Couldn't find this subcategory's title");
         }
-
     }
     
 }
