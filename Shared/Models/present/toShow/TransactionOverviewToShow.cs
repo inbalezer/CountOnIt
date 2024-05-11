@@ -9,7 +9,7 @@ namespace CountOnIt.Shared.Models.present.toShow
     public class TransactionOverviewToShow
     {
         public int id { get; set; }
-        public bool transType { get; set; }
+        public int transType { get; set; }
         public double transValue { get; set; }
         public string valueType { get; set; }
         public string transDate { get; set; }

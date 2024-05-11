@@ -10,7 +10,7 @@ namespace CountOnIt.Shared.Models.present.toAdd
     {
         public string transTitle { get; set; }
         public int subCategoryID { get; set; }
-        public bool transType { get; set; }
+        public int transType { get; set; }
         public double transValue { get; set; }
         public string valueType { get; set; } //cash, credit, else
         public DateTime transDate { get; set; }

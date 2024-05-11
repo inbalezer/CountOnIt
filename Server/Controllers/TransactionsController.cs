@@ -77,7 +77,7 @@ namespace CountOnIt.Server.Controllers
                         currentOverdraft.remainingBudget = recordSubCatCurrentSum.FirstOrDefault();
                         currentOverdraft.id = subCatID;
 
-                        if(currentOverdraft.monthlyPlannedBudget >= currentOverdraft.remainingBudget)
+                        if (currentOverdraft.monthlyPlannedBudget >= currentOverdraft.remainingBudget)
                         {
                             return BadRequest("אין חריגה");
                         }
@@ -112,16 +112,16 @@ namespace CountOnIt.Server.Controllers
 
                                     var optionalSubcategories = await _db.GetRecordsAsync<OverBudgetToShow>(getFittingSubCats, gapParam);
 
-                                    if (optionalSubcategories != null )
+                                    if (optionalSubcategories != null)
                                     {
-                                        subcategoriesToCloseGap = optionalSubcategories.ToList();     
-                                        
-                                        foreach(OverBudgetToShow subCatToShow in subcategoriesToCloseGap)
+                                        subcategoriesToCloseGap = optionalSubcategories.ToList();
+
+                                        foreach (OverBudgetToShow subCatToShow in subcategoriesToCloseGap)
                                         {
                                             subcategoriesToCloseGapAfterLoop.Add(subCatToShow);
                                         }
-                                    }                                  
-                                }                                
+                                    }
+                                }
                             }
                             subcategoriesToCloseGapAfterLoop.Add(currentOverdraft);
                             return Ok(subcategoriesToCloseGapAfterLoop);
@@ -175,8 +175,8 @@ namespace CountOnIt.Server.Controllers
 
             string GetSubCatCurrentBudgetQuery = "SELECT monthlyPlannedBudget FROM subcategories WHERE id = @ID";
             var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetSubCatCurrentBudgetQuery, param);
-            double newBudget= recordSubCatCurrentSum.FirstOrDefault();
-            if (newBudget!=null)
+            double newBudget = recordSubCatCurrentSum.FirstOrDefault();
+            if (newBudget != null)
             {
                 return Ok(newBudget);
             }
@@ -198,9 +198,9 @@ namespace CountOnIt.Server.Controllers
         SELECT id, transType, transValue, valueType, transDate, description, fixedMonthly, tagID, transTitle, parentTransID 
         FROM transactions 
         WHERE subCategoryID = @ID 
-        AND transType = 1 
         AND transDate >= @StartOfMonth 
         AND transDate <= @EndOfMonth
+        AND transType = 1 OR transType = 3
         ORDER BY transDate DESC;";
             var recordSubCatCurrentTrans = await _db.GetRecordsAsync<TransactionOverviewToShow>(getAllSubCatTransactionsQuery, param);
             var subCatTransactions = recordSubCatCurrentTrans.ToList();
@@ -234,15 +234,15 @@ namespace CountOnIt.Server.Controllers
             object transUpdateParam = new
             {
                 ID = transToEdit.id,
-                transType=transToEdit.transType,
-                transValue=transToEdit.transValue,
-                valueType=transToEdit.valueType,
-                transDate=transToEdit.transDate,
-                description= transToEdit.description,
-                fixedMonthly=transToEdit.fixedMonthly,
-                tagID=transToEdit.tagID,
-                parentTransID= transToEdit.parentTransID,
-                transTitle=transToEdit.transTitle
+                transType = transToEdit.transType,
+                transValue = transToEdit.transValue,
+                valueType = transToEdit.valueType,
+                transDate = transToEdit.transDate,
+                description = transToEdit.description,
+                fixedMonthly = transToEdit.fixedMonthly,
+                tagID = transToEdit.tagID,
+                parentTransID = transToEdit.parentTransID,
+                transTitle = transToEdit.transTitle
             };
 
             string UpdateTransQuery = "UPDATE transactions set transType = @transType, transValue = @transValue, valueType = @valueType, transDate=@transDate, description=@description, fixedMonthly=@fixedMonthly, tagID=@tagID, parentTransID=@parentTransID, transTitle=@transTitle where id =@ID";

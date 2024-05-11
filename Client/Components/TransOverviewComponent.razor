@@ -25,7 +25,7 @@
     parentTransID = transaction.parentTransID,
     description = transaction.description
 };
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transaction.id" newTransaction="newTransaction" isTransactionOverlayOpen="closeEditTransWindow"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transaction.id" newTransaction="newTransaction" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans"></AddTransactionComponent>
 }
 <br />
 <span>@transaction.transDate</span>
@@ -42,6 +42,10 @@
 @if (transaction.fixedMonthly == true)
 {
     <span>הוצאה חוזרת</span>
+}
+@if (overdraftDetected)
+{
+    <span>⚠️ הזנה חורגת</span>
 }
 <hr />
 
@@ -64,6 +68,9 @@
     [Parameter]
 
     public EventCallback<List<OverDraftBudgetToEdit>> subCatTakenBudget { get; set; }
+
+    [Parameter]
+    public bool overdraftStatus { get; set; }
 
     bool deleteBtnClicked = false;
     bool editBtnClicked = false;
@@ -127,29 +134,10 @@
         }
     }
 
-    public async Task checkOverdraft()
+    public void showOverdraftingTrans(bool overdraftNotTreated)
     {
-        var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
-        if (overdraftRes.IsSuccessStatusCode)
-        {
-            overdraftDetected = true;
-            closeOverdraftOpts = new List<OverBudgetToShow>();
-            closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
-            currentGap = (closeOverdraftOpts[closeOverdraftOpts.Count - 1].remainingBudget) - (closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget);
-
-            overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
-            overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
-            chosenSubCategory = closeOverdraftOpts[0];
-
-
-        }
-        else
-        {
-            Console.WriteLine("No overdraft detected");
-
-        }
+        overdraftDetected = overdraftNotTreated;
     }
-
 
     private void HandleChange(ChangeEventArgs e)
     {
@@ -206,6 +194,7 @@
 
     public void gapsToUpdateTheBudget(List<OverDraftBudgetToEdit> gaps)
     {
+        overdraftDetected = false;
         subCatTakenBudget.InvokeAsync(gaps);
 
     }

@@ -158,6 +158,9 @@ else
     [Parameter]
     public EventCallback<TransactionOverviewToShow> addTransactionAfterEdit { get; set; }
 
+    [Parameter]
+    public EventCallback<bool> overdraftNotTreated { get; set; }
+
     private DateTime? selectedDate = DateTime.Today; // Initialize selectedDate to today
     private bool isItAnewTrans = false;
 
@@ -206,7 +209,7 @@ else
     public async Task saveAndEndTransactions()
     {
         newTransaction.subCategoryID = subCategoryIDTOGet;
-        newTransaction.transType = true;
+        newTransaction.transType = 1;
 
         var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
         if (transToSaveRes.IsSuccessStatusCode)
@@ -231,7 +234,7 @@ else
     public async Task saveAndRepeatTransactions()
     {
         newTransaction.subCategoryID = subCategoryIDTOGet;
-        newTransaction.transType = true;
+        newTransaction.transType = 1;
 
         var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
         if (transToSaveRes.IsSuccessStatusCode)
@@ -270,9 +273,9 @@ else
         {
             Console.WriteLine("ההזנה עודכנה בהצלחה :)");
             await checkOverdraft();
+            TransactionToEdit postEditTrans = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();
             if (!overdraftDetected)
             {
-                TransactionToEdit postEditTrans = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();
                 TransactionOverviewToShow editedTransaction = new TransactionOverviewToShow();
                 editedTransaction.id = postEditTrans.id;
                 editedTransaction.transValue = postEditTrans.transValue;
@@ -285,8 +288,8 @@ else
                 editedTransaction.parentTransID = postEditTrans.parentTransID;
                 editedTransaction.description = postEditTrans.description;
 
-                addTransactionAfterEdit.InvokeAsync(editedTransaction);
 
+                addTransactionAfterEdit.InvokeAsync(editedTransaction);
 
             }
 
@@ -364,10 +367,11 @@ else
         }
     }
 
-    void closeOverdraftWindow()
+    void closeOverdraftWindow() //update to transType=3
     {
         overdraftDetected = false;
         isTransactionOverlayOpen.InvokeAsync(false);
+        overdraftNotTreated.InvokeAsync(true);
     }
     public void transOverlayControl()
     {

@@ -113,7 +113,12 @@
     {
         @foreach (TransactionOverviewToShow transaction in allTransactions)
         {
-            <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft"></TransOverviewComponent>
+            <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus"></TransOverviewComponent>
+
+        }
+        @if (totalSpendings<budget && budget!=null)
+        {
+            overdraftStatus = false;
         }
     }
 </div>
@@ -147,6 +152,9 @@
     List<AllUserCategories> userCategories = new List<AllUserCategories>();
     SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
     public string popupBodyText = "";
+    public bool overdraftStatus = false;
+
+    public double totalSpendings = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -185,6 +193,12 @@
             if (checkTransList != null && checkTransList.Count > 0)
             {
                 allTransactions = checkTransList;
+
+                foreach (TransactionOverviewToShow trans in allTransactions)
+                {
+                    totalSpendings += trans.transValue;
+                }
+
 
             }
             else
