@@ -15,15 +15,19 @@
 <h3>מבט על: "@subCategoryTitle"</h3>
 <span>תקציב: @budget</span>
 <OptionsMenuComponent></OptionsMenuComponent>
+@*@if (deleteBtnClicked)
+{
+    <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="מחיקה" makeAction=@deleteCategory></GeneralPopUpComponent>
+}*@
 <div id="searchBar"></div>
 <div id="sortAndFilterBtns"></div>
 <div id="transactions">
-    @if (allTransactions != null && allTransactions.Count>0)
+    @if (allTransactions != null && allTransactions.Count > 0)
     {
-    @foreach (TransactionOverviewToShow transaction in allTransactions)
-    {
-        <TransOverviewComponent transaction="transaction"></TransOverviewComponent>
-    }
+        @foreach (TransactionOverviewToShow transaction in allTransactions)
+        {
+            <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft"></TransOverviewComponent>
+        }
     }
 </div>
 
@@ -46,6 +50,7 @@
     public string subCategoryTitle = "";
     List<TransactionOverviewToShow> allTransactions = new List<TransactionOverviewToShow>();
 
+    bool deleteBtnClicked = false;
     protected override async Task OnInitializedAsync()
     {
         //get category title:
@@ -75,12 +80,12 @@
             var subCatErrorContent = await subCatTitle.Content.ReadAsStringAsync();
             Console.WriteLine("Failed to find subcategory title. Error: " + subCatErrorContent);
         }
-        //get transactions: (-----------still not filtered by month-----------)
+        //get transactions of current month: 
         var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactions/" + subCatID);
         if (getAllTransactions.IsSuccessStatusCode)
         {
             var checkTransList = getAllTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
-            if (checkTransList != null && checkTransList.Count>0)
+            if (checkTransList != null && checkTransList.Count > 0)
             {
                 allTransactions = checkTransList;
 
@@ -99,5 +104,28 @@
     public void goToHomePage()
     {
         Nav.NavigateTo("./homePage");
+    }
+
+    public void transactionDeleted(int transIdToRemove)
+    {
+        foreach (TransactionOverviewToShow transaction in allTransactions)
+        {
+            if (transaction.id == transIdToRemove)
+            {
+                allTransactions.Remove(transaction);
+                Console.WriteLine("transaction id- " + transaction.id + " deleted");
+            }
+        }
+    }
+
+    public void updateSubCatBudgetPostOverdraft(List<OverDraftBudgetToEdit> subNewBudget)
+    {
+        foreach (OverDraftBudgetToEdit newBudget in subNewBudget)
+        {
+            if (newBudget.id == subCatID)
+            {
+                budget = newBudget.monthlyPlannedBudget;
+            }
+        }
     }
 }

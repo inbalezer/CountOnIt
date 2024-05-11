@@ -364,7 +364,7 @@ namespace CountOnIt.Server.Controllers
             {
                 return Ok(subCategoryToUpdate);
             }
-            return BadRequest("update sub category faild");
+            return BadRequest("update sub category failed");
         }
 
         [HttpPost("AddSubCategory")] // יצירת תת קטגוריה חדשה

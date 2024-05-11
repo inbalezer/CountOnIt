@@ -13,7 +13,7 @@ namespace CountOnIt.Shared.Models.present.toShow
         public double transValue { get; set; }
         public string valueType { get; set; }
         public string transDate { get; set; }
-        public bool fixedMonthly { get; set; }
+        public bool? fixedMonthly { get; set; }
         public int? tagID { get; set; }
         public string transTitle { get; set; }
         public int? parentTransID { get; set; }

@@ -5,26 +5,218 @@
 @inject HttpClient Http
 <h4>@transaction.transTitle</h4>
 <span>@transaction.transValue ₪</span>
-<OptionsMenuComponent></OptionsMenuComponent>
-<br/>
+<OptionsMenuComponent deleteBtnClicked="deleteTransPopUp" editBtnClicked="editTransPopUp"></OptionsMenuComponent>
+@if (deleteBtnClicked)
+{
+    <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" action="מחיקה" makeAction="deleteTrans" closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
+}
+@if (editBtnClicked)
+{
+        TransactionToAdd newTransaction = new TransactionToAdd()
+                {
+                    subCategoryID = subCatID,
+    transValue = transaction.transValue,
+    transType = transaction.transType,
+    valueType = transaction.valueType,
+    transDate = DateTime.Parse(transaction.transDate),
+    fixedMonthly = transaction.fixedMonthly,
+    tagID = transaction.tagID,
+    transTitle = transaction.transTitle,
+    parentTransID = transaction.parentTransID,
+    description = transaction.description
+};
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transaction.id" newTransaction="newTransaction" isTransactionOverlayOpen="closeEditTransWindow"></AddTransactionComponent>
+}
+<br />
 <span>@transaction.transDate</span>
-<br/>
-@if (transaction.description!=null)
+<br />
+@if (transaction.description != null)
 {
     <span>@transaction.description</span>
 }
-@if (transaction.tagID!=null)
+@if (transaction.tagID != null)
 {
     <span>Tag name</span>
 }
 <span>@transaction.valueType</span>
-@if (transaction.fixedMonthly==true)
+@if (transaction.fixedMonthly == true)
 {
     <span>הוצאה חוזרת</span>
 }
-
+<hr />
 
 @code {
     [Parameter]
     public TransactionOverviewToShow transaction { get; set; }
+
+    [Parameter]
+    public EventCallback<int> removeTransaction { get; set; }
+
+    [Parameter]
+    public int subCatID { get; set; }
+
+    [Parameter]
+    public int userID { get; set; }
+
+    [Parameter]
+    public EventCallback<List<OverDraftBudgetToEdit>> gapsToUpdateBudgets { get; set; }
+
+    [Parameter]
+
+    public EventCallback<List<OverDraftBudgetToEdit>> subCatTakenBudget { get; set; }
+
+    bool deleteBtnClicked = false;
+    bool editBtnClicked = false;
+    string popupTitle;
+    string popupBodyText;
+
+    string subCategoryTitle;
+    List<OverDraftBudgetToEdit> budgetToUpdate = new List<OverDraftBudgetToEdit>();
+    List<OverBudgetToShow> closeOverdraftOpts = new List<OverBudgetToShow>();
+    double currentGap;
+    OverBudgetToShow chosenSubCategory = new OverBudgetToShow();
+    OverBudgetToShow overDraftSubCategory = new OverBudgetToShow();
+    OverDraftBudgetToEdit subCategoryBudgetToUpdate = new OverDraftBudgetToEdit();
+
+    bool overdraftDetected = false;
+
+    public void deleteTransPopUp()
+    {
+        deleteBtnClicked = !deleteBtnClicked;
+        popupTitle = "מחיקת הוצאה";
+        popupBodyText = "ההוצאה '" + transaction.transTitle + "' עומדת להמחק";
+    }
+
+    protected async Task deleteTrans()
+    {
+        var deleteRes = await Http.DeleteAsync("api/Transactions/deleteTransaction/" + transaction.id);
+        if (deleteRes.IsSuccessStatusCode)
+        {
+            removeTransaction.InvokeAsync(transaction.id);
+            deleteBtnClicked = !deleteBtnClicked;
+        }
+        else
+        {
+            Console.WriteLine(" בעיה במחיקת הזנה");
+        }
+    }
+
+    public void closeDeletePopUp()
+    {
+        deleteBtnClicked = !deleteBtnClicked;
+    }
+
+    public void editTransPopUp()
+    {
+        editBtnClicked = !editBtnClicked;
+    }
+
+    public async Task getSubCatTitle()
+    {
+        //get subcategory title:
+        var subCatTitle = await Http.GetAsync("api/Present/getSubCategoryTitle/" + subCatID);
+        if (subCatTitle.IsSuccessStatusCode)
+        {
+            var subTitle = await subCatTitle.Content.ReadAsStringAsync();  // Read the response as plain text
+            subCategoryTitle = subTitle;
+        }
+        else
+        {
+            var subCatErrorContent = await subCatTitle.Content.ReadAsStringAsync();
+            Console.WriteLine("Failed to find subcategory title. Error: " + subCatErrorContent);
+        }
+    }
+
+    public async Task checkOverdraft()
+    {
+        var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
+        if (overdraftRes.IsSuccessStatusCode)
+        {
+            overdraftDetected = true;
+            closeOverdraftOpts = new List<OverBudgetToShow>();
+            closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
+            currentGap = (closeOverdraftOpts[closeOverdraftOpts.Count - 1].remainingBudget) - (closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget);
+
+            overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
+            overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
+            chosenSubCategory = closeOverdraftOpts[0];
+
+
+        }
+        else
+        {
+            Console.WriteLine("No overdraft detected");
+
+        }
+    }
+
+
+    private void HandleChange(ChangeEventArgs e)
+    {
+        var selectedTitle = e.Value.ToString();
+        chosenSubCategory = closeOverdraftOpts.FirstOrDefault(opt => opt.subCategoryTitle == selectedTitle);
+    }
+    public async Task manageBudgetsToTranfer()
+    {
+        budgetToUpdate = new List<OverDraftBudgetToEdit>();
+
+        budgetToUpdate.Add(new OverDraftBudgetToEdit
+            {
+                id = chosenSubCategory.id,  // ID of chosen subcategory
+                monthlyPlannedBudget = chosenSubCategory.monthlyPlannedBudget - currentGap // Updated budget
+
+            });
+
+
+        budgetToUpdate.Add(new OverDraftBudgetToEdit
+            {
+                id = overDraftSubCategory.id, // ID of the overdraft subcategory
+                monthlyPlannedBudget = overDraftSubCategory.monthlyPlannedBudget + currentGap // Updated budget
+            });
+
+        Console.WriteLine(budgetToUpdate[1].monthlyPlannedBudget);
+        Console.WriteLine(budgetToUpdate[1].id);
+        Console.WriteLine(overDraftSubCategory.id);
+        Console.WriteLine(overDraftSubCategory.monthlyPlannedBudget);
+
+        await updateSubCategoryBudget(budgetToUpdate);
+
+    }
+
+    public async Task updateSubCategoryBudget(List<OverDraftBudgetToEdit> budgetsToUpdate)
+    {
+
+        var budgetToSaveRes = await Http.PostAsJsonAsync("api/Transactions/EditSubCategoriesNewBudgets", budgetsToUpdate);
+        if (budgetToSaveRes.IsSuccessStatusCode)
+        {
+            Console.WriteLine("התקציבים עודכנו בהצלחה :)");
+
+            overdraftDetected = false;
+            //isTransactionOverlayOpen.InvokeAsync(false);
+            gapsToUpdateBudgets.InvokeAsync(budgetsToUpdate);
+
+
+
+        }
+        else
+        {
+            Console.WriteLine("עדכון התקציבים נכשל");
+        }
+    }
+
+    public void gapsToUpdateTheBudget(List<OverDraftBudgetToEdit> gaps)
+    {
+        subCatTakenBudget.InvokeAsync(gaps);
+
+    }
+
+    public void updateTranPostEdit(TransactionOverviewToShow editedTransaction)
+    {
+        transaction = editedTransaction;
+    }
+
+    public void closeEditTransWindow()
+    {
+        editBtnClicked = false;
+    }
 }

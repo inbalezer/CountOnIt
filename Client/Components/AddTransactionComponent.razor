@@ -3,7 +3,17 @@
 @using CountOnIt.Shared.Models.present.toEdit
 @inject HttpClient Http
 
-<h3>הוספה לתת קטגוריה: @subCategoryTitle </h3>
+<button class="modal-close-btn" @onclick="transOverlayControl">&times;</button>
+@if (isItAnewTrans)
+{
+    <h3>@overlayTitle:  </h3>
+    <h4>@subCategoryTitle</h4>
+}
+else
+{
+    <h3>@overlayTitle</h3>
+}
+
 <div>
 
     <button>פרטי ההזנה שלי</button>
@@ -30,7 +40,7 @@
         <p>סכום כל תשלום בממוצע @(newTransaction.transValue / selectedNumber) ₪</p>
     }
     <p>אמצעי תשלום</p>
-    @if(newTransaction.valueType == null)
+    @if (newTransaction.valueType == null)
     {
         newTransaction.valueType = "מזומן";
     }
@@ -52,8 +62,15 @@
     <button>הגדרות מתקדמות</button>
     @*    להוסיף את כל מה שהסקשן הזה מכיל*@
 </div>
-<button @onclick="saveAndRepeatTransactions">שמירה והזנה נוספת</button>
-<button @onclick="saveAndEndTransactions">שמירה וסיום</button>
+@if (isItAnewTrans)
+{
+    <button @onclick="saveAndRepeatTransactions">שמירה והזנה נוספת</button>
+    <button @onclick="saveAndEndTransactions">שמירה וסיום</button>
+}
+else
+{
+    <button @onclick="updateExistingTrans">שמירה וסיום</button>
+}
 
 @if (overdraftDetected)
 {
@@ -64,7 +81,7 @@
         <p>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </p>
         <p>כדאי להגדיל את התקציב.</p>
         <p>הסכום שאני רוצה להעביר:</p>
-        <input type="number" @bind="currentGap" min="@currentGap"/><span>₪</span>
+        <input type="number" @bind="currentGap" min="@currentGap" /><span>₪</span>
         <p>מאיזו תת קטגוריה יועבר הסכום?</p>
 
         <table>
@@ -75,9 +92,9 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>                   
-                    <td>                      
-                       <select @onchange="HandleChange">
+                <tr>
+                    <td>
+                        <select @onchange="HandleChange">
                             @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
                             {
                                 @if (subcategoryOpt.id != subCategoryIDTOGet)
@@ -90,28 +107,28 @@
                         </select>
                     </td>
                     <td>
-                        @(overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle) 
-                        
+                        @(overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle)
+
                     </td>
-                </tr>                    
+                </tr>
                 <tr>
                     <p>תקציב:</p>
                     <p>נוכחי: @chosenSubCategory.monthlyPlannedBudget</p>
                     <p>עתידי: @(chosenSubCategory.monthlyPlannedBudget - currentGap)</p>
-                    
+
                 </tr>
                 <tr>
                     <p>תקציב:</p>
                     <p>נוכחי: @(closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)</p>
                     <p>עתידי: @(closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap)</p>
-                </tr>                        
+                </tr>
             </tbody>
         </table>
         <button @onclick="manageBudgetsToTranfer">העברה</button>
         <button @onclick="closeOverdraftWindow">אטפל בהמשך</button>
     </div>
 }
- 
+
 @code {
 
     [Parameter]
@@ -130,20 +147,20 @@
     public EventCallback<bool> isTransactionOverlayOpen { get; set; }
 
     [Parameter]
-    public EventCallback refreshBudget { get; set; }
-
-    [Parameter]
-    public EventCallback refreshSubCategories { get; set; }
-
-    [Parameter]
     public EventCallback<double> addTransactionToTotal { get; set; }
 
-    private DateTime? selectedDate = DateTime.Today; // Initialize selectedDate to today
+    [Parameter]
+    public TransactionToAdd newTransaction { get; set; }
 
-    TransactionToAdd newTransaction = new TransactionToAdd()
-    {
-        transDate = DateTime.Today // Set the transaction date to today
-    };
+    [Parameter]
+    public int transIDtoEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<TransactionOverviewToShow> addTransactionAfterEdit { get; set; }
+
+    private DateTime? selectedDate = DateTime.Today; // Initialize selectedDate to today
+    private bool isItAnewTrans = false;
+
 
     bool splitPayment = false;
     public bool overdraftDetected;
@@ -157,6 +174,26 @@
     OverBudgetToShow chosenSubCategory = new OverBudgetToShow();
     OverBudgetToShow overDraftSubCategory = new OverBudgetToShow();
     OverDraftBudgetToEdit subCategoryBudgetToUpdate = new OverDraftBudgetToEdit();
+
+    public string overlayTitle = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (newTransaction == null)
+        {
+            newTransaction = new TransactionToAdd()
+                {
+                    transDate = DateTime.Today // Set the transaction date to today
+                };
+            overlayTitle = "הוספה לתת קטגוריה: ";
+            isItAnewTrans = true;
+        }
+        else
+        {
+            overlayTitle = "עריכת הזנה";
+            isItAnewTrans = false;
+        }
+    }
 
     private void HandleChange(ChangeEventArgs e)
     {
@@ -180,8 +217,8 @@
                 Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                 addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                 isTransactionOverlayOpen.InvokeAsync(false);
-                refreshBudget.InvokeAsync();
-                refreshSubCategories.InvokeAsync();
+
+
             }
         }
         else
@@ -213,6 +250,48 @@
             Console.WriteLine("הזנה נכשלה");
         }
     }
+    public async Task updateExistingTrans()
+    {
+        TransactionToEdit transToEdit = new TransactionToEdit()
+            {
+                id = transIDtoEdit,
+                transValue = newTransaction.transValue,
+                transType = newTransaction.transType,
+                valueType = newTransaction.valueType,
+                transDate = newTransaction.transDate,
+                fixedMonthly = newTransaction.fixedMonthly,
+                tagID = newTransaction.tagID,
+                transTitle = newTransaction.transTitle,
+                parentTransID = newTransaction.parentTransID,
+                description = newTransaction.description
+            };
+        var transEditRes = await Http.PostAsJsonAsync("api/Transactions/editTransaction", transToEdit);
+        if (transEditRes.IsSuccessStatusCode)
+        {
+            Console.WriteLine("ההזנה עודכנה בהצלחה :)");
+            await checkOverdraft();
+            if (!overdraftDetected)
+            {
+                TransactionToEdit postEditTrans = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();
+                TransactionOverviewToShow editedTransaction = new TransactionOverviewToShow();
+                editedTransaction.id = postEditTrans.id;
+                editedTransaction.transValue = postEditTrans.transValue;
+                editedTransaction.transType = postEditTrans.transType;
+                editedTransaction.valueType = postEditTrans.valueType;
+                editedTransaction.transDate = postEditTrans.transDate.ToShortDateString();
+                editedTransaction.fixedMonthly = postEditTrans.fixedMonthly;
+                editedTransaction.tagID = postEditTrans.tagID;
+                editedTransaction.transTitle = postEditTrans.transTitle;
+                editedTransaction.parentTransID = postEditTrans.parentTransID;
+                editedTransaction.description = postEditTrans.description;
+
+                addTransactionAfterEdit.InvokeAsync(editedTransaction);
+
+
+            }
+
+        }
+    }
 
     public async Task manageBudgetsToTranfer()
     {
@@ -238,13 +317,11 @@
         Console.WriteLine(overDraftSubCategory.monthlyPlannedBudget);
 
         await updateSubCategoryBudget(budgetToUpdate);
-        await refreshBudget.InvokeAsync();
+
     }
 
     public async Task checkOverdraft()
     {
-
-
         var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + newTransaction.subCategoryID + "/" + userID);
         if (overdraftRes.IsSuccessStatusCode)
         {
@@ -256,7 +333,7 @@
             overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
             overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
             chosenSubCategory = closeOverdraftOpts[0];
-            
+
 
         }
         else
@@ -277,7 +354,7 @@
             overdraftDetected = false;
             isTransactionOverlayOpen.InvokeAsync(false);
             gapsToUpdateBudgets.InvokeAsync(budgetsToUpdate);
-            //refreshBudget.InvokeAsync();
+
 
 
         }
@@ -291,8 +368,9 @@
     {
         overdraftDetected = false;
         isTransactionOverlayOpen.InvokeAsync(false);
-        refreshSubCategories.InvokeAsync();
-        //refreshBudget.InvokeAsync();
     }
-
+    public void transOverlayControl()
+    {
+        isTransactionOverlayOpen.InvokeAsync(false);
+    }
 }

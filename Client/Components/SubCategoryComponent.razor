@@ -7,7 +7,11 @@
 <button @onclick="(() => isOptBtnClicked = !isOptBtnClicked)">options</button>
 @if (isOptBtnClicked)
 {
-    <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCat"></OptionsMenuComponent>
+    <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
+}
+@if (deleteBtnClicked)
+{
+    <GeneralPopUpComponent popupTypeTitle="מחיקת תת קטגוריה" middleText="@popupBodyText" action="מחיקה" makeAction="deleteSubCat" closePopUp="deleteSubCatPopUp"></GeneralPopUpComponent>
 }
 <h3>@subCategoryTitle</h3>
 <button @onclick="goToTransactionsPage"> @totalSpendings/@budget</button>
@@ -19,7 +23,7 @@
 
 @if (openTransOverlay)
 {
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" refreshBudget="refreshPage" gapsToUpdateBudgets="gapsToUpdateTheBudget" refreshSubCategories="refreshSubCats" addTransactionToTotal="addNewTransToTotalSpendings"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget"  addTransactionToTotal="addNewTransToTotalSpendings"></AddTransactionComponent>
 }
 @if (editSubCatBtnClicked)
 {
@@ -126,9 +130,7 @@
     [Parameter]
     public double totalSpendings { get; set; }
 
-    [Parameter]
 
-    public EventCallback refreshPage { get; set; }
 
     [Parameter]
 
@@ -158,6 +160,7 @@
     bool isOptBtnClicked = false; //the options button
     bool editSubCatBtnClicked = false;
     bool deleteBtnClicked = false;
+    string popupBodyText = "";
 
     public bool openTransOverlay = false;
 
@@ -169,7 +172,7 @@
     public void gapsToUpdateTheBudget(List<OverDraftBudgetToEdit> gaps)
     {
         subCatTakenBudget.InvokeAsync(gaps);
-        //budget = gaps[1].monthlyPlannedBudget;
+        
     }
 
 
@@ -257,6 +260,12 @@
         }
     }
 
+
+    public void deleteSubCatPopUp()
+    {
+        deleteBtnClicked = !deleteBtnClicked;
+        popupBodyText = "תת הקטגוריה '" + subCategoryTitle + "' עומדת להמחק";
+    }
     public async Task deleteSubCat()
     {
         var deleteRes = await Http.DeleteAsync("api/Present/deleteSubCategory/" + subCategoryIDToGet);

@@ -70,10 +70,10 @@
         {
             if (givingsubCatCategoryID > 0 && category.id == givingsubCatCategoryID)
             {
-                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" deleteCat="removeCat " subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"> </CategoryComponent>
+                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID"  deleteCat="removeCat " subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"> </CategoryComponent>
             }else{
 
-            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" refreshPage="async() => await RefreshComponent()" deleteCat="removeCat " subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"> </CategoryComponent>
+            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat " subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"> </CategoryComponent>
             }
 
         }
@@ -373,32 +373,6 @@
             {
                 msg = "Error adding new user";
             }
-        }
-    }
-
-    public async Task RefreshComponent()
-    {
-
-
-        var userRes = await Http.GetAsync("api/Present/userToShow/" + userGoogleId);
-
-        if (userRes.IsSuccessStatusCode)
-        {
-            currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
-            userID = currentUser.id;
-            accordionRefresh = true;
-
-        }
-        else
-        {
-            string error = userRes.Content.ReadAsStringAsync().Result;
-            switch (error)
-            {
-                case "User Not Found":
-                    msg = "User not found ";
-                    break;
-            }
-
         }
     }
 

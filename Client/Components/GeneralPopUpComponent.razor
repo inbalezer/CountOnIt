@@ -7,7 +7,7 @@
 
 <h3> @popupTypeTitle</h3>
 <p>@middleText</p><span>@name</span>
-<button >ביטול</button>
+<button @onclick="undoAction">ביטול</button>
 <button @onclick=doAction>@action</button>
 
 
@@ -25,10 +25,19 @@
 
     public EventCallback makeAction { get; set; }
 
+    [Parameter]
+
+    public EventCallback closePopUp { get; set; }
+
     public void doAction()
     {
         makeAction.InvokeAsync();
 
+    }
+
+    public void undoAction()
+    {
+        closePopUp.InvokeAsync();
     }
 
 

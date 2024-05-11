@@ -189,11 +189,20 @@ namespace CountOnIt.Server.Controllers
         {
             object param = new
             {
-                ID = subCatID
+                ID = subCatID,
+                StartOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+                EndOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month))
             };
 
-            string GetAllSubCatTransactionsQuery = "SELECT id, transType, transValue, valueType, transDate, description, fixedMonthly, tagID, transTitle, parentTransID FROM finaldb.transactions where subCategoryID=@ID and transType=1;";
-            var recordSubCatCurrentTrans = await _db.GetRecordsAsync<TransactionOverviewToShow>(GetAllSubCatTransactionsQuery, param);
+            string getAllSubCatTransactionsQuery = @"
+        SELECT id, transType, transValue, valueType, transDate, description, fixedMonthly, tagID, transTitle, parentTransID 
+        FROM transactions 
+        WHERE subCategoryID = @ID 
+        AND transType = 1 
+        AND transDate >= @StartOfMonth 
+        AND transDate <= @EndOfMonth
+        ORDER BY transDate DESC;";
+            var recordSubCatCurrentTrans = await _db.GetRecordsAsync<TransactionOverviewToShow>(getAllSubCatTransactionsQuery, param);
             var subCatTransactions = recordSubCatCurrentTrans.ToList();
 
             if (subCatTransactions != null)
@@ -202,6 +211,48 @@ namespace CountOnIt.Server.Controllers
             }
 
             return BadRequest("Couldn't find this sub cat's budget");
+        }
+
+        [HttpDelete("deleteTransaction/{TransIdToDelete}")] // מחיקת הזנה
+        public async Task<IActionResult> DeleteTransaction(int TransIdToDelete)
+        {
+            string DeleteQuery = "DELETE FROM transactions WHERE id=@ID";
+            bool isTransDeleted = await _db.SaveDataAsync(DeleteQuery, new { ID = TransIdToDelete });
+
+            if (isTransDeleted)
+            {
+                return Ok();
+            }
+
+            return BadRequest("Failed to delete transaction");
+        }
+
+        [HttpPost("editTransaction")]
+        public async Task<IActionResult> updateTransaction(TransactionToEdit transToEdit)
+        {
+
+            object transUpdateParam = new
+            {
+                ID = transToEdit.id,
+                transType=transToEdit.transType,
+                transValue=transToEdit.transValue,
+                valueType=transToEdit.valueType,
+                transDate=transToEdit.transDate,
+                description= transToEdit.description,
+                fixedMonthly=transToEdit.fixedMonthly,
+                tagID=transToEdit.tagID,
+                parentTransID= transToEdit.parentTransID,
+                transTitle=transToEdit.transTitle
+            };
+
+            string UpdateTransQuery = "UPDATE transactions set transType = @transType, transValue = @transValue, valueType = @valueType, transDate=@transDate, description=@description, fixedMonthly=@fixedMonthly, tagID=@tagID, parentTransID=@parentTransID, transTitle=@transTitle where id =@ID";
+            bool isUpdate = await _db.SaveDataAsync(UpdateTransQuery, transUpdateParam);
+
+            if (isUpdate)
+            {
+                return Ok(transToEdit);
+            }
+            return BadRequest("update sub category failed");
         }
     }
 }
