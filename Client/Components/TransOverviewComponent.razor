@@ -8,7 +8,7 @@
 <OptionsMenuComponent deleteBtnClicked="deleteTransPopUp" editBtnClicked="editTransPopUp"></OptionsMenuComponent>
 @if (deleteBtnClicked)
 {
-    <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" action="מחיקה" makeAction="deleteTrans" closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
+    <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" action="🗑️מחיקה" makeAction="deleteTrans" closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
 }
 @if (editBtnClicked)
 {
@@ -27,6 +27,10 @@
 };
     <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transaction.id" newTransaction="newTransaction" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans"></AddTransactionComponent>
 }
+@if (overdraftDetected && transaction.transType == 1)
+{
+    <span>⚠️ הזנה חורגת</span>
+}
 <br />
 <span>@transaction.transDate</span>
 <br />
@@ -43,11 +47,8 @@
 {
     <span>הוצאה חוזרת</span>
 }
-@if (overdraftDetected)
-{
-    <span>⚠️ הזנה חורגת</span>
-}
-<hr />
+
+
 
 @code {
     [Parameter]
@@ -104,7 +105,7 @@
         }
         else
         {
-            Console.WriteLine(" בעיה במחיקת הזנה");
+            Console.WriteLine("בעיה במחיקת הזנה");
         }
     }
 
@@ -149,18 +150,18 @@
         budgetToUpdate = new List<OverDraftBudgetToEdit>();
 
         budgetToUpdate.Add(new OverDraftBudgetToEdit
-            {
-                id = chosenSubCategory.id,  // ID of chosen subcategory
-                monthlyPlannedBudget = chosenSubCategory.monthlyPlannedBudget - currentGap // Updated budget
+        {
+            id = chosenSubCategory.id,  // ID of chosen subcategory
+            monthlyPlannedBudget = chosenSubCategory.monthlyPlannedBudget - currentGap // Updated budget
 
-            });
+        });
 
 
         budgetToUpdate.Add(new OverDraftBudgetToEdit
-            {
-                id = overDraftSubCategory.id, // ID of the overdraft subcategory
-                monthlyPlannedBudget = overDraftSubCategory.monthlyPlannedBudget + currentGap // Updated budget
-            });
+        {
+            id = overDraftSubCategory.id, // ID of the overdraft subcategory
+            monthlyPlannedBudget = overDraftSubCategory.monthlyPlannedBudget + currentGap // Updated budget
+        });
 
         Console.WriteLine(budgetToUpdate[1].monthlyPlannedBudget);
         Console.WriteLine(budgetToUpdate[1].id);
@@ -182,9 +183,6 @@
             overdraftDetected = false;
             //isTransactionOverlayOpen.InvokeAsync(false);
             gapsToUpdateBudgets.InvokeAsync(budgetsToUpdate);
-
-
-
         }
         else
         {

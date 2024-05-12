@@ -125,7 +125,7 @@ else
             </tbody>
         </table>
         <button @onclick="manageBudgetsToTranfer">העברה</button>
-        <button @onclick="closeOverdraftWindow">אטפל בהמשך</button>
+        <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
     </div>
 }
 
@@ -255,6 +255,8 @@ else
     }
     public async Task updateExistingTrans()
     {
+
+
         TransactionToEdit transToEdit = new TransactionToEdit()
             {
                 id = transIDtoEdit,
@@ -268,13 +270,15 @@ else
                 parentTransID = newTransaction.parentTransID,
                 description = newTransaction.description
             };
+
+
         var transEditRes = await Http.PostAsJsonAsync("api/Transactions/editTransaction", transToEdit);
         if (transEditRes.IsSuccessStatusCode)
         {
             Console.WriteLine("ההזנה עודכנה בהצלחה :)");
             await checkOverdraft();
-            TransactionToEdit postEditTrans = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();
-            if (!overdraftDetected)
+            TransactionToEdit postEditTrans = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();            
+            if(postEditTrans != null)
             {
                 TransactionOverviewToShow editedTransaction = new TransactionOverviewToShow();
                 editedTransaction.id = postEditTrans.id;
@@ -288,10 +292,16 @@ else
                 editedTransaction.parentTransID = postEditTrans.parentTransID;
                 editedTransaction.description = postEditTrans.description;
 
-
                 addTransactionAfterEdit.InvokeAsync(editedTransaction);
+             
+            }
+
+            if (!overdraftDetected)
+            {
+                isTransactionOverlayOpen.InvokeAsync(false);
 
             }
+           
 
         }
     }
@@ -367,12 +377,31 @@ else
         }
     }
 
-    void closeOverdraftWindow() //update to transType=3
+
+    public async Task closeOverdraftWindow()
     {
-        overdraftDetected = false;
+
+        var transOverdraftRes = await Http.GetAsync("api/Transactions/updateOverDraftTrans/" + transIDtoEdit);
+        if (transOverdraftRes.IsSuccessStatusCode)
+        {
+
+            overdraftNotTreated.InvokeAsync(true);
+
+        }
+        else
+        {
+            Console.WriteLine("update trans type failed");
+
+        }
+
+        overdraftDetected = true;
         isTransactionOverlayOpen.InvokeAsync(false);
-        overdraftNotTreated.InvokeAsync(true);
+
     }
+
+
+
+
     public void transOverlayControl()
     {
         isTransactionOverlayOpen.InvokeAsync(false);

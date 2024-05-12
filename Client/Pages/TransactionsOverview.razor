@@ -17,7 +17,7 @@
 <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
 @if (deleteBtnClicked)
 {
-    <GeneralPopUpComponent popupTypeTitle="מחיקת תת קטגוריה" middleText="@popupBodyText" action="מחיקה" makeAction="deleteSubCat" closePopUp="deleteSubCatPopUp"></GeneralPopUpComponent>
+    <GeneralPopUpComponent popupTypeTitle="מחיקת תת קטגוריה" middleText="@popupBodyText" action="מחיקה🗑️" makeAction="deleteSubCat" closePopUp="deleteSubCatPopUp"></GeneralPopUpComponent>
 }
 @if (editSubCatBtnClicked)
 {
@@ -113,8 +113,14 @@
     {
         @foreach (TransactionOverviewToShow transaction in allTransactions)
         {
+            
             <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus"></TransOverviewComponent>
 
+            if (transaction.transType == 3)
+            {
+                <span>⚠️ הזנה חורגת</span>
+            }
+            <hr />
         }
         @if (totalSpendings<budget && budget!=null)
         {

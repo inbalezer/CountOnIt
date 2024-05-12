@@ -254,5 +254,23 @@ namespace CountOnIt.Server.Controllers
             }
             return BadRequest("update sub category failed");
         }
+
+        [HttpGet("updateOverDraftTrans/{transID}")]
+        public async Task<IActionResult> updateOverDraftTrans(int transID)
+        {
+            object transTypeUpdateParam = new
+            {
+                ID = transID              
+            };
+
+            string UpdateTransQuery = "UPDATE transactions set transType = 3 WHERE id =@ID";
+            bool isUpdate = await _db.SaveDataAsync(UpdateTransQuery, transTypeUpdateParam);
+
+            if (isUpdate)
+            {
+                return Ok(transID);
+            }
+            return BadRequest("update trans type failed");
+        }
     }
 }

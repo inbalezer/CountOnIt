@@ -17,8 +17,7 @@
     }
     <span>@Category.color</span>
     @userID
-    <button @onclick="OpetionsBtnClicked">
-    </button>
+    <button @onclick="OpetionsBtnClicked">🚦</button>
     @if (isOpetionsBtnClicked)
     {
         <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked"></OptionsMenuComponent>
@@ -31,11 +30,11 @@
     }
     @if (deleteBtnClicked)
     {
-        <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="מחיקה" makeAction=@deleteCategory closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
+        <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="🗑מחיקה" makeAction=@deleteCategory closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
     }
 
 
-    <button @onclick="accordionControl">open accordion</button>
+    <button @onclick="accordionControl">🔽</button>
     @if (isAccordionClick)
     {
         <button @onclick="getUserCategories">תת קטגוריה חדשה +</button>
