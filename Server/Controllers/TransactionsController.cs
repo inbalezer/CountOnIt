@@ -209,8 +209,8 @@ namespace CountOnIt.Server.Controllers
     tags.tagTitle,
     tags.tagColor
 FROM transactions 
-JOIN tags ON transactions.tagID = tags.id
-WHERE transactions.subCategoryID = 25
+LEFT JOIN tags ON transactions.tagID = tags.id
+WHERE transactions.subCategoryID = @ID
 AND (transactions.transType = 1 OR transactions.transType = 3)
 ORDER BY transactions.transDate DESC;";
 

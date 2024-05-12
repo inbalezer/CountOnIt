@@ -72,13 +72,41 @@ else
     {
         <div>
             <p>תגית</p>
-            <p>@chosenTag</p>
-
-            @foreach (TagsToShow tag in allUserTags)
+            <p>@chosenTag.tagTitle</p>
+            @if (isItAnewTrans || newTransaction.tagID == null)
             {
-                <button style="background-color:@tag.tagColor">@tag.tagTitle</button>
-                
+                <button @onclick="() => openTagsMenu = !openTagsMenu">➕</button>
             }
+            else
+            {
+                @*chosenTag.tagTitle = newTransaction.tagTitle;*@
+                
+
+                @foreach (TagsToShow tag in allUserTags)
+                {
+                    string buttonStyle = "background-color:" + tag.tagColor + ";";
+
+                    @if (tag.id == newTransaction.tagID)
+                    {
+                        buttonStyle += "border: 2px solid black;";
+                        <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
+                    }
+                    else
+                    {
+                        buttonStyle += "border: none;";
+                        <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
+                    }
+                }
+            }           
+
+            @if (openTagsMenu)
+            {
+                @foreach (TagsToShow tag in allUserTags)
+                {
+                    <button @onclick="(() => ChooseTagForTrans(tag))" style="background-color:@tag.tagColor">@tag.tagTitle</button>
+                }
+            }
+            
                 
         </div>
 
@@ -91,6 +119,7 @@ else
 {
     <button @onclick="saveAndRepeatTransactions">שמירה והזנה נוספת</button>
     <button @onclick="saveAndEndTransactions">שמירה וסיום</button>
+
 }
 else
 {
@@ -186,24 +215,28 @@ else
     [Parameter]
     public EventCallback<bool> overdraftNotTreated { get; set; }
 
-    private DateTime? selectedDate = DateTime.Today; // Initialize selectedDate to today
-    private bool isItAnewTrans = false;
-    public bool overdraftDetected;
-    bool splitPayment = false;
-    bool isTopDropDownOpen = true;
-    bool isButtomDropDownOpen = false;  
-    private int selectedNumber = 1; // Default value
-    double currentGap = 0;
-    public string chosenTag = "";
-    public string overlayTitle = "";
-
     List<OverBudgetToShow> closeOverdraftOpts = new List<OverBudgetToShow>();
     List<OverDraftBudgetToEdit> budgetToUpdate = new List<OverDraftBudgetToEdit>();
     List<TagsToShow> allUserTags = new List<TagsToShow>();
+
+    TagsToShow chosenTag = new TagsToShow();
     OverBudgetToShow chosenSubCategory = new OverBudgetToShow();
     OverBudgetToShow overDraftSubCategory = new OverBudgetToShow();
     OverDraftBudgetToEdit subCategoryBudgetToUpdate = new OverDraftBudgetToEdit();
 
+
+    private DateTime? selectedDate = DateTime.Today; // Initialize selectedDate to today
+    private bool isItAnewTrans = false;
+    //public bool isTagClicked = false;
+    public bool overdraftDetected;
+    bool splitPayment = false;
+    bool isTopDropDownOpen = true;
+    bool isButtomDropDownOpen = false;  
+    bool openTagsMenu = false;
+    private int selectedNumber = 1; // Default value
+    double currentGap = 0;
+    public string overlayTitle = "";   
+    //string clikckedTag => isTagClicked ? "border: solid,0.1em,black" : "border:none";
 
 
     protected override async Task OnInitializedAsync()
@@ -222,6 +255,11 @@ else
             overlayTitle = "עריכת הזנה";
             isItAnewTrans = false;
         }
+
+        if(newTransaction.tagID > 0)
+        {
+            chosenTag.tagTitle = newTransaction.tagTitle;
+        }
     }
 
     private void HandleChange(ChangeEventArgs e)
@@ -236,6 +274,13 @@ else
     {
         newTransaction.subCategoryID = subCategoryIDTOGet;
         newTransaction.transType = 1;
+        newTransaction.tagID = null;
+
+        if (chosenTag.id > 0 )
+        {
+            newTransaction.tagID = chosenTag.id;
+        }
+
 
         var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
         if (transToSaveRes.IsSuccessStatusCode)
@@ -290,7 +335,9 @@ else
                 valueType = newTransaction.valueType,
                 transDate = newTransaction.transDate,
                 fixedMonthly = newTransaction.fixedMonthly,
-                tagID = newTransaction.tagID,
+                tagID = chosenTag.id,
+                tagColor = chosenTag.tagColor,
+                tagTitle = chosenTag.tagTitle,
                 transTitle = newTransaction.transTitle,
                 parentTransID = newTransaction.parentTransID,
                 description = newTransaction.description
@@ -318,6 +365,8 @@ else
                 editedTransaction.transDate = postEditTrans.transDate.ToShortDateString();
                 editedTransaction.fixedMonthly = postEditTrans.fixedMonthly;
                 editedTransaction.tagID = postEditTrans.tagID;
+                editedTransaction.tagColor = postEditTrans.tagColor;
+                editedTransaction.tagTitle = postEditTrans.tagTitle;
                 editedTransaction.transTitle = postEditTrans.transTitle;
                 editedTransaction.parentTransID = postEditTrans.parentTransID;
                 editedTransaction.description = postEditTrans.description;
@@ -459,7 +508,11 @@ else
                 Console.WriteLine("No tags found");
             }
         }
+    }
 
+    public void ChooseTagForTrans(TagsToShow tag)
+    {
+        chosenTag = tag;
         
     }
 }
