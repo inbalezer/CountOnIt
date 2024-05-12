@@ -40,7 +40,7 @@
 }
 @if (transaction.tagID != null)
 {
-    <span>Tag name</span>
+    <span style="background-color:@transaction.tagColor">@transaction.tagTitle</span>
 }
 <span>@transaction.valueType</span>
 @if (transaction.fixedMonthly == true)

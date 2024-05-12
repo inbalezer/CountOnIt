@@ -195,13 +195,25 @@ namespace CountOnIt.Server.Controllers
             };
 
             string getAllSubCatTransactionsQuery = @"
-        SELECT id, transType, transValue, valueType, transDate, description, fixedMonthly, tagID, transTitle, parentTransID 
-        FROM transactions 
-        WHERE subCategoryID = @ID 
-        AND transDate >= @StartOfMonth 
-        AND transDate <= @EndOfMonth
-        AND transType = 1 OR transType = 3
-        ORDER BY transDate DESC;";
+        SELECT 
+    transactions.id, 
+    transactions.transType, 
+    transactions.transValue, 
+    transactions.valueType, 
+    transactions.transDate, 
+    transactions.description, 
+    transactions.fixedMonthly, 
+    transactions.tagID, 
+    transactions.transTitle, 
+    transactions.parentTransID,
+    tags.tagTitle,
+    tags.tagColor
+FROM transactions 
+JOIN tags ON transactions.tagID = tags.id
+WHERE transactions.subCategoryID = 25
+AND (transactions.transType = 1 OR transactions.transType = 3)
+ORDER BY transactions.transDate DESC;";
+
             var recordSubCatCurrentTrans = await _db.GetRecordsAsync<TransactionOverviewToShow>(getAllSubCatTransactionsQuery, param);
             var subCatTransactions = recordSubCatCurrentTrans.ToList();
 
@@ -271,6 +283,26 @@ namespace CountOnIt.Server.Controllers
                 return Ok(transID);
             }
             return BadRequest("update trans type failed");
+        }
+
+
+        [HttpGet("getAllUserTags/{userID}")]
+        public async Task<IActionResult> getAllUserTags(int userID)
+        {
+            object allTagsParam = new
+            {
+                ID = userID
+            };
+
+            string getTagsQuery = "SELECT DISTINCT tags.id, tags.tagTitle, tags.tagColor FROM users JOIN categories ON users.id = categories.userID JOIN subcategories ON categories.id = subcategories.categoryID JOIN transactions ON subcategories.id = transactions.subCategoryID JOIN tags ON transactions.tagID = tags.id WHERE users.id = @ID";
+            var recordUserTags = await _db.GetRecordsAsync<TagsToShow>(getTagsQuery, allTagsParam);
+            List<TagsToShow> userTagsList = recordUserTags.ToList();
+
+            if (userTagsList.Count > 0)
+            {                
+                return Ok(userTagsList);
+            }
+            return BadRequest("tags not found");
         }
     }
 }

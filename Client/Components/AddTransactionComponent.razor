@@ -16,52 +16,77 @@ else
 
 <div>
 
-    <button>פרטי ההזנה שלי</button>
-    <p>פרטי ההזנה</p>
-    <input type="text" @bind="newTransaction.transTitle" />
+    <button @onclick="() => isTopDropDownOpen = !isTopDropDownOpen">פרטי ההזנה שלי</button>
 
-    <input type="date" @bind="newTransaction.transDate" />
-
-    <p>סכום ההזנה</p>
-    <input type="number" @bind="newTransaction.transValue" />
-    <p>ההזנה בתשלומים?</p>
-    <input type="checkbox" @bind="splitPayment" />
-    @if (splitPayment)
+    @if(isTopDropDownOpen)
     {
-        <select @bind="selectedNumber">
-            @for (int i = 1; i <= 12; i++)
-            {
-                <option value="@i">@i תשלומים</option>
+    <div>
+        <p>פרטי ההזנה</p>
+        <input type="text" @bind="newTransaction.transTitle" />
 
-            }
-            selectedNumber = i;
+        <input type="date" @bind="newTransaction.transDate" />
+
+        <p>סכום ההזנה</p>
+        <input type="number" @bind="newTransaction.transValue" />
+        <p>ההזנה בתשלומים?</p>
+        <input type="checkbox" @bind="splitPayment" />
+        @if (splitPayment)
+        {
+            <select @bind="selectedNumber">
+                @for (int i = 1; i <= 12; i++)
+                {
+                    <option value="@i">@i תשלומים</option>
+
+                }
+                selectedNumber = i;
+            </select>
+
+            <p>סכום כל תשלום בממוצע @(newTransaction.transValue / selectedNumber) ₪</p>
+        }
+        <p>אמצעי תשלום</p>
+
+        @if (newTransaction.valueType == null)
+        {
+            newTransaction.valueType = "מזומן";
+        }
+
+        <select @bind="newTransaction.valueType">
+
+            <option value="מזומן">מזומן</option>
+            <option value="אשראי">אשראי</option>
+            <option value="ביט/פייבוקס">ביט/פייבוקס</option>
+            <option value="אחר">אחר</option>
+
         </select>
-
-        <p>סכום כל תשלום בממוצע @(newTransaction.transValue / selectedNumber) ₪</p>
+        @if (!string.IsNullOrEmpty(newTransaction.valueType))
+        {
+            <p>שיטת תשלום נבחרת: @newTransaction.valueType</p>
+        }
+        <button>הגדרת ההוצאה כחוזרת</button>@* לעשות קומפוננטה של חלון הגדרת הוצאה כחוזרת*@
+    </div>
     }
-    <p>אמצעי תשלום</p>
-    @if (newTransaction.valueType == null)
+
+    <button @onclick="@(async () => await getAllUserTags())">הגדרות מתקדמות</button>
+
+    @if(isButtomDropDownOpen)
     {
-        newTransaction.valueType = "מזומן";
-    }
-    <select @bind="newTransaction.valueType">
+        <div>
+            <p>תגית</p>
+            <p>@chosenTag</p>
 
-        <option value="מזומן">מזומן</option>
-        <option value="אשראי">אשראי</option>
-        <option value="ביט/פייבוקס">ביט/פייבוקס</option>
-        <option value="אחר">אחר</option>
+            @foreach (TagsToShow tag in allUserTags)
+            {
+                <button style="background-color:@tag.tagColor">@tag.tagTitle</button>
+                
+            }
+                
+        </div>
 
-    </select>
-    @if (!string.IsNullOrEmpty(newTransaction.valueType))
-    {
-        <p>שיטת תשלום נבחרת: @newTransaction.valueType</p>
+        <p>פירוט:</p>
+        <input type="text" />
     }
-    <button>הגדרת ההוצאה כחוזרת</button>@* לעשות קומפוננטה של חלון הגדרת הוצאה כחוזרת*@
 </div>
-<div>
-    <button>הגדרות מתקדמות</button>
-    @*    להוסיף את כל מה שהסקשן הזה מכיל*@
-</div>
+
 @if (isItAnewTrans)
 {
     <button @onclick="saveAndRepeatTransactions">שמירה והזנה נוספת</button>
@@ -163,22 +188,23 @@ else
 
     private DateTime? selectedDate = DateTime.Today; // Initialize selectedDate to today
     private bool isItAnewTrans = false;
-
-
-    bool splitPayment = false;
     public bool overdraftDetected;
+    bool splitPayment = false;
+    bool isTopDropDownOpen = true;
+    bool isButtomDropDownOpen = false;  
     private int selectedNumber = 1; // Default value
     double currentGap = 0;
+    public string chosenTag = "";
+    public string overlayTitle = "";
 
     List<OverBudgetToShow> closeOverdraftOpts = new List<OverBudgetToShow>();
     List<OverDraftBudgetToEdit> budgetToUpdate = new List<OverDraftBudgetToEdit>();
-
-
+    List<TagsToShow> allUserTags = new List<TagsToShow>();
     OverBudgetToShow chosenSubCategory = new OverBudgetToShow();
     OverBudgetToShow overDraftSubCategory = new OverBudgetToShow();
     OverDraftBudgetToEdit subCategoryBudgetToUpdate = new OverDraftBudgetToEdit();
 
-    public string overlayTitle = "";
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -256,7 +282,6 @@ else
     public async Task updateExistingTrans()
     {
 
-
         TransactionToEdit transToEdit = new TransactionToEdit()
             {
                 id = transIDtoEdit,
@@ -271,14 +296,19 @@ else
                 description = newTransaction.description
             };
 
+        if (!overdraftDetected)
+        {
+            transToEdit.transType = 1;
+        }
+
 
         var transEditRes = await Http.PostAsJsonAsync("api/Transactions/editTransaction", transToEdit);
         if (transEditRes.IsSuccessStatusCode)
         {
             Console.WriteLine("ההזנה עודכנה בהצלחה :)");
             await checkOverdraft();
-            TransactionToEdit postEditTrans = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();            
-            if(postEditTrans != null)
+            TransactionToEdit postEditTrans = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();
+            if (postEditTrans != null)
             {
                 TransactionOverviewToShow editedTransaction = new TransactionOverviewToShow();
                 editedTransaction.id = postEditTrans.id;
@@ -293,15 +323,18 @@ else
                 editedTransaction.description = postEditTrans.description;
 
                 addTransactionAfterEdit.InvokeAsync(editedTransaction);
-             
+
             }
 
             if (!overdraftDetected)
             {
+
+
                 isTransactionOverlayOpen.InvokeAsync(false);
 
+
             }
-           
+
 
         }
     }
@@ -405,5 +438,28 @@ else
     public void transOverlayControl()
     {
         isTransactionOverlayOpen.InvokeAsync(false);
+    }
+
+
+
+    public async Task getAllUserTags()
+    {
+
+        isButtomDropDownOpen = !isButtomDropDownOpen;
+
+        if (isButtomDropDownOpen)
+        {
+            var allTagsRes = await Http.GetAsync("api/Transactions/getAllUserTags/" + userID);
+            if (allTagsRes.IsSuccessStatusCode)
+            {
+                allUserTags = await allTagsRes.Content.ReadFromJsonAsync<List<TagsToShow>>();
+            }
+            else
+            {
+                Console.WriteLine("No tags found");
+            }
+        }
+
+        
     }
 }

@@ -16,6 +16,8 @@ namespace CountOnIt.Shared.Models.present.toEdit
         public string? description { get; set; }
         public bool? fixedMonthly { get; set; }
         public int? tagID { get; set; }
+        public string? tagTitle { get; set; }
+        public string? tagColor { get; set; }
         public int? parentTransID { get; set; }
         public string transTitle { get; set; }
     }

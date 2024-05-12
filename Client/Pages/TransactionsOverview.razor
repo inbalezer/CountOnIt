@@ -120,6 +120,11 @@
             {
                 <span>⚠️ הזנה חורגת</span>
             }
+            else
+            {
+                overdraftStatus = false;
+            }
+
             <hr />
         }
         @if (totalSpendings<budget && budget!=null)
@@ -204,8 +209,6 @@
                 {
                     totalSpendings += trans.transValue;
                 }
-
-
             }
             else
             {
