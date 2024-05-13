@@ -1,6 +1,8 @@
 ﻿@using CountOnIt.Shared.Models.present.toAdd
 @using CountOnIt.Shared.Models.present.toShow
 @using CountOnIt.Shared.Models.present.toEdit
+@using System;
+@using System.Globalization;
 @inject HttpClient Http
 
 <button class="modal-close-btn" @onclick="transOverlayControl">&times;</button>
@@ -62,35 +64,36 @@ else
             {
                 <p>שיטת תשלום נבחרת: @newTransaction.valueType</p>
             }
-            <button @onclick="() => returningTrans = !returningTrans">הגדרת ההוצאה כחוזרת</button>@* לעשות קומפוננטה של חלון הגדרת הוצאה כחוזרת*@
+            <button @onclick="repeatingTransOverlay">הגדרת ההוצאה כחוזרת</button>@* לעשות קומפוננטה של חלון הגדרת הוצאה כחוזרת*@
             @if (returningTrans)
             {
                 <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
                 <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
-                    @if (resetMonthValues == false)
+                @if (resetMonthValues == false)
+                {
+                    @foreach (string month in months)
                     {
-                        @foreach (string month in months)
-                        {
-                            <div>
-                                <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
-                                <input type="text"
-                   disabled="@IsPastMonth(month)" value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                            </div>
-                        }
 
-                        <button>שמירה וחזרה</button>
-                        <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
+                        <div>
+                            <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+                            <input type="text"
+                   disabled="@IsPastMonth(month)" value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                        </div>
                     }
-                    else
+
+                    <button>שמירה וחזרה</button>
+                    <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
+                }
+                else
+                {
+                    @foreach (string month in months)
                     {
-                        @foreach (string month in months)
-                        {
-                            <div>
-                                <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
-                                <input type="text"
+                        <div>
+                            <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+                            <input type="text"
                    disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                            </div>
-                        }
+                        </div>
+                    }
                     @if (isValueTyped)
                     {
                         <button>שמירה וחזרה</button>
@@ -98,10 +101,10 @@ else
                     else
                     {
                         <button disabled>שמירה וחזרה</button>
-                        
+
                     }
                     <button @onclick="() => resetMonthValues = !resetMonthValues">לסכומים המקוריים</button>
-                    }
+                }
             }
         </div>
     }
@@ -288,6 +291,8 @@ else
     };
     private bool isValueTyped = false;
     private string GetCurrentMonth() => DateTime.Now.ToString("MMMM");
+    private Dictionary<string, string> monthsAndValues = new Dictionary<string, string>();
+    List<TransactionToAdd> transactionsToAdd = new List<TransactionToAdd>();
 
     public string GetHebrewMonthName(string month)
     {
@@ -317,19 +322,49 @@ else
     }
     private string GetDefaultValue(string month)
     {
-        return IsPastMonth(month) ? "0" : newTransaction.transValue.ToString(); // Adjust "Default Value" as necessary
+        return IsPastMonth(month) ? "0" : newTransaction.transValue.ToString();
     }
+
     private void HandleInput(ChangeEventArgs e, string monthName)
     {
+        int currentDay = DateTime.Now.Day;
+        int currentYear = DateTime.Now.Year;
+
+        // Build the date string using today's day, the given month, and the current year
+        string dateString = $"{currentDay} {monthName} {currentYear}";
+
+        DateTime date;
+        if (DateTime.TryParseExact(dateString, "d MMMM yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+        {
+            Console.WriteLine(date.ToString("yyyy-MM-dd"));
+        }
+        else
+        {
+            Console.WriteLine("Invalid month name or format.");
+        }
         string newValue = e.Value?.ToString();
         if (int.TryParse(newValue, out int _))
         {
             isValueTyped = true;  // Set the flag to true if the input is a number
-           
+
+        }
+        if (newValue==null || newValue=="")
+        {
+            newValue = "0";
+        }
+
+        foreach (TransactionToAdd repeatedTrans in transactionsToAdd)
+        {
+            if (repeatedTrans.transDate == date)
+            {
+                repeatedTrans.transValue = double.Parse(newValue);
+            }
+
         }
     }
     protected override async Task OnInitializedAsync()
     {
+
         if (newTransaction == null)
         {
             newTransaction = new TransactionToAdd()
@@ -378,6 +413,7 @@ else
             await checkOverdraft();
             if (!overdraftDetected)
             {
+                await saveRepeatedTransactions(transIDtoEdit);
                 Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                 addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                 isTransactionOverlayOpen.InvokeAsync(false);
@@ -610,6 +646,85 @@ else
     public void ChooseTagForTrans(TagsToShow tag)
     {
         chosenTag = tag;
+
+    }
+
+    private DateTime parsedDate;
+    private bool attemptedParsing = false;
+
+    public void repeatingTransOverlay()
+    {
+        returningTrans = !returningTrans;
+        transactionsToAdd = new List<TransactionToAdd>();
+        int currentDay = DateTime.Now.Day;
+        int currentYear = DateTime.Now.Year;
+        foreach (string m in months)
+        {
+            string dateString = $"{currentDay} {m} {currentYear}";
+
+            DateTime tempDate;
+            if (DateTime.TryParseExact(dateString, "d MMMM yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out tempDate))
+            {
+                parsedDate = tempDate;
+            }
+            else
+            {
+                Console.WriteLine("date parsing failed");
+            }
+            attemptedParsing = true;
+
+
+            TransactionToAdd childTrans = new TransactionToAdd()
+                {
+                    transValue = newTransaction.transValue,
+                    valueType = newTransaction.valueType,
+                    description = newTransaction.description,
+                    fixedMonthly = newTransaction.fixedMonthly,
+                    parentTransID = newTransaction.parentTransID,
+                    tagID = newTransaction.tagID,
+                    tagTitle = newTransaction.tagTitle,
+                    tagColor = newTransaction.tagColor,
+                    transTitle = newTransaction.transTitle,
+                    subCategoryID = subCategoryIDTOGet,
+                    transDate = parsedDate,
+                    transType = newTransaction.transType
+                };
+            transactionsToAdd.Add(childTrans);
+
+        }
+    }
+
+    public async Task saveRepeatedTransactions(int parentTransID)
+    {
+        transactionsToAdd.RemoveAll(e => e.transDate <= DateTime.Now);
+        foreach (TransactionToAdd repT in transactionsToAdd)
+        {
+            if (repT.transValue>0)
+            {
+                repT.parentTransID = parentTransID;
+                repT.tagID = newTransaction.tagID;
+                repT.tagColor = newTransaction.tagColor;
+                repT.tagTitle = newTransaction.tagTitle;
+            }
+            else
+            {
+                transactionsToAdd.Remove(repT);
+            }
+
+        }
+
+        foreach (TransactionToAdd repT in transactionsToAdd)
+        {
+            var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", repT);
+            if (transToSaveRes.IsSuccessStatusCode)
+            {
+                Console.WriteLine("ההזנה של תאריך " + repT.transDate + " נקלטה בהצלחה, שערכה הוא " + repT.transValue);
+            }
+            else
+            {
+                Console.WriteLine("הזנה נכשלה");
+            }
+        }
 
     }
 }
