@@ -29,7 +29,7 @@
 };
     <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transaction.id" newTransaction="newTransaction" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans"></AddTransactionComponent>
 }
-@if (overdraftDetected && transaction.transType == 1)
+@if (overdraftDetected && transaction.transType == 3)
 {
     <span>⚠️ הזנה חורגת</span>
 }
@@ -38,6 +38,7 @@
 <br />
 @if (transaction.description != null)
 {
+    <br/>
     <span>@transaction.description</span>
 }
 @if (transaction.tagID != null)

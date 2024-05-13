@@ -18,57 +18,97 @@ else
 
     <button @onclick="() => isTopDropDownOpen = !isTopDropDownOpen">פרטי ההזנה שלי</button>
 
-    @if(isTopDropDownOpen)
+    @if (isTopDropDownOpen)
     {
-    <div>
-        <p>פרטי ההזנה</p>
-        <input type="text" @bind="newTransaction.transTitle" />
+        <div>
+            <p>פרטי ההזנה</p>
+            <input type="text" @bind="newTransaction.transTitle" />
 
-        <input type="date" @bind="newTransaction.transDate" />
+            <input type="date" @bind="newTransaction.transDate" />
 
-        <p>סכום ההזנה</p>
-        <input type="number" @bind="newTransaction.transValue" />
-        <p>ההזנה בתשלומים?</p>
-        <input type="checkbox" @bind="splitPayment" />
-        @if (splitPayment)
-        {
-            <select @bind="selectedNumber">
-                @for (int i = 1; i <= 12; i++)
-                {
-                    <option value="@i">@i תשלומים</option>
+            <p>סכום ההזנה</p>
+            <input type="number" @bind="newTransaction.transValue" />
+            <p>ההזנה בתשלומים?</p>
+            <input type="checkbox" @bind="splitPayment" />
+            @if (splitPayment)
+            {
+                <select @bind="selectedNumber">
+                    @for (int i = 1; i <= 12; i++)
+                    {
+                        <option value="@i">@i תשלומים</option>
 
-                }
-                selectedNumber = i;
+                    }
+                    selectedNumber = i;
+                </select>
+
+                <p>סכום כל תשלום בממוצע @(newTransaction.transValue / selectedNumber) ₪</p>
+            }
+            <p>אמצעי תשלום</p>
+
+            @if (newTransaction.valueType == null)
+            {
+                newTransaction.valueType = "מזומן";
+            }
+
+            <select @bind="newTransaction.valueType">
+
+                <option value="מזומן">מזומן</option>
+                <option value="אשראי">אשראי</option>
+                <option value="ביט/פייבוקס">ביט/פייבוקס</option>
+                <option value="אחר">אחר</option>
+
             </select>
+            @if (!string.IsNullOrEmpty(newTransaction.valueType))
+            {
+                <p>שיטת תשלום נבחרת: @newTransaction.valueType</p>
+            }
+            <button @onclick="() => returningTrans = !returningTrans">הגדרת ההוצאה כחוזרת</button>@* לעשות קומפוננטה של חלון הגדרת הוצאה כחוזרת*@
+            @if (returningTrans)
+            {
+                <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
+                <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
+                    @if (resetMonthValues == false)
+                    {
+                        @foreach (string month in months)
+                        {
+                            <div>
+                                <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+                                <input type="text"
+                   disabled="@IsPastMonth(month)" value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                            </div>
+                        }
 
-            <p>סכום כל תשלום בממוצע @(newTransaction.transValue / selectedNumber) ₪</p>
-        }
-        <p>אמצעי תשלום</p>
-
-        @if (newTransaction.valueType == null)
-        {
-            newTransaction.valueType = "מזומן";
-        }
-
-        <select @bind="newTransaction.valueType">
-
-            <option value="מזומן">מזומן</option>
-            <option value="אשראי">אשראי</option>
-            <option value="ביט/פייבוקס">ביט/פייבוקס</option>
-            <option value="אחר">אחר</option>
-
-        </select>
-        @if (!string.IsNullOrEmpty(newTransaction.valueType))
-        {
-            <p>שיטת תשלום נבחרת: @newTransaction.valueType</p>
-        }
-        <button>הגדרת ההוצאה כחוזרת</button>@* לעשות קומפוננטה של חלון הגדרת הוצאה כחוזרת*@
-    </div>
+                        <button>שמירה וחזרה</button>
+                        <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
+                    }
+                    else
+                    {
+                        @foreach (string month in months)
+                        {
+                            <div>
+                                <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+                                <input type="text"
+                   disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                            </div>
+                        }
+                    @if (isValueTyped)
+                    {
+                        <button>שמירה וחזרה</button>
+                    }
+                    else
+                    {
+                        <button disabled>שמירה וחזרה</button>
+                        
+                    }
+                    <button @onclick="() => resetMonthValues = !resetMonthValues">לסכומים המקוריים</button>
+                    }
+            }
+        </div>
     }
 
     <button @onclick="@(async () => await getAllUserTags())">הגדרות מתקדמות</button>
 
-    @if(isButtomDropDownOpen)
+    @if (isButtomDropDownOpen)
     {
         <div>
             <p>תגית</p>
@@ -80,7 +120,7 @@ else
             else
             {
                 @*chosenTag.tagTitle = newTransaction.tagTitle;*@
-                
+
 
                 @foreach (TagsToShow tag in allUserTags)
                 {
@@ -97,7 +137,7 @@ else
                         <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
                     }
                 }
-            }           
+            }
 
             @if (openTagsMenu)
             {
@@ -106,8 +146,8 @@ else
                     <button @onclick="(() => ChooseTagForTrans(tag))" style="background-color:@tag.tagColor">@tag.tagTitle</button>
                 }
             }
-            
-                
+
+
         </div>
 
         <p>פירוט:</p>
@@ -231,14 +271,63 @@ else
     public bool overdraftDetected;
     bool splitPayment = false;
     bool isTopDropDownOpen = true;
-    bool isButtomDropDownOpen = false;  
+    bool isButtomDropDownOpen = false;
     bool openTagsMenu = false;
     private int selectedNumber = 1; // Default value
     double currentGap = 0;
-    public string overlayTitle = "";   
+    public string overlayTitle = "";
     //string clikckedTag => isTagClicked ? "border: solid,0.1em,black" : "border:none";
+    bool returningTrans = false;
 
+    int monthNum = 0;
+    bool resetMonthValues = false;
+    private List<string> months = new List<string>
+    {
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    };
+    private bool isValueTyped = false;
+    private string GetCurrentMonth() => DateTime.Now.ToString("MMMM");
 
+    public string GetHebrewMonthName(string month)
+    {
+        return month switch
+        {
+            "January" => "ינואר",
+            "February" => "פברואר",
+            "March" => "מרץ",
+            "April" => "אפריל",
+            "May" => "מאי",
+            "June" => "יוני",
+            "July" => "יולי",
+            "August" => "אוגוסט",
+            "September" => "ספטמבר",
+            "October" => "אוקטובר",
+            "November" => "נובמבר",
+            "December" => "דצמבר",
+            _ => "חודש לא תקין",
+        };
+    }
+
+    private bool IsPastMonth(string month)
+    {
+        int currentMonthIndex = months.IndexOf(GetCurrentMonth());
+        int monthIndex = months.IndexOf(month);
+        return monthIndex < currentMonthIndex;
+    }
+    private string GetDefaultValue(string month)
+    {
+        return IsPastMonth(month) ? "0" : newTransaction.transValue.ToString(); // Adjust "Default Value" as necessary
+    }
+    private void HandleInput(ChangeEventArgs e, string monthName)
+    {
+        string newValue = e.Value?.ToString();
+        if (int.TryParse(newValue, out int _))
+        {
+            isValueTyped = true;  // Set the flag to true if the input is a number
+           
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         if (newTransaction == null)
@@ -256,7 +345,7 @@ else
             isItAnewTrans = false;
         }
 
-        if(newTransaction.tagID > 0)
+        if (newTransaction.tagID > 0)
         {
             chosenTag.tagTitle = newTransaction.tagTitle;
         }
@@ -276,7 +365,7 @@ else
         newTransaction.transType = 1;
         newTransaction.tagID = null;
 
-        if (chosenTag.id > 0 )
+        if (chosenTag.id > 0)
         {
             newTransaction.tagID = chosenTag.id;
         }
@@ -285,6 +374,7 @@ else
         var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
         if (transToSaveRes.IsSuccessStatusCode)
         {
+            transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
             await checkOverdraft();
             if (!overdraftDetected)
             {
@@ -310,6 +400,7 @@ else
         var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
         if (transToSaveRes.IsSuccessStatusCode)
         {
+            transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
             Console.WriteLine("ההזנה נשמרה בהצלחה :)");
             await checkOverdraft();
             if (!overdraftDetected)
@@ -343,6 +434,7 @@ else
                 description = newTransaction.description
             };
 
+        await checkOverdraft();
         if (!overdraftDetected)
         {
             transToEdit.transType = 1;
@@ -354,6 +446,14 @@ else
         {
             Console.WriteLine("ההזנה עודכנה בהצלחה :)");
             await checkOverdraft();
+            if (overdraftDetected)
+            {
+                var transOverdraftRes = await Http.GetAsync("api/Transactions/updateOverDraftTrans/" + transToEdit.id); //updates the transType to 3
+                if (transOverdraftRes.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("ההזנה עודכנה לחורגת בהצלחה :)");
+                }
+            }
             TransactionToEdit postEditTrans = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();
             if (postEditTrans != null)
             {
@@ -377,11 +477,7 @@ else
 
             if (!overdraftDetected)
             {
-
-
                 isTransactionOverlayOpen.InvokeAsync(false);
-
-
             }
 
 
@@ -463,7 +559,7 @@ else
     public async Task closeOverdraftWindow()
     {
 
-        var transOverdraftRes = await Http.GetAsync("api/Transactions/updateOverDraftTrans/" + transIDtoEdit);
+        var transOverdraftRes = await Http.GetAsync("api/Transactions/updateOverDraftTrans/" + transIDtoEdit); //updates the transType to 3
         if (transOverdraftRes.IsSuccessStatusCode)
         {
 
@@ -477,6 +573,7 @@ else
         }
 
         overdraftDetected = true;
+        addTransactionToTotal.InvokeAsync(newTransaction.transValue);
         isTransactionOverlayOpen.InvokeAsync(false);
 
     }
@@ -513,6 +610,6 @@ else
     public void ChooseTagForTrans(TagsToShow tag)
     {
         chosenTag = tag;
-        
+
     }
 }
