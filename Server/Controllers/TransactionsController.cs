@@ -393,6 +393,8 @@ ORDER BY transactions.transDate DESC;";
             return BadRequest("עדכון הוצאה חוזרת נכשל");
 
         }
+
+        
     }
 
            
