@@ -304,5 +304,44 @@ ORDER BY transactions.transDate DESC;";
             }
             return BadRequest("tags not found");
         }
+
+        [HttpGet ("getSubCatTags/{subCatID}")]
+        public async Task<IActionResult> getSubCatTags(int subCatID)
+        {
+            object param = new
+            {
+                ID = subCatID
+            };
+
+            string GetSubCatTagsQuery = "select distinct tagID from transactions where subCategoryID=@ID";
+            var recordSubCatTags = await _db.GetRecordsAsync<int>(GetSubCatTagsQuery, param);
+            List<int> TagsIDList = recordSubCatTags.ToList();
+            if (TagsIDList != null)
+            {
+                List<TagsToShow> subCatTagList = new List<TagsToShow>();
+                foreach (int tagID in TagsIDList)
+                {
+                    object tagIdParam = new
+                    {
+                        ID=tagID
+                    };
+                    string getTagInfoQuery = "select * from tags where ID=@ID";
+                    var getTagInfo = await _db.GetRecordsAsync<TagsToShow>(getTagInfoQuery, tagIdParam);
+                    var subCatTag = getTagInfo.FirstOrDefault();
+                    if (subCatTag!=null)
+                    {
+                        subCatTagList.Add(subCatTag);
+                    }
+                    else
+                    {
+                        return BadRequest("tag with ID- " + tagID + " is null");
+                    }
+
+                }
+                return Ok(subCatTagList);
+            }
+
+            return BadRequest("Couldn't find this sub cat's tags");
+        }
     }
 }

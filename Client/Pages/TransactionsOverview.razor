@@ -112,28 +112,39 @@
     @if (filterBtnClicked)
     {
         <button @onclick="() => filterByTransTypeOverlay = true">אמצעי תשלום</button>
-        <button>תגית</button>
+        <button @onclick="() => filterByTagOverlay = true">תגית</button>
         <button>הוצאה חוזרת</button>
         @if (filterByTransTypeOverlay)
         {
             <button @onclick="() => filterByTransTypeOverlay = false">close</button>
             <div>
-             
-                    <fieldset id="transValueType" name="transType">
-                        <legend>התגיות שלי:</legend>
-                        <input type="radio" value="מזומן" name="transType" @onchange="@(()=> filterByType= "מזומן")" />מזומן
+
+                <fieldset id="transValueType" name="transType">
+                    <legend>אמצעי תשלום</legend>
+                    <input type="radio" value="מזומן" name="transType" @onchange="@(()=> filterByType= "מזומן")" />מזומן
                     <input type="radio" value="אשראי" name="transType" @onchange="@(()=> filterByType= "אשראי")" />אשראי
                     <input type="radio" value="אחר" name="transType" @onchange="@(()=> filterByType= "ביט/פייבוקס")" /> ביט/פייבוקס
                     <input type="radio" value="אחר" name="transType" @onchange="@(()=> filterByType= "אחר")" /> אחר
-                    </fieldset>
-                <button @onclick="(()=>filterByTransType(filterByType))">סינון הוצאות</button>
+                </fieldset>
+                <button @onclick="@(()=>filterByTransType(filterByType))">סינון הוצאות</button>
             </div>
 
+        }
+        @if (filterByTagOverlay)
+        {
+            <fieldset id="subTags" name="subCatTags">
+                <legend>התגיות שלי</legend>
+                @foreach (TagsToShow tag in subCatTagsList)
+                {
+                    <input type="radio" value="@tag.tagTitle" name="subCatTags" @onchange="@(()=> filterByTag= tag.id)" /> @tag.tagTitle
+                }
+            </fieldset>
+            <button @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
         }
     }
     <button>Sort</button>
     <button @onclick="undoFilterAndSort">איפוס</button>
-  
+
 </div>
 <div id="transactions">
     @if (allTransactions != null && allTransactions.Count > 0)
@@ -198,7 +209,10 @@
     bool filterBtnClicked = false;
     bool filterByTransTypeOverlay = false;
     string filterByType = "";
+    int filterByTag = 0;
+    bool filterByTagOverlay = false;
     bool sortBtnClicked = false;
+    List<TagsToShow> subCatTagsList = new List<TagsToShow>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -242,6 +256,7 @@
                     totalSpendings += trans.transValue;
                 }
                 prefilteredTransactions = checkTransList;
+                await getSubCatTags();
             }
             else
             {
@@ -396,60 +411,57 @@
 
     public async Task filterByTransType(string selectedType)
     {
-        await undoFilterAndSort(); 
-        switch (selectedType) {
-            case "מזומן":
-                Console.WriteLine(selectedType);
-                for (int i = allTransactions.Count-1; i>=0;i--)
-                {
-                    if (allTransactions[i].valueType!="מזומן")
-                    {
-                        allTransactions.Remove(allTransactions[i]);
-                    }
-                }
-                break;
-            case "אשראי":
-                Console.WriteLine(selectedType);
-                for (int i = allTransactions.Count - 1; i >= 0; i--)
-                {
-                    if (allTransactions[i].valueType != "אשראי")
-                    {
-                        allTransactions.Remove(allTransactions[i]);
-                    }
-                }
-                break;
-            case "ביט/פייבוקס":
-                Console.WriteLine(selectedType);
-                for (int i = allTransactions.Count - 1; i >= 0; i--)
-                {
-                    if (allTransactions[i].valueType != "ביט/פייבוקס")
-                    {
-                        allTransactions.Remove(allTransactions[i]);
-                    }
-                }
-                break;
-            case "אחר":
-                Console.WriteLine(selectedType);
-                for (int i = allTransactions.Count - 1; i >= 0; i--)
-                {
-                    if (allTransactions[i].valueType != "אחר")
-                    {
-                        allTransactions.Remove(allTransactions[i]);
-                    }
-                }
-                break;
-        }
-        if (allTransactions==null || allTransactions.Count<=0)
+        await undoFilterAndSort();
+        for (int i = allTransactions.Count - 1; i >= 0; i--)
         {
-            Console.WriteLine("no transactions fit selected filter");
+            if (allTransactions[i].valueType != selectedType)
+            {
+                allTransactions.Remove(allTransactions[i]);
+            }
+        }
+        if (allTransactions == null || allTransactions.Count <= 0)
+        {
+            Console.WriteLine("no transactions fit selected payment method");
         }
         filterByTransTypeOverlay = false;
         filterBtnClicked = false;
     }
 
+    public async Task filterByTags(int tagID)
+    {
+        await undoFilterAndSort();
+        Console.WriteLine(filterByTag + ", " + tagID);
+        for (int i = allTransactions.Count - 1; i >= 0; i--)
+        {
+            if (allTransactions[i].tagID != tagID)
+            {
+                allTransactions.Remove(allTransactions[i]);
+            }
+        }
+        filterByTagOverlay = false;
+        filterBtnClicked = false;
+
+    }
+    public async Task getSubCatTags()
+    {
+        subCatTagsList = new List<TagsToShow>();
+        var getTagsRes = await Http.GetAsync("api/Transactions/getSubCatTags/" + subCatID);
+        if (getTagsRes.IsSuccessStatusCode)
+        {
+            var subCatTags = getTagsRes.Content.ReadFromJsonAsync<List<TagsToShow>>().Result;
+            subCatTagsList = subCatTags;
+
+            //filterByTagOverlay = true;
+        }
+        else
+        {
+            Console.WriteLine("No tags found");
+        }
+    }
+
     public async Task undoFilterAndSort()
     {
-        allTransactions= new List<TransactionOverviewToShow>();
+        allTransactions = new List<TransactionOverviewToShow>();
         var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactions/" + subCatID);
         if (getAllTransactions.IsSuccessStatusCode)
         {
@@ -461,7 +473,7 @@
                 {
                     totalSpendings += trans.transValue;
                 }
-                
+
             }
             else
             {
