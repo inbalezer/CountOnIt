@@ -82,7 +82,7 @@ else
                         tToCheck.transValue = newTransaction.transValue;
                     }
 
-                    @foreach (string month in months)
+                    @*@foreach (string month in months)
                     {
                         <div>
                             @if(GetCurrentMonth() == month)
@@ -110,7 +110,27 @@ else
                             }
                             
                         </div>
-                    }
+                    }*@
+
+                    @foreach (string month in months)
+{
+    <div>
+        <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+        
+        @{
+            // Attempt to find a matching transaction for the month
+            var matchingTrans = reapeatedTransValuesList.FirstOrDefault(trans => trans.transDate.ToString("MMMM") == month);
+
+            // Determine the value to display in the input
+            string inputValue = matchingTrans != null ? matchingTrans.transValue.ToString() : "0";
+        }
+
+        <input type="text"
+               disabled="@(GetCurrentMonth() != month && IsPastMonth(month))"
+               value="@inputValue"
+                   @oninput="eventArgs => HandleRepeatedInput(eventArgs, month, matchingTrans)" />
+    </div>
+}
 
                     <button>שמירה וחזרה</button>
                     <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
@@ -508,6 +528,28 @@ else
 
         }
     }
+
+
+    private void HandleRepeatedInput(ChangeEventArgs eventArgs, string month, RepeatedTransToShow existingTrans)
+    {
+        if (existingTrans != null)
+        {
+            // Update the existing transaction
+            existingTrans.transValue = Convert.ToDouble(eventArgs.Value);
+        }
+        else
+        {
+            // Optionally add a new transaction if it does not exist
+            var newTrans = new RepeatedTransToShow {
+                transDate = DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture),
+                transValue = Convert.ToDouble(eventArgs.Value)
+            };
+            reapeatedTransValuesList.Add(newTrans);
+        }
+    }
+    
+
+
     protected override async Task OnInitializedAsync()
     {
 
@@ -605,20 +647,20 @@ else
     {
 
         TransactionToEdit transToEdit = new TransactionToEdit()
-            {
-                id = transIDtoEdit,
-                transValue = newTransaction.transValue,
-                transType = newTransaction.transType,
-                valueType = newTransaction.valueType,
-                transDate = newTransaction.transDate,
-                fixedMonthly = newTransaction.fixedMonthly,
-                tagID = chosenTag.id,
-                tagColor = chosenTag.tagColor,
-                tagTitle = chosenTag.tagTitle,
-                transTitle = newTransaction.transTitle,
-                parentTransID = newTransaction.parentTransID,
-                description = newTransaction.description
-            };
+        {
+            id = transIDtoEdit,
+            transValue = newTransaction.transValue,
+            transType = newTransaction.transType,
+            valueType = newTransaction.valueType,
+            transDate = newTransaction.transDate,
+            fixedMonthly = newTransaction.fixedMonthly,
+            tagID = chosenTag.id,
+            tagColor = chosenTag.tagColor,
+            tagTitle = chosenTag.tagTitle,
+            transTitle = newTransaction.transTitle,
+            parentTransID = newTransaction.parentTransID,
+            description = newTransaction.description
+        };
 
         await checkOverdraft();
         if (!overdraftDetected)
@@ -659,6 +701,7 @@ else
 
                 addTransactionAfterEdit.InvokeAsync(editedTransaction);
 
+                
             }
 
             if (!overdraftDetected)
@@ -668,6 +711,8 @@ else
 
 
         }
+
+        await updateReTransactions(reapeatedTransValuesList);
     }
 
     public async Task manageBudgetsToTranfer()
@@ -891,5 +936,19 @@ else
             }
         }
 
+    }
+
+     public async Task updateReTransactions(List<RepeatedTransToShow> reTransToUpdate)
+    {
+
+        var TransactionsToSaveRes = await Http.PostAsJsonAsync("api/Transactions/UpdateRepeatedTrans", reTransToUpdate);
+        if (TransactionsToSaveRes.IsSuccessStatusCode)
+        {
+            Console.WriteLine("הוצאות חוזרות עודכנו בהצלחה");
+        }
+        else
+        {
+            Console.WriteLine("עדכון הוצאות חוזרות נכשל");
+        }
     }
 }

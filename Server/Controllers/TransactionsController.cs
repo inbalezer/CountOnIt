@@ -324,5 +324,38 @@ ORDER BY transactions.transDate DESC;";
 
             return BadRequest("Couldn't find repeated trans values");
         }
+
+        [HttpPost("UpdateRepeatedTrans")]  // עריכת תקציב חדש לאחר העברה בחריגה
+
+        public async Task<IActionResult> UpdateRepeatedTrans([FromBody] List<RepeatedTransToShow> reTransToUpdate)
+        {
+            bool isTransUpdate = false;
+
+            foreach (var reTrans in reTransToUpdate)
+            {
+
+                object updateTransParam = new
+                {
+                    ID = reTrans.id,
+                    transValue = reTrans.transValue,
+                    transDate = reTrans.transDate,
+                    
+                };
+
+                string TransToUpdateQuery = "UPDATE transactions set transValue = @transValue WHERE id =@ID";
+                isTransUpdate = await _db.SaveDataAsync(TransToUpdateQuery, updateTransParam);
+
+            }
+
+            if (isTransUpdate)
+            {
+                return Ok("הוצאה חוזרת עודכנה");
+            }
+            return BadRequest("עדכון הוצאה חוזרת נכשל");
+
+        }
     }
+
+           
 }
+
