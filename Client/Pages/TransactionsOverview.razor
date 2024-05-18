@@ -108,12 +108,14 @@
 }
 <div id="searchBar"></div>
 <div id="sortAndFilterBtns">
-    <button @onclick="() => filterBtnClicked = !filterBtnClicked">Filter</button>
-    @if (filterBtnClicked) //have the button be disabled between resets
+    <button @onclick="() => filterBtnClicked = true">Filter</button>
+    <span>@filterStatus</span>
+    @if (filterBtnClicked) 
     {
         <button @onclick="() => filterByTransTypeOverlay = true">אמצעי תשלום</button>
         <button @onclick="() => filterByTagOverlay = true">תגית</button>
-        <button @onclick="() => filterByReturnTrans = true">הוצאה חוזרת</button>
+        <button @onclick="filterByRepeatedTrans">הוצאה חוזרת</button>
+
         @if (filterByTransTypeOverlay)
         {
             <button @onclick="() => filterByTransTypeOverlay = false">close</button>
@@ -152,9 +154,11 @@
             <input type="radio" value="סכום הוצאה (מהנמוך לגבוה)" name="transSorting" @onchange="@(()=> SortingOptions("sumAsc"))" /> סכום הוצאה (מהנמוך לגבוה)
         </fieldset>
     }
+        <span>@sortStatus</span>
     <button @onclick="undoFilterAndSort">איפוס</button>
 
 </div>
+
 <div id="transactions">
     @if (allTransactions != null && allTransactions.Count > 0)
     {
@@ -167,6 +171,7 @@
             }
             else
             {
+                filterStatus = "הוצאה חוזרת";
                 if (transaction.fixedMonthly==true)
                 {
                     <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus"></TransOverviewComponent>
@@ -234,6 +239,8 @@
     bool filterByReturnTrans = false;
     bool sortBtnClicked = false;
     List<TagsToShow> subCatTagsList = new List<TagsToShow>();
+    string filterStatus="";
+    string sortStatus = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -433,6 +440,7 @@
     public async Task filterByTransType(string selectedType)
     {
         await undoFilterAndSort();
+        filterStatus = "אמצעי תשלום: " + selectedType;
         for (int i = allTransactions.Count - 1; i >= 0; i--)
         {
             if (allTransactions[i].valueType != selectedType)
@@ -452,13 +460,19 @@
     {
         await undoFilterAndSort();
         Console.WriteLine(filterByTag + ", " + tagID);
+        string tagTitle = "";
         for (int i = allTransactions.Count - 1; i >= 0; i--)
         {
             if (allTransactions[i].tagID != tagID)
             {
                 allTransactions.Remove(allTransactions[i]);
             }
+            else
+            {
+                tagTitle = allTransactions[i].tagTitle;
+            }
         }
+        filterStatus = "תגית: " + tagTitle;
         filterByTagOverlay = false;
         filterBtnClicked = false;
 
@@ -486,17 +500,28 @@
         {
             case "dateDes":
                 allTransactions = allTransactions.OrderByDescending(e => e.transDate).ToList();
+                sortStatus = "תאריך (מהחדש לישן)";
                 break;
             case "dateAsc":
                 allTransactions = allTransactions.OrderBy(e => e.transDate).ToList();
+                sortStatus = "תאריך (מהישן לחדש)";
                 break;
             case "sumDes":
                 allTransactions = allTransactions.OrderByDescending(e => e.transValue).ToList();
+                sortStatus = "סכום הוצאה (מהגבוה לנמוך)";
                 break;
             case "sumAsc":
                 allTransactions = allTransactions.OrderBy(e => e.transValue).ToList();
+                sortStatus = "סכום הוצאה (מהנמוך לגבוה)";
                 break;
         }
+        sortBtnClicked = false;
+    }
+
+    public void filterByRepeatedTrans()
+    {
+        filterByReturnTrans = true;
+        filterStatus = "הוצאה חוזרת";
     }
 
     public async Task undoFilterAndSort()
@@ -513,7 +538,6 @@
                 {
                     totalSpendings += trans.transValue;
                 }
-
             }
             else
             {
@@ -526,6 +550,8 @@
             Console.WriteLine("Failed to find transactions. Error: " + transErrorContent);
         }
         filterBtnClicked = false;
+        filterStatus = "";
+        sortStatus = "";
         if (filterByReturnTrans)
         {
             filterByReturnTrans = false;
