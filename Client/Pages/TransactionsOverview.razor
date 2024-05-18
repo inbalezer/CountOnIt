@@ -109,7 +109,7 @@
 <div id="searchBar"></div>
 <div id="sortAndFilterBtns">
     <button @onclick="() => filterBtnClicked = !filterBtnClicked">Filter</button>
-    @if (filterBtnClicked)
+    @if (filterBtnClicked) //have the button be disabled between resets
     {
         <button @onclick="() => filterByTransTypeOverlay = true">אמצעי תשלום</button>
         <button @onclick="() => filterByTagOverlay = true">תגית</button>
@@ -142,7 +142,16 @@
             <button @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
         }
     }
-    <button>Sort</button>
+    <button @onclick="() => sortBtnClicked = !sortBtnClicked">Sort</button>
+    @if (sortBtnClicked)
+    {
+        <fieldset id="sortTrans" name="transSorting">
+            <input type="radio" value="תאריך (מהחדש לישן)" name="transSorting" @onchange="@(()=> SortingOptions("dateDes"))" />תאריך (מהחדש לישן)
+            <input type="radio" value="תאריך (מהישן לחדש)" name="transSorting" @onchange="@(()=> SortingOptions("dateAsc"))" />תאריך (מהישן לחדש)
+            <input type="radio" value="סכום הוצאה (מהגבוה לנמוך)" name="transSorting" @onchange="@(()=> SortingOptions("sumDes"))" /> סכום הוצאה (מהגבוה לנמוך)
+            <input type="radio" value="סכום הוצאה (מהנמוך לגבוה)" name="transSorting" @onchange="@(()=> SortingOptions("sumAsc"))" /> סכום הוצאה (מהנמוך לגבוה)
+        </fieldset>
+    }
     <button @onclick="undoFilterAndSort">איפוס</button>
 
 </div>
@@ -468,6 +477,25 @@
         else
         {
             Console.WriteLine("No tags found");
+        }
+    }
+
+    public void SortingOptions(string sortDirection)
+    {
+        switch (sortDirection)
+        {
+            case "dateDes":
+                allTransactions = allTransactions.OrderByDescending(e => e.transDate).ToList();
+                break;
+            case "dateAsc":
+                allTransactions = allTransactions.OrderBy(e => e.transDate).ToList();
+                break;
+            case "sumDes":
+                allTransactions = allTransactions.OrderByDescending(e => e.transValue).ToList();
+                break;
+            case "sumAsc":
+                allTransactions = allTransactions.OrderBy(e => e.transValue).ToList();
+                break;
         }
     }
 
