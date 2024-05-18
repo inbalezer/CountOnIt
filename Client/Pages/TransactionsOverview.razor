@@ -113,7 +113,7 @@
     {
         <button @onclick="() => filterByTransTypeOverlay = true">אמצעי תשלום</button>
         <button @onclick="() => filterByTagOverlay = true">תגית</button>
-        <button>הוצאה חוזרת</button>
+        <button @onclick="() => filterByReturnTrans = true">הוצאה חוזרת</button>
         @if (filterByTransTypeOverlay)
         {
             <button @onclick="() => filterByTransTypeOverlay = false">close</button>
@@ -149,11 +149,22 @@
 <div id="transactions">
     @if (allTransactions != null && allTransactions.Count > 0)
     {
-        @foreach (TransactionOverviewToShow transaction in allTransactions)
+        foreach (TransactionOverviewToShow transaction in allTransactions)
         {
-
-            <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus"></TransOverviewComponent>
-
+            if (!filterByReturnTrans)
+            {
+                <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus"></TransOverviewComponent>
+                <hr />
+            }
+            else
+            {
+                if (transaction.fixedMonthly==true)
+                {
+                    <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus"></TransOverviewComponent>
+                    <hr/>
+                }
+             
+            }
             if (transaction.transType == 3)
             {
                 <span>⚠️ הזנה חורגת</span>
@@ -163,11 +174,11 @@
                 overdraftStatus = false;
             }
 
-            <hr />
-        }
-        @if (totalSpendings < budget && budget != null)
-        {
-            overdraftStatus = false;
+            
+            @if (totalSpendings < budget && budget != null)
+            {
+                overdraftStatus = false;
+            }
         }
     }
 </div>
@@ -211,6 +222,7 @@
     string filterByType = "";
     int filterByTag = 0;
     bool filterByTagOverlay = false;
+    bool filterByReturnTrans = false;
     bool sortBtnClicked = false;
     List<TagsToShow> subCatTagsList = new List<TagsToShow>();
 
@@ -486,5 +498,9 @@
             Console.WriteLine("Failed to find transactions. Error: " + transErrorContent);
         }
         filterBtnClicked = false;
+        if (filterByReturnTrans)
+        {
+            filterByReturnTrans = false;
+        }
     }
 }
