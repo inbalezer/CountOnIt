@@ -342,6 +342,59 @@ ORDER BY transactions.transDate DESC;";
             }
 
             return BadRequest("Couldn't find this sub cat's tags");
+            }
+            
+        [HttpGet("getRepeatedTransToEdit/{ParentTransID}")]
+        public async Task<IActionResult> getRepeatedTransToEdit(int ParentTransID)
+        {
+            object param = new
+            {
+                ID = ParentTransID
+            };
+
+            string getRepeatedTransToEditQuery = "SELECT id, transValue, transDate FROM transactions WHERE parentTransID = @ID";
+            var recordRepeatedTransToEdit = await _db.GetRecordsAsync<RepeatedTransToShow>(getRepeatedTransToEditQuery, param);
+            List<RepeatedTransToShow> repeatedTransValue = recordRepeatedTransToEdit.ToList();
+
+            if (repeatedTransValue.Count > 0)
+            {
+                return Ok(repeatedTransValue);
+            }
+
+            return BadRequest("Couldn't find repeated trans values");
+        }
+
+        [HttpPost("UpdateRepeatedTrans")]  // עריכת תקציב חדש לאחר העברה בחריגה
+
+        public async Task<IActionResult> UpdateRepeatedTrans([FromBody] List<RepeatedTransToShow> reTransToUpdate)
+        {
+            bool isTransUpdate = false;
+
+            foreach (var reTrans in reTransToUpdate)
+            {
+
+                object updateTransParam = new
+                {
+                    ID = reTrans.id,
+                    transValue = reTrans.transValue,
+                    transDate = reTrans.transDate,
+                    
+                };
+
+                string TransToUpdateQuery = "UPDATE transactions set transValue = @transValue WHERE id =@ID";
+                isTransUpdate = await _db.SaveDataAsync(TransToUpdateQuery, updateTransParam);
+
+            }
+
+            if (isTransUpdate)
+            {
+                return Ok("הוצאה חוזרת עודכנה");
+            }
+            return BadRequest("עדכון הוצאה חוזרת נכשל");
+
         }
     }
+
+           
 }
+
