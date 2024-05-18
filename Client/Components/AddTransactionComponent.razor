@@ -71,13 +71,28 @@ else
                 <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
                 @if (resetMonthValues == false)
                 {
+                    @foreach(TransactionToAdd tToCheck in transactionsToAdd)
+                    {
+                        tToCheck.transValue = newTransaction.transValue;
+                    }
+
                     @foreach (string month in months)
                     {
-
                         <div>
-                            <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+                            @if(GetCurrentMonth() == month)
+                            {
+                                                    <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+                                  <input type="text"
+                   disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                        
+                            }
+                            else
+                            {
+                                <label>@GetHebrewMonthName(month)</label>
                             <input type="text"
                    disabled="@IsPastMonth(month)" value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                            }
+                            
                         </div>
                     }
 
@@ -85,26 +100,50 @@ else
                     <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
                 }
                 else
-                {
+                {   
+                    @if(!isValueTypedAfterReset)
+                    {
+                        @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                        {
+                            tToCheck.transValue = 0;
+                        }
+                    }
+                   
                     @foreach (string month in months)
                     {
                         <div>
                             <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
-                            <input type="text"
-                   disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                        </div>
-                    }
-                    @if (isValueTyped)
-                    {
-                        <button>שמירה וחזרה</button>
-                    }
-                    else
-                    {
-                        <button disabled>שמירה וחזרה</button>
 
+                            @if(GetCurrentMonth() != month)
+                            {
+                                  <input type="text"
+                   disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                        
+                            }
+                            else
+                            {
+                                 <input type="text"
+                   disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                            }
+                         </div>
                     }
-                    <button @onclick="() => resetMonthValues = !resetMonthValues">לסכומים המקוריים</button>
+
+                  
+
+                    @if (isValueTyped)
+                {
+                    <button>שמירה וחזרה</button>
                 }
+                else
+                {
+                    <button disabled>שמירה וחזרה</button>
+                    <button @onclick="() => resetMonthValues = !resetMonthValues">לסכומים המקוריים</button>
+
+                }
+                }
+                
+               
+                
             }
         </div>
     }
@@ -276,6 +315,7 @@ else
     bool isTopDropDownOpen = true;
     bool isButtomDropDownOpen = false;
     bool openTagsMenu = false;
+    bool isValueTypedAfterReset = false;
     private int selectedNumber = 1; // Default value
     double currentGap = 0;
     public string overlayTitle = "";
@@ -327,6 +367,7 @@ else
 
     private void HandleInput(ChangeEventArgs e, string monthName)
     {
+        isValueTypedAfterReset = true;
         int currentDay = DateTime.Now.Day;
         int currentYear = DateTime.Now.Year;
 
@@ -348,7 +389,7 @@ else
             isValueTyped = true;  // Set the flag to true if the input is a number
 
         }
-        if (newValue==null || newValue=="")
+        if (newValue ==null || newValue=="")
         {
             newValue = "0";
         }
@@ -405,6 +446,10 @@ else
             newTransaction.tagID = chosenTag.id;
         }
 
+        if(transactionsToAdd.Count > 0 && transactionsToAdd != null)
+        {
+            newTransaction.fixedMonthly = true;
+        }
 
         var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
         if (transToSaveRes.IsSuccessStatusCode)
@@ -582,8 +627,6 @@ else
             isTransactionOverlayOpen.InvokeAsync(false);
             gapsToUpdateBudgets.InvokeAsync(budgetsToUpdate);
 
-
-
         }
         else
         {
@@ -700,17 +743,21 @@ else
         for (int i = transactionsToAdd.Count - 1; i >= 0; i--)
         {
             TransactionToAdd repT = transactionsToAdd[i];
-            if (repT.transValue > 0)
-            {
-                repT.parentTransID = parentTransID;
-                repT.tagID = newTransaction.tagID;
-                repT.tagColor = newTransaction.tagColor;
-                repT.tagTitle = newTransaction.tagTitle;
-            }
-            else
-            {
+            //if (repT.transValue > 0)
+            //{
+            //    repT.parentTransID = parentTransID;
+            //    repT.tagID = newTransaction.tagID;
+            //    repT.tagColor = newTransaction.tagColor;
+            //    repT.tagTitle = newTransaction.tagTitle;
+            //}
+            //else
+            //{
+            //    transactionsToAdd.RemoveAt(i);
+            //}
+            if (transactionsToAdd[i].transValue<=0)
+{
                 transactionsToAdd.RemoveAt(i);
-            }
+}            
         }
 
         foreach (TransactionToAdd repT in transactionsToAdd)
