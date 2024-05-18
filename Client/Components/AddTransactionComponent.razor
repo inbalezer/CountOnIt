@@ -743,17 +743,7 @@ else
         for (int i = transactionsToAdd.Count - 1; i >= 0; i--)
         {
             TransactionToAdd repT = transactionsToAdd[i];
-            //if (repT.transValue > 0)
-            //{
-            //    repT.parentTransID = parentTransID;
-            //    repT.tagID = newTransaction.tagID;
-            //    repT.tagColor = newTransaction.tagColor;
-            //    repT.tagTitle = newTransaction.tagTitle;
-            //}
-            //else
-            //{
-            //    transactionsToAdd.RemoveAt(i);
-            //}
+
             if (transactionsToAdd[i].transValue<=0)
 {
                 transactionsToAdd.RemoveAt(i);
