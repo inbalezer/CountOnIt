@@ -304,5 +304,25 @@ ORDER BY transactions.transDate DESC;";
             }
             return BadRequest("tags not found");
         }
+
+        [HttpGet("getRepeatedTransToEdit/{ParentTransID}")]
+        public async Task<IActionResult> getRepeatedTransToEdit(int ParentTransID)
+        {
+            object param = new
+            {
+                ID = ParentTransID
+            };
+
+            string getRepeatedTransToEditQuery = "SELECT id, transValue, transDate FROM transactions WHERE parentTransID = @ID";
+            var recordRepeatedTransToEdit = await _db.GetRecordsAsync<RepeatedTransToShow>(getRepeatedTransToEditQuery, param);
+            List<RepeatedTransToShow> repeatedTransValue = recordRepeatedTransToEdit.ToList();
+
+            if (repeatedTransValue.Count > 0)
+            {
+                return Ok(repeatedTransValue);
+            }
+
+            return BadRequest("Couldn't find repeated trans values");
+        }
     }
 }
