@@ -213,6 +213,8 @@ transactions.splitPayment,
 FROM transactions 
 LEFT JOIN tags ON transactions.tagID = tags.id
 WHERE transactions.subCategoryID = @ID
+AND transactions.transDate >= @StartOfMonth
+AND transactions.transDate <= @EndOfMonth
 AND (transactions.transType = 1 OR transactions.transType = 3)
 ORDER BY transactions.transDate DESC;";
 
@@ -224,7 +226,7 @@ ORDER BY transactions.transDate DESC;";
                 return Ok(subCatTransactions);
             }
 
-            return BadRequest("Couldn't find this sub cat's budget");
+            return BadRequest("Couldn't find this sub cat's transactions");
         }
 
         [HttpDelete("deleteTransaction/{TransIdToDelete}")] // מחיקת הזנה
@@ -356,6 +358,25 @@ ORDER BY transactions.transDate DESC;";
             };
 
             string getRepeatedTransToEditQuery = "SELECT id, transValue, transDate FROM transactions WHERE parentTransID = @ID";
+            var recordRepeatedTransToEdit = await _db.GetRecordsAsync<RepeatedTransToShow>(getRepeatedTransToEditQuery, param);
+            List<RepeatedTransToShow> repeatedTransValue = recordRepeatedTransToEdit.ToList();
+
+            if (repeatedTransValue.Count > 0)
+            {
+                return Ok(repeatedTransValue);
+            }
+
+            return BadRequest("Couldn't find repeated trans values");
+        }
+        [HttpGet("getPaymentTransToEdit/{ParentTransID}")]
+        public async Task<IActionResult> getPaymentTransToEdit(int ParentTransID)
+        {
+            object param = new
+            {
+                ID = ParentTransID
+            };
+
+            string getRepeatedTransToEditQuery = "SELECT id, transValue, transDate FROM transactions WHERE parentTransID = @ID OR id=@ID";
             var recordRepeatedTransToEdit = await _db.GetRecordsAsync<RepeatedTransToShow>(getRepeatedTransToEditQuery, param);
             List<RepeatedTransToShow> repeatedTransValue = recordRepeatedTransToEdit.ToList();
 

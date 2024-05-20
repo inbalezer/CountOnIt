@@ -26,9 +26,10 @@
     tagColor = transaction.tagColor,
     transTitle = transaction.transTitle,
     parentTransID = transaction.parentTransID,
-    description = transaction.description
+    description = transaction.description,
+    splitPayment=transaction.splitPayment
 };
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transaction.id" newTransaction="newTransaction" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transaction.id" newTransaction="newTransaction" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay"></AddTransactionComponent>
 }
 @if (overdraftDetected && transaction.transType == 3)
 {
@@ -50,6 +51,10 @@
 @if (transaction.fixedMonthly == true)
 {
     <span>הוצאה חוזרת</span>
+}
+@if (transaction.splitPayment==true)
+{
+    <span>תשלום @totalPayments/@transIndexInPayments  </span>
 }
 
 
@@ -91,6 +96,9 @@
     OverDraftBudgetToEdit subCategoryBudgetToUpdate = new OverDraftBudgetToEdit();
 
     bool overdraftDetected = false;
+
+    int transIndexInPayments = 0;
+    int totalPayments = 0;
 
     public void deleteTransPopUp()
     {
@@ -209,5 +217,12 @@
     public void closeEditTransWindow()
     {
         editBtnClicked = false;
+    }
+
+    public void paymentsDisplay(List<int> transPayment)
+    {
+        transIndexInPayments = transPayment[0];
+        totalPayments = transPayment[1];
+        Console.WriteLine("total payments- " + totalPayments + ", transIndexInPayments- " + transIndexInPayments);
     }
 }
