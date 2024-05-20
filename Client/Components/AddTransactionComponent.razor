@@ -45,7 +45,11 @@ else
                     selectedNumber = i;
                 </select>
 
-                <p>סכום כל תשלום בממוצע @(newTransaction.transValue / selectedNumber) ₪</p>
+                <p>
+                    סכום כל תשלום בממוצע @(
+            Math.Round(newTransaction.transValue / selectedNumber)
+            ) ₪
+                </p>
             }
             <p>אמצעי תשלום</p>
 
@@ -53,7 +57,9 @@ else
             {
                 newTransaction.valueType = "מזומן";
             }
-
+            @{
+                newTransaction.splitPayment = splitPayment;
+            }
             <select @bind="newTransaction.valueType">
 
                 <option value="מזומן">מזומן</option>
@@ -70,7 +76,6 @@ else
 
             @if (newTransaction.fixedMonthly == true) // עריכת הוצאה חוזרת
             {
-
                 @if (returningTrans)
                 {
                     <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
@@ -81,37 +86,6 @@ else
                         {
                             tToCheck.transValue = newTransaction.transValue;
                         }
-
-                        @*@foreach (string month in months)
-        {
-        <div>
-        @if(GetCurrentMonth() == month)
-        {
-        <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
-        <input type="text"
-        disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-
-        }
-        else
-        {
-        <label>@GetHebrewMonthName(month)</label>
-        @foreach (RepeatedTransToShow reTrans in reapeatedTransValuesList)
-        {
-        @if (reTrans.transDate.ToString("MMMM") == month)
-        {
-        <input type="text" disabled="@IsPastMonth(month)" value="@reTrans.transValue" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-        }
-        else
-        {
-        <input type="text" disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-        }
-        }
-
-        }
-
-        </div>
-        }*@
-
                         @foreach (string month in months)
                         {
                             <div>
@@ -134,7 +108,6 @@ else
                    @oninput="eventArgs => HandleRepeatedInput(eventArgs, month, matchingTrans)" />
                             </div>
                         }
-
                         <button>שמירה וחזרה</button>
                         <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
                     }
@@ -180,7 +153,6 @@ else
                     }
                 }
             }
-
             else
             {
                 @if (returningTrans)
@@ -257,19 +229,10 @@ else
 
                         }
                     }
-
-
                 }
-
             }
-
         </div>
     }
-
-
-
-
-
 </div>
 }
 
@@ -287,9 +250,6 @@ else
             }
             else
             {
-                @*chosenTag.tagTitle = newTransaction.tagTitle;*@
-
-
                 @foreach (TagsToShow tag in allUserTags)
                 {
                     string buttonStyle = "background-color:" + tag.tagColor + ";";
@@ -314,8 +274,6 @@ else
                     <button @onclick="(() => ChooseTagForTrans(tag))" style="background-color:@tag.tagColor">@tag.tagTitle</button>
                 }
             }
-
-
         </div>
 
         <p>פירוט:</p>
@@ -533,24 +491,6 @@ else
     }
 
 
-    //private void HandleRepeatedInput(ChangeEventArgs eventArgs, string month, RepeatedTransToShow existingTrans)
-    //{
-    //    if (existingTrans != null || existingTrans.transValue.ToString()!="")
-    //    {
-    //        // Update the existing transaction
-    //        existingTrans.transValue = Convert.ToDouble(eventArgs.Value);
-    //    }
-    //    else
-    //    {
-    //        // Optionally add a new transaction if it does not exist
-    //        var newTrans = new RepeatedTransToShow
-    //            {
-    //                transDate = DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture),
-    //                transValue = 0
-    //            };
-    //        reapeatedTransValuesList.Add(newTrans);
-    //    }
-    //}
     private void HandleRepeatedInput(ChangeEventArgs eventArgs, string month, RepeatedTransToShow existingTrans)
     {
         // Check if the input value is not null or empty and parse it to double
@@ -633,25 +573,66 @@ else
         {
             newTransaction.fixedMonthly = true;
         }
-
-        var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
-        if (transToSaveRes.IsSuccessStatusCode)
+        if (newTransaction.splitPayment == true && selectedNumber > 0)
         {
-            transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
-            await checkOverdraft();
-            if (!overdraftDetected)
+            double splitValue = newTransaction.transValue / selectedNumber;
+            //DateTime currentMonth = DateTime.Now;
+
+            for (int i = 0; i < selectedNumber; i++)
             {
-                await saveRepeatedTransactions(transIDtoEdit);
-                Console.WriteLine("ההזנה נשמרה בהצלחה :)");
-                addTransactionToTotal.InvokeAsync(newTransaction.transValue);
-                isTransactionOverlayOpen.InvokeAsync(false);
+                newTransaction.transValue = splitValue;
+                if(i>0)
+                {
+                    newTransaction.transDate = newTransaction.transDate.AddMonths(1);
+                    newTransaction.parentTransID = transIDtoEdit;
+                    newTransaction.splitPayment = false;
+                }
 
-
+                var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
+                if (transToSaveRes.IsSuccessStatusCode)
+                {
+                    if (i == 0)
+                    {
+                    transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
+                        await checkOverdraft();
+                        if (!overdraftDetected)
+                        {
+                            await saveRepeatedTransactions(transIDtoEdit);
+                            Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                            addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                            isTransactionOverlayOpen.InvokeAsync(false);
+                        }
+                    }
+                    await saveRepeatedTransactions(transIDtoEdit);
+                    Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                    addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                    isTransactionOverlayOpen.InvokeAsync(false);
+                }
+                else
+                {
+                    Console.WriteLine("הזנה נכשלה");
+                }
             }
         }
         else
         {
-            Console.WriteLine("הזנה נכשלה");
+            var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
+            if (transToSaveRes.IsSuccessStatusCode)
+            {
+                transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
+                    await checkOverdraft();
+                    if (!overdraftDetected)
+                    {
+                        await saveRepeatedTransactions(transIDtoEdit);
+                        Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                        addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                        isTransactionOverlayOpen.InvokeAsync(false);
+                    }
+            }
+            else
+            {
+                Console.WriteLine("הזנה נכשלה");
+            }
         }
 
     }
@@ -660,28 +641,83 @@ else
     {
         newTransaction.subCategoryID = subCategoryIDTOGet;
         newTransaction.transType = 1;
+        newTransaction.tagID = null;
 
-        var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
-        if (transToSaveRes.IsSuccessStatusCode)
+        if (chosenTag.id > 0)
         {
-            transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
-            Console.WriteLine("ההזנה נשמרה בהצלחה :)");
-            await checkOverdraft();
-            if (!overdraftDetected)
-            {
-                addTransactionToTotal.InvokeAsync(newTransaction.transValue);
-                newTransaction = new TransactionToAdd();
-            }
+            newTransaction.tagID = chosenTag.id;
+        }
 
+        if (transactionsToAdd.Count > 0 && transactionsToAdd != null)
+        {
+            newTransaction.fixedMonthly = true;
+        }
+         if (newTransaction.splitPayment == true && selectedNumber > 0)
+        {
+            double splitValue = newTransaction.transValue / selectedNumber;
+            //DateTime currentMonth = DateTime.Now;
+
+            for (int i = 0; i < selectedNumber; i++)
+            {
+                newTransaction.transValue = splitValue;
+                if(i>0)
+                {
+                    newTransaction.transDate = newTransaction.transDate.AddMonths(1);
+                    newTransaction.parentTransID = transIDtoEdit;
+                    newTransaction.splitPayment = false;
+                }
+
+                var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
+                if (transToSaveRes.IsSuccessStatusCode)
+                {
+                    if (i == 0)
+                    {
+                    transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
+                        await checkOverdraft();
+                        if (!overdraftDetected)
+                        {
+                            await saveRepeatedTransactions(transIDtoEdit);
+                            Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                            addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                            isTransactionOverlayOpen.InvokeAsync(false);
+                        }
+                    }
+                    await saveRepeatedTransactions(transIDtoEdit);
+                    Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                    addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                    isTransactionOverlayOpen.InvokeAsync(false);
+                }
+                else
+                {
+                    Console.WriteLine("הזנה נכשלה");
+                }
+            }
+            newTransaction = new TransactionToAdd();
         }
         else
         {
-            Console.WriteLine("הזנה נכשלה");
+            var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newTransaction);
+            if (transToSaveRes.IsSuccessStatusCode)
+            {
+                transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
+                    await checkOverdraft();
+                    if (!overdraftDetected)
+                    {
+                        await saveRepeatedTransactions(transIDtoEdit);
+                        Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                        addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                        isTransactionOverlayOpen.InvokeAsync(false);
+                    newTransaction = new TransactionToAdd();
+                    }
+            }
+            else
+            {
+                Console.WriteLine("הזנה נכשלה");
+            }
         }
     }
     public async Task updateExistingTrans()
     {
-
         TransactionToEdit transToEdit = new TransactionToEdit()
             {
                 id = transIDtoEdit,
@@ -695,7 +731,8 @@ else
                 tagTitle = chosenTag.tagTitle,
                 transTitle = newTransaction.transTitle,
                 parentTransID = newTransaction.parentTransID,
-                description = newTransaction.description
+                description = newTransaction.description,
+                splitPayment = newTransaction.splitPayment
             };
 
         await checkOverdraft();
@@ -734,6 +771,7 @@ else
                 editedTransaction.transTitle = postEditTrans.transTitle;
                 editedTransaction.parentTransID = postEditTrans.parentTransID;
                 editedTransaction.description = postEditTrans.description;
+                editedTransaction.splitPayment = postEditTrans.splitPayment;
 
                 addTransactionAfterEdit.InvokeAsync(editedTransaction);
 
@@ -945,7 +983,7 @@ else
         for (int i = transactionsToAdd.Count - 1; i >= 0; i--)
         {
             TransactionToAdd repT = transactionsToAdd[i];
-            if (repT.transValue > 0 )
+            if (repT.transValue > 0)
             {
                 repT.parentTransID = parentTransID;
                 repT.tagID = newTransaction.tagID;
@@ -953,7 +991,7 @@ else
                 repT.tagTitle = newTransaction.tagTitle;
             }
 
-            if (transactionsToAdd[i].transValue <= 0 )
+            if (transactionsToAdd[i].transValue <= 0)
             {
                 transactionsToAdd.RemoveAt(i);
             }
@@ -990,21 +1028,21 @@ else
                     Console.WriteLine("בעיה במחיקת הזנה חוזרת ריקה");
                 }
             }
-            else if(childTrans.id==0){
+            else if (childTrans.id == 0)
+            {
 
                 TransactionToAdd newRepeatedT = new TransactionToAdd()
-                {
-                    transTitle= newTransaction.transTitle,
-                    subCategoryID= newTransaction.subCategoryID,
-                    transType= newTransaction.transType,
-                    transValue=childTrans.transValue,
-                    valueType=newTransaction.valueType,
-                    transDate=childTrans.transDate,
-                    description=newTransaction.description,
-                        parentTransID = transIDtoEdit
+                    {
+                        transTitle = newTransaction.transTitle,
+                        subCategoryID = newTransaction.subCategoryID,
+                        transType = newTransaction.transType,
+                        transValue = childTrans.transValue,
+                        valueType = newTransaction.valueType,
+                        transDate = childTrans.transDate,
+                        description = newTransaction.description,
+                        parentTransID = transIDtoEdit,
 
-
-                };
+                    };
                 var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", newRepeatedT);
                 if (transToSaveRes.IsSuccessStatusCode)
                 {

@@ -15,6 +15,7 @@ namespace CountOnIt.Shared.Models.present.toEdit
         public DateTime transDate { get; set; }
         public string? description { get; set; }
         public bool? fixedMonthly { get; set; }
+        public bool? splitPayment { get; set; }
         public int? tagID { get; set; }
         public string? tagTitle { get; set; }
         public string? tagColor { get; set; }

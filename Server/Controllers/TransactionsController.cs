@@ -32,10 +32,11 @@ namespace CountOnIt.Server.Controllers
                 description = TransactionToAdd.description,
                 fixedMonthly = TransactionToAdd.fixedMonthly,
                 parentTransID = TransactionToAdd.parentTransID,
-                tagID = TransactionToAdd.tagID
+                tagID = TransactionToAdd.tagID,
+                splitPayment= TransactionToAdd.splitPayment
             };
 
-            string insertTransQuery = "INSERT INTO transactions (transTitle,subCategoryID, transType, transValue, valueType, transDate, description, fixedMonthly, parentTransID, tagID) values (@transTitle,@subCategoryID, @transType, @transValue, @valueType, @transDate, @description, @fixedMonthly, @parentTransID, @tagID)";
+            string insertTransQuery = "INSERT INTO transactions (transTitle,subCategoryID, transType, transValue, valueType, transDate, description, fixedMonthly, parentTransID, tagID, splitPayment) values (@transTitle,@subCategoryID, @transType, @transValue, @valueType, @transDate, @description, @fixedMonthly, @parentTransID, @tagID, @splitPayment)";
 
             int newTransId = await _db.InsertReturnId(insertTransQuery, TransToAddParam);
 
@@ -206,6 +207,7 @@ namespace CountOnIt.Server.Controllers
     transactions.tagID, 
     transactions.transTitle, 
     transactions.parentTransID,
+transactions.splitPayment,
     tags.tagTitle,
     tags.tagColor
 FROM transactions 
@@ -254,10 +256,11 @@ ORDER BY transactions.transDate DESC;";
                 fixedMonthly = transToEdit.fixedMonthly,
                 tagID = transToEdit.tagID,
                 parentTransID = transToEdit.parentTransID,
-                transTitle = transToEdit.transTitle
+                transTitle = transToEdit.transTitle,
+                splitPayment= transToEdit.splitPayment
             };
 
-            string UpdateTransQuery = "UPDATE transactions set transType = @transType, transValue = @transValue, valueType = @valueType, transDate=@transDate, description=@description, fixedMonthly=@fixedMonthly, tagID=@tagID, parentTransID=@parentTransID, transTitle=@transTitle where id =@ID";
+            string UpdateTransQuery = "UPDATE transactions set transType = @transType, transValue = @transValue, valueType = @valueType, transDate=@transDate, description=@description, fixedMonthly=@fixedMonthly, tagID=@tagID, parentTransID=@parentTransID, transTitle=@transTitle, splitPayment=@splitPayment where id =@ID";
             bool isUpdate = await _db.SaveDataAsync(UpdateTransQuery, transUpdateParam);
 
             if (isUpdate)
@@ -364,7 +367,7 @@ ORDER BY transactions.transDate DESC;";
             return BadRequest("Couldn't find repeated trans values");
         }
 
-        [HttpPost("UpdateRepeatedTrans")]  // עריכת תקציב חדש לאחר העברה בחריגה
+        [HttpPost("UpdateRepeatedTrans")]  
 
         public async Task<IActionResult> UpdateRepeatedTrans([FromBody] List<RepeatedTransToShow> reTransToUpdate)
         {
