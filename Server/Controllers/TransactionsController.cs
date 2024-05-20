@@ -368,6 +368,7 @@ ORDER BY transactions.transDate DESC;";
 
             return BadRequest("Couldn't find repeated trans values");
         }
+
         [HttpGet("getPaymentTransToEdit/{ParentTransID}")]
         public async Task<IActionResult> getPaymentTransToEdit(int ParentTransID)
         {
@@ -418,7 +419,44 @@ ORDER BY transactions.transDate DESC;";
 
         }
 
-        
+        [HttpDelete("deleteSplittedTransChildren/{TransIdToDelete}")] // מחיקת הזנה
+        public async Task<IActionResult> deleteSplittedTransChildren(int TransIdToDelete)
+        {
+            string DeleteQuery = "DELETE FROM transactions WHERE parentTransID=@ID OR id=@ID";
+            bool isTransDeleted = await _db.SaveDataAsync(DeleteQuery, new { ID = TransIdToDelete });
+
+            if (isTransDeleted)
+            {
+                return Ok();
+            }
+
+            return BadRequest("Failed to delete transaction");
+        }
+
+        [HttpGet("identifyParent/{childTransID}")]
+        public async Task<IActionResult> identifyParent(int childTransID)
+        {
+            object param = new
+            {
+                ID = childTransID
+            };
+
+            string findParentQuery = "SELECT id FROM transactions WHERE id=@ID AND splitPayment=1";
+            var parentTransToEdit = await _db.GetRecordsAsync<int>(findParentQuery, param);
+            int repeatedTransValue = parentTransToEdit.FirstOrDefault();
+
+            if (repeatedTransValue > 0)
+            {
+                return Ok(repeatedTransValue);
+            }
+
+            return BadRequest("Parent doesn't have split payment");
+        }
+
+
+
+
+
     }
 
            

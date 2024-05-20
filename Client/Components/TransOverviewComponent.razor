@@ -109,16 +109,58 @@
 
     protected async Task deleteTrans()
     {
-        var deleteRes = await Http.DeleteAsync("api/Transactions/deleteTransaction/" + transaction.id);
-        if (deleteRes.IsSuccessStatusCode)
+        if (transaction.splitPayment==true) //deleting a split payment parent
         {
-            removeTransaction.InvokeAsync(transaction.id);
-            deleteBtnClicked = !deleteBtnClicked;
+            var deleteRes = await Http.DeleteAsync("api/Transactions/deleteSplittedTransChildren/" + transaction.id);
+            if (deleteRes.IsSuccessStatusCode)
+            {
+                removeTransaction.InvokeAsync(transaction.id);
+                deleteBtnClicked = !deleteBtnClicked;
+            }
+            else
+            {
+                Console.WriteLine("בעיה במחיקת הזנה");
+            }
         }
-        else
+        else if (transaction.parentTransID > 0) //deleting a split payment parent and his children
         {
-            Console.WriteLine("בעיה במחיקת הזנה");
+            var findParentRes = await Http.GetAsync("api/Transactions/identifyParent/" + transaction.parentTransID);
+            if (findParentRes.IsSuccessStatusCode)
+            {
+                var parentIDtoCheck = await findParentRes.Content.ReadFromJsonAsync<int>();
+                if (parentIDtoCheck>0)
+                {
+                    var deleteRes = await Http.DeleteAsync("api/Transactions/deleteSplittedTransChildren/" + transaction.parentTransID);
+                    if (deleteRes.IsSuccessStatusCode)
+                    {
+                        removeTransaction.InvokeAsync(transaction.id);
+                        deleteBtnClicked = !deleteBtnClicked;
+                    }
+                    else
+                    {
+                        Console.WriteLine("בעיה במחיקת הזנה");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("בעיה במחיקת הזנה");
+            }
         }
+        else //deleting a parent-less transaction
+        {
+            var deleteRes = await Http.DeleteAsync("api/Transactions/deleteTransaction/" + transaction.id);
+            if (deleteRes.IsSuccessStatusCode)
+            {
+                removeTransaction.InvokeAsync(transaction.id);
+                deleteBtnClicked = !deleteBtnClicked;
+            }
+            else
+            {
+                Console.WriteLine("בעיה במחיקת הזנה");
+            }
+        }
+
     }
 
     public void closeDeletePopUp()
