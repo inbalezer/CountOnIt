@@ -262,14 +262,14 @@ ORDER BY transactions.transDate DESC;";
                 splitPayment= transToEdit.splitPayment
             };
 
-            string UpdateTransQuery = "UPDATE transactions set transType = @transType, transValue = @transValue, valueType = @valueType, transDate=@transDate, description=@description, fixedMonthly=@fixedMonthly, tagID=@tagID, parentTransID=@parentTransID, transTitle=@transTitle, splitPayment=@splitPayment where id =@ID";
+            string UpdateTransQuery = "UPDATE transactions SET transType = @transType, transValue = @transValue, valueType = @valueType, transDate=@transDate, description=@description, fixedMonthly=@fixedMonthly, tagID=@tagID, parentTransID=@parentTransID, transTitle=@transTitle, splitPayment=@splitPayment WHERE id =@ID";
             bool isUpdate = await _db.SaveDataAsync(UpdateTransQuery, transUpdateParam);
 
             if (isUpdate)
             {
                 return Ok(transToEdit);
             }
-            return BadRequest("update sub category failed");
+            return BadRequest("update transaction failed");
         }
 
         [HttpGet("updateOverDraftTrans/{transID}")]
@@ -453,7 +453,20 @@ ORDER BY transactions.transDate DESC;";
             return BadRequest("Parent doesn't have split payment");
         }
 
+        [HttpDelete("deleteSplittedChildrenOnly/{TransIdToDelete}")] // מחיקת הזנה
+        public async Task<IActionResult> deleteSplittedChildrenOnly(int TransIdToDelete)
+        {
+            string DeleteQuery = "DELETE FROM transactions WHERE parentTransID=@ID";
+            bool isTransDeleted = await _db.SaveDataAsync(DeleteQuery, new { ID = TransIdToDelete });
 
+            if (isTransDeleted)
+            {
+                
+                return Ok();
+            }
+
+            return BadRequest("Failed to delete transaction");
+        }
 
 
 

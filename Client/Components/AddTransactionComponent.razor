@@ -37,28 +37,51 @@ else
             @if (splitPayment)
             {
                 <select @bind="selectedNumber">
-                    @for (int i = 1; i <= 12; i++)
+                    @for (int i = 2; i <= 12; i++)
                     {
                         <option value="@i">@i תשלומים</option>
 
                     }
                     selectedNumber = i;
                 </select>
-
-                <p>
-                    סכום כל תשלום בממוצע @(
-            Math.Round(newTransaction.transValue / selectedNumber)
+                @if (isItAnewTrans)
+                {
+                    <p>
+                        סכום כל תשלום בממוצע @(
+            Math.Round((newTransaction.transValue / selectedNumber),2)
             ) ₪
-                </p>
+                    </p>
+                }
+                else
+                {
+                    double result = sumPreSplit.GetValueOrDefault() / selectedNumber;
+                    double roundedResult = Math.Round(result, 2);
+                    <p>
+                        סכום כל תשלום בממוצע @roundedResult ₪
+                    </p>
+@*                    @(
+                        newTransaction.transValue = result;
+                    )*@
+                }
+
+        }
+            @{
+                
+                newTransaction.splitPayment = splitPayment;
+                if (splitPayment==false)
+                {
+                    selectedNumber = 0;
+                }
+                //if (isItAnewTrans)
+                //{
+                //    sumPreSplit = newTransaction.transValue;
+                //}
             }
             <p>אמצעי תשלום</p>
 
             @if (newTransaction.valueType == null)
             {
                 newTransaction.valueType = "מזומן";
-            }
-            @{
-                newTransaction.splitPayment = splitPayment;
             }
             <select @bind="newTransaction.valueType">
 
@@ -277,7 +300,8 @@ else
         </div>
 
         <p>פירוט:</p>
-        <input type="text" />
+        <textarea @bind="newTransaction.description"></textarea>
+        @*<input type="text" />*@
     }
 </div>
 
@@ -424,6 +448,12 @@ else
     List<TransactionToAdd> transactionsToAdd = new List<TransactionToAdd>();
     int indexOfPayment = 0;
 
+    bool? initialFixedMonthly = false;
+    bool? initialSplitPayment = false;
+    int? initialAmountOfSplits = 0;
+    double? sumPreSplit = 0;
+    TransactionToAdd ogTransaction = new TransactionToAdd();
+
     public string GetHebrewMonthName(string month)
     {
         return month switch
@@ -541,14 +571,18 @@ else
                 };
             overlayTitle = "הוספה לתת קטגוריה: ";
             isItAnewTrans = true;
+
         }
         else
         {
             overlayTitle = "עריכת הזנה";
             isItAnewTrans = false;
-
+            ogTransaction = newTransaction;
+            initialSplitPayment = newTransaction.splitPayment;
+            initialFixedMonthly = newTransaction.fixedMonthly;
             if (newTransaction.splitPayment == true && transIDtoEdit > 0)
             {
+
                 splitPayment = true;
                 var repeatedTransValuesRes = await Http.GetAsync("api/Transactions/getPaymentTransToEdit/" + transIDtoEdit);
 
@@ -559,10 +593,12 @@ else
                     {
                         if (repeatedT.id == transIDtoEdit)
                         {
-                            indexOfPayment = reapeatedTransValuesList.IndexOf(repeatedT)+1;
+                            indexOfPayment = reapeatedTransValuesList.IndexOf(repeatedT) + 1;
                         }
                     }
                     selectedNumber = reapeatedTransValuesList.Count;
+                    initialAmountOfSplits = selectedNumber;
+                    sumPreSplit = newTransaction.transValue * initialAmountOfSplits;
                     List<int> transStatus = new List<int>()
                     {
                         indexOfPayment, selectedNumber
@@ -775,7 +811,6 @@ else
             transToEdit.transType = 1;
         }
 
-
         var transEditRes = await Http.PostAsJsonAsync("api/Transactions/editTransaction", transToEdit);
         if (transEditRes.IsSuccessStatusCode)
         {
@@ -811,17 +846,135 @@ else
 
 
             }
-
+            if (transToEdit.splitPayment != initialSplitPayment || initialAmountOfSplits != selectedNumber)
+            {
+                await updateSplitPayments(transToEdit);
+            }
             if (!overdraftDetected)
             {
                 isTransactionOverlayOpen.InvokeAsync(false);
             }
 
 
+            if (transToEdit.fixedMonthly == true)
+            {
+                await updateReTransactions(reapeatedTransValuesList);
+            }
+        }
+        Console.WriteLine("couldn't save edit");
+    }
+
+    public async Task updateSplitPayments(TransactionToEdit transToEdit)
+    {
+        if (transToEdit.splitPayment == true && selectedNumber > 1) //means the trans was false before and had no children
+        {
+            double splitValue = transToEdit.transValue / selectedNumber;
+            for (int i = 1; i < selectedNumber; i++)
+            {
+                transToEdit.transValue = splitValue;
+                transToEdit.transDate = newTransaction.transDate.AddMonths(1);
+                transToEdit.parentTransID = transIDtoEdit;
+                transToEdit.splitPayment = false;
+
+                TransactionToAdd childTransOfEdit = new TransactionToAdd()
+                    {
+                        transValue = transToEdit.transValue,
+                        valueType = transToEdit.valueType,
+                        description = transToEdit.description,
+                        fixedMonthly = transToEdit.fixedMonthly,
+                        parentTransID = transToEdit.id,
+                        tagID = transToEdit.tagID,
+                        tagTitle = transToEdit.tagTitle,
+                        tagColor = transToEdit.tagColor,
+                        transTitle = transToEdit.transTitle,
+                        subCategoryID = subCategoryIDTOGet,
+                        transDate = transToEdit.transDate,
+                        transType = transToEdit.transType,
+                        splitPayment = transToEdit.splitPayment
+                    };
+
+                var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", childTransOfEdit);
+                if (transToSaveRes.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("child of date- " + childTransOfEdit.transDate + " was saved successfully");
+                }
+                else
+                {
+                    Console.WriteLine("couldn't add the split payment");
+                }
+            }
+
+        }
+        else if (transToEdit.splitPayment == true && selectedNumber > 1 && selectedNumber != initialAmountOfSplits) //means a change in the children amount was requested
+        {
+            double? formerTransValue = transToEdit.transValue * initialAmountOfSplits;
+            transToEdit.transValue = transToEdit.transValue / selectedNumber;
+            Console.WriteLine("new split amount is- " + transToEdit.transValue);
+            var deleteSplitChildren = await Http.DeleteAsync("api/Transactions/deleteSplittedChildrenOnly/" + transToEdit.parentTransID);
+            if (deleteSplitChildren.IsSuccessStatusCode)
+            {
+                //deleting all children so we create new ones according to the new amount
+                Console.WriteLine("all former split children of this transaction were deleted");
+                for (int j = 1; j < selectedNumber; j++)
+                {
+                    //if (transToEdit.parentTransID == null)
+                    //{
+                        //transToEdit.transValue = splitValue;
+                        transToEdit.transDate = newTransaction.transDate.AddMonths(1);
+                        transToEdit.parentTransID = transIDtoEdit;
+                        transToEdit.splitPayment = false;
+
+                        TransactionToAdd updatedChildTransOfEdit = new TransactionToAdd()
+                            {
+                                transValue = transToEdit.transValue,
+                                valueType = transToEdit.valueType,
+                                description = transToEdit.description,
+                                fixedMonthly = transToEdit.fixedMonthly,
+                                parentTransID = transToEdit.id,
+                                tagID = transToEdit.tagID,
+                                tagTitle = transToEdit.tagTitle,
+                                tagColor = transToEdit.tagColor,
+                                transTitle = transToEdit.transTitle,
+                                subCategoryID = subCategoryIDTOGet,
+                                transDate = transToEdit.transDate,
+                                transType = transToEdit.transType,
+                                splitPayment = transToEdit.splitPayment
+                            };
+
+                        var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", updatedChildTransOfEdit);
+                        if (transToSaveRes.IsSuccessStatusCode)
+                        {
+                            Console.WriteLine("child of date- " + updatedChildTransOfEdit.transDate + " was saved successfully");
+                        }
+                        else
+                        {
+                            Console.WriteLine("couldn't add the split payment");
+                        }
+                    //}
+                }
+            }
+            else
+            {
+                Console.WriteLine("failed to delete former split children and create the new ones.");
+            }
+        }
+        else //means that splitMonthly was turned to false
+        {
+            var deleteSplitChildren = await Http.DeleteAsync("api/Transactions/deleteSplittedChildrenOnly/" + transToEdit.parentTransID);
+            if (deleteSplitChildren.IsSuccessStatusCode)
+            {
+                Console.WriteLine("all split children of this transaction were deleted");
+            }
+            else
+            {
+                Console.WriteLine("failed to delete split children");
+            }
         }
 
-        await updateReTransactions(reapeatedTransValuesList);
+
     }
+
+
 
     public async Task manageBudgetsToTranfer()
     {
@@ -1011,7 +1164,7 @@ else
         }
     }
 
-    public async Task saveRepeatedTransactions(int parentTransID)
+    public async Task saveRepeatedTransactions(int parentTransID) //saving repeating transactions when the parent is fixedMonthly
     {
         transactionsToAdd.RemoveAll(e => e.transDate <= DateTime.Now);
         for (int i = transactionsToAdd.Count - 1; i >= 0; i--)
@@ -1046,7 +1199,7 @@ else
 
     }
 
-    public async Task updateReTransactions(List<RepeatedTransToShow> reTransToUpdate)
+    public async Task updateReTransactions(List<RepeatedTransToShow> reTransToUpdate) //updating repeating transactions when the parent is fixedMonthly
     {
         foreach (RepeatedTransToShow childTrans in reTransToUpdate)
         {

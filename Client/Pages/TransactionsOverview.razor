@@ -115,6 +115,7 @@
         <button @onclick="() => filterByTransTypeOverlay = true">אמצעי תשלום</button>
         <button @onclick="() => filterByTagOverlay = true">תגית</button>
         <button @onclick="filterByRepeatedTrans">הוצאה חוזרת</button>
+        <button @onclick="filterBySplitPayment">תשלומים</button>
 
         @if (filterByTransTypeOverlay)
         {
@@ -492,6 +493,32 @@
         {
             Console.WriteLine("No tags found");
         }
+    }
+
+    public async Task filterBySplitPayment()
+    {
+        await undoFilterAndSort();
+
+        for (int i = allTransactions.Count - 1; i >= 0; i--)
+        {
+            if (allTransactions[i].parentTransID!=null)
+            {
+                var findParentRes = await Http.GetAsync("api/Transactions/identifyParent/" + allTransactions[i].parentTransID);
+                if (findParentRes.IsSuccessStatusCode)
+                {
+                    Console.WriteLine("transaction: " + allTransactions[i] .transTitle+ " is a part of a split payment");
+                }
+            }
+            else if (allTransactions[i].splitPayment==true)
+            {
+                Console.WriteLine("transaction: " + allTransactions[i].transTitle + " is a parent of a split payment");
+            }
+            else
+            {
+                allTransactions.Remove(allTransactions[i]);
+            }
+        }
+        filterBtnClicked = false;
     }
 
     public void SortingOptions(string sortDirection)
