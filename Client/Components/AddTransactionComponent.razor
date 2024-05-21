@@ -866,6 +866,7 @@ else
 
     public async Task updateSplitPayments(TransactionToEdit transToEdit)
     {
+        int childAmount = 0;
         if (transToEdit.splitPayment == true && selectedNumber > 1) //means the trans was false before and had no children
         {
             double splitValue = transToEdit.transValue / selectedNumber;
@@ -897,12 +898,16 @@ else
                 if (transToSaveRes.IsSuccessStatusCode)
                 {
                     Console.WriteLine("child of date- " + childTransOfEdit.transDate + " was saved successfully");
+                    childAmount++;
                 }
                 else
                 {
                     Console.WriteLine("couldn't add the split payment");
+                    childAmount--;
                 }
             }
+
+            indexOfPayment = 1;
 
         }
         else if (transToEdit.splitPayment == true && selectedNumber > 1 && selectedNumber != initialAmountOfSplits) //means a change in the children amount was requested
@@ -919,12 +924,12 @@ else
                 {
                     //if (transToEdit.parentTransID == null)
                     //{
-                        //transToEdit.transValue = splitValue;
-                        transToEdit.transDate = newTransaction.transDate.AddMonths(1);
-                        transToEdit.parentTransID = transIDtoEdit;
-                        transToEdit.splitPayment = false;
+                    //transToEdit.transValue = splitValue;
+                    transToEdit.transDate = newTransaction.transDate.AddMonths(1);
+                    transToEdit.parentTransID = transIDtoEdit;
+                    transToEdit.splitPayment = false;
 
-                        TransactionToAdd updatedChildTransOfEdit = new TransactionToAdd()
+                    TransactionToAdd updatedChildTransOfEdit = new TransactionToAdd()
                             {
                                 transValue = transToEdit.transValue,
                                 valueType = transToEdit.valueType,
@@ -941,17 +946,20 @@ else
                                 splitPayment = transToEdit.splitPayment
                             };
 
-                        var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", updatedChildTransOfEdit);
-                        if (transToSaveRes.IsSuccessStatusCode)
-                        {
-                            Console.WriteLine("child of date- " + updatedChildTransOfEdit.transDate + " was saved successfully");
-                        }
-                        else
-                        {
-                            Console.WriteLine("couldn't add the split payment");
-                        }
+                    var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", updatedChildTransOfEdit);
+                    if (transToSaveRes.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("child of date- " + updatedChildTransOfEdit.transDate + " was saved successfully");
+                        childAmount++;
+                    }
+                    else
+                    {
+                        Console.WriteLine("couldn't add the split payment");
+                        childAmount--;
+                    }
                     //}
                 }
+
             }
             else
             {
@@ -970,7 +978,17 @@ else
                 Console.WriteLine("failed to delete split children");
             }
         }
+        if (transToEdit.splitPayment!=false && childAmount==selectedNumber)
+        {
 
+                //indexOfPayment = 1;
+                List<int> transStatus = new List<int>()
+                    {
+                        indexOfPayment, selectedNumber
+                    };
+                SplitPaymentWithIndex.InvokeAsync(transStatus);
+            
+        }
 
     }
 

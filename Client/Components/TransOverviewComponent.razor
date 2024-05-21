@@ -52,9 +52,9 @@
 {
     <span>הוצאה חוזרת</span>
 }
-@if (transaction.splitPayment==true)
+@if (transaction.splitPayment == true || childOfSplit==true)
 {
-    <span>תשלום @totalPayments/@transIndexInPayments  </span>
+    <span>תשלום @transIndexInPayments/@totalPayments  </span>
 }
 
 
@@ -99,7 +99,58 @@
 
     int transIndexInPayments = 0;
     int totalPayments = 0;
+    List<RepeatedTransToShow> reapeatedTransValuesList = new List<RepeatedTransToShow>();
+    bool childOfSplit = false;
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (transaction.splitPayment==true)
+        {
+            var repeatedTransValuesRes = await Http.GetAsync("api/Transactions/getPaymentTransToEdit/" + transaction.id);
+            if (repeatedTransValuesRes.IsSuccessStatusCode)
+            {
+                reapeatedTransValuesList = repeatedTransValuesRes.Content.ReadFromJsonAsync<List<RepeatedTransToShow>>().Result;
+                foreach (RepeatedTransToShow repeatedT in reapeatedTransValuesList)
+                {
+                    if (repeatedT.id == transaction.id)
+                    {
+                        transIndexInPayments = reapeatedTransValuesList.IndexOf(repeatedT) + 1;
+                    }
+                }
+                totalPayments = reapeatedTransValuesList.Count;
+            }
+            else
+            {
+                Console.WriteLine("repeated Trans values failed");
+            }
+        }
+        else if (transaction.parentTransID!=null)
+        {
+            var findParentRes = await Http.GetAsync("api/Transactions/identifyParent/" + transaction.parentTransID);
+            if (findParentRes.IsSuccessStatusCode)
+            {
+                Console.WriteLine("transaction: " + transaction.transTitle + " is a part of a split payment");
+                var repeatedTransValuesRes = await Http.GetAsync("api/Transactions/getPaymentTransToEdit/" + transaction.parentTransID);
+                if (repeatedTransValuesRes.IsSuccessStatusCode)
+                {
+                    reapeatedTransValuesList = repeatedTransValuesRes.Content.ReadFromJsonAsync<List<RepeatedTransToShow>>().Result;
+                    foreach (RepeatedTransToShow repeatedT in reapeatedTransValuesList)
+                    {
+                        if (repeatedT.id == transaction.id)
+                        {
+                            transIndexInPayments = reapeatedTransValuesList.IndexOf(repeatedT) + 1;
+                        }
+                    }
+                    totalPayments = reapeatedTransValuesList.Count;
+                    childOfSplit = true;
+                }
+                else
+                {
+                    Console.WriteLine("finding repeated Trans values failed");
+                }
+            }
+        }
+    }
     public void deleteTransPopUp()
     {
         deleteBtnClicked = !deleteBtnClicked;
