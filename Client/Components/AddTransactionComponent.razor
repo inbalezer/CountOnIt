@@ -47,33 +47,48 @@ else
                 @if (isItAnewTrans)
                 {
                     <p>
+                          @*                      @{
+                            sumPreSplit = Math.Round((newTransaction.transValue * selectedNumber), 2);
+                        }*@
                         סכום כל תשלום בממוצע @(
             Math.Round((newTransaction.transValue / selectedNumber), 2)
             ) ₪
+
                     </p>
                 }
                 else
                 {
-                    if (sumPreSplit>0)
+                    if (sumPreSplit > 0)
                     {
-                        
-                    double result = sumPreSplit.GetValueOrDefault() / selectedNumber;
-                    double roundedResult = Math.Round(result, 2);
-                    <p>
-                        סכום כל תשלום בממוצע @roundedResult ₪
+
+                        double result = sumPreSplit / selectedNumber;
+                        double roundedResult = Math.Round(result, 2);
+                        //newTransaction.transValue = roundedResult;
+                        <p>
+                            סכום כל תשלום בממוצע @roundedResult ₪
                         </p>
+
                     }
                     else
                     {
+
+                        @*newTransaction.transValue = Math.Round((newTransaction.transValue / selectedNumber), 2);
+
                         <p>
                             סכום כל תשלום בממוצע @(
             Math.Round((newTransaction.transValue / selectedNumber), 2)
             ) ₪
-                        </p>
+                        </p>*@
+                       
+                            sumPreSplit = Math.Round((newTransaction.transValue * selectedNumber), 2);
+                        
+                        <p>
+                        סכום כל תשלום בממוצע @(
+            Math.Round((sumPreSplit / selectedNumber), 2)
+            ) ₪
+
+                    </p>
                     }
-                    @*                    @(
-        newTransaction.transValue = result;
-        )*@
                 }
 
             }
@@ -459,7 +474,7 @@ else
     bool? initialFixedMonthly = false;
     bool? initialSplitPayment = false;
     int initialAmountOfSplits = 0;
-    double? sumPreSplit = 0;
+    double sumPreSplit = 0;
     TransactionToAdd ogTransaction = new TransactionToAdd();
 
     public string GetHebrewMonthName(string month)
@@ -656,7 +671,7 @@ else
         {
             newTransaction.fixedMonthly = true;
         }
-        if (newTransaction.splitPayment == true && selectedNumber > 0)
+        if (newTransaction.splitPayment == true && selectedNumber > 1)
         {
             double splitValue = newTransaction.transValue / selectedNumber;
             //DateTime currentMonth = DateTime.Now;
@@ -680,13 +695,20 @@ else
                         await checkOverdraft();
                         if (!overdraftDetected)
                         {
-                            await saveRepeatedTransactions(transIDtoEdit);
+                            if (newTransaction.fixedMonthly==true)
+                            {
+                                await saveRepeatedTransactions(transIDtoEdit);
+                            }
                             Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                             addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                             isTransactionOverlayOpen.InvokeAsync(false);
                         }
                     }
-                    await saveRepeatedTransactions(transIDtoEdit);
+                    
+                    if (newTransaction.fixedMonthly == true)
+                    {
+                        await saveRepeatedTransactions(transIDtoEdit);
+                    }
                     Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                     addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                     isTransactionOverlayOpen.InvokeAsync(false);
@@ -706,7 +728,10 @@ else
                 await checkOverdraft();
                 if (!overdraftDetected)
                 {
-                    await saveRepeatedTransactions(transIDtoEdit);
+                    if (newTransaction.fixedMonthly == true)
+                    {
+                        await saveRepeatedTransactions(transIDtoEdit);
+                    }
                     Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                     addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                     isTransactionOverlayOpen.InvokeAsync(false);
@@ -905,7 +930,7 @@ else
         {
             neededID = transToEdit.id;
         }
-        if (transToEdit.splitPayment == true && selectedNumber > 1 && initialAmountOfSplits==1) //means the trans was false before and had no children
+        if (transToEdit.splitPayment == true && selectedNumber > 1 && initialAmountOfSplits == 1) //means the trans was false before and had no children
         {
             //double splitValue = transToEdit.transValue / selectedNumber;
             for (int i = 1; i < selectedNumber; i++)
