@@ -523,20 +523,38 @@ namespace CountOnIt.Server.Controllers
         }
 
 
-        [HttpGet("getSubCategoryTitle/{subCatID}")]
-        public async Task<ActionResult<string>> getSubCategoryTitle(int subCatID)
+        [HttpGet("getSubCategoryTitle/{userID}")]
+        public async Task<ActionResult<string>> getSubCategoryTitle(int userID)
         {
-            object param = new { ID = subCatID };
-            var subcatIDQuery = "SELECT subCategoryTitle FROM subcategories WHERE id=@ID";
-            var subcatIDRec = await _db.GetRecordsAsync<string>(subcatIDQuery, param);
-            string subcategoryTitle = subcatIDRec.FirstOrDefault();
+            object param = new { ID = userID };
+            var subcatIDQuery = "SELECT s.* FROM users u JOIN categories c ON u.Id = c.userID JOIN subcategories s ON c.Id = s.categoryID WHERE u.Id = @ID;";
+            var subcatIDRec = await _db.GetRecordsAsync<SubCategoryToAdd>(subcatIDQuery, param);
+            List<SubCategoryToAdd> subcategory = subcatIDRec.ToList();
 
-            if (subcategoryTitle != null)
+            if (subcategory != null)
             {
-                return Ok(subcategoryTitle);  // Return the string directly
+                return Ok(subcategory);  // Return the subcategory directly
             }
-            return BadRequest("Couldn't find this subcategory's title");
+            return BadRequest("Couldn't find this subcategory");
         }
+        
+
+        [HttpGet("getSubCategoriesForSearch")]
+        public async Task<ActionResult<SubCategoryToAdd>> getSubCategoriesForSearch()
+        {
+            object param = new {};
+
+            string GetSubCategoryForSearchQuery = "SELECT id,categoryID,subCategoryTitle, monthlyPlannedBudget, importance FROM subcategories WHERE categoryID = @id";
+            var recordsSubCategory = await _db.GetRecordsAsync<SubCategoryToAdd>(GetSubCategoryForSearchQuery, param);
+            SubCategoryToAdd subCategory = recordsSubCategory.FirstOrDefault();
+
+            if (subCategory != null)
+            {
+                return Ok(subCategory);
+            }
+            return BadRequest("sub category not found");
+        }
+
     }
     
 }
