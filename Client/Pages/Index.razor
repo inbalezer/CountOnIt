@@ -23,7 +23,10 @@
 
     <h2>מבט על חודש @currentMonth </h2>
 
-    //שורת חיפוש
+    <div class="search__container">
+
+        <input type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onblur="FilterCatsOrSubCats" placeholder="חפשו קטגוריה או תת קטגוריה..." />
+    </div>
 
     <table class="table">
         <thead>
@@ -66,24 +69,35 @@
             <EditCategoryComponent popupTitle="הוספת קטגוריה" userID="@userID" newCategory="newCategory" isCategoryOverlayOpen="openCategoryOverlay" addNewCatToIndex="AddNewCat"></EditCategoryComponent>
         }
 
-        foreach (CategoryToShow category in currentUser.categoriesFullList)
+
+        @if (currentUser.categoriesFullList.Any(c => string.IsNullOrEmpty(searchQuery) || c.categroyTitle.ToLower().Contains(searchQuery.ToLower())))
         {
-            if (givingsubCatCategoryID > 0 && category.id == givingsubCatCategoryID)
+            @foreach (CategoryToShow category in currentUser.categoriesFullList.Where(c => string.IsNullOrEmpty(searchQuery) || c.categroyTitle.ToLower().Contains(searchQuery.ToLower())))
             {
-                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID"  deleteCat="removeCat " subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"> </CategoryComponent>
-            }else{
-
-            <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat " subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"> </CategoryComponent>
+                if (givingsubCatCategoryID > 0 && category.id == givingsubCatCategoryID)
+                {
+                    <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
+                }
+                else
+                {
+                    <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"></CategoryComponent>
+                }
             }
-
         }
+        else
+        {
+            <p>אופס, לא נמצא תוצאה שמתאימה לחיפוש</p>
+        }
+
+       
+       
 
         @if (doRefresh)
         {
             refreshBudgetsOfSubCats(true);
         }
     }
-  
+
     <div id="bottomNav">
         <button>מבט לעבר</button>
         <button>מבט להווה</button>
@@ -140,12 +154,14 @@
     userToShow currentUser;
     UserToAdd newUser = new UserToAdd();
     CategoryToShow defaultCategory = new CategoryToShow();
+    List<CategoryToShow> searchCats = new List<CategoryToShow>();
 
 
     private string currentMonth;
     private string userGoogleId;
     private bool isChecked = false;
     string msg = "";
+    string searchQuery = "";
 
     int newCurrentUserId;
     private int refreshKey;
@@ -153,6 +169,7 @@
     bool doRefresh = false;
     bool isOnInitializedOver = false;
     bool accordionRefresh = false;
+    //bool isThereCategories => currentUser.categoriesFullList == null || currentUser.categoriesFullList.Count == 0;
     CategoryToShow catToDelete = new CategoryToShow();
 
     CategoryToAdd newCategory = new CategoryToAdd();
@@ -183,7 +200,7 @@
             {
                 currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
                 userID = currentUser.id;
-
+                searchCats = currentUser.categoriesFullList;
             }
             else
             {
@@ -401,9 +418,27 @@
 
     public void AddNewCat(CategoryToShow newCategory)
     {
-        if (newCategory!=null)
+        if (newCategory != null)
         {
             currentUser.categoriesFullList.Add(newCategory);
+        }
+    }
+
+    void UpdateSearchQuery(ChangeEventArgs e)
+    {
+        searchQuery = e.Value.ToString();
+    }
+
+    void FilterCatsOrSubCats()
+    {
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+            searchCats = currentUser.categoriesFullList.Where(category => category.categroyTitle.Contains(searchQuery)).ToList();
+
+        }
+        else
+        {
+            searchCats = null; // Show all categories if the search query is empty
         }
     }
 }
