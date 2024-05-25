@@ -21,6 +21,11 @@ namespace CountOnIt.Server.Controllers
         [HttpPost("AddTransaction")] // יצירת הזנה חדשה
         public async Task<IActionResult> AddTransaction(TransactionToAdd TransactionToAdd)
         {
+            if (TransactionToAdd.splitPayment == null)
+            {
+                TransactionToAdd.splitPayment = false;
+            }
+
             object TransToAddParam = new
             {
                 transTitle = TransactionToAdd.transTitle,
@@ -35,6 +40,7 @@ namespace CountOnIt.Server.Controllers
                 tagID = TransactionToAdd.tagID,
                 splitPayment= TransactionToAdd.splitPayment
             };
+
 
             string insertTransQuery = "INSERT INTO transactions (transTitle,subCategoryID, transType, transValue, valueType, transDate, description, fixedMonthly, parentTransID, tagID, splitPayment) values (@transTitle,@subCategoryID, @transType, @transValue, @valueType, @transDate, @description, @fixedMonthly, @parentTransID, @tagID, @splitPayment)";
 
