@@ -25,7 +25,7 @@
 
     <div class="search__container">
 
-        <input type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onchange="FilterCatsOrSubCats" placeholder="חפשו קטגוריה או תת קטגוריה..." />
+        <input type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onblur="FilterCatsOrSubCats" placeholder="חפשו קטגוריה או תת קטגוריה..." />
     </div>
 
     <table class="table">
@@ -55,9 +55,6 @@
     @if (isChecked) // עובר להכנסות
     {
         <p>הכנסות</p>
-
-
-
     }
     else
     {
@@ -75,7 +72,7 @@
             @foreach (CategoryToShow category in currentUser.categoriesFullList.Where(c => string.IsNullOrEmpty(searchQuery) || c.categroyTitle.ToLower().Contains(searchQuery.ToLower())))
             {
                 categoryIdToSend = category.id;
-                if (givingsubCatCategoryID > 0 && category.id == givingsubCatCategoryID)
+                if (category.id == givingsubCatCategoryID)
                 {
                     <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
                 }
@@ -95,33 +92,27 @@
 
         @if (finalsearchSubCats.Any(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower())))
         {
-        @foreach (SubCategoryToAdd subCatsToSearch in finalsearchSubCats.Where(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower())))
-        {
-            @foreach (CategoryToShow category in currentUser.categoriesFullList)
+            @foreach (SubCategoryToAdd subCatsToSearch in finalsearchSubCats.Where(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower())))
             {
-                if (subCatsToSearch.categoryID == category.id)
+                @foreach (CategoryToShow category in currentUser.categoriesFullList)
                 {
-                    if (givingsubCatCategoryID > 0 && category.id == givingsubCatCategoryID)
+                    if (subCatsToSearch.categoryID == category.id)
                     {
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
+                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" searchedSubCat="subCatsToSearch.id"></CategoryComponent>
                     }
-                    else
-                    {
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"></CategoryComponent>
-                    }
+
                 }
             }
-        }
         }
         else
         {
             if (finalsearchSubCats.Any(sb => string.IsNullOrEmpty(searchQuery)))
-            { 
+            {
                 <p> אופס, לא נמצא תוצאה שמתאימה לחיפוש </p>
             }
-            
+
         }
-       
+
 
         @if (doRefresh)
         {
@@ -202,7 +193,7 @@
 
     bool doRefresh = false;
     bool isOnInitializedOver = false;
-    bool accordionRefresh = false;
+    bool accordionRefresh = true;
     //bool isThereCategories => currentUser.categoriesFullList == null || currentUser.categoriesFullList.Count == 0;
     CategoryToShow catToDelete = new CategoryToShow();
 
@@ -239,12 +230,12 @@
 
                 var subCatToSearch = await Http.GetAsync("api/Present/getSubCategoryTitle/" + userID);
 
-                if(subCatToSearch.IsSuccessStatusCode)
+                if (subCatToSearch.IsSuccessStatusCode)
                 {
                     List<SubCategoryToAdd> subCatId = subCatToSearch.Content.ReadFromJsonAsync<List<SubCategoryToAdd>>().Result;
                     searchSubCats = subCatId;
-                    
-                }              
+
+                }
 
             }
             else
@@ -472,11 +463,11 @@
     void UpdateSearchQuery(ChangeEventArgs e)
     {
         searchQuery = e.Value.ToString();
-        if(string.IsNullOrEmpty(searchQuery))
+        if (string.IsNullOrEmpty(searchQuery))
         {
-             finalsearchSubCats = new List<SubCategoryToAdd>();
+            finalsearchSubCats = new List<SubCategoryToAdd>();
         }
-       
+
     }
 
     void FilterCatsOrSubCats()
@@ -490,7 +481,7 @@
         else
         {
             searchCats = null; // Show all categories if the search query is empty
-            
+
         }
     }
 }

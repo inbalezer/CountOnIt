@@ -37,6 +37,7 @@
     <button @onclick="accordionControl">🔽</button>
     @if (isAccordionClick)
     {
+        Console.WriteLine("accordion was clicked");
         <button @onclick="getUserCategories">תת קטגוריה חדשה +</button>
 
         @if (subCategories.Count > 0)
@@ -123,6 +124,10 @@
     }
 </div>
 <hr/>
+@if (searchedSubCat!=null && searchedSubCat>0)
+{
+    getSearchedSubCat();
+}
 
 @code {
 
@@ -171,6 +176,12 @@
     [Parameter]
     public OverDraftBudgetToEdit givingSubCat { get; set; }
 
+    [Parameter]
+    public int searchedSubCat { get; set; }
+
+
+    public bool isAccordionClick = false;
+
     string selectedCategoryForNewSubCat = "";
     string newSubCatTitle = "";
     string msg = "";
@@ -179,7 +190,7 @@
 
 
     int newSubCatID = 0;
-    public bool isAccordionClick = false;
+    //public bool isAccordionClick = false;
     public bool isSubCategoryAddOverlayOpen = false;
     public bool editBtnClicked = false;
     public bool deleteBtnClicked = false;
@@ -420,5 +431,23 @@
     public void closeDeletePopUp()
     {
         deleteBtnClicked = !deleteBtnClicked;
+    }
+
+    public async Task getSearchedSubCat()
+    {
+        isAccordionClick = true;
+        var subCatRes = await Http.GetAsync("api/Present/GetSubCategory/" + searchedSubCat);
+        if (subCatRes.IsSuccessStatusCode)
+        {
+            SubCategoryToShow selectedSubCat = await subCatRes.Content.ReadFromJsonAsync<SubCategoryToShow>();
+
+            subCategories = new List<SubCategoryToShow>();
+            subCategories.Add(selectedSubCat);
+            subCatRefreshed = false;
+        }
+        else
+        {
+            Console.WriteLine("no subcategories found");
+        }
     }
 }

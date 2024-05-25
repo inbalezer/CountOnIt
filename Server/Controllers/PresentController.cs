@@ -555,6 +555,55 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("sub category not found");
         }
 
+        [HttpGet("GetSubCategory/{SubCategoryId}")] 
+        public async Task<IActionResult> GetSubCategory(int SubCategoryId)
+        {
+            object param = new
+            {
+                ID = SubCategoryId
+            };
+
+            // Updated SQL query to join the subcategories table with the category table
+            string GetSubCategoryQuery = @"
+        SELECT id, subCategoryTitle, categoryID, monthlyPlannedBudget, importance
+        FROM subcategories 
+        WHERE id = @ID";
+
+            var recordSubCategory = await _db.GetRecordsAsync<SubCategoryToEdit>(GetSubCategoryQuery, param);
+            SubCategoryToEdit subCategory = recordSubCategory.FirstOrDefault();
+            SubCategoryToShow subCat = new SubCategoryToShow();
+
+            if (subCategory.id != null)
+            {
+                object subParam = new
+                {
+                    ID = subCategory.id
+                };
+
+                string GetTransactionValueQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND (transType = 1 OR transType = 3) ";
+
+                var recordsTransValue = await _db.GetRecordsAsync<double>(GetTransactionValueQuery, subParam);
+
+                subCat = new SubCategoryToShow()
+                {
+                    id = subCategory.id,
+                    subCategoryTitle = subCategory.subCategoryTitle,
+                    monthlyPlannedBudget = subCategory.monthlyPlannedBudget,
+                };
+
+                subCat.transactionsValue = recordsTransValue.FirstOrDefault();
+                if (subCat != null)
+                {
+                    return Ok(subCat);
+                }
+                return BadRequest("Sub Category not found");
+            }
+            else
+            {
+                return BadRequest("no transaction in sub category");
+            }
+        }
+
     }
     
 }
