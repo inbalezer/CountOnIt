@@ -555,16 +555,12 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("sub category not found");
         }
 
-        [HttpGet("GetSubCategory/{SubCategoryId}")] 
-        public async Task<IActionResult> GetSubCategory(SubCategoryToEdit subCatToSearch)
+        [HttpGet("GetSubCategory/{SubCategoryId}")]
+        public async Task<IActionResult> GetSubCategory(int SubCategoryId)
         {
             object param = new
             {
-                ID = subCatToSearch.id,
-                subCategoryTitle = subCatToSearch.subCategoryTitle,
-                categoryID = subCatToSearch.categoryID,
-                monthlyPlannedBudget = subCatToSearch.monthlyPlannedBudget,
-                importance = subCatToSearch.importance,
+                ID = SubCategoryId
             };
 
             // Updated SQL query to join the subcategories table with the category table
@@ -574,15 +570,14 @@ namespace CountOnIt.Server.Controllers
         WHERE id = @ID";
 
             var recordSubCategory = await _db.GetRecordsAsync<SubCategoryToEdit>(GetSubCategoryQuery, param);
-            List<SubCategoryToEdit> subCategory = recordSubCategory.ToList();
-            List<SubCategoryToShow> subCats = new List<SubCategoryToShow>();
+            SubCategoryToEdit subCategory = recordSubCategory.FirstOrDefault();
+            SubCategoryToShow subCat = new SubCategoryToShow();
 
-
-            if (subCategory.Count > 0)
+            if (subCategory.id != null)
             {
                 object subParam = new
                 {
-                    ID = subCatToSearch.id,
+                    ID = subCategory.id
                 };
 
                 string GetTransactionValueQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND (transType = 1 OR transType = 3) ";

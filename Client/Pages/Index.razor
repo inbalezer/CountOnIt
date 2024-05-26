@@ -93,16 +93,37 @@
 
         @if (finalsearchSubCats.Any(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower())))
         {
+            @* Initialize or clear the list outside the loop *@
+            subCatsToSearchIds.Clear();
+            CategoryToShow selectedCategory = null;
+
             @foreach (SubCategoryToAdd subCatsToSearch in finalsearchSubCats.Where(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower())))
             {
-                @foreach (CategoryToShow category in currentUser.categoriesFullList)
+                foreach (CategoryToShow category in currentUser.categoriesFullList)
                 {
                     if (subCatsToSearch.categoryID == category.id)
                     {
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" searchedSubCat="subCatsToSearch.id" isSubCatSearched="makeSearchAgain"></CategoryComponent>
+                        subCatsToSearchIds.Add(subCatsToSearch.id);
+                        selectedCategory = category; // Assumes last matched category is what you want
                     }
-
                 }
+            }
+
+            if (subCatsToSearchIds.Count > 0 && selectedCategory != null)
+            {
+                <CategoryComponent Category=selectedCategory
+                   categoryTitle="@selectedCategory.categroyTitle"
+                   icon="@selectedCategory.icon"
+                   categoryColor="@selectedCategory.color"
+                   doRefresh="@doRefresh"
+                   userID="@userID"
+                   deleteCat="@removeCat"
+                   subCatRefreshed="@accordionRefresh"
+                   givingSubCatBudget="@changeGivingSubCatBudget"
+                   givingSubCat="@givingSubCatToUpdate"
+                   searchedSubCats="@subCatsToSearchIds"
+                   isSubCatSearched="@makeSearchAgain">
+                </CategoryComponent>
             }
         }
         else
@@ -180,6 +201,7 @@
     List<CategoryToShow> searchCats = new List<CategoryToShow>();
     List<SubCategoryToAdd> searchSubCats = new List<SubCategoryToAdd>();
     List<SubCategoryToAdd> finalsearchSubCats = new List<SubCategoryToAdd>();
+    List<int> subCatsToSearchIds= new List<int>();
 
 
     private string currentMonth;
@@ -502,6 +524,9 @@
         FilterCatsOrSubCats();
     }
  
+
+
+
 
     
 }
