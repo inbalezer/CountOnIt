@@ -43,7 +43,7 @@
         @if (subCategories.Count > 0)
         {
             @foreach (SubCategoryToShow subcategory in subCategories)
-            {
+           {
                 if (givingSubCat != null && subcategory.id == givingSubCat.id)
                 {
                     subcategory.monthlyPlannedBudget = givingSubCat.monthlyPlannedBudget;
@@ -126,6 +126,7 @@
 <hr/>
 @if (searchedSubCat!=null && searchedSubCat>0)
 {
+    isAccordionClick = true;
     getSearchedSubCat();
 }
 
@@ -172,6 +173,10 @@
     [Parameter]
 
     public EventCallback<OverDraftBudgetToEdit> givingSubCatBudget { get; set; }
+
+    [Parameter]
+
+    public EventCallback<bool> isSubCatSearched { get; set; }
 
     [Parameter]
     public OverDraftBudgetToEdit givingSubCat { get; set; }
@@ -435,7 +440,7 @@
 
     public async Task getSearchedSubCat()
     {
-        isAccordionClick = true;
+        
         var subCatRes = await Http.GetAsync("api/Present/GetSubCategory/" + searchedSubCat);
         if (subCatRes.IsSuccessStatusCode)
         {
@@ -443,11 +448,19 @@
 
             subCategories = new List<SubCategoryToShow>();
             subCategories.Add(selectedSubCat);
+            makeSearchfuncAgain();
+            isAccordionClick = true;
             subCatRefreshed = false;
         }
         else
         {
             Console.WriteLine("no subcategories found");
         }
+    }
+
+    void makeSearchfuncAgain()
+    {
+        isSubCatSearched.InvokeAsync(true);
+        
     }
 }

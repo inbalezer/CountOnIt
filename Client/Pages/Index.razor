@@ -25,7 +25,8 @@
 
     <div class="search__container">
 
-        <input type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onblur="FilterCatsOrSubCats" placeholder="חפשו קטגוריה או תת קטגוריה..." />
+        <input type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו קטגוריה או תת קטגוריה..." />
+        
     </div>
 
     <table class="table">
@@ -98,7 +99,7 @@
                 {
                     if (subCatsToSearch.categoryID == category.id)
                     {
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" searchedSubCat="subCatsToSearch.id"></CategoryComponent>
+                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" searchedSubCat="subCatsToSearch.id" isSubCatSearched="makeSearchAgain"></CategoryComponent>
                     }
 
                 }
@@ -194,6 +195,7 @@
     bool doRefresh = false;
     bool isOnInitializedOver = false;
     bool accordionRefresh = true;
+    //bool makeSearchAgain = false;
     //bool isThereCategories => currentUser.categoriesFullList == null || currentUser.categoriesFullList.Count == 0;
     CategoryToShow catToDelete = new CategoryToShow();
 
@@ -467,7 +469,16 @@
         {
             finalsearchSubCats = new List<SubCategoryToAdd>();
         }
+        //FilterCatsOrSubCats();
 
+    }
+
+    void HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")  // Trigger when Enter key is released
+        {
+            FilterCatsOrSubCats();
+        }
     }
 
     void FilterCatsOrSubCats()
@@ -484,6 +495,15 @@
 
         }
     }
+
+    void makeSearchAgain(bool filter)
+    {
+        filter = false;
+        FilterCatsOrSubCats();
+    }
+ 
+
+    
 }
 
 
