@@ -19,15 +19,18 @@
 
 @if (currentUser != null)
 {
-    <h1>היי @currentUser.firstName 👋🏼</h1>
+    <h1 id="firstTitle">היי @currentUser.firstName 👋🏼</h1>
 
-    <h2>מבט על חודש @currentMonth </h2>
+    <h2 id="secondTitle">מבט על חודש @currentMonth </h2>
 
-    <div class="search__container">
+    <div class="searchWrapper">
+        <div class="search__container">
+            <img src="../css/images/search btn.svg" />
+            <input class="searchInput" type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו קטגוריה או תת קטגוריה..." />
 
-        <input type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו קטגוריה או תת קטגוריה..." />
-
+        </div>
     </div>
+    
 
     <table class="table">
         <thead>
