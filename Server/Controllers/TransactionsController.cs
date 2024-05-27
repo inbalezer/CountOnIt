@@ -459,6 +459,26 @@ ORDER BY transactions.transDate DESC;";
             return BadRequest("Parent doesn't have split payment");
         }
 
+        [HttpGet("getSplitParent/{ParentTransID}")]
+        public async Task<IActionResult> getSplitParent(int ParentTransID)
+        {
+            object param = new
+            {
+                ID = ParentTransID
+            };
+
+            string getRepeatedTransParentQuery = "SELECT * FROM transactions WHERE id=@ID";
+            var recordSplitParent = await _db.GetRecordsAsync<TransactionToEdit>(getRepeatedTransParentQuery, param);
+            TransactionToEdit repeatedTransValue = recordSplitParent.FirstOrDefault();
+
+            if (repeatedTransValue!= null)
+            {
+                return Ok(repeatedTransValue);
+            }
+
+            return BadRequest("Couldn't find repeated trans values");
+        }
+
         [HttpDelete("deleteSplittedChildrenOnly/{TransIdToDelete}")] // מחיקת הזנה
         public async Task<IActionResult> deleteSplittedChildrenOnly(int TransIdToDelete)
         {

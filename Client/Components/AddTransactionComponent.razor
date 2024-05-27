@@ -47,9 +47,9 @@ else
                 @if (isItAnewTrans)
                 {
                     <p>
-                          @*                      @{
-                            sumPreSplit = Math.Round((newTransaction.transValue * selectedNumber), 2);
-                        }*@
+                        @*                      @{
+            sumPreSplit = Math.Round((newTransaction.transValue * selectedNumber), 2);
+            }*@
                         סכום כל תשלום בממוצע @(
             Math.Round((newTransaction.transValue / selectedNumber), 2)
             ) ₪
@@ -69,26 +69,26 @@ else
                         </p>
 
                     }
-                    else
+@*                    else
                     {
 
-                        @*newTransaction.transValue = Math.Round((newTransaction.transValue / selectedNumber), 2);
+                        newTransaction.transValue = Math.Round((newTransaction.transValue / selectedNumber), 2);
+
+        <p>
+        סכום כל תשלום בממוצע @(
+        Math.Round((newTransaction.transValue / selectedNumber), 2)
+        ) ₪
+        </p>
+
+                        sumPreSplit = Math.Round((newTransaction.transValue * selectedNumber), 2);
 
                         <p>
                             סכום כל תשלום בממוצע @(
-            Math.Round((newTransaction.transValue / selectedNumber), 2)
-            ) ₪
-                        </p>*@
-                       
-                            sumPreSplit = Math.Round((newTransaction.transValue * selectedNumber), 2);
-                        
-                        <p>
-                        סכום כל תשלום בממוצע @(
             Math.Round((sumPreSplit / selectedNumber), 2)
             ) ₪
 
-                    </p>
-                    }
+                        </p>
+                    }*@
                 }
 
             }
@@ -622,6 +622,7 @@ else
                     selectedNumber = reapeatedTransValuesList.Count;
                     initialAmountOfSplits = selectedNumber;
                     sumPreSplit = newTransaction.transValue * initialAmountOfSplits;
+                    Console.WriteLine("sum pre split- " + sumPreSplit);
                     List<int> transStatus = new List<int>()
                     {
                         indexOfPayment, selectedNumber
@@ -695,7 +696,7 @@ else
                         await checkOverdraft();
                         if (!overdraftDetected)
                         {
-                            if (newTransaction.fixedMonthly==true)
+                            if (newTransaction.fixedMonthly == true)
                             {
                                 await saveRepeatedTransactions(transIDtoEdit);
                             }
@@ -704,7 +705,7 @@ else
                             isTransactionOverlayOpen.InvokeAsync(false);
                         }
                     }
-                    
+
                     if (newTransaction.fixedMonthly == true)
                     {
                         await saveRepeatedTransactions(transIDtoEdit);
@@ -854,8 +855,8 @@ else
         }
         if (initialAmountOfSplits >= 1)
         {
-            double formerTransValue = transToEdit.transValue * initialAmountOfSplits;
-            transToEdit.transValue = formerTransValue / selectedNumber;
+            //double formerTransValue = transToEdit.transValue * initialAmountOfSplits;
+            transToEdit.transValue = sumPreSplit / selectedNumber;
         }
 
         await checkOverdraft();
@@ -885,7 +886,7 @@ else
                 editedTransaction.transValue = postEditTrans.transValue;
                 editedTransaction.transType = postEditTrans.transType;
                 editedTransaction.valueType = postEditTrans.valueType;
-                editedTransaction.transDate = postEditTrans.transDate.ToShortDateString();
+
                 editedTransaction.fixedMonthly = postEditTrans.fixedMonthly;
                 editedTransaction.tagID = postEditTrans.tagID;
                 editedTransaction.tagColor = postEditTrans.tagColor;
@@ -894,24 +895,39 @@ else
                 editedTransaction.parentTransID = postEditTrans.parentTransID;
                 editedTransaction.description = postEditTrans.description;
                 editedTransaction.splitPayment = postEditTrans.splitPayment;
+                if (postEditTrans.splitPayment)
+                {
+                    DateTime now = DateTime.Now;
+                    int currentMonth = now.Month;
+                    int monthsPassed = currentMonth - postEditTrans.transDate.Month;
+
+                    //DateTime ogDate = DateTime.Parse(postEditTrans.transDate);
+                    postEditTrans.transDate.AddMonths(monthsPassed);
+                    editedTransaction.transDate = postEditTrans.transDate.ToShortDateString();
+                }
+                else
+                {
+                    editedTransaction.transDate = postEditTrans.transDate.ToShortDateString();
+                }
+
+
+
+                if (postEditTrans.splitPayment != initialSplitPayment || initialAmountOfSplits != selectedNumber)
+                {
+                    await updateSplitPayments(postEditTrans);
+                }
 
                 addTransactionAfterEdit.InvokeAsync(editedTransaction);
 
+                if (postEditTrans.fixedMonthly == true)
+                {
+                    await updateReTransactions(reapeatedTransValuesList);
+                }
 
-            }
-            if (transToEdit.splitPayment != initialSplitPayment || initialAmountOfSplits != selectedNumber)
-            {
-                await updateSplitPayments(transToEdit);
-            }
-            if (!overdraftDetected)
-            {
-                isTransactionOverlayOpen.InvokeAsync(false);
-            }
-
-
-            if (transToEdit.fixedMonthly == true)
-            {
-                await updateReTransactions(reapeatedTransValuesList);
+                if (!overdraftDetected)
+                {
+                    isTransactionOverlayOpen.InvokeAsync(false); //closes the edit overlay
+                }
             }
         }
         Console.WriteLine("couldn't save edit");
@@ -936,7 +952,7 @@ else
             for (int i = 1; i < selectedNumber; i++)
             {
                 //transToEdit.transValue = splitValue;
-                transToEdit.transDate = newTransaction.transDate.AddMonths(1);
+                transToEdit.transDate = newTransaction.transDate.AddMonths(i);
                 transToEdit.parentTransID = transIDtoEdit;
                 transToEdit.splitPayment = false;
 
@@ -984,10 +1000,8 @@ else
                 Console.WriteLine("all former split children of this transaction were deleted");
                 for (int j = 1; j < selectedNumber; j++)
                 {
-                    //if (transToEdit.parentTransID == null)
-                    //{
-                    //transToEdit.transValue = splitValue;
-                    transToEdit.transDate = newTransaction.transDate.AddMonths(1);
+
+                    transToEdit.transDate = newTransaction.transDate.AddMonths(j);
                     transToEdit.parentTransID = transIDtoEdit;
                     transToEdit.splitPayment = false;
 
@@ -1019,7 +1033,7 @@ else
                         Console.WriteLine("couldn't add the split payment");
                         childAmount--;
                     }
-                    //}
+                    
                 }
 
             }

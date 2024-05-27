@@ -3,6 +3,8 @@
 @using CountOnIt.Shared.Models.present.toEdit
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
+
+
 <h4>@transaction.transTitle</h4>
 <span>@transaction.transValue ₪</span>
 <OptionsMenuComponent deleteBtnClicked="deleteTransPopUp" editBtnClicked="editTransPopUp"></OptionsMenuComponent>
@@ -12,24 +14,78 @@
 }
 @if (editBtnClicked)
 {
+    if (transaction.splitPayment == true || childOfSplit == true)
+    {
+        if (transaction.splitPayment)
+        {
+            TransactionToAdd splitParentTrans = new TransactionToAdd()
+                        {
+                            subCategoryID = subCatID,
+                            transValue = transaction.transValue,
+                            transType = transaction.transType,
+                            valueType = transaction.valueType,
+                            transDate = DateTime.Parse(transaction.transDate),
+                            fixedMonthly = transaction.fixedMonthly,
+                            tagID = transaction.tagID,
+                            tagTitle = transaction.tagTitle,
+                            tagColor = transaction.tagColor,
+                            transTitle = transaction.transTitle,
+                            parentTransID = transaction.parentTransID,
+                            description = transaction.description,
+                            splitPayment = transaction.splitPayment
+                        };
+            <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transaction.id" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" newTransaction="splitParentTrans"></AddTransactionComponent>
+        }
+        else if (childOfSplit)
+        {
+            if (transaction.parentTransID.HasValue)
+            {
+                if (transaction.parentTransID.Value > 0)
+                {
+                    TransactionToAdd parentTransOfSplit = new TransactionToAdd() //has the split parent details
+                                {
+                                    subCategoryID = subCatID,
+                                    transValue = splitParentTrans.transValue,
+                                    transType = splitParentTrans.transType,
+                                    valueType = splitParentTrans.valueType,
+                                    transDate = splitParentTrans.transDate,
+                                    fixedMonthly = splitParentTrans.fixedMonthly,
+                                    tagID = splitParentTrans.tagID,
+                                    tagTitle = splitParentTrans.tagTitle,
+                                    tagColor = splitParentTrans.tagColor,
+                                    transTitle = splitParentTrans.transTitle,
+                                    parentTransID = splitParentTrans.parentTransID,
+                                    description = splitParentTrans.description,
+                                    splitPayment = splitParentTrans.splitPayment
+                                };
+                    Console.WriteLine("split parent was sent to edit");
+                    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" newTransaction="parentTransOfSplit" transIDtoEdit="@transaction.parentTransID.Value" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay"></AddTransactionComponent>
+                }
+            }
+        }
+
+    }
+    else
+    {
 
         TransactionToAdd newTransaction = new TransactionToAdd()
-                {
-                    subCategoryID = subCatID,
-    transValue = transaction.transValue,
-    transType = transaction.transType,
-    valueType = transaction.valueType,
-    transDate = DateTime.Parse(transaction.transDate),
-    fixedMonthly = transaction.fixedMonthly,
-    tagID = transaction.tagID,
-    tagTitle = transaction.tagTitle,
-    tagColor = transaction.tagColor,
-    transTitle = transaction.transTitle,
-    parentTransID = transaction.parentTransID,
-    description = transaction.description,
-    splitPayment=transaction.splitPayment
-};
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transaction.id" newTransaction="newTransaction" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay"></AddTransactionComponent>
+                    {
+                        subCategoryID = subCatID,
+                        transValue = transaction.transValue,
+                        transType = transaction.transType,
+                        valueType = transaction.valueType,
+                        transDate = DateTime.Parse(transaction.transDate),
+                        fixedMonthly = transaction.fixedMonthly,
+                        tagID = transaction.tagID,
+                        tagTitle = transaction.tagTitle,
+                        tagColor = transaction.tagColor,
+                        transTitle = transaction.transTitle,
+                        parentTransID = transaction.parentTransID,
+                        description = transaction.description,
+                        splitPayment = transaction.splitPayment
+                    };
+        <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transaction.id" newTransaction="newTransaction" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay"></AddTransactionComponent>
+    }
 }
 @if (overdraftDetected && transaction.transType == 3)
 {
@@ -40,7 +96,7 @@
 <br />
 @if (transaction.description != null)
 {
-    <br/>
+    <br />
     <span>@transaction.description</span>
 }
 @if (transaction.tagID != null)
@@ -52,7 +108,7 @@
 {
     <span>הוצאה חוזרת</span>
 }
-@if (transaction.splitPayment == true || childOfSplit==true)
+@if (transaction.splitPayment == true || childOfSplit == true)
 {
     <span>תשלום @transIndexInPayments/@totalPayments  </span>
 }
@@ -101,11 +157,13 @@
     int totalPayments = 0;
     List<RepeatedTransToShow> reapeatedTransValuesList = new List<RepeatedTransToShow>();
     bool childOfSplit = false;
+    TransactionToEdit splitParentTrans = new TransactionToEdit();
 
     protected override async Task OnInitializedAsync()
     {
-        if (transaction.splitPayment==true)
+        if (transaction.splitPayment == true)
         {
+            //gets the parent transaction and its children:
             var repeatedTransValuesRes = await Http.GetAsync("api/Transactions/getPaymentTransToEdit/" + transaction.id);
             if (repeatedTransValuesRes.IsSuccessStatusCode)
             {
@@ -124,7 +182,7 @@
                 Console.WriteLine("repeated Trans values failed");
             }
         }
-        else if (transaction.parentTransID!=null)
+        else if (transaction.parentTransID != null)
         {
             var findParentRes = await Http.GetAsync("api/Transactions/identifyParent/" + transaction.parentTransID);
             if (findParentRes.IsSuccessStatusCode)
@@ -141,8 +199,23 @@
                             transIndexInPayments = reapeatedTransValuesList.IndexOf(repeatedT) + 1;
                         }
                     }
+
                     totalPayments = reapeatedTransValuesList.Count;
                     childOfSplit = true;
+                    if (transaction.parentTransID.HasValue)
+                    {
+
+                        var getParentDetails = await Http.GetAsync("api/Transactions/getSplitParent/" + transaction.parentTransID);
+                        if (getParentDetails.IsSuccessStatusCode)
+                        {
+                            splitParentTrans = await getParentDetails.Content.ReadFromJsonAsync<TransactionToEdit>();
+                            
+                        }
+
+
+                    }
+
+
                 }
                 else
                 {
@@ -160,7 +233,7 @@
 
     protected async Task deleteTrans()
     {
-        if (transaction.splitPayment==true) //deleting a split payment parent
+        if (transaction.splitPayment == true) //deleting a split payment parent
         {
             var deleteRes = await Http.DeleteAsync("api/Transactions/deleteSplittedTransChildren/" + transaction.id);
             if (deleteRes.IsSuccessStatusCode)
@@ -179,7 +252,7 @@
             if (findParentRes.IsSuccessStatusCode)
             {
                 var parentIDtoCheck = await findParentRes.Content.ReadFromJsonAsync<int>();
-                if (parentIDtoCheck>0)
+                if (parentIDtoCheck > 0)
                 {
                     var deleteRes = await Http.DeleteAsync("api/Transactions/deleteSplittedTransChildren/" + transaction.parentTransID);
                     if (deleteRes.IsSuccessStatusCode)
@@ -255,18 +328,18 @@
         budgetToUpdate = new List<OverDraftBudgetToEdit>();
 
         budgetToUpdate.Add(new OverDraftBudgetToEdit
-        {
-            id = chosenSubCategory.id,  // ID of chosen subcategory
-            monthlyPlannedBudget = chosenSubCategory.monthlyPlannedBudget - currentGap // Updated budget
+            {
+                id = chosenSubCategory.id,  // ID of chosen subcategory
+                monthlyPlannedBudget = chosenSubCategory.monthlyPlannedBudget - currentGap // Updated budget
 
-        });
+            });
 
 
         budgetToUpdate.Add(new OverDraftBudgetToEdit
-        {
-            id = overDraftSubCategory.id, // ID of the overdraft subcategory
-            monthlyPlannedBudget = overDraftSubCategory.monthlyPlannedBudget + currentGap // Updated budget
-        });
+            {
+                id = overDraftSubCategory.id, // ID of the overdraft subcategory
+                monthlyPlannedBudget = overDraftSubCategory.monthlyPlannedBudget + currentGap // Updated budget
+            });
 
         Console.WriteLine(budgetToUpdate[1].monthlyPlannedBudget);
         Console.WriteLine(budgetToUpdate[1].id);
