@@ -5,6 +5,9 @@
 @inject HttpClient Http
 
 <div>
+    <div>
+
+    </div>
     <span>@Category.icon</span>
     <h2>@Category.categroyTitle</h2>
     @foreach (SubCategoryToShow overDraftsubcategory in subCategories)
@@ -123,6 +126,7 @@
         <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" userID="@userID"></AddTransactionComponent>
     }
 </div>
+
 <hr/>
 @if (searchedSubCats!=null && searchedSubCats.Count > 0)
 {

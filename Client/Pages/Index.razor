@@ -17,111 +17,161 @@
 <meta name="google-signin-client_id" content="1019975699349-h4jb6mru41g9tobof0f2i4dl96df2bkp.apps.googleusercontent.com">
 <div class="g-signin2" data-onsuccess="onSignIn"></div>
 
-@if (currentUser != null)
-{
-    <h1 id="firstTitle">היי @currentUser.firstName 👋🏼</h1>
+<div id="outerWrap">
 
-    <h2 id="secondTitle">מבט על חודש @currentMonth </h2>
+    @if (currentUser != null)
+    {
+        <div id="topSectionDiv">
+            <div id="topText">
+                <p id="firstTitle">היי @currentUser.firstName 👋🏼</p>
 
-    <div class="searchWrapper">
-        <div class="search__container">
-            <img src="../css/images/search btn.svg" />
-            <input class="searchInput" type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו קטגוריה או תת קטגוריה..." />
+                <p id="secondTitle">מבט על חודש @currentMonth </p>
 
+            </div>
+
+            <div class="searchWrapper">
+                <div class="search__container">
+                    <img src="../css/images/search btn.svg" />
+                    <input class="searchInput" type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו קטגוריה או תת קטגוריה..." />
+
+                </div>
+            </div>
         </div>
-    </div>
-    
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ניצלתי</th>
-                <th>הכנסתי</th>
-                <th>הוצאתי</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>@currentUser.budgetFullValue% </td>
-                <td>@currentUser.incomeValueFullList</td>
-                <td>@currentUser.spendingValueFullList</td>
+        <div class="statusContainer">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>הוצאתי</th>
+                        <th id="middleTableCoulmn">הכנסתי</th>
+                        <th>ניצלתי</th>
 
-            </tr>
-        </tbody>
-    </table>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@currentUser.spendingValueFullList</td>
+                        <td id="middleTableRow">@currentUser.incomeValueFullList</td>
+                        <td>
+                            @currentUser.budgetFullValue%
+                            <br />
+                            <span id="fromBudget">מהתקציב</span>
+                        </td>
 
+                    </tr>
+                </tbody>
+            </table>
+            <button class="primery-button">מצב החודש כרגע</button>
+        </div>
 
-    <button>מצב החודש כרגע</button>
-    <label>מעבר בין הכנסות/הוצאות:</label>
-    <input type="checkbox" @bind="isChecked" />
+        <div class="toggleWrap">
 
-
-    @if (isChecked) // עובר להכנסות
-    {
-        <p>הכנסות</p>
-    }
-    else
-    {
-        <p>הוצאות</p>
-
-        <button @onclick="openCategoryOverlay">הוספת קטגוריה חדשה</button>
-        @if (openAddCatOverlay)
-        {
-            <EditCategoryComponent popupTitle="הוספת קטגוריה" userID="@userID" newCategory="newCategory" isCategoryOverlayOpen="openCategoryOverlay" addNewCatToIndex="AddNewCat"></EditCategoryComponent>
-        }
-
-        @if (!string.IsNullOrEmpty(searchQuery))
-        {
-            @if (toSearch && (currentUser.categoriesFullList.Any(c => string.IsNullOrEmpty(searchQuery) || c.categroyTitle.ToLower().Contains(searchQuery.ToLower()))))
+            @if (isChecked)
             {
-                @foreach (CategoryToShow category in currentUser.categoriesFullList.Where(c => string.IsNullOrEmpty(searchQuery) || c.categroyTitle.ToLower().Contains(searchQuery.ToLower())))
-                {
-                    categoryIdToSend = category.id;
-                    if (category.id == givingsubCatCategoryID)
-                    {
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
-                    }
-                    else
-                    {
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"></CategoryComponent>
-                    }
-                }
+                <div class="innerToggle">
+                    <p class="toggleTitles">הכנסות</p>
+                    
+                        <label class="switch">
+                        <span class="knob"></span>
+                            <input type="checkbox" @bind="isChecked">
+                            <span class="slider"></span>
+                        </label>
 
-                toSearch = false;
+                    <p class="toggleTitlesNotChosen">הוצאות</p>
+                </div>
+            }
+            else 
+            {
+                <div class="innerToggle">
+                    <p class="toggleTitlesNotChosen">הכנסות</p>
+                    
+                        <label class="switchSpendings">
+                        <span class="knob"></span>
+                        <input type="checkbox" class="hidden-checkbox" @bind="isChecked">
+                            <span class="slider"></span>
+                        </label>
+
+                    <p class="toggleTitles">הוצאות</p>
+                </div>
+            }
+        </div>
+
+
+        @if (!isChecked) // עובר להוצאות
+        {
+            <button @onclick="openCategoryOverlay" id="AddNewCat">
+                <div class="emoji-circle">
+                    📁
+                </div>
+                <p class="addTitle">הוספת קטגוריה חדשה</p>
+                @if (openAddCatOverlay)
+                {
+                    <EditCategoryComponent popupTitle="הוספת קטגוריה" userID="@userID" newCategory="newCategory" isCategoryOverlayOpen="openCategoryOverlay" addNewCatToIndex="AddNewCat"></EditCategoryComponent>
+                }
+            </button>
+
+
+            @if (!string.IsNullOrEmpty(searchQuery))
+            {
+                @if (toSearch && (currentUser.categoriesFullList.Any(c => string.IsNullOrEmpty(searchQuery) || c.categroyTitle.ToLower().Contains(searchQuery.ToLower()))))
+                {
+                    @foreach (CategoryToShow category in currentUser.categoriesFullList.Where(c => string.IsNullOrEmpty(searchQuery) || c.categroyTitle.ToLower().Contains(searchQuery.ToLower())))
+                    {
+                        categoryIdToSend = category.id;
+                        if (category.id == givingsubCatCategoryID)
+                        {
+                            <div>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
+                            </div>
+
+                        }
+                        else
+                        {
+                            <div>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"></CategoryComponent>
+                            </div>
+
+                        }
+                    }
+
+                    toSearch = false;
+                }
+                else
+                {
+                    <p>אופס, לא נמצא תוצאה שמתאימה לחיפוש</p>
+                }
             }
             else
             {
-                <p>אופס, לא נמצא תוצאה שמתאימה לחיפוש</p>
+
+                @foreach (CategoryToShow category in currentUser.categoriesFullList)
+                {
+                    <div>
+                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
+                    </div>
+
+                }
             }
-        }
-        else
-        {
-            @foreach (CategoryToShow category in currentUser.categoriesFullList)
+
+
+            @if (!string.IsNullOrEmpty(searchQuery))
             {
-
-                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
-            }
-        }
-
-
-        @if (!string.IsNullOrEmpty(searchQuery))
-        {
-            @if (toSearch && (finalsearchSubCats.Any(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower()))))
-            {
-                @* Initialize or clear the list outside the loop *@
+                @if (toSearch && (finalsearchSubCats.Any(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower()))))
+                {
+                    @* Initialize or clear the list outside the loop *@
 
 
-                @* @foreach (SubCategoryToAdd subCatsToSearch in finalsearchSubCats.Where(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower())))
-                {*@
-                @*foreach (CategoryToShow category in currentUser.categoriesFullList)
-                    {
-                        if (subCatsToSearch.categoryID == category.id)
-                        {
-                            subCatsToSearchIds.Add(subCatsToSearch.id);
-                            selectedCategory = category;
-                        }
-                    }*@
-             
+                    @* @foreach (SubCategoryToAdd subCatsToSearch in finalsearchSubCats.Where(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower())))
+    {*@
+                    @*foreach (CategoryToShow category in currentUser.categoriesFullList)
+    {
+    if (subCatsToSearch.categoryID == category.id)
+    {
+    subCatsToSearchIds.Add(subCatsToSearch.id);
+    selectedCategory = category;
+    }
+    }*@
+
                     foreach (var subCat in finalsearchSubCats)
                     {
                         CategoryToShow matchingCategory = currentUser.categoriesFullList.FirstOrDefault(cat => cat.id == subCat.categoryID);
@@ -142,108 +192,114 @@
                         }
 
                     }
-                
 
 
-                toSearch = false;
+
+                    toSearch = false;
 
 
-            }
-            else
-            {
-                if (finalsearchSubCats.Any(sb => string.IsNullOrEmpty(searchQuery)))
+                }
+                else
                 {
-                    <p> אופסססססס, לא נמצא תוצאה שמתאימה לחיפוש </p>
+                    if (finalsearchSubCats.Any(sb => string.IsNullOrEmpty(searchQuery)))
+                    {
+                        <p> אופס, לא נמצא תוצאה שמתאימה לחיפוש </p>
+                    }
+
+                }
+                @*toSearch = false;*@
+            }
+
+            @if (categorizedSubCats.Count > 0)
+            {
+                foreach (var entry in categorizedSubCats)
+                {
+                    CategoryToShow category = entry.Key;
+                    List<int> relevantSubCats = entry.Value;
+
+                    if (relevantSubCats.Count > 0 && category != null)
+                    {
+                        <div>
+                            <CategoryComponent Category=category
+                           categoryTitle="@category.categroyTitle"
+                           icon="@category.icon"
+                           categoryColor="@category.color"
+                           doRefresh="@doRefresh"
+                           userID="@userID"
+                           deleteCat="@removeCat"
+                           subCatRefreshed="@accordionRefresh"
+                           givingSubCatBudget="@changeGivingSubCatBudget"
+                           givingSubCat="@givingSubCatToUpdate"
+                           searchedSubCats="@relevantSubCats"
+                           isSubCatSearched="@makeSearchAgain">
+                            </CategoryComponent>
+                        </div>
+
+                    }
                 }
 
-            }
-            @*toSearch = false;*@
-        }
 
-        @if (categorizedSubCats.Count > 0)
-        {
-            foreach (var entry in categorizedSubCats)
+
+            }
+
+
+
+            @if (doRefresh)
             {
-                CategoryToShow category = entry.Key;
-                List<int> relevantSubCats = entry.Value;
-
-                if (relevantSubCats.Count > 0 && category != null)
-                {
-                    <CategoryComponent Category=category
-                   categoryTitle="@category.categroyTitle"
-                   icon="@category.icon"
-                   categoryColor="@category.color"
-                   doRefresh="@doRefresh"
-                   userID="@userID"
-                   deleteCat="@removeCat"
-                   subCatRefreshed="@accordionRefresh"
-                   givingSubCatBudget="@changeGivingSubCatBudget"
-                   givingSubCat="@givingSubCatToUpdate"
-                   searchedSubCats="@relevantSubCats"
-                   isSubCatSearched="@makeSearchAgain">
-                    </CategoryComponent>
-                }
+                refreshBudgetsOfSubCats(true);
             }
-
-            
-
         }
 
-
-
-        @if (doRefresh)
-        {
-            refreshBudgetsOfSubCats(true);
-        }
+        <div id="bottomNav">
+            <button>מבט לעבר</button>
+            <button>מבט להווה</button>
+            <button>מבט לעתיד</button>
+        </div>
     }
 
-    <div id="bottomNav">
-        <button>מבט לעבר</button>
-        <button>מבט להווה</button>
-        <button>מבט לעתיד</button>
-    </div>
-}
-
-@if (currentUser == null && isOnInitializedOver)
-{
-    <div>
+    @if (currentUser == null && isOnInitializedOver)
+    {
         <div>
-            <p>
-                אז אנחנו Count On It,
-                אבל כל החבר׳ה קוראים לנו COI.
+            <div>
+                <p>
+                    אז אנחנו Count On It,
+                    אבל כל החבר׳ה קוראים לנו COI.
 
-                אנחנו אפליקציה לניהול תקציב מבית איה תמרי - יועצת
-                פיננסית לכלכלת המשפחה.
-                אנחנו כאן ללוות אותך בדרך לניהול תקציב נכון.
-                ועכשיו קצת עלייך :)
-            </p>
+                    אנחנו אפליקציה לניהול תקציב מבית איה תמרי - יועצת
+                    פיננסית לכלכלת המשפחה.
+                    אנחנו כאן ללוות אותך בדרך לניהול תקציב נכון.
+                    ועכשיו קצת עלייך :)
+                </p>
+            </div>
+            <div>
+                <input type="text" @bind=newUser.firstName placeholder=" שם פרטי:" />
+                <input type="text" @bind=newUser.lastName placeholder=" שם משפחה:" />
+                <p>
+                    תמונת פרופיל: (לא חובה)
+                    נ.ב. אם כן, כדאי אחת מייצגת או אמוג’י
+                </p>
+                <input type="text" @bind=newUser.profilePicOrIcon placeholder="אייקון" />
+
+            </div>
+            <div>
+                <p>באיזה יום התזרים החודשי שלך מתחיל?</p>
+                @if (newUser.monthStartDate == null)
+                {
+                    newUser.monthStartDate = 1;
+                }
+                <select @bind="newUser.monthStartDate">
+                    <option value="1">ה-1 לחודש</option>
+                    <option value="2">ה-2 לחודש</option>
+                    <option value="10">ה-10 לחודש</option>
+                    <option value="15">ה-15 לחודש</option>
+
+                </select>
+            </div>
+            <button @onclick="@(async () => await createNewUser())">שמירה</button>
         </div>
-        <input type="text" @bind=newUser.firstName placeholder=" שם פרטי:" />
-        <input type="text" @bind=newUser.lastName placeholder=" שם משפחה:" />
-        <p>
-            תמונת פרופיל: (לא חובה)
-            נ.ב. אם כן, כדאי אחת מייצגת או אמוג’י
-        </p>
-        <input type="text" @bind=newUser.profilePicOrIcon placeholder="תמונה או אייקון" />
 
-        <p>באיזה יום התזרים החודשי שלך מתחיל?</p>
-        @if (newUser.monthStartDate == null)
-        {
-            newUser.monthStartDate = 1;
-        }
-        <select @bind="newUser.monthStartDate">
-            <option value="1">ה-1 לחודש</option>
-            <option value="2">ה-2 לחודש</option>
-            <option value="10">ה-10 לחודש</option>
-            <option value="15">ה-15 לחודש</option>
-
-        </select>
-    </div>
-
-    <button @onclick="@(async () => await createNewUser())">שמירה</button>
-
-}
-
+    }
+</div>
 
 @code {
 
