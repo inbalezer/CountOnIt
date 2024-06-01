@@ -301,7 +301,8 @@ namespace CountOnIt.Server.Controllers
         JOIN tags tg ON t.tagID = tg.id
         JOIN subcategories sc ON t.subCategoryID = sc.id
         JOIN categories c ON sc.categoryID = c.id
-        WHERE c.userID = @ID AND t.transType = 1 
+        WHERE c.userID = @ID AND t.transType = 1 AND MONTH(t.transDate) = MONTH(CURRENT_DATE())
+    AND YEAR(t.transDate) = YEAR(CURRENT_DATE())
         GROUP BY t.tagID, tg.tagTitle, tg.tagColor 
         ORDER BY totalValue DESC 
         LIMIT 3";
@@ -317,6 +318,25 @@ namespace CountOnIt.Server.Controllers
         }
 
         // לעשות שיטה של הסטורי הראשון !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        [HttpGet("getBestAndWorstSpendings/{subCatID}")] //first content window of story
+        public async Task<IActionResult> getBestAndWorstSpendings(int subCatID)
+        {
+            object subCatIDparam = new
+            {
+                ID = subCatID
+            };
+
+            string getSubTotalsQuery = "SELECT s.subCategoryTitle AS subCategoryTitle,COALESCE(SUM(CASE WHEN MONTH(t.transDate) = MONTH(CURRENT_DATE()) THEN t.transValue ELSE 0 END), 0) AS currentMonthTotal,COALESCE(SUM(CASE WHEN MONTH(t.transDate) = MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH)) THEN t.transValue ELSE 0 END), 0) AS lastMonthTotal FROM transactions t JOIN subcategories s ON t.subCategoryID = s.id where t.subCategoryID = s.id and s.id=@ID AND (t.transType = 1 OR t.transType = 3) GROUP BY s.subCategoryTitle;";
+
+            var getTotalsRec = await _db.GetRecordsAsync<StorySubCategoryTotals>(getSubTotalsQuery, subCatIDparam);
+            StorySubCategoryTotals requestedSubInfo = getTotalsRec.FirstOrDefault();
+            if (requestedSubInfo!=null)
+            {
+                return Ok(requestedSubInfo);
+            }
+
+            return BadRequest("couldn't get this subcategory's monthly trans totals");
+        }
 
         [HttpGet("GetSubCategoryToEdit/{SubCategoryId}")] // שליפת תת קטגוריה לעריכה
         public async Task<IActionResult> GetSubCategoryToEdit(int SubCategoryId)

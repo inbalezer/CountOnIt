@@ -26,7 +26,7 @@
     <div class="search__container">
 
         <input type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו קטגוריה או תת קטגוריה..." />
-        
+
     </div>
 
     <table class="table">
@@ -48,7 +48,49 @@
     </table>
 
 
-    <button>מצב החודש כרגע</button>
+    <button @onclick="getSubCatTotalsForStory">מצב החודש כרגע</button>
+    @if (storyPopUpWindow)
+    {
+        <div id="storyWindow">
+            <span class="close-button" @onclick="StoryWindowControl">&times;</span> <br />
+            <div class="indicators">
+                <span class="storyPhase @(storyNav == 1 ? "active" : "")"></span>
+                <span class="storyPhase @(storyNav == 2 ? "active" : "")"></span>
+                <span class="storyPhase @(storyNav == 3 ? "active" : "")"></span>
+            </div> <br>
+            <div class="navigation">
+                <button @onclick="PreviousStory" disabled="@((storyNav == 1))">Previous</button>
+                <button @onclick="NextStory" disabled="@((storyNav == 3))">Next</button>
+            </div>
+            @if (storyNav==1 && subCatsTotalsStory.Count>0 )
+            {
+                <h2>היי @currentUser.firstName! רוצה לראות איך עובר החודש?</h2>
+                <p>אלה תתי הקטגוריות שהכי בלטו עד כה:</p>
+                <div>
+
+                    <span>👍</span>
+                    <h3>החסכון הגדול ביותר</h3>
+                    <p>עד כה החודש הוצאת @subCatsTotalsStory[bestSavingIndex].currentMonthTotal₪ על @bestSavingSubCat, @bestSavingValue₪ פחות מחודש שעבר! </p>
+
+                    <span>👎</span>
+                    <h3>העלייה הגדולה ביותר</h3>
+                    <p>עד כה החודש הוצאת @subCatsTotalsStory[worstSavingIndex].currentMonthTotal₪ על @worstSavingSubCat, @worstSavingValue₪ יותר מחודש שעבר! </p>
+                </div>
+            }
+            else if (storyNav == 2 && tagsSpendingsList.Count > 0)
+            {
+                <h3>התגיות עם הכי הרבה הוצאות</h3>
+                <ol>
+                    @foreach (TagsAndSpendingsToShow tag in tagsSpendingsList)
+                    {
+                        <li>הוצאת על @tag.tagTitle @tag.totalValue ₪</li>
+                    }
+                </ol>
+
+            }
+        </div>
+    }
+
     <label>מעבר בין הכנסות/הוצאות:</label>
     <input type="checkbox" @bind="isChecked" />
 
@@ -201,7 +243,7 @@
     List<CategoryToShow> searchCats = new List<CategoryToShow>();
     List<SubCategoryToAdd> searchSubCats = new List<SubCategoryToAdd>();
     List<SubCategoryToAdd> finalsearchSubCats = new List<SubCategoryToAdd>();
-    List<int> subCatsToSearchIds= new List<int>();
+    List<int> subCatsToSearchIds = new List<int>();
 
 
     private string currentMonth;
@@ -227,6 +269,16 @@
     OverDraftBudgetToEdit givingSubCatToUpdate = new OverDraftBudgetToEdit();
     public int givingsubCatCategoryID = 0;
 
+    public bool storyPopUpWindow = false;
+    List<StorySubCategoryTotals> subCatsTotalsStory = new List<StorySubCategoryTotals>();
+    string bestSavingSubCat = "";
+    string worstSavingSubCat = "";
+    int bestSavingIndex = 0;
+    int worstSavingIndex = 0;
+    double bestSavingValue=0;
+    double worstSavingValue=0;
+    int storyNav = 1;
+    List<TagsAndSpendingsToShow> tagsSpendingsList = new List<TagsAndSpendingsToShow>();
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(1); // This is just to simulate an async process.
@@ -523,12 +575,126 @@
         filter = false;
         FilterCatsOrSubCats();
     }
- 
+
+    public async Task getSubCatTotalsForStory()
+    {
+        storyPopUpWindow = !storyPopUpWindow;
+        if (storyPopUpWindow)
+        {
+            List<SubCategoryToShow> subCategories = new List<SubCategoryToShow>();
+            subCatsTotalsStory = new List<StorySubCategoryTotals>();
+            //first story stuff:
+            if (currentUser.categoriesFullList.Count > 0)
+            {
+                foreach (CategoryToShow cat in currentUser.categoriesFullList)
+                {
+                    var getAllSubCats = await Http.GetAsync("api/Present/subCategoryToShow/" + cat.id);
+                    if (getAllSubCats.IsSuccessStatusCode)
+                    {
+                        List<SubCategoryToShow> subToAddList = getAllSubCats.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
+                        if (subToAddList.Count >0)
+                        {
+                            foreach (SubCategoryToShow subToAdd in subToAddList)
+                            {
+                                subCategories.Add(subToAdd);
+                            }
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("couldn't get one of the sub cats for the story- returned null");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("couldn't get one of the sub cats for the story- server bad request");
+                    }
+                }
+                if (subCategories.Count > 0)
+                {
+                    foreach (SubCategoryToShow subToCheck in subCategories)
+                    {
+                        var getSubCatTotals = await Http.GetAsync("api/Present/getBestAndWorstSpendings/" + subToCheck.id);
+                        if (getSubCatTotals.IsSuccessStatusCode)
+                        {
+                            StorySubCategoryTotals requestedSubInfo = await getSubCatTotals.Content.ReadFromJsonAsync<StorySubCategoryTotals>();
+                            if (requestedSubInfo != null)
+                            {
+                                subCatsTotalsStory.Add(requestedSubInfo);
+                            }
+                            else
+                            {
+                                Console.WriteLine("couldn't get totals of one of the sub cats for the story- returned null");
+                            }
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("couldn't get totals of one of the sub cats for the story- server bad request");
+                        }
+                    }
+                    if (subCatsTotalsStory.Count > 0)
+                    {
+
+                        for (int i = 1; i < subCatsTotalsStory.Count; i++)
+                        {
+                            double lastMonthGap = subCatsTotalsStory[i - 1].currentMonthTotal - subCatsTotalsStory[i - 1].lastMonthTotal;
+                            double gapCheck = subCatsTotalsStory[i].currentMonthTotal - subCatsTotalsStory[i].lastMonthTotal;
+                            if (gapCheck > lastMonthGap)
+                            {
+                                worstSavingIndex = i;
+                            }
+                            else if (gapCheck < lastMonthGap)
+                            {
+                                bestSavingIndex = i;
+                            }
+                        }
+                        bestSavingSubCat = subCatsTotalsStory[bestSavingIndex].subCategoryTitle;
+                        bestSavingValue = Math.Round(subCatsTotalsStory[bestSavingIndex].lastMonthTotal - subCatsTotalsStory[bestSavingIndex].currentMonthTotal, 2);
+                        if(bestSavingValue<0){
+                            bestSavingIndex *= -1;
+                        }
+
+                        worstSavingSubCat = subCatsTotalsStory[worstSavingIndex].subCategoryTitle;
+                        worstSavingValue = Math.Round(subCatsTotalsStory[worstSavingIndex].currentMonthTotal - subCatsTotalsStory[worstSavingIndex].lastMonthTotal, 2);
+                        if (worstSavingValue<0)
+                        {
+                            worstSavingValue *= -1;
+                        }
+                    }
+                }
+            }
+            //second story stuff:
+            tagsSpendingsList = new List<TagsAndSpendingsToShow>();
+            var getUserSpendingsByTags = await Http.GetAsync("api/Present/GetTagsAndSpendings/" + currentUser.id);
+            if (getUserSpendingsByTags.IsSuccessStatusCode)
+            {
+                tagsSpendingsList = getUserSpendingsByTags.Content.ReadFromJsonAsync<List<TagsAndSpendingsToShow>>().Result;
+            }
 
 
+        }
+    }
 
+    public void StoryWindowControl()
+    {
+        storyPopUpWindow = false;
+    }
+    public void PreviousStory()
+    {
+        if (storyNav > 1)
+        {
+            storyNav--;
+        }
+    }
+    public void NextStory()
+    {
+        if (storyNav <=3)
+        {
+            storyNav++;
+        }
+    }
 
-    
 }
 
 
