@@ -457,6 +457,25 @@ namespace CountOnIt.Server.Controllers
             }
             return BadRequest("Category not found");
         }
+        [HttpGet("GetIncomeCatID/{userID}")] // שליפת תת קטגוריה לעריכה
+        public async Task<IActionResult> GetIncomeCatID(int userID)
+        {
+
+            object param = new
+            {
+                ID = userID
+            };
+
+            var usercategoriesQuery = "SELECT DISTINCT c.id, c.categroyTitle, c.icon, c.color FROM categories c JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transType = 2 and c.userID=@ID;";
+            var recordusercategoriesQuery = await _db.GetRecordsAsync<CategoryToShow>(usercategoriesQuery, param);
+            CategoryToShow allUserCategories = recordusercategoriesQuery.FirstOrDefault();
+
+            if (allUserCategories != null)
+            {
+                return Ok(allUserCategories);
+            }
+            return BadRequest("Category not found");
+        }
 
         [HttpPost("AddUser/{userGoogleID}")] // יצירת משתמש חזש
         public async Task<IActionResult> Adduser(string userGoogleID, UserToAdd userToAdd)
