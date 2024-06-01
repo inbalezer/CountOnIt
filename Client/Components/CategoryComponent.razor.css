@@ -1,0 +1,71 @@
+﻿.categoryWrap {
+    border-radius: 0.6rem 0.6rem 0rem 0rem;
+    background: #FBFBFB;
+    width: 88.5vw;
+    height: 8vh;
+    display: flex;
+    align-content: space-between;
+    justify-content: space-evenly;
+    column-gap: 1vh;
+    flex-wrap: wrap;
+    flex-direction: column;
+    padding: 6px;
+    box-shadow: 0px 25px 25px 0px rgba(39, 53, 160, 0.09), 0px 6px 14px 0px rgba(39, 53, 160, 0.10);
+}
+
+
+
+.emoji-circle {
+    width: 2em;
+    height: 2em;
+    background-color: #D6D9F1;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);or depth */
+}
+
+.CatTitle {
+    font-size: 1.3125rem;
+    font-style: normal;
+    font-weight: 500;
+    color: #030942;
+    margin:0;
+}
+
+#iconAndCatTitle {
+    display: flex;
+    flex-direction: row;
+    column-gap: 1.1vh;
+    align-items: center;
+}
+
+.options {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    width: 6vw;
+}
+.categoryAccordion {
+    border-radius: 0rem 0rem 0.6rem 0.6rem;
+    background: #6775F4;
+    width: 88.5vw;
+    display: flex;
+    justify-content: space-evenly;
+    column-gap: 1vh;
+    flex-wrap: wrap;
+    flex-direction: column;
+    padding: 6px;
+    height: 2.25513rem;
+    align-items: stretch;
+    align-content: center;
+    box-shadow: 0px 25px 25px 0px rgba(39, 53, 160, 0.09), 0px 6px 14px 0px rgba(39, 53, 160, 0.10);
+}
+
