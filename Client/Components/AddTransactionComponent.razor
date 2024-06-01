@@ -47,9 +47,6 @@ else
                 @if (isItAnewTrans)
                 {
                     <p>
-                        @*                      @{
-            sumPreSplit = Math.Round((newTransaction.transValue * selectedNumber), 2);
-            }*@
                         סכום כל תשלום בממוצע @(
             Math.Round((newTransaction.transValue / selectedNumber), 2)
             ) ₪
@@ -60,35 +57,17 @@ else
                 {
                     if (sumPreSplit > 0)
                     {
-
-                        double result = sumPreSplit / selectedNumber;
-                        double roundedResult = Math.Round(result, 2);
-                        //newTransaction.transValue = roundedResult;
-                        <p>
-                            סכום כל תשלום בממוצע @roundedResult ₪
-                        </p>
-
-                    }
-@*                    else
-                    {
-
-                        newTransaction.transValue = Math.Round((newTransaction.transValue / selectedNumber), 2);
-
-        <p>
-        סכום כל תשלום בממוצע @(
-        Math.Round((newTransaction.transValue / selectedNumber), 2)
-        ) ₪
-        </p>
-
-                        sumPreSplit = Math.Round((newTransaction.transValue * selectedNumber), 2);
-
+                        if (newTransaction.transValue != sumPreSplit)
+                        {
+                            sumPreSplit = newTransaction.transValue;
+                        }
                         <p>
                             סכום כל תשלום בממוצע @(
             Math.Round((sumPreSplit / selectedNumber), 2)
             ) ₪
 
                         </p>
-                    }*@
+                    }
                 }
 
             }
@@ -622,6 +601,7 @@ else
                     selectedNumber = reapeatedTransValuesList.Count;
                     initialAmountOfSplits = selectedNumber;
                     sumPreSplit = newTransaction.transValue * initialAmountOfSplits;
+                    //newTransaction.transValue = sumPreSplit;
                     Console.WriteLine("sum pre split- " + sumPreSplit);
                     List<int> transStatus = new List<int>()
                     {
@@ -881,6 +861,63 @@ else
             TransactionToEdit postEditTrans = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();
             if (postEditTrans != null)
             {
+                if (postEditTrans.splitPayment && postEditTrans.splitPayment == initialSplitPayment || postEditTrans.splitPayment && initialAmountOfSplits == selectedNumber)
+                {
+                    if (postEditTrans.transTitle != ogTransaction.transTitle || postEditTrans.transValue != ogTransaction.transValue || postEditTrans.transDate != ogTransaction.transDate || postEditTrans.valueType != ogTransaction.valueType || postEditTrans.description != ogTransaction.description || postEditTrans.tagID != ogTransaction.tagID || postEditTrans.transDate != ogTransaction.transDate) //if any change was done to the parent regardless of split payments amount
+                    {
+                        Console.WriteLine("new split amount is- " + transToEdit.transValue);
+
+                        var deleteSplitChildren = await Http.DeleteAsync("api/Transactions/deleteSplittedChildrenOnly/" + postEditTrans.id);
+                        if (deleteSplitChildren.IsSuccessStatusCode)
+                        {
+                            //deleting all children so we create new ones according to the new amount
+                            Console.WriteLine("all former split children of this transaction were deleted");
+                            for (int j = 1; j < selectedNumber; j++)
+                            {
+
+                                DateTime newChildDate = postEditTrans.transDate.AddMonths(j);
+                                transToEdit.parentTransID = postEditTrans.id;
+                                transToEdit.splitPayment = false;
+
+                                TransactionToAdd updatedChildTransOfEdit = new TransactionToAdd()
+                                    {
+                                        transValue = transToEdit.transValue,
+                                        valueType = transToEdit.valueType,
+                                        description = transToEdit.description,
+                                        fixedMonthly = transToEdit.fixedMonthly,
+                                        parentTransID = transToEdit.id,
+                                        tagID = transToEdit.tagID,
+                                        tagTitle = transToEdit.tagTitle,
+                                        tagColor = transToEdit.tagColor,
+                                        transTitle = transToEdit.transTitle,
+                                        subCategoryID = subCategoryIDTOGet,
+                                        transDate = newChildDate,
+                                        transType = transToEdit.transType,
+                                        splitPayment = transToEdit.splitPayment
+                                    };
+
+                                var transToSaveRes = await Http.PostAsJsonAsync("api/Transactions/AddTransaction", updatedChildTransOfEdit);
+                                if (transToSaveRes.IsSuccessStatusCode)
+                                {
+                                    Console.WriteLine("child of date- " + updatedChildTransOfEdit.transDate + " was saved successfully");
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("couldn't add the split payment");
+
+                                }
+
+                            }
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("failed to delete former split children and create the new ones.");
+                        }
+                    }
+                }
+
 
                 editedTransaction.id = postEditTrans.id;
                 editedTransaction.transValue = postEditTrans.transValue;
@@ -895,15 +932,24 @@ else
                 editedTransaction.parentTransID = postEditTrans.parentTransID;
                 editedTransaction.description = postEditTrans.description;
                 editedTransaction.splitPayment = postEditTrans.splitPayment;
+
                 if (postEditTrans.splitPayment)
                 {
-                    DateTime now = DateTime.Now;
-                    int currentMonth = now.Month;
-                    int monthsPassed = currentMonth - postEditTrans.transDate.Month;
 
-                    //DateTime ogDate = DateTime.Parse(postEditTrans.transDate);
-                    postEditTrans.transDate.AddMonths(monthsPassed);
-                    editedTransaction.transDate = postEditTrans.transDate.ToShortDateString();
+                    DateTime now = DateTime.Now;
+
+                    if (postEditTrans.transDate != now)
+                    {
+                        int currentMonth = now.Month;
+                        int monthsPassed = currentMonth - postEditTrans.transDate.Month;
+
+                        DateTime dateOfCurrentSplit = new DateTime(postEditTrans.transDate.Year, currentMonth, postEditTrans.transDate.Day);
+
+                        editedTransaction.transDate = dateOfCurrentSplit.ToShortDateString();
+
+                    }
+
+
                 }
                 else
                 {
@@ -1033,7 +1079,7 @@ else
                         Console.WriteLine("couldn't add the split payment");
                         childAmount--;
                     }
-                    
+
                 }
 
             }

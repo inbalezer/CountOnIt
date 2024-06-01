@@ -494,8 +494,34 @@ ORDER BY transactions.transDate DESC;";
             return BadRequest("Failed to delete transaction");
         }
 
+        [HttpPost("updateSplitChildren")]
+        public async Task<IActionResult> updateSplitChildren(TransactionToEdit transToEdit)
+        {
 
-        
+            object transUpdateParam = new
+            {
+                ID = transToEdit.id,
+                transType = transToEdit.transType,
+                transValue = transToEdit.transValue,
+                valueType = transToEdit.valueType,
+                
+                description = transToEdit.description,
+                fixedMonthly = transToEdit.fixedMonthly,
+                tagID = transToEdit.tagID,
+                parentTransID = transToEdit.parentTransID,
+                transTitle = transToEdit.transTitle,
+                splitPayment = transToEdit.splitPayment
+            };
+
+            string UpdateTransQuery = "UPDATE transactions SET transType = @transType, transValue = @transValue, valueType = @valueType,  description=@description, fixedMonthly=@fixedMonthly, tagID=@tagID, parentTransID=@parentTransID, transTitle=@transTitle, splitPayment=@splitPayment WHERE parentTransID =@ID";
+            bool isUpdate = await _db.SaveDataAsync(UpdateTransQuery, transUpdateParam);
+
+            if (isUpdate)
+            {
+                return Ok("updated all split children");
+            }
+            return BadRequest("failed to update children of split");
+        }
     }
 
            
