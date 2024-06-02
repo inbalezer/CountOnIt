@@ -11,14 +11,17 @@
             <h2 class="CatTitle">@Category.categroyTitle</h2>
         </div>
        
-        @foreach (SubCategoryToShow overDraftsubcategory in subCategories)
-        {
-            if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget)
+            @foreach (SubCategoryToShow overDraftsubcategory in subCategories)
             {
-                <span>חריגה⚠️</span>
-                break;
+                
+                if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget)
+                {
+                    <span>חריגה⚠️</span>
+                    break;
+                }
             }
-        }       
+        
+       
         <button class="options" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
         @if (isOpetionsBtnClicked)
         {
@@ -35,18 +38,35 @@
             <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="🗑מחיקה" makeAction=@deleteCategory closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
         }
     </div>
+    <div class="accordionAndSubCatsWrap">
+
+    
         <div class="categoryAccordion">
         <button class="options" @onclick="accordionControl">
             <svg width="33" height="12" viewBox="0 0 33 12" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1.75 2L16.75 10L30.75 2" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
 </svg></button>
+        </div>
+
             @if (isAccordionClick)
             {
-                Console.WriteLine("accordion was clicked");
-                <button @onclick="getUserCategories">תת קטגוריה חדשה +</button>
+                <div class="subCatsWrap">
+
+                <button class="custom-btn" @onclick="getUserCategories">
+                    <div class="btn-content">
+                        <div class="textAndLine">
+                            <span class="btn-text">תת קטגוריה חדשה</span>
+                            <div class="subCatLine">
+
+                            </div>
+                        </div>                       
+                        <div class="btn-icon"><img src="../css/images/+.svg" /></div>
+                    </div>
+                </button>
 
                 @if (subCategories.Count > 0)
                 {
+                    bool isFirstItem = true;
                     @foreach (SubCategoryToShow subcategory in subCategories)
                     {
                         if (givingSubCat != null && subcategory.id == givingSubCat.id)
@@ -61,11 +81,18 @@
                         {
                             subcategory.monthlyPlannedBudget = 0;
                         }
+                        <div class="budget-card @(isFirstItem ? "first" : "")">
                         <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle"></SubCategoryComponent>
+                        </div>
+                        isFirstItem = false;
                     }
+
+                
                 }
+            </div>
             }
-        </div>
+        
+    </div>
         
     
     
@@ -210,6 +237,7 @@
     public bool deleteBtnClicked = false;
     bool openTransactionOverlay = false;
     bool isOpetionsBtnClicked = false;
+   
 
     List<SubCategoryToShow> subCategories = new List<SubCategoryToShow>();
     List<AllUserCategories> userCategories = new List<AllUserCategories>();

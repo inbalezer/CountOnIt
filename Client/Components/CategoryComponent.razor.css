@@ -54,18 +54,171 @@
     width: 6vw;
 }
 .categoryAccordion {
-    border-radius: 0rem 0rem 0.6rem 0.6rem;
+    border-radius: 0rem 0rem 0.2rem 0.2rem;
     background: #6775F4;
     width: 88.5vw;
     display: flex;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     column-gap: 1vh;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     flex-direction: column;
-    padding: 6px;
-    height: 2.25513rem;
-    align-items: stretch;
-    align-content: center;
+    padding: 1vh;
+    align-items: center;
+    align-content: flex-end;
     box-shadow: 0px 25px 25px 0px rgba(39, 53, 160, 0.09), 0px 6px 14px 0px rgba(39, 53, 160, 0.10);
+    z-index: 1;
+}
+.subCatsWrap {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3%;
+    padding: 30px;
+    background-color: #FBFBFB;
+    border-radius: 6px;
+    width: 88.5vw;
+    max-width: 600px;
+    /* margin: auto; */
+    box-shadow: 0px 2px 2px rgba(39, 53, 160, 0.09), 0px 2px 10px rgba(39, 53, 160, 0.10);
+    box-sizing: border-box;
+    justify-items: center;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Adjustments for very small devices */
+@media (max-width: 340px) {
+    .subCatsWrap {
+        padding: 10px; /* Smaller padding */
+        gap: 1%; /* Smaller gap to ensure space is used efficiently */
+    }
+}
+
+.newSubCatButton {
+    grid-column: 1 / 2;
+    border-radius: 0.6rem;
+    border: 2px dashed #6775F4;
+    background: #FBFBFB;
+    height: 17vh;
+    display: flex;
+    align-content: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-direction: column-reverse;
+    column-gap: 1vh;
+}
+
+.subCatItem {
+    grid-column: span 1; /* Each subcategory item occupies one column */
+}
+
+    .subCatItem.first {
+        grid-column: 2 / 3; /* The first subcategory item occupies the second column of the first row */
+    }
+
+.accordionAndSubCatsWrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.custom-btn {
+    background: none;
+    border: 2px dashed #6775F4;
+    border-radius: 0.25rem;
+    /* padding: 20px; */
+    width: 9rem;
+    height: 10rem;
+    /* cursor: pointer; */
+    /* outline: none; */
+    padding: 1vh 1.3vh;
+    transition: background-color 0.3s ease;
+}
+
+@media (max-width: 340px) {
+    .custom-btn {
+        background: none;
+        border: 2px dashed #6775F4;
+        border-radius: 0.25rem;
+        /* padding: 20px; */
+        width: 8rem;
+        height: 10rem;
+        /* cursor: pointer; */
+        /* outline: none; */
+        padding: 1vh 1.3vh;
+        transition: background-color 0.3s ease;
+    }
+}
+
+.btn-content {
+    display: flex; /* Using flexbox for layout */
+    flex-direction: column; /* Children are stacked vertically */
+    align-items: center; /* Centering content horizontally */
+    justify-content: center; /* Centering content vertically */
+    height: 100%; /* Full height of the button */
+}
+
+.btn-text {
+    margin-bottom: 1.3vh;
+    color: #6775F4;
+    font-size: 1.3125rem;
+    font-style: normal;
+    font-weight: 700;
+    text-align: right;
+    line-height: 3.1vh;
+
+}
+
+@media (max-width: 340px) {
+    .btn-text {
+        margin-bottom: 1.3vh;
+        color: #6775F4;
+        font-size: 1.3125rem;
+        font-style: normal;
+        font-weight: 700;
+        text-align: right;
+        line-height: 3.1vh;
+        padding-right:3vw;
+    }
+}
+
+.btn-icon {
+    background-color: #D6D9F1;
+    /* color: #fff; */
+    line-height: 52px;
+    text-align: center;
+    border-radius: 50%;
+    /* font-size: 24px; */
+    font-weight: bold;
+    width: 3.3125rem;
+    height: 3.3125rem;
+}
+
+.subCatLine {
+    width: 8.5625rem;
+    height: 0.1vh;
+    background-color: #D6D9F1;
+    margin-bottom: 3vh;
+}
+
+
+.textAndLine {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: right;
+}
+
+
+.budget-progress{
+        background: #F9F9F9;
+    /* border-radius: 22px; */
+    box-shadow: 0px 24px 7px 0px rgba(61, 79, 214, 0.00), 0px 15px 6px 0px rgba(61, 79, 214, 0.01), 0px 9px 5px 0px rgba(61, 79, 214, 0.03), 0px 4px 4px 0px rgba(61, 79, 214, 0.04), 0px 1px 2px 0px rgba(61, 79, 214, 0.05);
+    border: none;
+    /* padding: 10px 20px; */
+    /* font-size: 16px; */
+    /* color: #333; */
+    width: 8.50688rem;
+    height: 2.30375rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.3vh;
+    border: 0.2px solid #CBCBCB;
+}

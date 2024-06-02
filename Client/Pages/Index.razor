@@ -165,14 +165,14 @@
                         categoryIdToSend = category.id;
                         if (category.id == givingsubCatCategoryID)
                         {
-                            <div>
+                            <div class="fullCategory">
                                 <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
                             </div>
 
                         }
                         else
                         {
-                            <div>
+                            <div class="fullCategory">
                                 <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"></CategoryComponent>
                             </div>
 
@@ -191,7 +191,7 @@
 
                 @foreach (CategoryToShow category in currentUser.categoriesFullList)
                 {
-                    <div>
+                    <div class="fullCategory">
                         <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
                     </div>
 
@@ -264,7 +264,7 @@
 
                     if (relevantSubCats.Count > 0 && category != null)
                     {
-                        <div>
+                        <div class="fullCategory">
                             <CategoryComponent Category=category
                            categoryTitle="@category.categroyTitle"
                            icon="@category.icon"
