@@ -194,6 +194,7 @@
             {
                 overdraftStatus = false;
             }
+
         }
     }
 </div>
@@ -261,11 +262,11 @@
             Console.WriteLine("Failed to find category title. Error: " + errorContent);
         }
         //get subcategory title:
-        var subCatTitle = await Http.GetAsync("api/Present/getSubCategoryTitle/" + subCatID);
+        var subCatTitle = await Http.GetAsync("api/Present/GetSubCategory/" + subCatID);
         if (subCatTitle.IsSuccessStatusCode)
         {
-            var subTitle = await subCatTitle.Content.ReadAsStringAsync();  // Read the response as plain text
-            subCategoryTitle = subTitle;
+            SubCategoryToShow subTitle = await subCatTitle.Content.ReadFromJsonAsync<SubCategoryToShow>();
+            subCategoryTitle = subTitle.subCategoryTitle;
         }
         else
         {
@@ -584,4 +585,7 @@
             filterByReturnTrans = false;
         }
     }
+
+
+   
 }

@@ -38,7 +38,7 @@ namespace CountOnIt.Server.Controllers
                 fixedMonthly = TransactionToAdd.fixedMonthly,
                 parentTransID = TransactionToAdd.parentTransID,
                 tagID = TransactionToAdd.tagID,
-                splitPayment= TransactionToAdd.splitPayment
+                splitPayment = TransactionToAdd.splitPayment
             };
 
 
@@ -265,7 +265,7 @@ ORDER BY transactions.transDate DESC;";
                 tagID = transToEdit.tagID,
                 parentTransID = transToEdit.parentTransID,
                 transTitle = transToEdit.transTitle,
-                splitPayment= transToEdit.splitPayment
+                splitPayment = transToEdit.splitPayment
             };
 
             string UpdateTransQuery = "UPDATE transactions SET transType = @transType, transValue = @transValue, valueType = @valueType, transDate=@transDate, description=@description, fixedMonthly=@fixedMonthly, tagID=@tagID, parentTransID=@parentTransID, transTitle=@transTitle, splitPayment=@splitPayment WHERE id =@ID";
@@ -283,7 +283,7 @@ ORDER BY transactions.transDate DESC;";
         {
             object transTypeUpdateParam = new
             {
-                ID = transID              
+                ID = transID
             };
 
             string UpdateTransQuery = "UPDATE transactions set transType = 3 WHERE id =@ID";
@@ -310,13 +310,13 @@ ORDER BY transactions.transDate DESC;";
             List<TagsToShow> userTagsList = recordUserTags.ToList();
 
             if (userTagsList.Count > 0)
-            {                
+            {
                 return Ok(userTagsList);
             }
             return BadRequest("tags not found");
         }
 
-        [HttpGet ("getSubCatTags/{subCatID}")]
+        [HttpGet("getSubCatTags/{subCatID}")]
         public async Task<IActionResult> getSubCatTags(int subCatID)
         {
             object param = new
@@ -332,20 +332,28 @@ ORDER BY transactions.transDate DESC;";
                 List<TagsToShow> subCatTagList = new List<TagsToShow>();
                 foreach (int tagID in TagsIDList)
                 {
-                    object tagIdParam = new
+                    if (tagID > 0)
                     {
-                        ID=tagID
-                    };
-                    string getTagInfoQuery = "select * from tags where ID=@ID";
-                    var getTagInfo = await _db.GetRecordsAsync<TagsToShow>(getTagInfoQuery, tagIdParam);
-                    var subCatTag = getTagInfo.FirstOrDefault();
-                    if (subCatTag!=null)
-                    {
-                        subCatTagList.Add(subCatTag);
+
+                        object tagIdParam = new
+                        {
+                            ID = tagID
+                        };
+                        string getTagInfoQuery = "select * from tags where ID=@ID";
+                        var getTagInfo = await _db.GetRecordsAsync<TagsToShow>(getTagInfoQuery, tagIdParam);
+                        var subCatTag = getTagInfo.FirstOrDefault();
+                        if (subCatTag != null)
+                        {
+                            subCatTagList.Add(subCatTag);
+                        }
+                        else
+                        {
+                            return BadRequest("tag with ID- " + tagID + " is null");
+                        }
                     }
                     else
                     {
-                        return BadRequest("tag with ID- " + tagID + " is null");
+                        return BadRequest("tag ID is null or smaller than 0");
                     }
 
                 }
@@ -353,8 +361,8 @@ ORDER BY transactions.transDate DESC;";
             }
 
             return BadRequest("Couldn't find this sub cat's tags");
-            }
-            
+        }
+
         [HttpGet("getRepeatedTransToEdit/{ParentTransID}")]
         public async Task<IActionResult> getRepeatedTransToEdit(int ParentTransID)
         {
@@ -395,7 +403,7 @@ ORDER BY transactions.transDate DESC;";
             return BadRequest("Couldn't find repeated trans values");
         }
 
-        [HttpPost("UpdateRepeatedTrans")]  
+        [HttpPost("UpdateRepeatedTrans")]
 
         public async Task<IActionResult> UpdateRepeatedTrans([FromBody] List<RepeatedTransToShow> reTransToUpdate)
         {
@@ -409,7 +417,7 @@ ORDER BY transactions.transDate DESC;";
                     ID = reTrans.id,
                     transValue = reTrans.transValue,
                     transDate = reTrans.transDate,
-                    
+
                 };
 
                 string TransToUpdateQuery = "UPDATE transactions set transValue = @transValue WHERE id =@ID";
@@ -471,7 +479,7 @@ ORDER BY transactions.transDate DESC;";
             var recordSplitParent = await _db.GetRecordsAsync<TransactionToEdit>(getRepeatedTransParentQuery, param);
             TransactionToEdit repeatedTransValue = recordSplitParent.FirstOrDefault();
 
-            if (repeatedTransValue!= null)
+            if (repeatedTransValue != null)
             {
                 return Ok(repeatedTransValue);
             }
@@ -487,7 +495,7 @@ ORDER BY transactions.transDate DESC;";
 
             if (isTransDeleted)
             {
-                
+
                 return Ok();
             }
 
@@ -504,7 +512,7 @@ ORDER BY transactions.transDate DESC;";
                 transType = transToEdit.transType,
                 transValue = transToEdit.transValue,
                 valueType = transToEdit.valueType,
-                
+
                 description = transToEdit.description,
                 fixedMonthly = transToEdit.fixedMonthly,
                 tagID = transToEdit.tagID,
@@ -524,6 +532,6 @@ ORDER BY transactions.transDate DESC;";
         }
     }
 
-           
+
 }
 

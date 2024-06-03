@@ -116,30 +116,11 @@
         {
             if (transaction.parentTransID.Value > 0)
             {
-                transIDtoEdit = transaction.parentTransID.Value;
-                var findParentRes = await Http.GetAsync("api/Transactions/identifyParent/" + transIDtoEdit);
+                var findParentRes = await Http.GetAsync("api/Transactions/identifyParent/" + transaction.parentTransID.Value);
                 if (findParentRes.IsSuccessStatusCode)
                 {
                     Console.WriteLine("transaction: " + transaction.transTitle + " is a part of a split payment");
-                    var repeatedTransValuesRes = await Http.GetAsync("api/Transactions/getPaymentTransToEdit/" + transIDtoEdit);
-                    if (repeatedTransValuesRes.IsSuccessStatusCode)
-                    {
-                        reapeatedTransValuesList = repeatedTransValuesRes.Content.ReadFromJsonAsync<List<RepeatedTransToShow>>().Result;
-                        foreach (RepeatedTransToShow repeatedT in reapeatedTransValuesList)
-                        {
-                            if (repeatedT.id == transaction.id)
-                            {
-                                transIndexInPayments = reapeatedTransValuesList.IndexOf(repeatedT) + 1;
-                            }
-                        }
-
-                        totalPayments = reapeatedTransValuesList.Count;
-                        childOfSplit = true;
-                    }
-                    else
-                    {
-                        Console.WriteLine("finding repeated Trans values failed");
-                    }
+                    transIDtoEdit = transaction.parentTransID.Value;
                 }
                 else
                 {
@@ -154,8 +135,39 @@
         else
         {
             Console.WriteLine("transaction isn't a child");
+           
             transIDtoEdit = transaction.id;
         }
+        if (transaction.parentTransID.HasValue)
+        {
+            if (transaction.parentTransID.Value>0)
+            {
+                if (transIDtoEdit == transaction.parentTransID.Value)
+                {
+                    var repeatedTransValuesRes = await Http.GetAsync("api/Transactions/getPaymentTransToEdit/" + transIDtoEdit);
+                    if (repeatedTransValuesRes.IsSuccessStatusCode)
+                    {
+                        reapeatedTransValuesList = repeatedTransValuesRes.Content.ReadFromJsonAsync<List<RepeatedTransToShow>>().Result;
+                        foreach (RepeatedTransToShow repeatedT in reapeatedTransValuesList)
+                        {
+                            if (repeatedT.id == transaction.id)
+                            {
+                                transIndexInPayments = reapeatedTransValuesList.IndexOf(repeatedT) + 1;
+                            }
+                        }
+
+                        totalPayments = reapeatedTransValuesList.Count;
+                        childOfSplit = true;
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("finding split trans values failed");
+                    }
+                }
+            }
+        }
+        
     }
     public void deleteTransPopUp()
     {
@@ -228,6 +240,7 @@
     public void editTransPopUp()
     {
         editBtnClicked = !editBtnClicked;
+        Console.WriteLine("transIDtoEdit- " + transIDtoEdit);
     }
 
     public async Task getSubCatTitle()
