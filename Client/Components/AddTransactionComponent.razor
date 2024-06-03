@@ -8,7 +8,6 @@
 @if (isLoadComplete)
 {
 
-
     <button class="modal-close-btn" @onclick="transOverlayControl">&times;</button>
     @if (isItAnewTrans)
     {
@@ -378,6 +377,7 @@
             <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
         </div>
     }
+
 }
 @code {
 
@@ -399,8 +399,8 @@
     [Parameter]
     public EventCallback<double> addTransactionToTotal { get; set; }
 
-    [Parameter]
-    public TransactionToAdd newTransaction { get; set; }
+    //[Parameter]
+    //public TransactionToAdd newTransaction { get; set; }
 
     [Parameter]
     public int transIDtoEdit { get; set; }
@@ -413,6 +413,9 @@
 
     [Parameter]
     public EventCallback<List<int>> SplitPaymentWithIndex { get; set; }
+
+    TransactionToAdd newTransaction = new TransactionToAdd(); //if it's a new transaction
+    TransactionToEdit ogTransaction = new TransactionToEdit(); //if it's an existing transaction
 
     List<OverBudgetToShow> closeOverdraftOpts = new List<OverBudgetToShow>();
     List<OverDraftBudgetToEdit> budgetToUpdate = new List<OverDraftBudgetToEdit>();
@@ -458,7 +461,8 @@
     bool? initialSplitPayment = false;
     int initialAmountOfSplits = 1;
     double sumPreSplit = 0;
-    TransactionToAdd ogTransaction = new TransactionToAdd();
+    //TransactionToAdd ogTransaction = new TransactionToAdd();
+
     bool isLoadComplete = false;
 
     public string GetHebrewMonthName(string month)
@@ -569,8 +573,80 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if(transIDtoEdit>0)
+        {
+            overlayTitle = "עריכת הזנה";
+            isItAnewTrans = false;
+            var transEditRes = await Http.GetAsync("api/Transactions/getSplitParent/" + transIDtoEdit); //doesn't necessarily mean that the transaction is a split parent/child, this gets the entire data of a specific transaction by its ID
+            if (transEditRes.IsSuccessStatusCode)
+            {
+                ogTransaction = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();
+                if (ogTransaction != null)
+                {
+                    newTransaction = new TransactionToAdd()
+                        {
+                            subCategoryID = subCategoryIDTOGet,
+                            transValue = ogTransaction.transValue,
+                            transType = ogTransaction.transType,
+                            valueType = ogTransaction.valueType,
+                            transDate = ogTransaction.transDate,
+                            fixedMonthly = ogTransaction.fixedMonthly,
+                            tagID = ogTransaction.tagID,
+                            tagTitle = ogTransaction.tagTitle,
+                            tagColor = ogTransaction.tagColor,
+                            transTitle = ogTransaction.transTitle,
+                            parentTransID = ogTransaction.parentTransID,
+                            description = ogTransaction.description,
+                            splitPayment = ogTransaction.splitPayment
+                        };
 
-        if (newTransaction == null)
+                    initialSplitPayment = newTransaction.splitPayment;
+                    initialFixedMonthly = newTransaction.fixedMonthly;
+                    if (newTransaction.splitPayment == true)
+                    {
+
+                        splitPayment = true;
+                        var repeatedTransValuesRes = await Http.GetAsync("api/Transactions/getPaymentTransToEdit/" + transIDtoEdit);
+
+                        if (repeatedTransValuesRes.IsSuccessStatusCode)
+                        {
+                            reapeatedTransValuesList = repeatedTransValuesRes.Content.ReadFromJsonAsync<List<RepeatedTransToShow>>().Result;
+                            foreach (RepeatedTransToShow repeatedT in reapeatedTransValuesList)
+                            {
+                                if (repeatedT.id == transIDtoEdit)
+                                {
+                                    indexOfPayment = reapeatedTransValuesList.IndexOf(repeatedT) + 1;
+                                }
+                            }
+                            selectedNumber = reapeatedTransValuesList.Count;
+                            initialAmountOfSplits = selectedNumber;
+                            sumPreSplit = newTransaction.transValue * initialAmountOfSplits;
+                            newTransaction.transValue = sumPreSplit;
+                            Console.WriteLine("sum pre split- " + sumPreSplit);
+                            Console.WriteLine("newTransaction.transValue- " + newTransaction.transValue);
+                            List<int> transStatus = new List<int>()
+                    {
+                        indexOfPayment, selectedNumber
+                    };
+                            SplitPaymentWithIndex.InvokeAsync(transStatus);
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("repeated Trans values failed");
+                        }
+
+
+                    }
+                    else
+                    {
+                        initialAmountOfSplits = 1;
+                        selectedNumber = 1;
+                    }
+                }
+            }
+        }
+        else
         {
             newTransaction = new TransactionToAdd()
                 {
@@ -580,55 +656,6 @@
             isItAnewTrans = true;
             isLoadComplete = true;
         }
-        else
-        {
-            overlayTitle = "עריכת הזנה";
-            isItAnewTrans = false;
-            ogTransaction = newTransaction;
-            initialSplitPayment = newTransaction.splitPayment;
-            initialFixedMonthly = newTransaction.fixedMonthly;
-            if (newTransaction.splitPayment == true && transIDtoEdit > 0)
-            {
-
-                splitPayment = true;
-                var repeatedTransValuesRes = await Http.GetAsync("api/Transactions/getPaymentTransToEdit/" + transIDtoEdit);
-
-                if (repeatedTransValuesRes.IsSuccessStatusCode)
-                {
-                    reapeatedTransValuesList = repeatedTransValuesRes.Content.ReadFromJsonAsync<List<RepeatedTransToShow>>().Result;
-                    foreach (RepeatedTransToShow repeatedT in reapeatedTransValuesList)
-                    {
-                        if (repeatedT.id == transIDtoEdit)
-                        {
-                            indexOfPayment = reapeatedTransValuesList.IndexOf(repeatedT) + 1;
-                        }
-                    }
-                    selectedNumber = reapeatedTransValuesList.Count;
-                    initialAmountOfSplits = selectedNumber;
-                    sumPreSplit = newTransaction.transValue * initialAmountOfSplits;
-                    newTransaction.transValue = sumPreSplit;
-                    Console.WriteLine("sum pre split- " + sumPreSplit);
-                    Console.WriteLine("newTransaction.transValue- " + newTransaction.transValue);
-                    List<int> transStatus = new List<int>()
-                    {
-                        indexOfPayment, selectedNumber
-                    };
-                    SplitPaymentWithIndex.InvokeAsync(transStatus);
-
-                }
-                else
-                {
-                    Console.WriteLine("repeated Trans values failed");
-                }
-
-
-            }
-            else if (newTransaction.splitPayment == false && transIDtoEdit > 0)
-            {
-                initialAmountOfSplits = 1;
-                selectedNumber = 1;
-            }
-        }
 
         if (newTransaction.tagID > 0)
         {
@@ -636,6 +663,10 @@
         }
         isLoadComplete = true;
     }
+
+
+
+
 
     private void HandleChange(ChangeEventArgs e)
     {

@@ -26,7 +26,8 @@
     </div>
 
     <div class="budget-info">
-        <button class="budget-progress" @onclick="goToTransactionsPage">  @budget /  @totalSpendings</button>
+        <button class="budget-progress" @onclick="goToTransactionsPage">
+            @budget /  @Math.Round(totalSpendings,2)</button>
         @if (totalSpendings > budget)
         {
             <span>⚠️</span>

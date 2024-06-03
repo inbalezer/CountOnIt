@@ -106,7 +106,7 @@ namespace CountOnIt.Server.Controllers
                             ID = subCategory.id
                         };
 
-                        string GetTransactionValueQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND (transType = 1 OR transType = 3) ";
+                        string GetTransactionValueQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND (transType = 1 OR transType = 3) and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE()); ";
 
                         var recordsTransValue = await _db.GetRecordsAsync<double>(GetTransactionValueQuery, subParam);
                         subCategory.transactionsValue = recordsTransValue.FirstOrDefault();
