@@ -5,376 +5,380 @@
 @using System.Globalization;
 @inject HttpClient Http
 
-<button class="modal-close-btn" @onclick="transOverlayControl">&times;</button>
-@if (isItAnewTrans)
+@if (isLoadComplete)
 {
-    <h3>@overlayTitle:  </h3>
-    <h4>@subCategoryTitle</h4>
-}
-else
-{
-    <h3>@overlayTitle</h3>
 
-    repeatedBtnTitle = "עריכת הוצאה חוזרת";
-}
 
-<div>
-
-    <button @onclick="() => isTopDropDownOpen = !isTopDropDownOpen">פרטי ההזנה שלי</button>
-
-    @if (isTopDropDownOpen)
+    <button class="modal-close-btn" @onclick="transOverlayControl">&times;</button>
+    @if (isItAnewTrans)
     {
-        <div>
-            <p>פרטי ההזנה</p>
-            <input type="text" @bind="newTransaction.transTitle" />
+        <h3>@overlayTitle:  </h3>
+        <h4>@subCategoryTitle</h4>
+    }
+    else
+    {
+        <h3>@overlayTitle</h3>
 
-            <input type="date" @bind="newTransaction.transDate" />
+        repeatedBtnTitle = "עריכת הוצאה חוזרת";
+    }
 
-            <p>סכום ההזנה</p>
-            <input type="number" @bind="newTransaction.transValue" />
-            <p>ההזנה בתשלומים?</p>
-            <input type="checkbox" @bind="splitPayment" />
-            @if (splitPayment)
-            {
-                <select @bind="selectedNumber">
-                    @for (int i = 2; i <= 12; i++)
-                    {
-                        <option value="@i">@i תשלומים</option>
+    <div>
 
-                    }
-                    selectedNumber = i;
-                </select>
-                @if (isItAnewTrans)
+        <button @onclick="() => isTopDropDownOpen = !isTopDropDownOpen">פרטי ההזנה שלי</button>
+
+        @if (isTopDropDownOpen)
+        {
+            <div>
+                <p>פרטי ההזנה</p>
+                <input type="text" @bind="newTransaction.transTitle" />
+
+                <input type="date" @bind="newTransaction.transDate" />
+
+                <p>סכום ההזנה</p>
+                <input type="number" @bind="newTransaction.transValue" />
+                <p>ההזנה בתשלומים?</p>
+                <input type="checkbox" @bind="splitPayment" />
+                @if (splitPayment)
                 {
-                    <p>
-                        סכום כל תשלום בממוצע @(
-            Math.Round((newTransaction.transValue / selectedNumber), 2)
-            ) ₪
-
-                    </p>
-                }
-                else
-                {
-                    if (sumPreSplit > 0)
-                    {
-                        if (newTransaction.transValue != sumPreSplit)
+                    <select @bind="selectedNumber">
+                        @for (int i = 2; i <= 12; i++)
                         {
-                            sumPreSplit = newTransaction.transValue;
+                            <option value="@i">@i תשלומים</option>
+
                         }
+                        selectedNumber = i;
+                    </select>
+                    @if (isItAnewTrans)
+                    {
                         <p>
                             סכום כל תשלום בממוצע @(
-            Math.Round((sumPreSplit / selectedNumber), 2)
+            Math.Round((newTransaction.transValue / selectedNumber), 2)
             ) ₪
 
                         </p>
                     }
-                }
-
-            }
-            @{
-
-                newTransaction.splitPayment = splitPayment;
-                if (splitPayment == false)
-                {
-                    selectedNumber = 1;
-                }
-            }
-            <p>אמצעי תשלום</p>
-
-            @if (newTransaction.valueType == null)
-            {
-                newTransaction.valueType = "מזומן";
-            }
-            <select @bind="newTransaction.valueType">
-
-                <option value="מזומן">מזומן</option>
-                <option value="אשראי">אשראי</option>
-                <option value="ביט/פייבוקס">ביט/פייבוקס</option>
-                <option value="אחר">אחר</option>
-
-            </select>
-            @if (!string.IsNullOrEmpty(newTransaction.valueType))
-            {
-                <p>שיטת תשלום נבחרת: @newTransaction.valueType</p>
-            }
-            <button @onclick=@(async () => await repeatingTransOverlay())>@repeatedBtnTitle</button>@* לעשות קומפוננטה של חלון הגדרת הוצאה כחוזרת*@
-
-            @if (newTransaction.fixedMonthly == true) // עריכת הוצאה חוזרת
-            {
-                @if (returningTrans)
-                {
-                    <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
-                    <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
-                    @if (resetMonthValues == false)
+                    else
                     {
-                        @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                        if (sumPreSplit > 0)
                         {
-                            tToCheck.transValue = newTransaction.transValue;
+                            if (newTransaction.transValue != sumPreSplit)
+                            {
+                                sumPreSplit = newTransaction.transValue;
+                            }
+                            <p>
+                                סכום כל תשלום בממוצע @(
+               Math.Round((sumPreSplit / selectedNumber), 2)
+               ) ₪
+
+                            </p>
                         }
-                        @foreach (string month in months)
+                    }
+
+                }
+                @{
+
+                    newTransaction.splitPayment = splitPayment;
+                    if (splitPayment == false)
+                    {
+                        selectedNumber = 1;
+                    }
+                }
+                <p>אמצעי תשלום</p>
+
+                @if (newTransaction.valueType == null)
+                {
+                    newTransaction.valueType = "מזומן";
+                }
+                <select @bind="newTransaction.valueType">
+
+                    <option value="מזומן">מזומן</option>
+                    <option value="אשראי">אשראי</option>
+                    <option value="ביט/פייבוקס">ביט/פייבוקס</option>
+                    <option value="אחר">אחר</option>
+
+                </select>
+                @if (!string.IsNullOrEmpty(newTransaction.valueType))
+                {
+                    <p>שיטת תשלום נבחרת: @newTransaction.valueType</p>
+                }
+                <button @onclick=@(async () => await repeatingTransOverlay())>@repeatedBtnTitle</button>@* לעשות קומפוננטה של חלון הגדרת הוצאה כחוזרת*@
+
+                @if (newTransaction.fixedMonthly == true) // עריכת הוצאה חוזרת
+                {
+                    @if (returningTrans)
+                    {
+                        <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
+                        <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
+                        @if (resetMonthValues == false)
                         {
-                            <div>
-                                <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+                            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                            {
+                                tToCheck.transValue = newTransaction.transValue;
+                            }
+                            @foreach (string month in months)
+                            {
+                                <div>
+                                    <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
 
-                                @{
-                                    // Attempt to find a matching transaction for the month
-                                    var matchingTrans = reapeatedTransValuesList.FirstOrDefault(trans => trans.transDate.ToString("MMMM") == month);
+                                    @{
+                                        // Attempt to find a matching transaction for the month
+                                        var matchingTrans = reapeatedTransValuesList.FirstOrDefault(trans => trans.transDate.ToString("MMMM") == month);
 
-                                    // Determine the value to display in the input
-                                    string inputValue = matchingTrans != null ? matchingTrans.transValue.ToString() : "0";
-                                }
-                                @if (GetCurrentMonth() == month)
-                                {
-                                    inputValue = newTransaction.transValue.ToString();
-                                }
-                                <input type="text"
+                                        // Determine the value to display in the input
+                                        string inputValue = matchingTrans != null ? matchingTrans.transValue.ToString() : "0";
+                                    }
+                                    @if (GetCurrentMonth() == month)
+                                    {
+                                        inputValue = newTransaction.transValue.ToString();
+                                    }
+                                    <input type="text"
                    disabled="@(GetCurrentMonth() != month && IsPastMonth(month))"
                    value="@inputValue"
                    @oninput="eventArgs => HandleRepeatedInput(eventArgs, month, matchingTrans)" />
-                            </div>
-                        }
-                        <button>שמירה וחזרה</button>
-                        <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
-                    }
-                    else
-                    {
-                        @if (!isValueTypedAfterReset)
-                        {
-                            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-                            {
-                                tToCheck.transValue = 0;
+                                </div>
                             }
-                        }
-
-                        @foreach (string month in months)
-                        {
-                            <div>
-                                <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
-
-                                @if (GetCurrentMonth() != month)
-                                {
-                                    <input type="text"
-                   disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-
-                                }
-                                else
-                                {
-                                    <input type="text"
-                   disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                                }
-                            </div>
-                        }
-
-                        @if (isValueTyped)
-                        {
                             <button>שמירה וחזרה</button>
+                            <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
                         }
                         else
                         {
-                            <button disabled>שמירה וחזרה</button>
-                            <button @onclick="() => resetMonthValues = !resetMonthValues">לסכומים המקוריים</button>
-
-                        }
-                    }
-                }
-            }
-            else
-            {
-                @if (returningTrans)
-                {
-                    <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
-                    <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
-                    @if (resetMonthValues == false)
-                    {
-                        @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-                        {
-                            tToCheck.transValue = newTransaction.transValue;
-                        }
-
-                        @foreach (string month in months)
-                        {
-                            <div>
-                                @if (GetCurrentMonth() == month)
+                            @if (!isValueTypedAfterReset)
+                            {
+                                @foreach (TransactionToAdd tToCheck in transactionsToAdd)
                                 {
+                                    tToCheck.transValue = 0;
+                                }
+                            }
+
+                            @foreach (string month in months)
+                            {
+                                <div>
                                     <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
-                                    <input type="text"
-                   disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
 
-                                }
-                                else
-                                {
-                                    <label>@GetHebrewMonthName(month)</label>
-                                    <input type="text"
-                   disabled="@IsPastMonth(month)" value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                                }
-
-                            </div>
-                        }
-
-                        <button>שמירה וחזרה</button>
-                        <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
-                    }
-                    else
-                    {
-                        @if (!isValueTypedAfterReset)
-                        {
-                            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-                            {
-                                tToCheck.transValue = 0;
-                            }
-                        }
-
-                        @foreach (string month in months)
-                        {
-                            <div>
-                                <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
-
-                                @if (GetCurrentMonth() != month)
-                                {
-                                    <input type="text"
+                                    @if (GetCurrentMonth() != month)
+                                    {
+                                        <input type="text"
                    disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
 
-                                }
-                                else
-                                {
-                                    <input type="text"
+                                    }
+                                    else
+                                    {
+                                        <input type="text"
                    disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                                }
-                            </div>
-                        }
+                                    }
+                                </div>
+                            }
 
-                        @if (isValueTyped)
-                        {
-                            <button>שמירה וחזרה</button>
-                        }
-                        else
-                        {
-                            <button disabled>שמירה וחזרה</button>
-                            <button @onclick="() => resetMonthValues = !resetMonthValues">לסכומים המקוריים</button>
+                            @if (isValueTyped)
+                            {
+                                <button>שמירה וחזרה</button>
+                            }
+                            else
+                            {
+                                <button disabled>שמירה וחזרה</button>
+                                <button @onclick="() => resetMonthValues = !resetMonthValues">לסכומים המקוריים</button>
 
+                            }
                         }
                     }
                 }
-            }
-        </div>
+                else
+                {
+                    @if (returningTrans)
+                    {
+                        <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
+                        <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
+                        @if (resetMonthValues == false)
+                        {
+                            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                            {
+                                tToCheck.transValue = newTransaction.transValue;
+                            }
+
+                            @foreach (string month in months)
+                            {
+                                <div>
+                                    @if (GetCurrentMonth() == month)
+                                    {
+                                        <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+                                        <input type="text"
+                   disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+
+                                    }
+                                    else
+                                    {
+                                        <label>@GetHebrewMonthName(month)</label>
+                                        <input type="text"
+                   disabled="@IsPastMonth(month)" value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                    }
+
+                                </div>
+                            }
+
+                            <button>שמירה וחזרה</button>
+                            <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
+                        }
+                        else
+                        {
+                            @if (!isValueTypedAfterReset)
+                            {
+                                @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                                {
+                                    tToCheck.transValue = 0;
+                                }
+                            }
+
+                            @foreach (string month in months)
+                            {
+                                <div>
+                                    <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+
+                                    @if (GetCurrentMonth() != month)
+                                    {
+                                        <input type="text"
+                   disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+
+                                    }
+                                    else
+                                    {
+                                        <input type="text"
+                   disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                    }
+                                </div>
+                            }
+
+                            @if (isValueTyped)
+                            {
+                                <button>שמירה וחזרה</button>
+                            }
+                            else
+                            {
+                                <button disabled>שמירה וחזרה</button>
+                                <button @onclick="() => resetMonthValues = !resetMonthValues">לסכומים המקוריים</button>
+
+                            }
+                        }
+                    }
+                }
+            </div>
+        }
+    </div>
+
+
+    <div>
+        <button @onclick="@(async () => await getAllUserTags())">הגדרות מתקדמות</button>
+
+        @if (isButtomDropDownOpen)
+        {
+            <div>
+                <p>תגית</p>
+                <p>@chosenTag.tagTitle</p>
+                @if (isItAnewTrans || newTransaction.tagID == null)
+                {
+                    <button @onclick="() => openTagsMenu = !openTagsMenu">➕</button>
+                }
+                else
+                {
+                    @foreach (TagsToShow tag in allUserTags)
+                    {
+                        string buttonStyle = "background-color:" + tag.tagColor + ";";
+
+                        @if (tag.id == newTransaction.tagID)
+                        {
+                            buttonStyle += "border: 2px solid black;";
+                            <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
+                        }
+                        else
+                        {
+                            buttonStyle += "border: none;";
+                            <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
+                        }
+                    }
+                }
+
+                @if (openTagsMenu)
+                {
+                    @foreach (TagsToShow tag in allUserTags)
+                    {
+                        <button @onclick="(() => ChooseTagForTrans(tag))" style="background-color:@tag.tagColor">@tag.tagTitle</button>
+                    }
+                }
+            </div>
+
+            <p>פירוט:</p>
+            <textarea @bind="newTransaction.description"></textarea>
+            @*<input type="text" />*@
+        }
+    </div>
+
+    @if (isItAnewTrans)
+    {
+        <button @onclick="saveAndRepeatTransactions">שמירה והזנה נוספת</button>
+        <button @onclick="saveAndEndTransactions">שמירה וסיום</button>
+
     }
-</div>
+    else
+    {
+        <button @onclick="updateExistingTrans">שמירה וסיום</button>
+    }
 
-
-<div>
-    <button @onclick="@(async () => await getAllUserTags())">הגדרות מתקדמות</button>
-
-    @if (isButtomDropDownOpen)
+    @if (overdraftDetected)
     {
         <div>
-            <p>תגית</p>
-            <p>@chosenTag.tagTitle</p>
-            @if (isItAnewTrans || newTransaction.tagID == null)
-            {
-                <button @onclick="() => openTagsMenu = !openTagsMenu">➕</button>
-            }
-            else
-            {
-                @foreach (TagsToShow tag in allUserTags)
-                {
-                    string buttonStyle = "background-color:" + tag.tagColor + ";";
+            <h3>חרגת...</h3>
+            <p>נראה שהוצאת ב @subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </p>
+            <p>שזה @currentGap ₪ יותר </p>
+            <p>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </p>
+            <p>כדאי להגדיל את התקציב.</p>
+            <p>הסכום שאני רוצה להעביר:</p>
+            <input type="number" @bind="currentGap" min="@currentGap" /><span>₪</span>
+            <p>מאיזו תת קטגוריה יועבר הסכום?</p>
 
-                    @if (tag.id == newTransaction.tagID)
-                    {
-                        buttonStyle += "border: 2px solid black;";
-                        <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
-                    }
-                    else
-                    {
-                        buttonStyle += "border: none;";
-                        <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
-                    }
-                }
-            }
-
-            @if (openTagsMenu)
-            {
-                @foreach (TagsToShow tag in allUserTags)
-                {
-                    <button @onclick="(() => ChooseTagForTrans(tag))" style="background-color:@tag.tagColor">@tag.tagTitle</button>
-                }
-            }
-        </div>
-
-        <p>פירוט:</p>
-        <textarea @bind="newTransaction.description"></textarea>
-        @*<input type="text" />*@
-    }
-</div>
-
-@if (isItAnewTrans)
-{
-    <button @onclick="saveAndRepeatTransactions">שמירה והזנה נוספת</button>
-    <button @onclick="saveAndEndTransactions">שמירה וסיום</button>
-
-}
-else
-{
-    <button @onclick="updateExistingTrans">שמירה וסיום</button>
-}
-
-@if (overdraftDetected)
-{
-    <div>
-        <h3>חרגת...</h3>
-        <p>נראה שהוצאת ב @subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </p>
-        <p>שזה @currentGap ₪ יותר </p>
-        <p>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </p>
-        <p>כדאי להגדיל את התקציב.</p>
-        <p>הסכום שאני רוצה להעביר:</p>
-        <input type="number" @bind="currentGap" min="@currentGap" /><span>₪</span>
-        <p>מאיזו תת קטגוריה יועבר הסכום?</p>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>העברה מ:</th>
-                    <th>העברה ל:</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <select @onchange="HandleChange">
-                            @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
-                            {
-                                @if (subcategoryOpt.id != subCategoryIDTOGet)
+            <table>
+                <thead>
+                    <tr>
+                        <th>העברה מ:</th>
+                        <th>העברה ל:</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <select @onchange="HandleChange">
+                                @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
                                 {
-                                    <option value="@subcategoryOpt.subCategoryTitle">
-                                        @subcategoryOpt.subCategoryTitle
-                                    </option>
+                                    @if (subcategoryOpt.id != subCategoryIDTOGet)
+                                    {
+                                        <option value="@subcategoryOpt.subCategoryTitle">
+                                            @subcategoryOpt.subCategoryTitle
+                                        </option>
+                                    }
                                 }
-                            }
-                        </select>
-                    </td>
-                    <td>
-                        @(overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle)
+                            </select>
+                        </td>
+                        <td>
+                            @(overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle)
 
-                    </td>
-                </tr>
-                <tr>
-                    <p>תקציב:</p>
-                    <p>נוכחי: @chosenSubCategory.monthlyPlannedBudget</p>
-                    <p>עתידי: @(chosenSubCategory.monthlyPlannedBudget - currentGap)</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <p>תקציב:</p>
+                        <p>נוכחי: @chosenSubCategory.monthlyPlannedBudget</p>
+                        <p>עתידי: @(chosenSubCategory.monthlyPlannedBudget - currentGap)</p>
 
-                </tr>
-                <tr>
-                    <p>תקציב:</p>
-                    <p>נוכחי: @(closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)</p>
-                    <p>עתידי: @(closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap)</p>
-                </tr>
-            </tbody>
-        </table>
-        <button @onclick="manageBudgetsToTranfer">העברה</button>
-        <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
-    </div>
+                    </tr>
+                    <tr>
+                        <p>תקציב:</p>
+                        <p>נוכחי: @(closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)</p>
+                        <p>עתידי: @(closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap)</p>
+                    </tr>
+                </tbody>
+            </table>
+            <button @onclick="manageBudgetsToTranfer">העברה</button>
+            <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
+        </div>
+    }
 }
-
 @code {
 
     [Parameter]
@@ -452,9 +456,10 @@ else
 
     bool? initialFixedMonthly = false;
     bool? initialSplitPayment = false;
-    int initialAmountOfSplits = 0;
+    int initialAmountOfSplits = 1;
     double sumPreSplit = 0;
     TransactionToAdd ogTransaction = new TransactionToAdd();
+    bool isLoadComplete = false;
 
     public string GetHebrewMonthName(string month)
     {
@@ -573,7 +578,7 @@ else
                 };
             overlayTitle = "הוספה לתת קטגוריה: ";
             isItAnewTrans = true;
-
+            isLoadComplete = true;
         }
         else
         {
@@ -601,13 +606,15 @@ else
                     selectedNumber = reapeatedTransValuesList.Count;
                     initialAmountOfSplits = selectedNumber;
                     sumPreSplit = newTransaction.transValue * initialAmountOfSplits;
-                    //newTransaction.transValue = sumPreSplit;
+                    newTransaction.transValue = sumPreSplit;
                     Console.WriteLine("sum pre split- " + sumPreSplit);
+                    Console.WriteLine("newTransaction.transValue- " + newTransaction.transValue);
                     List<int> transStatus = new List<int>()
                     {
                         indexOfPayment, selectedNumber
                     };
                     SplitPaymentWithIndex.InvokeAsync(transStatus);
+
                 }
                 else
                 {
@@ -627,6 +634,7 @@ else
         {
             chosenTag.tagTitle = newTransaction.tagTitle;
         }
+        isLoadComplete = true;
     }
 
     private void HandleChange(ChangeEventArgs e)
