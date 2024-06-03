@@ -12,12 +12,13 @@
 @inject NavigationManager Navigation
 @inject SignOutSessionStateManager SignOutManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
 
 
 <meta name="google-signin-client_id" content="1019975699349-h4jb6mru41g9tobof0f2i4dl96df2bkp.apps.googleusercontent.com">
 <div class="g-signin2" data-onsuccess="onSignIn"></div>
 
-<div id="outerWrap">
+<div class="outerWrap @BgOverlay">
 
     @if (currentUser != null)
     {
@@ -151,7 +152,13 @@
                 <p class="addTitle">הוספת קטגוריה חדשה</p>
                 @if (openAddCatOverlay)
                 {
+                    isOverlay = true;
+                    BgOverlay = "BgOverlay";
                     <EditCategoryComponent popupTitle="הוספת קטגוריה" userID="@userID" newCategory="newCategory" isCategoryOverlayOpen="openCategoryOverlay" addNewCatToIndex="AddNewCat"></EditCategoryComponent>
+                }
+                else
+                {
+                     isOverlay = false;
                 }
             </button>
 
@@ -295,7 +302,7 @@
             }
         }
 
-        <div id="bottomNav">
+        <div id="@hideNav">
             <button class="navBtn">מבט לעבר<img src="../css/images/past.svg" /></button>
             <div class="NavLines"> </div>
             <button class="navBtn">מבט להווה<img src="../css/images/present.svg" /></button>
@@ -351,7 +358,6 @@
     }
 </div>
 
-@*הערה*@
 
 @code {
 
@@ -374,7 +380,9 @@
     string msg = "";
     string searchQuery = "";
     string currentSearch = "";
-
+    string hideNav => isScrollingDown ? "nav-hidden" : "bottomNav";
+    //string BgOverlay => isOverlay ? "BgOverlay" : "";
+    string BgOverlay = "";
     int newCurrentUserId;
     int categoryIdToSend;
     private int refreshKey;
@@ -383,8 +391,13 @@
     bool isOnInitializedOver = false;
     bool accordionRefresh = true;
     bool toSearch = false;
+    bool isScrollingDown = false;
+    bool isOverlay = false;
     //bool makeSearchAgain = false;
     //bool isThereCategories => currentUser.categoriesFullList == null || currentUser.categoriesFullList.Count == 0;
+
+
+
 
     public bool storyPopUpWindow = false;
     List<StorySubCategoryTotals> subCatsTotalsStory = new List<StorySubCategoryTotals>();
@@ -851,6 +864,32 @@
 
 
 
+//    protected override async Task OnAfterRenderAsync(bool firstRender)
+//    {
+//        if (firstRender)
+//        {
+//            isScrollingDown = false;
+//            await JSRuntime.InvokeVoidAsync("eval", @"
+//setTimeout(function() {
+//    let lastScroll = window.pageYOffset || document.documentElement.scrollTop;
+//     isScrollingDown = false;
+
+//    window.addEventListener('scroll', function() {
+//        let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+//        if (currentScroll > lastScroll) {
+//isScrollingDown = true;
+           
+//        } else if (currentScroll < lastScroll) {
+//isScrollingDown = false;
+            
+//        }
+//        console.log(`isScrollingDown is ${isScrollingDown}!!`); // Logging the scrolling direction
+//        lastScroll = currentScroll;
+//    });
+//}, 0);
+//");
+//        }
+//    }
 
 
 }

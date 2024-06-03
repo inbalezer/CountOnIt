@@ -41,9 +41,9 @@
     border: none;
 }
 
-#outerWrap {
+.outerWrap {
     display: flex;
-    row-gap: 2vh;
+    row-gap: 2.8vh;
     justify-content: space-between;
     align-items: center;
     flex-direction: column;
@@ -356,6 +356,15 @@ input:checked + .slider:before {
     position: fixed;
     bottom: 0;
     z-index: 2;
+    transition: transform 0.3s ease-in-out;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    will-change: transform; /* Optimizes the animation */
+}
+
+#nav-hidden {
+    display: none; /* Moves the navbar out of view */
 }
 
 
@@ -391,4 +400,9 @@ input:checked + .slider:before {
     align-content: center;
     justify-content: center;
     row-gap: 0.4vh;
+}
+
+.BgOverlay {
+    background-color: rgba(1, 5, 43, 0.28);
+    z-index:3;
 }

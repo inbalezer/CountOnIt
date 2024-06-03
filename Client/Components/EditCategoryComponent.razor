@@ -3,62 +3,69 @@
 @using CountOnIt.Shared.Models.present.toEdit
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
-<h3>@popupTitle</h3>
-<input type="text" @bind="categoryToEdit.categroyTitle"/>
-<button id="emoji-trigger">הוספת אייקון 😊</button>
-<input type="text" id="emoji-input" @bind="categoryToEdit.icon">
 
-<span>@categoryToEdit.icon</span>
+<div class="overlay">
 
-<div>
-    <label for="categoryColors">צבע</label>
-    <span>@categoryToEdit.color</span>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F4B367")" />
-    <label>#F4B367</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#7B67F4")" />
-    <label>#7B67F4</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F467AB")" />
-    <label>#F467AB</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F47867")" />
-    <label>#F47867</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#678EF4")" />
-    <label>#678EF4</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#85E7A0")" />
-    <label>#85E7A0</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#67CAF4")" />
-    <label>#67CAF4</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#FFEF9D")" />
-    <label>#FFEF9D</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#FBEBD7")" />
-    <label>#FBEBD7</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#04905E")" />
-    <label>#04905E</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F95050")" />
-    <label>#F95050</label>
-    <input type="radio"
-           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#DADADA")" />
-    <label>#DADADA</label>
+
+    <h3>@popupTitle</h3>
+    <input type="text" @bind="categoryToEdit.categroyTitle" />
+    <button id="emoji-trigger">הוספת אייקון 😊</button>
+    <input type="text" id="emoji-input" @bind="categoryToEdit.icon">
+
+    <span>@categoryToEdit.icon</span>
+
+    <div>
+
+        <label for="categoryColors">צבע</label>
+        <span>@categoryToEdit.color</span>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F4B367")" />
+        <label>#F4B367</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#7B67F4")" />
+        <label>#7B67F4</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F467AB")" />
+        <label>#F467AB</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F47867")" />
+        <label>#F47867</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#678EF4")" />
+        <label>#678EF4</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#85E7A0")" />
+        <label>#85E7A0</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#67CAF4")" />
+        <label>#67CAF4</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#FFEF9D")" />
+        <label>#FFEF9D</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#FBEBD7")" />
+        <label>#FBEBD7</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#04905E")" />
+        <label>#04905E</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F95050")" />
+        <label>#F95050</label>
+        <input type="radio"
+               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#DADADA")" />
+        <label>#DADADA</label>
+    </div>
+    @if (popupTitle == "עריכת קטגוריה")
+    {
+
+        <button @onclick="saveUpdatedCat">שמירה וסיום</button>
+    }
+    else if (popupTitle == "הוספת קטגוריה")
+    {
+        <button @onclick="addNewCategory">שמירה וסיום</button>
+    }
+
 </div>
-@if (popupTitle=="עריכת קטגוריה")
-{
-    
-    <button @onclick="saveUpdatedCat">שמירה וסיום</button>
-}
-else if (popupTitle == "הוספת קטגוריה")
-{
-    <button @onclick="addNewCategory">שמירה וסיום</button>
-}
 @code {
 
     [Parameter]
@@ -88,7 +95,7 @@ else if (popupTitle == "הוספת קטגוריה")
     public CategoryToAdd newCategory { get; set; }
 
     public CategoryToEdit editedCategory = new CategoryToEdit();
-    
+
     //[Inject] IJSRuntime JS { get; set; }
 
     public async Task saveUpdatedCat()
@@ -151,5 +158,5 @@ else if (popupTitle == "הוספת קטגוריה")
     //    await JS.InvokeVoidAsync("focusInput", textInput);
     //}
 
-   
+
 }
