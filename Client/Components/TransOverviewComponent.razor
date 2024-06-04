@@ -18,7 +18,7 @@
     {
         if (transaction.splitPayment)
         {
-            <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay"></AddTransactionComponent>
+            <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
         }
         else if (childOfSplit)
         {
@@ -27,7 +27,7 @@
                 if (transaction.parentTransID.Value > 0)
                 {
                     Console.WriteLine("split parent was sent to edit");
-                    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay"></AddTransactionComponent>
+                    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
                 }
             }
         }
@@ -35,7 +35,7 @@
     }
     else
     {
-        <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay"></AddTransactionComponent>
+        <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
     }
 }
 @if (overdraftDetected && transaction.transType == 3)
@@ -89,6 +89,9 @@
     [Parameter]
     public bool overdraftStatus { get; set; }
 
+    [Parameter]
+    public bool typeByCat { get; set; } //false- expense, true- income
+
     bool deleteBtnClicked = false;
     bool editBtnClicked = false;
     string popupTitle;
@@ -110,6 +113,7 @@
     bool childOfSplit = false;
     TransactionToEdit splitParentTrans = new TransactionToEdit();
     int transIDtoEdit = 0;
+
     protected override async Task OnInitializedAsync()
     {
         if (transaction.parentTransID.HasValue)
@@ -135,12 +139,12 @@
         else
         {
             Console.WriteLine("transaction isn't a child");
-           
+
             transIDtoEdit = transaction.id;
         }
         if (transaction.parentTransID.HasValue)
         {
-            if (transaction.parentTransID.Value>0)
+            if (transaction.parentTransID.Value > 0)
             {
                 if (transIDtoEdit == transaction.parentTransID.Value)
                 {
@@ -167,7 +171,20 @@
                 }
             }
         }
-        
+
+        //var checkCatType = await Http.GetAsync("api/Transactions/getCatType/" + userID);
+        //if (checkCatType.IsSuccessStatusCode)
+        //{
+        //    List<int> incomeSubCats = new List<int>();
+        //    incomeSubCats = checkCatType.Content.ReadFromJsonAsync<List<int>>().Result;
+        //    if (incomeSubCats.Count > 0)
+        //    {
+        //        if (incomeSubCats.Contains(subCatID))
+        //        {
+        //            typeByCat = true;
+        //        }
+        //    }
+        //}
     }
     public void deleteTransPopUp()
     {

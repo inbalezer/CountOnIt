@@ -414,6 +414,9 @@
     [Parameter]
     public EventCallback<List<int>> SplitPaymentWithIndex { get; set; }
 
+    [Parameter]
+    public bool categoryTypeIndicator { get; set; } //will indicate if this is an expense or income subcategory
+
     TransactionToAdd newTransaction = new TransactionToAdd(); //if it's a new transaction
     TransactionToEdit ogTransaction = new TransactionToEdit(); //if it's an existing transaction
 
@@ -681,7 +684,14 @@
         newTransaction.subCategoryID = subCategoryIDTOGet;
         newTransaction.transType = 1;
         newTransaction.tagID = null;
-
+        if (!categoryTypeIndicator)
+        {
+            newTransaction.transType = 1; //expense
+        }
+        else
+        {
+            newTransaction.transType = 2; //income
+        }
         if (chosenTag.id > 0)
         {
             newTransaction.tagID = chosenTag.id;
@@ -712,7 +722,11 @@
                     if (i == 0)
                     {
                         transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
-                        await checkOverdraft();
+                        if (!categoryTypeIndicator)
+                        {
+                            await checkOverdraft();
+                        }
+                        
                         if (!overdraftDetected)
                         {
                             if (newTransaction.fixedMonthly == true)
@@ -745,7 +759,10 @@
             if (transToSaveRes.IsSuccessStatusCode)
             {
                 transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
-                await checkOverdraft();
+                if (!categoryTypeIndicator)
+                {
+                    await checkOverdraft();
+                }
                 if (!overdraftDetected)
                 {
                     if (newTransaction.fixedMonthly == true)
@@ -770,6 +787,14 @@
         newTransaction.subCategoryID = subCategoryIDTOGet;
         newTransaction.transType = 1;
         newTransaction.tagID = null;
+        if (!categoryTypeIndicator)
+        {
+            newTransaction.transType = 1;
+        }
+        else
+        {
+            newTransaction.transType = 2;
+        }
 
         if (chosenTag.id > 0)
         {
@@ -801,7 +826,10 @@
                     if (i == 0)
                     {
                         transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
-                        await checkOverdraft();
+                        if (!categoryTypeIndicator)
+                        {
+                            await checkOverdraft();
+                        }
                         if (!overdraftDetected)
                         {
                             await saveRepeatedTransactions(transIDtoEdit);
@@ -828,7 +856,10 @@
             if (transToSaveRes.IsSuccessStatusCode)
             {
                 transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
-                await checkOverdraft();
+                if (!categoryTypeIndicator)
+                {
+                    await checkOverdraft();
+                }
                 if (!overdraftDetected)
                 {
                     await saveRepeatedTransactions(transIDtoEdit);
@@ -846,6 +877,14 @@
     }
     public async Task updateExistingTrans()
     {
+        if (!categoryTypeIndicator)
+        {
+            newTransaction.transType = 1;
+        }
+        else
+        {
+            newTransaction.transType = 2;
+        }
         TransactionToEdit transToEdit = new TransactionToEdit()
             {
                 id = transIDtoEdit,
@@ -878,7 +917,10 @@
             transToEdit.transValue = sumPreSplit / selectedNumber;
         }
 
-        await checkOverdraft();
+        if (!categoryTypeIndicator)
+        {
+            await checkOverdraft();
+        }
         if (!overdraftDetected)
         {
             transToEdit.transType = 1;
@@ -888,7 +930,10 @@
         if (transEditRes.IsSuccessStatusCode)
         {
             Console.WriteLine("ההזנה עודכנה בהצלחה :)");
-            await checkOverdraft();
+            if (!categoryTypeIndicator)
+            {
+                await checkOverdraft();
+            }
             if (overdraftDetected)
             {
                 var transOverdraftRes = await Http.GetAsync("api/Transactions/updateOverDraftTrans/" + transToEdit.id); //updates the transType to 3

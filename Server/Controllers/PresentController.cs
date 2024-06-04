@@ -377,7 +377,7 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("Tags and Spendings not found");
         }
 
-        // לעשות שיטה של הסטורי הראשון !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+       
         [HttpGet("getBestAndWorstSpendings/{subCatID}")] //first content window of story
         public async Task<IActionResult> getBestAndWorstSpendings(int subCatID)
         {

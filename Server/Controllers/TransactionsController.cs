@@ -191,7 +191,7 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("Couldn't find this sub cat's budget");
         }
 
-        [HttpGet("getAllTransactions/{subCatID}")] //צריך לזהות אם מדובר בהזנות של הוצאות או הכנסות, ככל הנראה דרך הURL
+        [HttpGet("getAllTransactions/{subCatID}")] 
         public async Task<IActionResult> getAllTransactions(int subCatID)
         {
             object param = new
@@ -235,6 +235,49 @@ ORDER BY transactions.transDate DESC;";
             return BadRequest("Couldn't find this sub cat's transactions");
         }
 
+        [HttpGet("getAllIncomeTransactions/{subCatID}")] 
+        public async Task<IActionResult> getAllIncomeTransactions(int subCatID)
+        {
+            object param = new
+            {
+                ID = subCatID,
+                StartOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+                EndOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month))
+            };
+
+            string getAllSubCatTransactionsQuery = @"
+        SELECT 
+    transactions.id, 
+    transactions.transType, 
+    transactions.transValue, 
+    transactions.valueType, 
+    transactions.transDate, 
+    transactions.description, 
+    transactions.fixedMonthly, 
+    transactions.tagID, 
+    transactions.transTitle, 
+    transactions.parentTransID,
+transactions.splitPayment,
+    tags.tagTitle,
+    tags.tagColor
+FROM transactions 
+LEFT JOIN tags ON transactions.tagID = tags.id
+WHERE transactions.subCategoryID = @ID
+AND transactions.transDate >= @StartOfMonth
+AND transactions.transDate <= @EndOfMonth
+AND transactions.transType = 2 
+ORDER BY transactions.transDate DESC;";
+
+            var recordSubCatCurrentTrans = await _db.GetRecordsAsync<TransactionOverviewToShow>(getAllSubCatTransactionsQuery, param);
+            var subCatTransactions = recordSubCatCurrentTrans.ToList();
+
+            if (subCatTransactions != null)
+            {
+                return Ok(subCatTransactions);
+            }
+
+            return BadRequest("Couldn't find this sub cat's transactions");
+        }
         [HttpDelete("deleteTransaction/{TransIdToDelete}")] // מחיקת הזנה
         public async Task<IActionResult> DeleteTransaction(int TransIdToDelete)
         {
@@ -529,6 +572,26 @@ ORDER BY transactions.transDate DESC;";
                 return Ok("updated all split children");
             }
             return BadRequest("failed to update children of split");
+        }
+
+        [HttpGet("getCatType/{userID}")] //only gets the subCat id if the category is income
+        public async Task<IActionResult> getCatType(int userID)
+        {
+            object param = new
+            {
+                ID = userID
+            };
+
+            string getSubCatQuery = "SELECT sb.id FROM subcategories as sb join categories c on c.id=sb.categoryID join users u on c.userID=u.id where c.userID=u.id and c.categroyTitle=\"הכנסות\" and u.id=@ID";
+            var getSubCatID = await _db.GetRecordsAsync<int>(getSubCatQuery, param);
+            List<int> subCatIDs = getSubCatID.ToList();
+
+            if (subCatIDs != null)
+            {
+                return Ok(subCatIDs);
+            }
+
+            return BadRequest("this transactions category isn't הכנסות");
         }
     }
 

@@ -12,27 +12,36 @@
 }
 
 <div class="budget-card">
-   
 
-    
     <div class="budget-header">
         <div class="textAndLine">
             <h3 class="subCatTitle">@subCategoryTitle</h3>
             <div class="subCatLine">
             </div>
         </div>
-        
+
         <button class="options-button" @onclick="(() => isOptBtnClicked = !isOptBtnClicked)"><img src="../css/images/option menu.svg" /></button>
     </div>
 
     <div class="budget-info">
-        <button class="budget-progress" @onclick="goToTransactionsPage">
-            @budget /  @Math.Round(totalSpendings,2)</button>
-        @if (totalSpendings > budget)
+        @if (!categoryTypeIndicator)
         {
-            <span>⚠️</span>
+
+            <button class="budget-progress" @onclick="goToTransactionsPage">
+                @budget /  @Math.Round(totalSpendings,2) ₪
+            </button>
+            @if (totalSpendings > budget)
+            {
+                <span>⚠️</span>
+            }
+            <button class="add-transaction-button" @onclick="openAddTransOverlay"><img src="../css/images/+2.svg" /></button>
+        }else{
+            <button class="budget-progress" @onclick="goToTransactionsPage">
+                @Math.Round(totalSpendings,2) ₪
+            </button>
+
+            <button class="add-transaction-button" @onclick="openAddTransOverlay"><img src="../css/images/+2.svg" /></button>
         }
-        <button class="add-transaction-button" @onclick="openAddTransOverlay"><img src="../css/images/+2.svg" /></button>
     </div>
 </div>
 
@@ -41,7 +50,7 @@
 
 @if (openTransOverlay)
 {
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionToTotal="addNewTransToTotalSpendings"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionToTotal="addNewTransToTotalSpendings" categoryTypeIndicator="@categoryTypeIndicator"></AddTransactionComponent>
 
 }
 
@@ -177,6 +186,9 @@
     [Parameter]
     public EventCallback<int> subCatDeleted { get; set; }
 
+    [Parameter]
+    public bool categoryTypeIndicator { get; set; } //will indicate if this is an expense or income subcategory
+
     SubCategoryToEdit subCatToEdit = new SubCategoryToEdit();
     SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
 
@@ -220,33 +232,49 @@
             Console.WriteLine("couldn't find this sub cat's importance");
         }
 
-
-        var getAllUserCategories = await Http.GetAsync("api/Present/GetUserCategories/" + userID);
-        if (getAllUserCategories.IsSuccessStatusCode)
+        if (!categoryTypeIndicator)
         {
-            userCategories = await getAllUserCategories.Content.ReadFromJsonAsync<List<AllUserCategories>>().ConfigureAwait(false);
-
-            //arranges the category dropdown so the current category will be the one initially displayed
-            List<AllUserCategories> tempUserCategories = new List<AllUserCategories>();
-            foreach (AllUserCategories category in userCategories)
+            var getAllUserCategories = await Http.GetAsync("api/Present/GetUserCategories/" + userID);
+            if (getAllUserCategories.IsSuccessStatusCode)
             {
-                if (category.id == categoryID)
+                userCategories = await getAllUserCategories.Content.ReadFromJsonAsync<List<AllUserCategories>>().ConfigureAwait(false);
+
+                //arranges the category dropdown so the current category will be the one initially displayed
+                List<AllUserCategories> tempUserCategories = new List<AllUserCategories>();
+                foreach (AllUserCategories category in userCategories)
                 {
-                    tempUserCategories.Insert(0, category);
+                    if (category.id == categoryID)
+                    {
+                        tempUserCategories.Insert(0, category);
+                    }
+                    else
+                    {
+                        tempUserCategories.Add(category);
+                    }
+
                 }
-                else
-                {
-                    tempUserCategories.Add(category);
-                }
+                userCategories = tempUserCategories;
 
             }
-            userCategories = tempUserCategories;
-            editSubCatBtnClicked = !editSubCatBtnClicked;
+            else
+            {
+                Console.WriteLine("no Categories found");
+            }
         }
         else
         {
-            Console.WriteLine("no Categories found");
+            var getIncomeCat = await Http.GetAsync("api/Present/GetCategoryToEdit/" + subCatToEdit.categoryID);
+            if (getIncomeCat.IsSuccessStatusCode)
+            {
+                CategoryToShow returnedCat = await getIncomeCat.Content.ReadFromJsonAsync<CategoryToShow>();
+                AllUserCategories incomeCat= new AllUserCategories();
+                incomeCat.id=returnedCat.id;
+                incomeCat.categroyTitle = returnedCat.categroyTitle;
+                userCategories= new List<AllUserCategories>();
+                userCategories.Add(incomeCat);
+            }
         }
+        editSubCatBtnClicked = !editSubCatBtnClicked;
     }
 
     public async Task saveUpdatedSubCat()
