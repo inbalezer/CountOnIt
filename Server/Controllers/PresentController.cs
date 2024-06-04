@@ -317,7 +317,7 @@ namespace CountOnIt.Server.Controllers
                         object subCatIDParam = new { ID = subCatID };
 
                         // Expenses:
-                        string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID";
+                        string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE())";
                         var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetCategoryCurrentSumQuery, subCatIDParam);
                         subCatSum += recordSubCatCurrentSum.FirstOrDefault();
 
@@ -702,6 +702,7 @@ namespace CountOnIt.Server.Controllers
                 return BadRequest("no transaction in sub category");
             }
         }
+
 
     }
     
