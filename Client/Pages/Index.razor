@@ -122,7 +122,7 @@
                 </div>
                 @if (userIncomeCat != null)
                 {
-                    <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
+                    <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" categoryTypeIndicator="@isChecked"></CategoryComponent>
                 }
             }
             else
@@ -166,14 +166,14 @@
                         if (category.id == givingsubCatCategoryID)
                         {
                             <div class="fullCategory">
-                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" categoryTypeIndicator="@isChecked"></CategoryComponent>
                             </div>
 
                         }
                         else
                         {
                             <div class="fullCategory">
-                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"></CategoryComponent>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" categoryTypeIndicator="@isChecked"></CategoryComponent>
                             </div>
 
                         }
@@ -192,7 +192,7 @@
                 @foreach (CategoryToShow category in currentUser.categoriesFullList)
                 {
                     <div class="fullCategory">
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
+                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"categoryTypeIndicator="@isChecked"></CategoryComponent>
                     </div>
 
                 }
@@ -252,7 +252,7 @@
                     }
 
                 }
-               
+
             }
 
             @if (categorizedSubCats.Count > 0)
@@ -276,7 +276,7 @@
                            givingSubCatBudget="@changeGivingSubCatBudget"
                            givingSubCat="@givingSubCatToUpdate"
                            searchedSubCats="@relevantSubCats"
-                           isSubCatSearched="@makeSearchAgain">
+                           isSubCatSearched="@makeSearchAgain" categoryTypeIndicator="@isChecked">
                             </CategoryComponent>
                         </div>
 
@@ -406,6 +406,9 @@
     OverDraftBudgetToEdit givingSubCatToUpdate = new OverDraftBudgetToEdit();
     public int givingsubCatCategoryID = 0;
 
+
+    List<SubCategoryToShow> incomeSubCats = new List<SubCategoryToShow>();
+
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(1); // This is just to simulate an async process.
@@ -438,6 +441,43 @@
                     List<SubCategoryToAdd> subCatId = subCatToSearch.Content.ReadFromJsonAsync<List<SubCategoryToAdd>>().Result;
                     searchSubCats = subCatId;
 
+                }
+                else
+                {
+                    Console.WriteLine("couldn't find any sub categories");
+                }
+
+                var getIncomeCatID = await Http.GetAsync("api/Present/incomeCatId/" + userID);
+                if (getIncomeCatID.IsSuccessStatusCode)
+                {
+                    int incomeID = await getIncomeCatID.Content.ReadFromJsonAsync<int>();
+                    if (incomeID > 0)
+                    {
+                        for (int i=0; i<currentUser.categoriesFullList.Count; i++)
+                        {
+                            if (currentUser.categoriesFullList[i].id == incomeID)
+                            {
+                                userIncomeCat = currentUser.categoriesFullList[i];
+                                currentUser.categoriesFullList.RemoveAt(i);
+                            }
+
+                        }
+                        //var getIncomeSubCats = await Http.GetAsync("api/Present/getIncomeSubCats/" + incomeID);
+
+                        //if (getIncomeSubCats.IsSuccessStatusCode)
+                        //{
+                        //    incomeSubCats = getIncomeSubCats.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
+                        //}
+                    }
+                    else
+                    {
+                        Console.WriteLine("insufficient income id- it's not larger than 0");
+                    }
+
+                }
+                else
+                {
+                    Console.WriteLine("couldn't find income category that belongs to this user");
                 }
 
             }

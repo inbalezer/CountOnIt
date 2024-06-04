@@ -80,6 +80,24 @@ namespace CountOnIt.Server.Controllers
             return Math.Round((spending / budget) * 100, 2);
         }
 
+        [HttpGet("incomeCatId/{userID}")] //gets the ID of the income category
+        public async Task<IActionResult> GetUserIncomeID(int userID)
+        {
+            object param = new
+            {
+                ID = userID
+            };
+
+            var userIncomeQuery = "SELECT c.id AS incomeID FROM categories as c, users as u where c.userID=u.id and c.categroyTitle=\"הכנסות\" and u.id=@ID";
+
+            var getIncomeID= await _db.GetRecordsAsync<int>(userIncomeQuery, param);
+            int incomeCatID = getIncomeID.FirstOrDefault();
+            if (incomeCatID>0)
+            {
+                return Ok(incomeCatID);
+            }
+            return BadRequest("couldn't find income category that belongs to this user");
+        }
 
         [HttpGet("subCategoryToShow/{categoryID}")] // הצגה של תתי קטגוריות בלחיצה על הדרופדאון
         public async Task<IActionResult> subCategoryToShow(int categoryID)
@@ -124,9 +142,51 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("user not found");
         }
 
+        [HttpGet("getIncomeSubCats/{categoryID}")]
+        public async Task<IActionResult> incomeSubCategoryToShow(int categoryID)
+        {
+            object param = new
+            {
+                ID = categoryID
+            };
+
+            // צריך להוסיף שאילתה שמושכת את הצבע מהקטגוריה בשביל להציג גם בתתי קטגוריות אם בחר צבע.
+
+            string GetSubCategoriesQuery = "SELECT id, subCategoryTitle, monthlyPlannedBudget FROM subcategories WHERE categoryID = @ID";
+            var recordsubCategories = await _db.GetRecordsAsync<SubCategoryToShow>(GetSubCategoriesQuery, param);
+            List<SubCategoryToShow> subCategories = recordsubCategories.ToList();
+
+            if (subCategories.Count > 0)
+            {
+                foreach (var subCategory in subCategories)
+                {
+                    if (subCategory.id != null)
+                    {
+                        object subParam = new
+                        {
+                            ID = subCategory.id
+                        };
+
+                        string GetTransactionValueQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND transType = 2 and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE());";
+
+                        var recordsTransValue = await _db.GetRecordsAsync<double>(GetTransactionValueQuery, subParam);
+                        subCategory.transactionsValue = recordsTransValue.FirstOrDefault();
+                    }
+                    else
+                    {
+                        return BadRequest("no transaction in sub category");
+                    }
+
+                }
+
+                return Ok(subCategories);
+            }
+
+            return BadRequest("no sub categories found");
+        }
 
         [HttpGet("GetCategoryToEdit/{CategoryId}")] // שליפת קטגוריה לעריכה
-        public async Task<IActionResult> GetFullGame(int CategoryId)
+        public async Task<IActionResult> GetFullCategory(int CategoryId)
         {
 
             object param = new

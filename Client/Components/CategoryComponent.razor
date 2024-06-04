@@ -220,6 +220,8 @@
     [Parameter]
     public List<int> searchedSubCats { get; set; }
 
+    [Parameter]
+    public bool categoryTypeIndicator { get; set; } //will indicate if this is an expense or income category
 
     public bool isAccordionClick = false;
 
@@ -258,16 +260,34 @@
     public async Task getSubCategories()
     {
         isAccordionClick = true;
-        var subCatRes = await Http.GetAsync("api/Present/subCategoryToShow/" + Category.id);
-        if (subCatRes.IsSuccessStatusCode)
+        if (!categoryTypeIndicator)
         {
-            subCategories = new List<SubCategoryToShow>();
-            subCategories = subCatRes.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
-            subCatRefreshed = false;
+
+            var subCatRes = await Http.GetAsync("api/Present/subCategoryToShow/" + Category.id);
+            if (subCatRes.IsSuccessStatusCode)
+            {
+                subCategories = new List<SubCategoryToShow>();
+                subCategories = subCatRes.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
+                subCatRefreshed = false;
+            }
+            else
+            {
+                Console.WriteLine("no subcategories found");
+            }
         }
         else
         {
-            Console.WriteLine("no subcategories found");
+            var getIncomeSubCats = await Http.GetAsync("api/Present/getIncomeSubCats/" + Category.id);
+
+            if (getIncomeSubCats.IsSuccessStatusCode)
+            {
+                subCategories = new List<SubCategoryToShow>();
+                subCategories = getIncomeSubCats.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
+            }
+            else
+            {
+                Console.WriteLine("no subcategories found");
+            }
         }
     }
 
@@ -295,6 +315,7 @@
             if (userCategory.categroyTitle == selectedCategoryForNewSubCat)
             {
                 newSubCategory.categoryID = userCategory.id;
+
             }
         }
 

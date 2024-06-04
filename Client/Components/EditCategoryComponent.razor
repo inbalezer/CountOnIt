@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
 <h3>@popupTitle</h3>
-<input type="text" @bind="categoryToEdit.categroyTitle"/>
+<input type="text" @bind="categoryToEdit.categroyTitle" disabled="@disabledEditOfIncomeTitle" />*
 <button id="emoji-trigger">הוספת אייקון 😊</button>
 <input type="text" id="emoji-input" @bind="categoryToEdit.icon">
 
@@ -50,14 +50,37 @@
            name="categoryColors" @onchange="@(() => categoryToEdit.color = "#DADADA")" />
     <label>#DADADA</label>
 </div>
-@if (popupTitle=="עריכת קטגוריה")
+@if (popupTitle == "עריכת קטגוריה")
 {
-    
-    <button @onclick="saveUpdatedCat">שמירה וסיום</button>
+    if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
+    {
+        <button @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
+        <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
+    }
+    else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
+    {
+        <button @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
+        <span>לא ניתן לשמור קטגוריה ללא שם.</span>
+    }
+
 }
 else if (popupTitle == "הוספת קטגוריה")
 {
-    <button @onclick="addNewCategory">שמירה וסיום</button>
+    if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
+    {
+        <button @onclick="addNewCategory" disabled>שמירה וסיום</button>
+        <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
+    }
+    else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
+    {
+        <button @onclick="addNewCategory" disabled>שמירה וסיום</button>
+        <span>לא ניתן לשמור קטגוריה ללא שם.</span>
+    }
+    else
+    {
+        <button @onclick="addNewCategory">שמירה וסיום</button>
+    }
+
 }
 @code {
 
@@ -67,8 +90,6 @@ else if (popupTitle == "הוספת קטגוריה")
     [Parameter]
     public int userID { get; set; }
 
-    //[Parameter]
-    //public CategoryToShow categoryToEdit { get; set; }
     [Parameter]
     public CategoryToShow categoryToEdit { get; set; } = new CategoryToShow(); // Default initialization
 
@@ -88,8 +109,19 @@ else if (popupTitle == "הוספת קטגוריה")
     public CategoryToAdd newCategory { get; set; }
 
     public CategoryToEdit editedCategory = new CategoryToEdit();
-    
-    //[Inject] IJSRuntime JS { get; set; }
+
+
+    bool disabledEditOfIncomeTitle = false;
+    string ogCatName = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        ogCatName = categoryToEdit.categroyTitle;
+        if (ogCatName == "הכנסות")
+        {
+            disabledEditOfIncomeTitle = true;
+        }
+    }
 
     public async Task saveUpdatedCat()
     {
@@ -151,5 +183,5 @@ else if (popupTitle == "הוספת קטגוריה")
     //    await JS.InvokeVoidAsync("focusInput", textInput);
     //}
 
-   
+
 }
