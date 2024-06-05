@@ -326,9 +326,9 @@ namespace CountOnIt.Server.Controllers
                         //    var recordSubCatCurrentSumIncome = await _db.GetRecordsAsync<double>(GetIncomesQuery, subCatIDParam);
                         //    subCatSum += recordSubCatCurrentSumIncome.FirstOrDefault();
                         //}
-                    }
 
-                    string GetCategoryTitleOverviewQuery = "SELECT categroyTitle FROM categories WHERE id = @ID"; // Correct potential typo from 'categroyTitle' to 'categoryTitle'
+                }
+                    string GetCategoryTitleOverviewQuery = "SELECT categroyTitle FROM categories WHERE id = @ID"; 
                     var getCategoryTitle = await _db.GetRecordsAsync<string>(GetCategoryTitleOverviewQuery, categoryParam);
                     CategoriesOverviewToShow currentCategoryStats = new CategoriesOverviewToShow();
 
@@ -339,7 +339,7 @@ namespace CountOnIt.Server.Controllers
                     }
 
                     categoriesOverviewToShowList.Add(currentCategoryStats);
-                }
+                    }
             }
             return Ok(categoriesOverviewToShowList);
         }
@@ -392,6 +392,7 @@ namespace CountOnIt.Server.Controllers
             StorySubCategoryTotals requestedSubInfo = getTotalsRec.FirstOrDefault();
             if (requestedSubInfo!=null)
             {
+                
                 return Ok(requestedSubInfo);
             }
 

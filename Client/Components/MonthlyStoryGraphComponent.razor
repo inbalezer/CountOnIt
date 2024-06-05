@@ -3,12 +3,19 @@
 @using CountOnIt.Shared.Models.present.toEdit
 @using System;
 @using System.Globalization;
+@using System.Net.Http;
+@using System.Net.Http.Json;
+@using System.Threading.Tasks;
 @using Blazorise;
-@using Blazorise.Charts
+@using Blazorise.Charts;
+@inject IJSRuntime JSRuntime
 @inject HttpClient Http
 
 
-<BarChart @ref="barChart" TItem="double" Options="@options" />
+
+    <BarChart @ref="barChart" TItem="double" Options="@options"></BarChart>
+
+
 
 @code {
 
@@ -18,7 +25,13 @@
     [Parameter]
     public List<CategoryToShow> allUserCategories { get; set; }
 
+    [Parameter]
+    public EventCallback<double> incomeSumValue { get; set; }
+
+
     List<CategoriesOverviewToShow> allCatDetails = new List<CategoriesOverviewToShow>();
+
+    List<double> catSums = new List<double>();
 
     BarChart<double> barChart;
 
@@ -33,51 +46,51 @@
                 }
             },
             Responsive = true,
-            Plugins = new()
-            {
-                Legend = new()
-                {
-                    Position = "right"
-                },
-                Title = new()
-                {
-                    Display = true,
-                    Text = ""
-                }
-            }
         };
 
-    protected override async Task OnInitializedAsync()
+    public async Task getData()
     {
         var getCatDetails = await Http.GetAsync("api/Present/GetCategoriesOverview/" + userID);
         if (getCatDetails.IsSuccessStatusCode)
         {
             allCatDetails = getCatDetails.Content.ReadFromJsonAsync<List<CategoriesOverviewToShow>>().Result;
-            foreach (CategoriesOverviewToShow catSum in allCatDetails)
+            if (allCatDetails.Count > 0)
             {
-                catSum.currentCategorySum = Math.Round(catSum.currentCategorySum, 2);
-                Labels.Add(catSum.categroyTitle);
-
-                foreach (CategoryToShow cat in allUserCategories)
+                for (int i = 0; i < allCatDetails.Count; i++)
                 {
-                    if (catSum.categroyTitle==cat.categroyTitle)
+                    allCatDetails[i].currentCategorySum = Math.Round(allCatDetails[i].currentCategorySum, 2);
+
+                    if (allCatDetails[i].categroyTitle == "הכנסות")
                     {
-                        string catColor = "";
-                        if (cat.color==null)
+                        //incomeCatDetails = allCatDetails[i];
+                        //Console.WriteLine("incomeCatDetails- " + incomeCatDetails.categroyTitle + ", sum- " + incomeCatDetails.currentCategorySum);
+                        incomeSumValue.InvokeAsync(allCatDetails[i].currentCategorySum);
+                    }
+                    else
+                    {
+                        Labels.Add(allCatDetails[i].categroyTitle);
+                        catSums.Add(allCatDetails[i].currentCategorySum);
+                    }
+
+                    foreach (CategoryToShow cat in allUserCategories)
+                    {
+                        if (allCatDetails[i].categroyTitle == cat.categroyTitle)
                         {
-                            catColor = convertCatColors("#6775f4"); //primary blue
+                            string catColor = "";
+                            if (cat.color == null || cat.color == "")
+                            {
+                                catColor = convertCatColors("#6874f4"); //cornflower blue
+                            }
+                            else
+                            {
+                                catColor = convertCatColors(cat.color);
+                            }
+                            backgroundColors.Add(catColor);
+                            borderColors.Add(catColor);
                         }
-                        else
-                        {
-                            catColor = convertCatColors(cat.color);
-                        }
-                        backgroundColors.Add(catColor);
-                        borderColors.Add(catColor);
                     }
                 }
-
             }
-
         }
     }
 
@@ -87,40 +100,43 @@
         switch (catColor)
         {
             case "#f4b367": //mustard
-                convertedColor = "ChartColor.FromRgba(244,179,103,255)";
+                convertedColor = ChartColor.FromRgba(244, 179, 103, 255);
                 break;
             case "#7b67f4": //dark purple
-                convertedColor = "ChartColor.FromRgba(123,103,244,255)";
+                convertedColor = ChartColor.FromRgba(123, 103, 244, 255);
                 break;
             case "#f467ab": //dark pink
-                convertedColor = "ChartColor.FromRgba(244,103,171,255)";
+                convertedColor = ChartColor.FromRgba(244, 103, 171, 255);
                 break;
             case "#f47867": //salmon pink
-                convertedColor = "ChartColor.FromRgba(244,120,103,255)";
+                convertedColor = ChartColor.FromRgba(244, 120, 103, 255);
                 break;
             case "#85e7a0": //light green
-                convertedColor = "ChartColor.FromRgba(133,231,160,255)";
+                convertedColor = ChartColor.FromRgba(133, 231, 160, 255);
                 break;
             case "#ffef9d": //banana
-                convertedColor = "ChartColor.FromRgba(255,239,157,255)";
+                convertedColor = ChartColor.FromRgba(255, 239, 157, 255);
                 break;
             case "#678ef4": //banana
-                convertedColor = "ChartColor.FromRgba(103,142,244,255)";
+                convertedColor = ChartColor.FromRgba(103, 142, 244, 255);
                 break;
             case "#67caf4": //light-blue
-                convertedColor = "ChartColor.FromRgba(103,202,244,255)";
+                convertedColor = ChartColor.FromRgba(103, 202, 244, 255);
                 break;
             case "#fbebd7": //cream
-                convertedColor = "ChartColor.FromRgba(251,235,215,255)";
+                convertedColor = ChartColor.FromRgba(251, 235, 215, 255);
                 break;
             case "#04905e": //dark green
-                convertedColor = "ChartColor.FromRgba(4,144,94,255)";
+                convertedColor = ChartColor.FromRgba(4, 144, 94, 255);
                 break;
             case "#f95050": //red
-                convertedColor = "ChartColor.FromRgba(249,80,80,255)";
+                convertedColor = ChartColor.FromRgba(249, 80, 80, 255);
                 break;
             case "#dadada": //gray
-                convertedColor = "ChartColor.FromRgba(218,218,218,255)";
+                convertedColor = ChartColor.FromRgba(218, 218, 218, 255);
+                break;
+            case "#6874f4":
+                convertedColor = ChartColor.FromRgba(104, 116, 244, 255);
                 break;
         };
         return convertedColor;
@@ -128,6 +144,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        await getData();
         if (firstRender)
         {
             await HandleRedraw();
@@ -147,30 +164,17 @@
         return new BarChartDataset<double>
             {
                 Label = label,
-                Data = RandomizeData(),
+                Data = catSums,
                 BackgroundColor = backgroundColors,
                 BorderColor = borderColors,
             };
     }
 
     List<string> Labels = new List<string>();
-    //string[] Labels = { "Red", "Blue", "Yellow", "Green", "Purple", "Orange" };
     List<string> backgroundColors = new List<string>();
     List<string> borderColors = new List<string>();
-    Random random = new Random(DateTime.Now.Millisecond);
+    //Random random = new Random(DateTime.Now.Millisecond);
 
-    List<double> RandomizeData()
-    {
-        return new List<double> {
-            random.Next( -50, 50 ) * random.NextDouble(),
-            random.Next( -50, 50 ) * random.NextDouble(),
-            random.Next( -50, 50 ) * random.NextDouble(),
-            random.Next( -50, 50 ) * random.NextDouble(),
-            random.Next( -50, 50 ) * random.NextDouble(),
-            random.Next( -50, 50 ) * random.NextDouble() 
-        };
 
-    }
 
-  
 }

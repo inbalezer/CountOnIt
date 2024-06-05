@@ -11,8 +11,8 @@
     <link href="CountOnIt.Client.styles.css" rel="stylesheet" />
     <link rel="manifest" href="manifest.json">
 
-    <link rel="apple-touch-icon" sizes="512x512" href="icon-192.png"/>
-    
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-192.png" />
+
 
     <link rel="apple-touch-icon" sizes="512x512" href="icon-192.png" />
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -21,6 +21,9 @@
 
     <link href="_content/Blazorise/blazorise.css" rel="stylesheet" />
     <link href="_content/Blazorise.Bootstrap5/blazorise.bootstrap5.css" rel="stylesheet" />
+    <!--<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
+    <!--<script src="_framework/blazor.webassembly.js"></script>-->
+    <!--<script src="_content/Blazorise.Charts/charts.js?v=1.5.2.0"></script>-->
 
 
 </head>
@@ -56,6 +59,11 @@
 
         button.addEventListener('click', () => picker.togglePicker(button));
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="_content/Blazorise.Charts/charts.js?v=1.6.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
 </body>
 
 </html>

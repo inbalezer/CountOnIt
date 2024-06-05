@@ -92,17 +92,40 @@
                     }
                     else if (storyNav == 2 && tagsSpendingsList.Count > 0)
                     {
-                        <h3>התגיות עם הכי הרבה הוצאות</h3>
-                        <ol>
-                            @foreach (TagsAndSpendingsToShow tag in tagsSpendingsList)
+                        <div>
+
+                            <h3>התגיות עם הכי הרבה הוצאות</h3>
+                            <ol>
+                                @foreach (TagsAndSpendingsToShow tag in tagsSpendingsList)
+                                {
+                                    <li>הוצאת על @tag.tagTitle @tag.totalValue ₪</li>
+                                }
+                            </ol>
+                        </div>
+
+                    }
+                    else if (storyNav == 3)
+                    {
+                        <div>
+                            <h3>התזרים שלי עד כה החודש</h3>
+                            <p>פילוח ההוצאות שלך לפי קטגוריות</p>
+                            <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
+                            @if (incomeSum != null)
                             {
-                                <li>הוצאת על @tag.tagTitle @tag.totalValue ₪</li>
+                                <p>ההכנסות שלך עומדות כרגע על @incomeSum ₪</p>
+
                             }
-                        </ol>
+                            else
+                            {
+                                <p>לא הוזנו הכנסות בחודש זה.</p>
+                            }
+                        </div>
+
 
                     }
                 </div>
             }
+
         </div>
 
         <div class="toggleWrap">
@@ -192,7 +215,7 @@
                 @foreach (CategoryToShow category in currentUser.categoriesFullList)
                 {
                     <div class="fullCategory">
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"categoryTypeIndicator="@isChecked"></CategoryComponent>
+                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" categoryTypeIndicator="@isChecked"></CategoryComponent>
                     </div>
 
                 }
@@ -395,6 +418,8 @@
     double worstSavingValue = 0;
     int storyNav = 1;
     List<TagsAndSpendingsToShow> tagsSpendingsList = new List<TagsAndSpendingsToShow>();
+    double incomeSum = 0;
+
 
     CategoryToShow userIncomeCat = new CategoryToShow();
 
@@ -453,7 +478,7 @@
                     int incomeID = await getIncomeCatID.Content.ReadFromJsonAsync<int>();
                     if (incomeID > 0)
                     {
-                        for (int i=0; i<currentUser.categoriesFullList.Count; i++)
+                        for (int i = 0; i < currentUser.categoriesFullList.Count; i++)
                         {
                             if (currentUser.categoriesFullList[i].id == incomeID)
                             {
@@ -827,25 +852,29 @@
                     }
                     if (subCatsTotalsStory.Count > 0)
                     {
+                        bestSavingValue = subCatsTotalsStory[0].lastMonthTotal - subCatsTotalsStory[0].currentMonthTotal;
+                        worstSavingValue = subCatsTotalsStory[0].lastMonthTotal - subCatsTotalsStory[0].currentMonthTotal;
 
                         for (int i = 1; i < subCatsTotalsStory.Count; i++)
                         {
-                            double lastMonthGap = subCatsTotalsStory[i - 1].currentMonthTotal - subCatsTotalsStory[i - 1].lastMonthTotal;
-                            double gapCheck = subCatsTotalsStory[i].currentMonthTotal - subCatsTotalsStory[i].lastMonthTotal;
-                            if (gapCheck > lastMonthGap)
+                            double gapCheck = subCatsTotalsStory[i].lastMonthTotal - subCatsTotalsStory[i].currentMonthTotal;
+                            if (gapCheck < worstSavingValue)
                             {
+                                worstSavingValue = gapCheck;
                                 worstSavingIndex = i;
                             }
-                            else if (gapCheck < lastMonthGap)
+                            if (gapCheck > bestSavingValue)
                             {
+                                bestSavingValue = gapCheck;
                                 bestSavingIndex = i;
                             }
                         }
+
                         bestSavingSubCat = subCatsTotalsStory[bestSavingIndex].subCategoryTitle;
                         bestSavingValue = Math.Round(subCatsTotalsStory[bestSavingIndex].lastMonthTotal - subCatsTotalsStory[bestSavingIndex].currentMonthTotal, 2);
                         if (bestSavingValue < 0)
                         {
-                            bestSavingIndex *= -1;
+                            bestSavingValue *= -1;
                         }
 
                         worstSavingSubCat = subCatsTotalsStory[worstSavingIndex].subCategoryTitle;
@@ -864,8 +893,11 @@
             {
                 tagsSpendingsList = getUserSpendingsByTags.Content.ReadFromJsonAsync<List<TagsAndSpendingsToShow>>().Result;
             }
-
-
+            storyNav = 1;
+        }
+        else
+        {
+            storyNav = 0;
         }
     }
 
@@ -887,7 +919,10 @@
             storyNav++;
         }
     }
-
+    public void displayTotalIncome(double incomeSum_)
+    {
+        incomeSum = incomeSum_;
+    }
 
 
 

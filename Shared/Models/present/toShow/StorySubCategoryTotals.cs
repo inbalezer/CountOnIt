@@ -11,5 +11,6 @@ namespace CountOnIt.Shared.Models.present.toShow
         public string subCategoryTitle { get; set; }
         public double currentMonthTotal { get; set; }
         public double lastMonthTotal { get; set; }
+       
     }
 }
