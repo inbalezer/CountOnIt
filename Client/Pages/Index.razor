@@ -18,8 +18,20 @@
 <meta name="google-signin-client_id" content="1019975699349-h4jb6mru41g9tobof0f2i4dl96df2bkp.apps.googleusercontent.com">
 <div class="g-signin2" data-onsuccess="onSignIn"></div>
 
-<div class="outerWrap @BgOverlay">
+@if (openAddCatOverlay)
+{
+    isOverlay = true;
+    BgOverlay = "BgOverlay";
+    <EditCategoryComponent popupTitle="הוספת קטגוריה" userID="@userID" newCategory="newCategory" isCategoryOverlayOpen="openCategoryOverlay" addNewCatToIndex="AddNewCat" closeOverlay="openCategoryOverlay"></EditCategoryComponent>
+}
+else
+{
+    isOverlay = false;
+    BgOverlay = "";
+}
 
+<div class="outerWrap">
+    <div class="@BgOverlay"></div>
     @if (currentUser != null)
     {
         <div id="topSectionDiv">
@@ -150,17 +162,9 @@
                     📁
                 </div>
                 <p class="addTitle">הוספת קטגוריה חדשה</p>
-                @if (openAddCatOverlay)
-                {
-                    isOverlay = true;
-                    BgOverlay = "BgOverlay";
-                    <EditCategoryComponent popupTitle="הוספת קטגוריה" userID="@userID" newCategory="newCategory" isCategoryOverlayOpen="openCategoryOverlay" addNewCatToIndex="AddNewCat"></EditCategoryComponent>
-                }
-                else
-                {
-                     isOverlay = false;
-                }
             </button>
+
+
 
 
             @if (!string.IsNullOrEmpty(searchQuery))
@@ -357,6 +361,8 @@
 
     }
 </div>
+
+
 
 
 @code {
@@ -688,6 +694,7 @@
     public void openCategoryOverlay()
     {
         openAddCatOverlay = !openAddCatOverlay;
+        
     }
 
     public void AddNewCat(CategoryToShow newCategory)
@@ -864,32 +871,32 @@
 
 
 
-//    protected override async Task OnAfterRenderAsync(bool firstRender)
-//    {
-//        if (firstRender)
-//        {
-//            isScrollingDown = false;
-//            await JSRuntime.InvokeVoidAsync("eval", @"
-//setTimeout(function() {
-//    let lastScroll = window.pageYOffset || document.documentElement.scrollTop;
-//     isScrollingDown = false;
+    //    protected override async Task OnAfterRenderAsync(bool firstRender)
+    //    {
+    //        if (firstRender)
+    //        {
+    //            isScrollingDown = false;
+    //            await JSRuntime.InvokeVoidAsync("eval", @"
+    //setTimeout(function() {
+    //    let lastScroll = window.pageYOffset || document.documentElement.scrollTop;
+    //     isScrollingDown = false;
 
-//    window.addEventListener('scroll', function() {
-//        let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-//        if (currentScroll > lastScroll) {
-//isScrollingDown = true;
-           
-//        } else if (currentScroll < lastScroll) {
-//isScrollingDown = false;
-            
-//        }
-//        console.log(`isScrollingDown is ${isScrollingDown}!!`); // Logging the scrolling direction
-//        lastScroll = currentScroll;
-//    });
-//}, 0);
-//");
-//        }
-//    }
+    //    window.addEventListener('scroll', function() {
+    //        let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    //        if (currentScroll > lastScroll) {
+    //isScrollingDown = true;
+
+    //        } else if (currentScroll < lastScroll) {
+    //isScrollingDown = false;
+
+    //        }
+    //        console.log(`isScrollingDown is ${isScrollingDown}!!`); // Logging the scrolling direction
+    //        lastScroll = currentScroll;
+    //    });
+    //}, 0);
+    //");
+    //        }
+    //    }
 
 
 }

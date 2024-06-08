@@ -4,68 +4,112 @@
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
 
-<div class="overlay">
+<div class="megaOuterLay">
+    <div class="outerLay">
+        <div class="BgOverlay"> </div>
+        <div class="overlay">
 
+            <div class="paddingDiv">
+                <div class="outerTitleAndIcon">
+                    <button class="closeOverlay" @onclick="openCategoryOverlay"><img src="../css/images/close x.svg" /></button>
+                    <h3 class="popupTitle">@popupTitle</h3>
+                    <div class="titleAndIcon">
+                        <input class="catTitle" type="text" @bind="categoryToEdit.categroyTitle" placeholder="שם הקטגוריה"/>
+                        <button id="emoji-trigger"><img src="../css/images/add emoji (1).svg" /></button>
+                        @*<input type="text" id="emoji-input" @bind="categoryToEdit.icon">*@
+                    </div>
+                </div>
+                @* <span>@categoryToEdit.icon</span>*@
 
-    <h3>@popupTitle</h3>
-    <input type="text" @bind="categoryToEdit.categroyTitle" />
-    <button id="emoji-trigger">הוספת אייקון 😊</button>
-    <input type="text" id="emoji-input" @bind="categoryToEdit.icon">
+                <div class="outerColorsAndBtn">
+                    <div class="outerColors">
+                        <div class="colorsContainer">
+                            @* <label for="categoryColors"></label>
+                            <span>@categoryToEdit.color</span>*@
+                            <div class="colorsRow">
+                                <div id="color1">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F4B367")" />
+                                    @*<label>#F4B367</label>*@
+                                </div>
+                                <div id="color2">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#7B67F4")" />
+                                    @*<label>#7B67F4</label>*@
+                                </div>
+                                <div id="color3">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F467AB")" />
+                                    @*<label>#F467AB</label>*@
+                                </div>
+                                <div id="color4">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F47867")" />
+                                    @*<label>#F47867</label>*@
+                                </div>
+                                <div id="color5">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#678EF4")" />
+                                    @*<label>#678EF4</label>*@
+                                </div>
+                                <div id="color6">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#85E7A0")" />
+                                    @*<label>#85E7A0</label>*@
+                                </div>
+                            </div>
+                            <div class="colorsRow">
+                                <div id="color7">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#67CAF4")" />
+                                    @* <label>#67CAF4</label>*@
+                                </div>
+                                <div id="color8">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#FFEF9D")" />
+                                    @* <label>#FFEF9D</label>*@
+                                </div>
+                                <div id="color9">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#FBEBD7")" />
+                                    @*<label>#FBEBD7</label>*@
+                                </div>
+                                <div id="color10">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#04905E")" />
+                                    @*<label>#04905E</label>*@
+                                </div>
+                                <div id="color11">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F95050")" />
+                                    @*<label>#F95050</label>*@
+                                </div>
+                                <div id="color12">
+                                    <input style="opacity:0;" type="radio"
+                                           name="categoryColors" @onchange="@(() => categoryToEdit.color = "#DADADA")" />
+                                    @* <label>#DADADA</label>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    <span>@categoryToEdit.icon</span>
+                    <div class="divBtn">
+                        @if (popupTitle == "עריכת קטגוריה")
+                        {
 
-    <div>
-
-        <label for="categoryColors">צבע</label>
-        <span>@categoryToEdit.color</span>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F4B367")" />
-        <label>#F4B367</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#7B67F4")" />
-        <label>#7B67F4</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F467AB")" />
-        <label>#F467AB</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F47867")" />
-        <label>#F47867</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#678EF4")" />
-        <label>#678EF4</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#85E7A0")" />
-        <label>#85E7A0</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#67CAF4")" />
-        <label>#67CAF4</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#FFEF9D")" />
-        <label>#FFEF9D</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#FBEBD7")" />
-        <label>#FBEBD7</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#04905E")" />
-        <label>#04905E</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#F95050")" />
-        <label>#F95050</label>
-        <input type="radio"
-               name="categoryColors" @onchange="@(() => categoryToEdit.color = "#DADADA")" />
-        <label>#DADADA</label>
+                            <button class="saveBtn" @onclick="saveUpdatedCat">שמירה וסיום</button>
+                        }
+                        else if (popupTitle == "הוספת קטגוריה")
+                        {
+                            <button class="saveBtn" @onclick="addNewCategory">שמירה וסיום</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    @if (popupTitle == "עריכת קטגוריה")
-    {
-
-        <button @onclick="saveUpdatedCat">שמירה וסיום</button>
-    }
-    else if (popupTitle == "הוספת קטגוריה")
-    {
-        <button @onclick="addNewCategory">שמירה וסיום</button>
-    }
-
 </div>
+
 @code {
 
     [Parameter]
@@ -90,6 +134,9 @@
 
     [Parameter]
     public EventCallback<CategoryToShow> addNewCatToIndex { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> closeOverlay { get; set; }
 
     [Parameter]
     public CategoryToAdd newCategory { get; set; }
@@ -149,6 +196,13 @@
             var errorContent = await CatToAddRes.Content.ReadAsStringAsync();
             Console.WriteLine("Failed to add new category. Error: " + errorContent);
         }
+    }
+
+    public void openCategoryOverlay()
+    {
+
+        closeOverlay.InvokeAsync(true);
+
     }
 
     //private ElementReference textInput;
