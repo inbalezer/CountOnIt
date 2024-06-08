@@ -50,8 +50,8 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>@currentUser.spendingValueFullList</td>
-                        <td id="middleTableRow">@currentUser.incomeValueFullList</td>
+                        <td>@currentUser.spendingValueFullList ₪</td>
+                        <td id="middleTableRow">@currentUser.incomeValueFullList ₪</td>
                         <td id="leftTableRow">
                             @currentUser.budgetFullValue%
                             <br />
@@ -66,20 +66,36 @@
             {
                 <div id="storyWindow">
                     <span class="close-button" @onclick="StoryWindowControl">&times;</span> <br />
-                    <div class="indicators">
-                        <span class="storyPhase @(storyNav == 1 ? "active" : "")"></span>
-                        <span class="storyPhase @(storyNav == 2 ? "active" : "")"></span>
-                        <span class="storyPhase @(storyNav == 3 ? "active" : "")"></span>
-                    </div> <br>
-                    <div class="navigation">
-                        <button @onclick="PreviousStory" disabled="@((storyNav == 1))">Previous</button>
-                        <button @onclick="NextStory" disabled="@((storyNav == 3))">Next</button>
+
+                    <div class="progress-nav-bar">
+
+                        <button class="storyPhase @(storyNav == 1 ? "active" : "")" @onclick="() => OnStepClicked(1)">
+                            <div class="step-indicator"></div>
+                        </button>
+                        <button class="storyPhase @(storyNav == 2 ? "active" : "")" @onclick="() => OnStepClicked(2)">
+                            <div class="step-indicator"></div>
+                        </button>
+                        <button class="storyPhase @(storyNav == 3 ? "active" : "")" @onclick="() => OnStepClicked(3)">
+                            <div class="step-indicator"></div>
+                        </button>
+
                     </div>
+                    <style>
+                        .storyPhase {
+                            background-color: #D6D9F1;
+                            width: 20px;
+                            height: 20px;
+                        }
+                            .storyPhase.active {
+                                background-color: #6874f4;
+                            }
+                    </style>
+                    <br>
                     @if (storyNav == 1 && subCatsTotalsStory.Count > 0)
                     {
                         <h2>היי @currentUser.firstName! רוצה לראות איך עובר החודש?</h2>
                         <p>אלה תתי הקטגוריות שהכי בלטו עד כה:</p>
-                        <div>
+                        <div @onclick="NextStory">
 
                             <span>👍</span>
                             <h3>החסכון הגדול ביותר</h3>
@@ -92,7 +108,7 @@
                     }
                     else if (storyNav == 2 && tagsSpendingsList.Count > 0)
                     {
-                        <div>
+                        <div @onclick="NextStory">
 
                             <h3>התגיות עם הכי הרבה הוצאות</h3>
                             <ol>
@@ -106,7 +122,7 @@
                     }
                     else if (storyNav == 3)
                     {
-                        <div>
+                        <div @onclick="NextStory">
                             <h3>התזרים שלי עד כה החודש</h3>
                             <p>פילוח ההוצאות שלך לפי קטגוריות</p>
                             <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
@@ -905,18 +921,27 @@
     {
         storyPopUpWindow = false;
     }
-    public void PreviousStory()
-    {
-        if (storyNav > 1)
-        {
-            storyNav--;
-        }
-    }
+    //public void PreviousStory()
+    //{
+    //    if (storyNav > 1)
+    //    {
+    //        storyNav--;
+    //    }
+    //}
     public void NextStory()
     {
-        if (storyNav <= 3)
+        if (storyNav <3)
         {
             storyNav++;
+        }
+    }
+    private async Task OnStepClicked(int step)
+    {
+
+        if (step != storyNav && storyNav <= 3)
+        {
+            storyNav = step;
+            Console.WriteLine("storyNav- " + storyNav);
         }
     }
     public void displayTotalIncome(double incomeSum_)

@@ -27,7 +27,7 @@ namespace CountOnIt.Server.Controllers
             var userQuery = "SELECT id, firstName, profilePicOrIcon FROM users WHERE googleID = @ID";
             var categoryQuery = "SELECT id, categroyTitle, icon, color FROM categories WHERE userID = @ID";
             var subCategoryBudgetQuery = "SELECT COALESCE(SUM(monthlyPlannedBudget), 0) FROM subcategories WHERE categoryID = @ID";
-            var transactionSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND transType = @TransType";
+            var transactionSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND transType = @TransType and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE());";
 
             // Get user details
             var user = (await _db.GetRecordsAsync<userToShow>(userQuery, new { ID = userGoogleID })).FirstOrDefault();
@@ -52,13 +52,29 @@ namespace CountOnIt.Server.Controllers
                         double categoryBudget = (await _db.GetRecordsAsync<double>(subCategoryBudgetQuery, new { ID = category.id })).FirstOrDefault();
                         totalBudget += categoryBudget;
 
-                        //if (category.id == categories.First().id) // Assuming you want to calculate transactions for the first category only.
-                        //{
-                            // Calculate transaction sums for the first category
-                            user.spendingValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 1 })).FirstOrDefault();
-                        totalSpendings += user.spendingValueFullList;
-                            user.incomeValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = category.id, TransType = 2 })).FirstOrDefault();
-                        totalIncome+= user.incomeValueFullList;
+                        // Calculate transaction sums for the first category
+                        object param = new
+                        {
+                            ID = category.id
+                        };
+
+                        string getSubCategoriesQuery = "select id from subcategories where categoryID=@ID";
+                        var subCatsListRes = await _db.GetRecordsAsync<int>(getSubCategoriesQuery, param);
+                        List<int> subCatsList = subCatsListRes.ToList();
+                        if (subCatsList.Count>0)
+                        {
+
+                            foreach (int subCatID in subCatsList)
+                            {
+                                user.spendingValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = subCatID, TransType = 1 })).FirstOrDefault();
+                                totalSpendings += user.spendingValueFullList;
+                                user.incomeValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = subCatID, TransType = 2 })).FirstOrDefault();
+                                totalIncome += user.incomeValueFullList;
+                            }
+                        }
+
+
+
                         //}
                     }
 
