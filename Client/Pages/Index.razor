@@ -452,6 +452,8 @@
 
     List<SubCategoryToShow> incomeSubCats = new List<SubCategoryToShow>();
 
+    UserStreakData currentStreak = new UserStreakData();
+
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(1); // This is just to simulate an async process.
@@ -474,6 +476,7 @@
             {
                 currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
                 userID = currentUser.id;
+                await getStreakDetails();
                 searchCats = currentUser.categoriesFullList;
 
 
@@ -917,13 +920,7 @@
     {
         storyPopUpWindow = false;
     }
-    //public void PreviousStory()
-    //{
-    //    if (storyNav > 1)
-    //    {
-    //        storyNav--;
-    //    }
-    //}
+
     public void NextStory()
     {
         if (storyNav <3)
@@ -940,12 +937,30 @@
             Console.WriteLine("storyNav- " + storyNav);
         }
     }
+
     public void displayTotalIncome(double incomeSum_)
     {
         incomeSum = incomeSum_;
     }
 
+    public async Task getStreakDetails()
+    {
+        if (userID>0)
+        {
+            var streakDataRes = await Http.GetAsync("api/Present/checkStreak/" + userID);
+            if (streakDataRes.IsSuccessStatusCode)
+            {
+                currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
 
+                DateTime startDate = DateTime.Now;
+                //startDate = startDate.AddDays(-currentStreak.AllWeeksValid * 7);
+
+
+                //var streakDataSinceRes = await Http.GetAsync("api/Present/checkStreakFromDate/" + userID + "/" + startDate);
+                
+            }
+        }
+    }
 
 
 }

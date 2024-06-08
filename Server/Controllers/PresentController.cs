@@ -61,7 +61,7 @@ namespace CountOnIt.Server.Controllers
                         string getSubCategoriesQuery = "select id from subcategories where categoryID=@ID";
                         var subCatsListRes = await _db.GetRecordsAsync<int>(getSubCategoriesQuery, param);
                         List<int> subCatsList = subCatsListRes.ToList();
-                        if (subCatsList.Count>0)
+                        if (subCatsList.Count > 0)
                         {
 
                             foreach (int subCatID in subCatsList)
@@ -81,7 +81,7 @@ namespace CountOnIt.Server.Controllers
                     // Calculate the budget usage percentage
                     user.budgetFullValue = CalculateBudgetPercentage(totalBudget, totalSpendings);
                     user.spendingValueFullList = totalSpendings;
-                    user.incomeValueFullList= totalIncome;
+                    user.incomeValueFullList = totalIncome;
                 }
 
                 return Ok(user);
@@ -99,24 +99,27 @@ namespace CountOnIt.Server.Controllers
         [HttpGet("checkStreak/{userID}")]
         public async Task<IActionResult> CheckUserStreak(int userID)
         {
-            if (userID>0)
+            if (userID > 0)
             {
                 object param = new
                 {
                     ID = userID
                 };
-                    string getStreakDataQuery = "SELECT COUNT(t.id) AS transactionsCount, DATEDIFF(CURRENT_DATE, u.signUpDate) AS daysSinceSignup FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate >= u.signUpDate and u.id=@ID AND (t.transType=1 or t.transType=3)  GROUP BY u.id, u.signUpDate;";
-                    var getStreakData = await _db.GetRecordsAsync<UserStreakData>(getStreakDataQuery, param);
-                UserStreakData currentStreak = getStreakData.FirstOrDefault();
-                    if (currentStreak != null)
-                    {
-                        return Ok(currentStreak);
-                    }
-                    return BadRequest("couldn't find data to check streak");
+                string getStreakQuery = "SELECT CASE WHEN COUNT(weekly_transactions.week_number) = MAX(total_weeks_data.total_weeks) THEN TRUE ELSE FALSE END AS AllWeeksValid, COUNT(weekly_transactions.week_number) AS WeeksWithThreeOrMoreTransactions FROM ( SELECT WEEK(t.transInputDate) AS week_number FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE() and u.id=4 GROUP BY WEEK(t.transInputDate) HAVING COUNT(*) >= 3) AS weekly_transactions CROSS JOIN (SELECT COUNT(DISTINCT WEEK(t.transInputDate)) AS total_weeks FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE()) AS total_weeks_data;"; //gets the amount of weeks where there was a minimum of 3 transactions
+                var getStreaks= await _db.GetRecordsAsync<UserStreakData>(getStreakQuery, param);
+                UserStreakData weekAmountInStreak = getStreaks.FirstOrDefault();
+                if (weekAmountInStreak!=null)
+                {
+                    return Ok(weekAmountInStreak);
+                }
+                return BadRequest("couldn't find streak data for this user");
             }
 
             return BadRequest("invalid user id");
         }
+
+
+
 
         [HttpGet("incomeCatId/{userID}")] //gets the ID of the income category
         public async Task<IActionResult> GetUserIncomeID(int userID)
@@ -128,9 +131,9 @@ namespace CountOnIt.Server.Controllers
 
             var userIncomeQuery = "SELECT c.id AS incomeID FROM categories as c, users as u where c.userID=u.id and c.categroyTitle=\"הכנסות\" and u.id=@ID";
 
-            var getIncomeID= await _db.GetRecordsAsync<int>(userIncomeQuery, param);
+            var getIncomeID = await _db.GetRecordsAsync<int>(userIncomeQuery, param);
             int incomeCatID = getIncomeID.FirstOrDefault();
-            if (incomeCatID>0)
+            if (incomeCatID > 0)
             {
                 return Ok(incomeCatID);
             }
@@ -365,8 +368,8 @@ namespace CountOnIt.Server.Controllers
                         //    subCatSum += recordSubCatCurrentSumIncome.FirstOrDefault();
                         //}
 
-                }
-                    string GetCategoryTitleOverviewQuery = "SELECT categroyTitle FROM categories WHERE id = @ID"; 
+                    }
+                    string GetCategoryTitleOverviewQuery = "SELECT categroyTitle FROM categories WHERE id = @ID";
                     var getCategoryTitle = await _db.GetRecordsAsync<string>(GetCategoryTitleOverviewQuery, categoryParam);
                     CategoriesOverviewToShow currentCategoryStats = new CategoriesOverviewToShow();
 
@@ -377,7 +380,7 @@ namespace CountOnIt.Server.Controllers
                     }
 
                     categoriesOverviewToShowList.Add(currentCategoryStats);
-                    }
+                }
             }
             return Ok(categoriesOverviewToShowList);
         }
@@ -415,7 +418,7 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("Tags and Spendings not found");
         }
 
-       
+
         [HttpGet("getBestAndWorstSpendings/{subCatID}")] //first content window of story
         public async Task<IActionResult> getBestAndWorstSpendings(int subCatID)
         {
@@ -428,9 +431,9 @@ namespace CountOnIt.Server.Controllers
 
             var getTotalsRec = await _db.GetRecordsAsync<StorySubCategoryTotals>(getSubTotalsQuery, subCatIDparam);
             StorySubCategoryTotals requestedSubInfo = getTotalsRec.FirstOrDefault();
-            if (requestedSubInfo!=null)
+            if (requestedSubInfo != null)
             {
-                
+
                 return Ok(requestedSubInfo);
             }
 
@@ -623,7 +626,7 @@ namespace CountOnIt.Server.Controllers
 
 
         [HttpGet("getGivingCatID/{subCatID}")] //getting a giving sub-category's category ID
-        public async Task<IActionResult> gettingCatID( int subCatID)
+        public async Task<IActionResult> gettingCatID(int subCatID)
         {
             object param = new
             {
@@ -655,7 +658,7 @@ namespace CountOnIt.Server.Controllers
 
             if (categoryTitle != null)
             {
-                return Ok( categoryTitle);
+                return Ok(categoryTitle);
             }
             return BadRequest("couldn't find this category's title");
         }
@@ -675,12 +678,12 @@ namespace CountOnIt.Server.Controllers
             }
             return BadRequest("Couldn't find this subcategory");
         }
-        
+
 
         [HttpGet("getSubCategoriesForSearch")]
         public async Task<ActionResult<SubCategoryToAdd>> getSubCategoriesForSearch()
         {
-            object param = new {};
+            object param = new { };
 
             string GetSubCategoryForSearchQuery = "SELECT id,categoryID,subCategoryTitle, monthlyPlannedBudget, importance FROM subcategories WHERE categoryID = @id";
             var recordsSubCategory = await _db.GetRecordsAsync<SubCategoryToAdd>(GetSubCategoryForSearchQuery, param);
@@ -744,5 +747,5 @@ namespace CountOnIt.Server.Controllers
 
 
     }
-    
+
 }
