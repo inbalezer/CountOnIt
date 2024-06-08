@@ -22,6 +22,9 @@
     @if (currentUser != null)
     {
         <div id="topSectionDiv">
+            <div id="profileAndStreak">
+
+                </div>
             <div id="topText">
                 <p id="firstTitle">היי @currentUser.firstName 👋🏼</p>
 
@@ -141,7 +144,6 @@
                     }
                 </div>
             }
-
         </div>
 
         <div class="toggleWrap">
@@ -503,12 +505,6 @@
                             }
 
                         }
-                        //var getIncomeSubCats = await Http.GetAsync("api/Present/getIncomeSubCats/" + incomeID);
-
-                        //if (getIncomeSubCats.IsSuccessStatusCode)
-                        //{
-                        //    incomeSubCats = getIncomeSubCats.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
-                        //}
                     }
                     else
                     {

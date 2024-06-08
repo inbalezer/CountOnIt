@@ -96,6 +96,28 @@ namespace CountOnIt.Server.Controllers
             return Math.Round((spending / budget) * 100, 2);
         }
 
+        [HttpGet("checkStreak/{userID}")]
+        public async Task<IActionResult> CheckUserStreak(int userID)
+        {
+            if (userID>0)
+            {
+                object param = new
+                {
+                    ID = userID
+                };
+                    string getStreakDataQuery = "SELECT COUNT(t.id) AS transactionsCount, DATEDIFF(CURRENT_DATE, u.signUpDate) AS daysSinceSignup FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate >= u.signUpDate and u.id=@ID AND (t.transType=1 or t.transType=3)  GROUP BY u.id, u.signUpDate;";
+                    var getStreakData = await _db.GetRecordsAsync<UserStreakData>(getStreakDataQuery, param);
+                UserStreakData currentStreak = getStreakData.FirstOrDefault();
+                    if (currentStreak != null)
+                    {
+                        return Ok(currentStreak);
+                    }
+                    return BadRequest("couldn't find data to check streak");
+            }
+
+            return BadRequest("invalid user id");
+        }
+
         [HttpGet("incomeCatId/{userID}")] //gets the ID of the income category
         public async Task<IActionResult> GetUserIncomeID(int userID)
         {
