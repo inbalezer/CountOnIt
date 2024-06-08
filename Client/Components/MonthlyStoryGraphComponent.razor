@@ -13,7 +13,8 @@
 
 
 
-    <BarChart @ref="barChart" TItem="double" Options="@options"></BarChart>
+<BarChart @ref="barChart" TItem="double" Options="@options"></BarChart>
+
 
 
 
@@ -34,18 +35,49 @@
     List<double> catSums = new List<double>();
 
     BarChart<double> barChart;
-
-    BarChartOptions options = new()
+    BarChartOptions options = new BarChartOptions()
         {
             IndexAxis = "y",
-            Elements = new()
+            Elements = new ChartElements
             {
-                Bar = new()
-                {
-                    BorderWidth = 2,
-                }
+                            Bar = new()
+                            {
+                                BorderWidth = 2,
+                            }
             },
             Responsive = true,
+            Scales = new ChartScales
+            {
+                X = new ChartAxis
+                {
+                    Ticks = new ChartAxisTicks
+                    {
+                        Font = new ChartFont
+                        {
+                            Size = 11,
+                            Family = "Heebo"
+                        }
+                    }
+                },
+                Y = new ChartAxis
+                {
+                    Ticks = new ChartAxisTicks
+                    {
+                        Font = new ChartFont
+                        {
+                            Size = 11,
+                            Family = "Heebo"
+                        }
+                    }
+                }
+            },
+            Plugins = new ChartPlugins
+            {
+                Legend = new ChartLegend
+                {
+                    Display = false  // This will hide the legend
+                }
+            }
         };
 
     public async Task getData()
