@@ -76,73 +76,73 @@
     outline: inherit;
 }
 
-#color1 {
+#\#F4B367 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #F4B367;
 }
-#color2 {
+#\#7B67F4 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #7B67F4;
 }
-#color3 {
+#\#F467AB {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #F467AB;
 }
-#color4 {
+#\#F47867 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #F47867;
 }
-#color5 {
+#\#678EF4 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #678EF4;
 }
-#color6 {
+#\#85E7A0 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #85E7A0;
 }
-#color7 {
+#\#67CAF4 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #67CAF4;
 }
-#color8 {
+#\#FFEF9D {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #FFEF9D;
 }
-#color9 {
+#\#FBEBD7 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #FBEBD7;
 }
-#color10 {
+#\#04905E {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #04905E;
 }
-#color11 {
+#\#F95050 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #F95050;
 }
-#color12 {
+#\#DADADA {
     width: 25px;
     height: 25px;
     border-radius: 50%;
@@ -174,6 +174,15 @@
     row-gap: 1.7vh;
     flex-direction: column;
 }
+
+.color-selected {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    border: 0.16em solid #6775F4;
+}
+
+
 
 .saveBtn {
     border-radius: 0.25rem;
@@ -207,4 +216,60 @@
     flex-wrap: wrap;
     align-items: center;
     row-gap:3vh;
+}
+.emoji-keyboard {
+    border: 1px solid #ccc;
+    
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: absolute;
+    bottom: 74%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+    visibility: hidden;
+}
+
+    .emoji-keyboard.visible {
+        opacity: 1;
+        visibility: visible;
+        padding: 2vh 5vw;
+        width: 90%;
+    }
+
+.emoji-categories {
+    display: flex;
+    justify-content: center; /* Centers the buttons in the emoji keyboard */
+    gap: 10px; /* Spaces out the buttons */
+    margin-bottom: 10px; /* Gives some space between the buttons and the emojis */
+}
+
+.category-button {
+    padding: 8px 16px;
+    font-size: 14px;
+    background-color: #e0e0e0; /* Neutral background for inactive buttons */
+    border: 1px solid #ccc; /* Adds a border to distinguish the buttons */
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.2s; /* Smooth transition for background color change */
+}
+
+    .category-button.active {
+        background-color: #007bff; /* Highlight color for the active button */
+        color: white; /* Ensures text is visible on active button */
+    }
+
+.emoji {
+    font-size: 1.6em;
+}
+
+.keyBoardAndBtn{
+    display:flex;
+    flex-direction:column;
 }
