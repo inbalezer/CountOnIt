@@ -24,7 +24,7 @@ namespace CountOnIt.Server.Controllers
         public async Task<IActionResult> GetUser(string userGoogleID)
         {
             // Initialize the SQL queries
-            var userQuery = "SELECT id, firstName, profilePicOrIcon FROM users WHERE googleID = @ID";
+            var userQuery = "SELECT id, firstName, profilePicOrIcon, streakStatus FROM users WHERE googleID = @ID";
             var categoryQuery = "SELECT id, categroyTitle, icon, color FROM categories WHERE userID = @ID";
             var subCategoryBudgetQuery = "SELECT COALESCE(SUM(monthlyPlannedBudget), 0) FROM subcategories WHERE categoryID = @ID";
             var transactionSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND transType = @TransType and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE());";
@@ -106,9 +106,9 @@ namespace CountOnIt.Server.Controllers
                     ID = userID
                 };
                 string getStreakQuery = "SELECT CASE WHEN COUNT(weekly_transactions.week_number) = MAX(total_weeks_data.total_weeks) THEN TRUE ELSE FALSE END AS AllWeeksValid, COUNT(weekly_transactions.week_number) AS WeeksWithThreeOrMoreTransactions FROM ( SELECT WEEK(t.transInputDate) AS week_number FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE() and u.id=4 GROUP BY WEEK(t.transInputDate) HAVING COUNT(*) >= 3) AS weekly_transactions CROSS JOIN (SELECT COUNT(DISTINCT WEEK(t.transInputDate)) AS total_weeks FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE()) AS total_weeks_data;"; //gets the amount of weeks where there was a minimum of 3 transactions
-                var getStreaks= await _db.GetRecordsAsync<UserStreakData>(getStreakQuery, param);
+                var getStreaks = await _db.GetRecordsAsync<UserStreakData>(getStreakQuery, param);
                 UserStreakData weekAmountInStreak = getStreaks.FirstOrDefault();
-                if (weekAmountInStreak!=null)
+                if (weekAmountInStreak != null)
                 {
                     return Ok(weekAmountInStreak);
                 }
@@ -118,7 +118,51 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("invalid user id");
         }
 
+        [HttpGet("getUserStreakStatus/{userID}")]
+        public async Task<IActionResult> getUserStreakStatus(int userID)
+        {
+            if (userID > 0)
+            {
+                object param = new
+                {
+                    ID = userID
+                };
+                string getStreakQuery = "SELECT streakStatus FROM users where id=@ID;";
+                var getStreaks = await _db.GetRecordsAsync<string>(getStreakQuery, param);
+                string streakStatus = getStreaks.FirstOrDefault();
+                if (streakStatus != null)
+                {
+                    return Ok(streakStatus);
+                }
+                return BadRequest("couldn't find streak data for this user");
+            }
 
+            return BadRequest("invalid user id");
+        }
+
+        [HttpGet("updateStreakStat/{userID}/{newStatus}")]
+        public async Task<IActionResult> updateStreakStat(int userID, string newStatus)
+        {
+            if (userID > 0)
+            {
+                object param = new
+                {
+                    ID = userID,
+                    newStatus = newStatus
+                };
+                string getStreakQuery = "update users set streakStatus=@newStatus where id=@ID;";
+                var StreaksUpdate = await _db.SaveDataAsync(getStreakQuery, param);
+
+                if (StreaksUpdate)
+                {
+                    return Ok(StreaksUpdate);
+                }
+                return BadRequest("couldn't update streak status for this user");
+            }
+
+            return BadRequest("invalid user id");
+
+        }
 
 
         [HttpGet("incomeCatId/{userID}")] //gets the ID of the income category

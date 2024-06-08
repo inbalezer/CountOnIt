@@ -417,6 +417,12 @@
     [Parameter]
     public bool categoryTypeIndicator { get; set; } //will indicate if this is an expense or income subcategory
 
+    [Parameter]
+    public string userStreakStatus { get; set; }
+
+    [Parameter]
+    public EventCallback<string?> updatedStreak { get; set; }
+
     TransactionToAdd newTransaction = new TransactionToAdd(); //if it's a new transaction
     TransactionToEdit ogTransaction = new TransactionToEdit(); //if it's an existing transaction
 
@@ -467,6 +473,7 @@
     //TransactionToAdd ogTransaction = new TransactionToAdd();
 
     bool isLoadComplete = false;
+    UserStreakData currentStreak = new UserStreakData();
 
     public string GetHebrewMonthName(string month)
     {
@@ -576,7 +583,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if(transIDtoEdit>0)
+        if (transIDtoEdit > 0)
         {
             overlayTitle = "עריכת הזנה";
             isItAnewTrans = false;
@@ -655,7 +662,7 @@
                 {
                     transDate = DateTime.Today // Set the transaction date to today
                 };
-            overlayTitle = "הוספה לתת קטגוריה: ";
+            overlayTitle = "הוספה לתת קטגוריה";
             isItAnewTrans = true;
             isLoadComplete = true;
         }
@@ -726,7 +733,7 @@
                         {
                             await checkOverdraft();
                         }
-                        
+
                         if (!overdraftDetected)
                         {
                             if (newTransaction.fixedMonthly == true)
@@ -746,6 +753,7 @@
                     Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                     addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                     isTransactionOverlayOpen.InvokeAsync(false);
+                    await getStreakDetails();
                 }
                 else
                 {
@@ -773,6 +781,7 @@
                     addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                     isTransactionOverlayOpen.InvokeAsync(false);
                 }
+                await getStreakDetails();
             }
             else
             {
@@ -842,6 +851,7 @@
                     Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                     addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                     isTransactionOverlayOpen.InvokeAsync(false);
+                    await getStreakDetails();
                 }
                 else
                 {
@@ -849,6 +859,7 @@
                 }
             }
             newTransaction = new TransactionToAdd();
+
         }
         else
         {
@@ -868,6 +879,7 @@
                     isTransactionOverlayOpen.InvokeAsync(false);
                     newTransaction = new TransactionToAdd();
                 }
+                await getStreakDetails();
             }
             else
             {
@@ -1479,5 +1491,87 @@
             }
         }
 
+    }
+
+
+    public async Task getStreakDetails()
+    {
+        if (userID > 0)
+        {
+            var streakDataRes = await Http.GetAsync("api/Present/checkStreak/" + userID);
+            if (streakDataRes.IsSuccessStatusCode)
+            {
+                currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
+
+                string streakStatus = streakStatusCheck(currentStreak.WeeksWithThreeOrMoreTransactions);
+                List<string> streakStatusOpt = new List<string>()
+                {
+                    "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
+                };
+
+                var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
+                if (getCurrentStatRes.IsSuccessStatusCode)
+                {
+                    string getCurrentStat = await getCurrentStatRes.Content.ReadAsStringAsync();
+                    if (streakStatusOpt.Contains(getCurrentStat))
+                    {
+                        int statInDB= streakStatusOpt.IndexOf(getCurrentStat);
+                        int newerStat = streakStatusOpt.IndexOf(streakStatus);
+                        if (newerStat > statInDB)
+                        {
+                            //take the new status
+                            streakStatus = streakStatusOpt[newerStat];
+
+                            var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
+                            if (updateStreak.IsSuccessStatusCode)
+                            {
+                                //open new status pop up
+                                Console.WriteLine("streak status updated, new status is: " + streakStatus);
+                            }
+                        }
+                    }
+                }
+
+                Console.WriteLine("streak status- " + streakStatus + ", week amount- " + currentStreak.WeeksWithThreeOrMoreTransactions);
+            }
+        }
+    }
+
+    public string streakStatusCheck(int weekAmount)
+    {
+
+
+        if (weekAmount <= 1)
+        {
+            return "מטבע ארד";
+        }
+        else if (weekAmount > 1 && weekAmount <= 2)
+        {
+            return "מטבע כסף";
+        }
+        else if (weekAmount > 2 && weekAmount <= 9)
+        {
+            return "מטבע זהב";
+        }
+        else if (weekAmount > 9 && weekAmount <= 12)
+        {
+            return "שטר";
+        }
+        else if (weekAmount > 12 && weekAmount <= 20)
+        {
+            return "שטרות";
+        }
+        else if (weekAmount > 20 && weekAmount <= 24)
+        {
+            return "גביע";
+        }
+        else if (weekAmount >= 32)
+        {
+            return "יהלום";
+        }
+        else
+        {
+            return "";
+        }
     }
 }

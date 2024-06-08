@@ -476,7 +476,6 @@
             {
                 currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
                 userID = currentUser.id;
-                await getStreakDetails();
                 searchCats = currentUser.categoriesFullList;
 
 
@@ -945,19 +944,18 @@
 
     public async Task getStreakDetails()
     {
-        if (userID>0)
+        if (userID > 0)
         {
             var streakDataRes = await Http.GetAsync("api/Present/checkStreak/" + userID);
             if (streakDataRes.IsSuccessStatusCode)
             {
                 currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
 
-                DateTime startDate = DateTime.Now;
-                //startDate = startDate.AddDays(-currentStreak.AllWeeksValid * 7);
+                if (currentStreak.AllWeeksValid)
+                {
 
+                }
 
-                //var streakDataSinceRes = await Http.GetAsync("api/Present/checkStreakFromDate/" + userID + "/" + startDate);
-                
             }
         }
     }
