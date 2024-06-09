@@ -27,7 +27,10 @@
 else
 {
     isOverlay = false;
-    BgOverlay = "";
+    if (!isEditOverlay)
+    {
+        BgOverlay = "";
+    }
 }
 
 <div class="outerWrap">
@@ -135,7 +138,7 @@ else
                 </div>
                 @if (userIncomeCat != null)
                 {
-                    <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
+                    <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit"></CategoryComponent>
                 }
             }
             else
@@ -177,14 +180,14 @@ else
                         if (category.id == givingsubCatCategoryID)
                         {
                             <div class="fullCategory">
-                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit"></CategoryComponent>
                             </div>
 
                         }
                         else
                         {
                             <div class="fullCategory">
-                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget"></CategoryComponent>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit"></CategoryComponent>
                             </div>
 
                         }
@@ -203,7 +206,7 @@ else
                 @foreach (CategoryToShow category in currentUser.categoriesFullList)
                 {
                     <div class="fullCategory">
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate"></CategoryComponent>
+                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit"></CategoryComponent>
                     </div>
 
                 }
@@ -287,7 +290,9 @@ else
                            givingSubCatBudget="@changeGivingSubCatBudget"
                            givingSubCat="@givingSubCatToUpdate"
                            searchedSubCats="@relevantSubCats"
-                           isSubCatSearched="@makeSearchAgain">
+                           isSubCatSearched="@makeSearchAgain"
+                                closeOverlay="openEditCategoryOverlay"
+                                 closeEdit="closeEdit">
                             </CategoryComponent>
                         </div>
 
@@ -399,6 +404,7 @@ else
     bool toSearch = false;
     bool isScrollingDown = false;
     bool isOverlay = false;
+    bool isEditOverlay = false;
     //bool makeSearchAgain = false;
     //bool isThereCategories => currentUser.categoriesFullList == null || currentUser.categoriesFullList.Count == 0;
 
@@ -694,7 +700,19 @@ else
     public void openCategoryOverlay()
     {
         openAddCatOverlay = !openAddCatOverlay;
-        
+
+    }
+
+    public void openEditCategoryOverlay()
+    {
+        BgOverlay = "BgOverlay";
+        isEditOverlay = true;
+
+    }
+
+    public void  closeEdit()
+    {
+        isEditOverlay = false;
     }
 
     public void AddNewCat(CategoryToShow newCategory)

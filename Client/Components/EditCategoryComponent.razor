@@ -14,28 +14,55 @@
                     <button class="closeOverlay" @onclick="openCategoryOverlay"><img src="../css/images/close x.svg" /></button>
                     <h3 class="popupTitle">@popupTitle</h3>
                     <div class="titleAndIcon">
-                        <input class="catTitle" type="text" @bind="categoryToEdit.categroyTitle" placeholder="שם הקטגוריה"/>
+                        <input class="catTitle" type="text" @bind="categoryToEdit.categroyTitle" placeholder="שם הקטגוריה" />
 
                         <div class="keyBoardAndBtn">
-                        <button @onclick="ToggleKeyboard" id="emoji-trigger"><img src="../css/images/add emoji (1).svg" /></button>
-                        <div class="emoji-keyboard @visibilityClass">
-                            <div class="emoji-categories">
-                                @foreach (var category in emojiCategories.Keys)
+                            <div class="outerCancleAndEmoji">
+                                @if (isEmojiExsist)
                                 {
-                                    <button class="category-button @(selectedCategory == category ? "active" : "")"
-                                        @onclick="() => SelectCategory(category)">
-                                        @category
-                                    </button>
+                                    <button @onclick="ToggleKeyboard" id="emoji-trigger" class="hideDefaultEmojiBtn"><img src="../css/images/add emoji (1).svg" /></button>
+                                }
+                                else if (isCancleBtnClicked)
+                                {
+                                    <button @onclick="ToggleKeyboard" id="emoji-trigger"><img src="../css/images/add emoji (1).svg" /></button>
+                                }
+                                else
+                                {
+                                    <button @onclick="ToggleKeyboard" id="emoji-trigger" class="@hideBtn"><img src="../css/images/add emoji (1).svg" /></button>
+                                }
+                                @if (noEmojiBtn || isEmojiExsist)
+                                {
+                                    
+                                    <div class="outerCancleAndEmoji">
+                                        <button @onclick="deleteSelectedEmoji" class="cancleEmoji">ביטול בחירה</button>
+                                        <button @onclick="ToggleKeyboard" class="selectedEmoji">
+                                            <span class="emoji">@categoryToEdit.icon</span>
+                                            <img src="../css/images/+ icon.svg" class="plusIcon" />
+                                        </button>
+                                    </div>
+                                 
                                 }
                             </div>
-                            <div class="emoji-section">
-                                @foreach (var emoji in emojiCategories[selectedCategory])
-                                {
-                                    <span @onclick="() => SelectEmoji(emoji)" class="emoji">@emoji</span>
-                                }
+
+
+                            <div class="emoji-keyboard @visibilityClass">
+                                <div class="emoji-categories">
+                                    @foreach (var category in emojiCategories.Keys)
+                                    {
+                                        <button class="category-button @(selectedCategory == category ? "active" : "")"
+                                            @onclick="() => SelectCategory(category)">
+                                            @category
+                                        </button>
+                                    }
+                                </div>
+                                <div class="emoji-section">
+                                    @foreach (var emoji in emojiCategories[selectedCategory])
+                                    {
+                                        <span @onclick="() => SelectEmoji(emoji)" class="emoji">@emoji</span>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                        
+
                         </div>
                         @*<input type="text" id="emoji-input" @bind="categoryToEdit.icon">*@
                     </div>
@@ -51,7 +78,7 @@
                                     <div id="@(color)" class="@(selectedClass == color ? "color-selected" : "")">
                                         <input style="opacity:0;" type="radio" name="categoryColors" value="@color"
                                            @onclick="() => UpdateColor(color)" />
-                                        
+
                                     </div>
                                 }
                             </div>
@@ -61,7 +88,7 @@
                                     <div id="@(color)" class="@(selectedClass == color ? "color-selected" : "")">
                                         <input style="opacity:0;" type="radio" name="categoryColors" value="@color"
                                            @onclick="() => UpdateColor(color)" />
-                                        
+
                                     </div>
                                 }
                             </div>
@@ -71,7 +98,7 @@
                     <div class="divBtn">
                         @if (popupTitle == "עריכת קטגוריה")
                         {
-
+                            hideBtn = "hideDefaultEmojiBtn";
                             <button class="saveBtn" @onclick="saveUpdatedCat">שמירה וסיום</button>
                         }
                         else if (popupTitle == "הוספת קטגוריה")
@@ -105,6 +132,9 @@
     public string categoryColor { get; set; }
 
     [Parameter]
+    public bool isEmojiExsist { get; set; }
+
+    [Parameter]
     public EventCallback<bool> isCategoryOverlayOpen { get; set; }
 
     [Parameter]
@@ -122,6 +152,9 @@
 
     string color1Selected = "#F4B367";
     string selectedClass = "";
+    string hideBtn = "";
+    bool noEmojiBtn = false;
+    bool isCancleBtnClicked = false;
     public async Task saveUpdatedCat()
     {
         editedCategory.categroyTitle = categoryToEdit.categroyTitle;
@@ -137,6 +170,7 @@
             categoryToEdit.icon = updatedCategory.icon;
             categoryToEdit.color = updatedCategory.color;
             isCategoryOverlayOpen.InvokeAsync(false);
+            closeOverlay.InvokeAsync(true);
 
             //need to refresh the home page
 
@@ -193,7 +227,7 @@
     //{
     //    categoryToEdit.color = color;
     //    selectedClass = "selectedColor";
-       
+
     //}
 
     private void UpdateColor(string color)
@@ -212,21 +246,21 @@
         }
     }
 
-    
- 
+
+
     private bool isVisible = false;
     private string selectedCategory = "כללי";
     private Dictionary<string, List<string>> emojiCategories = new Dictionary<string, List<string>>
     {
         {"כללי", new List<string> {
-                "🏠", "🛏", "🚿", "💡", "📞", "🖥", "🚗", "🚌", "🛒", "🍲",
+                "🏠", "🛏️", "🚿", "💡", "📞", "🖥️", "🚗", "🚌", "🛒", "🍲",
                 "🏥", "💊", "👕", "🧹", "🧺", "🍼", "🐶", "🧑‍🔧", "📚", "🧾",
-                "🕶", "🌂", "🔑", "📦"
+                "🕶️", "🌂", "🔑", "📦"
             }},
         {"כיף", new List<string> {
-                "🎭", "🎟", "🎮", "🎨", "📸", "🍽", "🏋", "🧘", "🎸", "✈️",
-                "🏕", "🛍", "🍷", "🎁", "🎈", "📖", "🍰", "🌐", "🕹", "🚤",
-                "🚵", "🛀", "🎷", "🎙"
+                "🎭", "🎟️", "🎮", "🎨", "📸", "🍽️", "🏋️‍♂️", "🧘", "🎸", "✈️",
+                "🏕️", "🛍️", "🍷", "🎁", "🎈", "📖", "🍰", "🌐", "🕹️", "🚤",
+                "🚵", "🛀", "🎷", "🎙️"
             }},
         {"פיננסי", new List<string> {
              "💳",
@@ -252,6 +286,20 @@
 
     private void SelectEmoji(string emoji)
     {
-        Console.WriteLine($"Emoji selected: {emoji}"); // Replace this with actual logic
+        //Console.WriteLine($"Emoji selected: {emoji}"); // Replace this with actual logic
+        noEmojiBtn = true;
+        isEmojiExsist = true;
+        isCancleBtnClicked = false;
+        hideBtn = "hideDefaultEmojiBtn";
+        categoryToEdit.icon = emoji;
+    }
+
+    private void deleteSelectedEmoji()
+    {
+        isCancleBtnClicked = true;
+        noEmojiBtn = false;
+        isEmojiExsist = false;
+        categoryToEdit.icon = "";
+        hideBtn = "";
     }
 }

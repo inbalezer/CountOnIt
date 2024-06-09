@@ -175,13 +175,28 @@ namespace CountOnIt.Server.Controllers
         [HttpPost("AddCategory/{userID}")] // יצירת קטגוריה חדשה
         public async Task<IActionResult> AddCategory(int userID, CategoryToAdd categoryToAdd) // לראות איך היוזר אידי מגיע מהפרונט אנד 
         {
-            object categoryToAddParam = new
+            object categoryToAddParam;
+
+            if (string.IsNullOrEmpty(categoryToAdd.icon))
             {
-                userID = userID,
-                categroyTitle = categoryToAdd.categroyTitle,
-                icon = categoryToAdd.icon,
-                color = categoryToAdd.color
-            };
+                categoryToAddParam = new
+                {
+                    userID = userID,
+                    categroyTitle = categoryToAdd.categroyTitle,
+                    icon = "💰",
+                    color = categoryToAdd.color
+                };
+            }
+            else
+            {
+                categoryToAddParam = new
+                {
+                    userID = userID,
+                    categroyTitle = categoryToAdd.categroyTitle,
+                    icon = categoryToAdd.icon,
+                    color = categoryToAdd.color
+                };
+            }
 
             string insertCategoryQuery = "INSERT INTO categories (categroyTitle,userID, icon, color) values (@categroyTitle ,@userID ,@icon ,@color)";
 

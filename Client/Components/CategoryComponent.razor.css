@@ -221,3 +221,13 @@
     margin-bottom: 0.3vh;
     border: 0.2px solid #CBCBCB;
 }
+
+.outerEditCat {
+    display: flex;
+}
+
+.outerEdit {
+    width: 116%;
+    position: relative;
+    left: 5.7vw;
+}

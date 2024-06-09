@@ -4,62 +4,69 @@
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
 
+
+
 <div>
+    <div class="outerEdit">
+        @if (editBtnClicked)
+        {
+
+            popupTitle = "עריכת קטגוריה";
+            <EditCategoryComponent categoryToEdit="@Category" isCategoryOverlayOpen="showEditCategory" popupTitle="@popupTitle" closeOverlay="closeEditOverlay" isEmojiExsist=true></EditCategoryComponent>
+        }
+    </div>
+    @if (deleteBtnClicked)
+    {
+        <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="🗑מחיקה" makeAction=@deleteCategory closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
+    }
+
     <div class="categoryWrap">
         <div id="iconAndCatTitle">
             <span class="emoji-circle">@Category.icon</span>
             <h2 class="CatTitle">@Category.categroyTitle</h2>
         </div>
-       
-            @foreach (SubCategoryToShow overDraftsubcategory in subCategories)
+
+        @foreach (SubCategoryToShow overDraftsubcategory in subCategories)
+        {
+
+            if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget)
             {
-                
-                if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget)
-                {
-                    <span>חריגה⚠️</span>
-                    break;
-                }
+                <span>חריגה⚠️</span>
+                break;
             }
-        
-       
+        }
+
+
         <button class="options" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
         @if (isOpetionsBtnClicked)
         {
             <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked"></OptionsMenuComponent>
         }
 
-        @if (editBtnClicked)
-        {
-            popupTitle = "עריכת קטגוריה";
-            <EditCategoryComponent categoryToEdit="@Category" isCategoryOverlayOpen="showEditCategory" popupTitle="@popupTitle"></EditCategoryComponent>
-        }
-        @if (deleteBtnClicked)
-        {
-            <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="🗑מחיקה" makeAction=@deleteCategory closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
-        }
+
     </div>
     <div class="accordionAndSubCatsWrap">
 
-    
+
         <div class="categoryAccordion">
-        <button class="options" @onclick="accordionControl">
-            <svg width="33" height="12" viewBox="0 0 33 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M1.75 2L16.75 10L30.75 2" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
-</svg></button>
+            <button class="options" @onclick="accordionControl">
+                <svg width="33" height="12" viewBox="0 0 33 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1.75 2L16.75 10L30.75 2" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
         </div>
 
-            @if (isAccordionClick)
-            {
-                <div class="subCatsWrap">
+        @if (isAccordionClick)
+        {
+            <div class="subCatsWrap">
 
                 <button class="custom-btn" @onclick="getUserCategories">
                     <div class="btn-content">
                         <div class="textAndLine">
                             <span class="btn-text">תת קטגוריה חדשה</span>
                             <div class="subCatLine">
-
                             </div>
-                        </div>                       
+                        </div>
                         <div class="btn-icon"><img src="../css/images/+.svg" /></div>
                     </div>
                 </button>
@@ -82,20 +89,20 @@
                             subcategory.monthlyPlannedBudget = 0;
                         }
                         <div class="budget-card @(isFirstItem ? "first" : "")">
-                        <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle"></SubCategoryComponent>
+                            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle"></SubCategoryComponent>
                         </div>
                         isFirstItem = false;
                     }
 
-                
+
                 }
             </div>
-            }
-        
+        }
+
     </div>
-        
-    
-    
+
+
+
 
 
     @if (isSubCategoryAddOverlayOpen)
@@ -160,7 +167,7 @@
     }
 </div>
 
-@if (searchedSubCats!=null && searchedSubCats.Count > 0)
+@if (searchedSubCats != null && searchedSubCats.Count > 0)
 {
     isAccordionClick = true;
     getSearchedSubCat();
@@ -207,12 +214,16 @@
     public EventCallback<CategoryToShow> deleteCat { get; set; }
 
     [Parameter]
-
     public EventCallback<OverDraftBudgetToEdit> givingSubCatBudget { get; set; }
 
     [Parameter]
-
     public EventCallback<bool> isSubCatSearched { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> closeOverlay { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> closeEdit { get; set; }
 
     [Parameter]
     public OverDraftBudgetToEdit givingSubCat { get; set; }
@@ -237,7 +248,7 @@
     public bool deleteBtnClicked = false;
     bool openTransactionOverlay = false;
     bool isOpetionsBtnClicked = false;
-   
+
 
     List<SubCategoryToShow> subCategories = new List<SubCategoryToShow>();
     List<AllUserCategories> userCategories = new List<AllUserCategories>();
@@ -342,7 +353,7 @@
             SubCategoryToAdd tempSubCat = await subCatToAddRes1.Content.ReadFromJsonAsync<SubCategoryToAdd>();
             newSubCatID = tempSubCat.id;
             newSubCatTitle = tempSubCat.subCategoryTitle;
-            newSubCatToShow.id=tempSubCat.id;
+            newSubCatToShow.id = tempSubCat.id;
             newSubCatToShow.subCategoryTitle = tempSubCat.subCategoryTitle;
             newSubCatToShow.monthlyPlannedBudget = tempSubCat.monthlyPlannedBudget;
             newSubCatToShow.transactionsValue = 0;
@@ -388,6 +399,7 @@
         editBtnClicked = !editBtnClicked;
         deleteBtnClicked = false;
         isOpetionsBtnClicked = false;
+        closeOverlay.InvokeAsync(true);
     }
 
     public void OpetionsBtnClicked()
@@ -478,16 +490,16 @@
     public async Task getSearchedSubCat()
     {
         subCategories = new List<SubCategoryToShow>();
-        foreach(int sb in searchedSubCats)
+        foreach (int sb in searchedSubCats)
         {
             var subCatRes = await Http.GetAsync("api/Present/GetSubCategory/" + sb);
             if (subCatRes.IsSuccessStatusCode)
             {
                 SubCategoryToShow selectedSubCat = await subCatRes.Content.ReadFromJsonAsync<SubCategoryToShow>();
 
-                
+
                 subCategories.Add(selectedSubCat);
-                
+
             }
             else
             {
@@ -498,12 +510,18 @@
         makeSearchfuncAgain();
         isAccordionClick = true;
         subCatRefreshed = false;
-        
+
     }
 
     void makeSearchfuncAgain()
     {
         isSubCatSearched.InvokeAsync(true);
-        
+
+    }
+
+    void closeEditOverlay()
+    {
+        editBtnClicked = false;
+        closeEdit.InvokeAsync(true);
     }
 }
