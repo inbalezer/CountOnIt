@@ -5,7 +5,10 @@
 @inject HttpClient Http
 
 
-
+@if (deleteBtnClicked)
+{
+    <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="מחיקה" makeAction=@deleteCategory closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
+}
 <div>
     <div class="outerEdit">
         @if (editBtnClicked)
@@ -15,10 +18,7 @@
             <EditCategoryComponent categoryToEdit="@Category" isCategoryOverlayOpen="showEditCategory" popupTitle="@popupTitle" closeOverlay="closeEditOverlay" isEmojiExsist=true></EditCategoryComponent>
         }
     </div>
-    @if (deleteBtnClicked)
-    {
-        <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="🗑מחיקה" makeAction=@deleteCategory closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
-    }
+   
 
     <div class="categoryWrap">
         <div id="iconAndCatTitle">
@@ -36,13 +36,13 @@
             }
         }
 
-
+        <div class="closedAndOpenMenu">
         <button class="options" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
         @if (isOpetionsBtnClicked)
         {
-            <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked"></OptionsMenuComponent>
+                <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked" closeOverlay="closeDeleteOverlay"></OptionsMenuComponent>
         }
-
+        </div>
 
     </div>
     <div class="accordionAndSubCatsWrap">
@@ -224,6 +224,9 @@
 
     [Parameter]
     public EventCallback<bool> closeEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> closeDelete { get; set; }
 
     [Parameter]
     public OverDraftBudgetToEdit givingSubCat { get; set; }
@@ -524,4 +527,12 @@
         editBtnClicked = false;
         closeEdit.InvokeAsync(true);
     }
+
+    void closeDeleteOverlay()
+    {
+        closeOverlay.InvokeAsync(true);
+    }
+
+    
+
 }

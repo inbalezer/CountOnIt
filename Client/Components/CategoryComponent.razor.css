@@ -51,7 +51,7 @@
     font: inherit;
     cursor: pointer;
     outline: inherit;
-    width: 6vw;
+    
 }
 .categoryAccordion {
     border-radius: 0rem 0rem 0.2rem 0.2rem;
@@ -230,4 +230,12 @@
     width: 116%;
     position: relative;
     left: 5.7vw;
+}
+
+.closedAndOpenMenu {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    column-gap: 1vh;
+    z-index: 2;
 }

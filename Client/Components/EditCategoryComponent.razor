@@ -167,7 +167,15 @@
         {
             CategoryToEdit updatedCategory = await updateCatRes.Content.ReadFromJsonAsync<CategoryToEdit>();
             categoryToEdit.categroyTitle = updatedCategory.categroyTitle;
-            categoryToEdit.icon = updatedCategory.icon;
+            if (categoryToEdit.icon == null || categoryToEdit.icon == "")
+            {
+                categoryToEdit.icon = "💰";
+            }
+            else
+            {
+                categoryToEdit.icon = updatedCategory.icon;
+            }
+            
             categoryToEdit.color = updatedCategory.color;
             isCategoryOverlayOpen.InvokeAsync(false);
             closeOverlay.InvokeAsync(true);

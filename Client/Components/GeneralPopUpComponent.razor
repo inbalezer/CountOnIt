@@ -4,11 +4,26 @@
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
 
+<div class="overlay">
+    <div class="outerPopUp">
+        
+        <h3> @popupTypeTitle</h3>
+        <div class="lineBetween"></div>
+        <div class="outerText">
+            <span>@middleText</span>
+            <span>@name</span>
+        </div>
+        
+        <div class="outerBtns">
+            <button id="cancleBtn" @onclick="undoAction">ביטול</button>
+            <button id="actionBtn" @onclick=doAction>@action</button>
 
-<h3> @popupTypeTitle</h3>
-<p>@middleText</p><span>@name</span>
-<button @onclick="undoAction">ביטול</button>
-<button @onclick=doAction>@action</button>
+        </div>
+        
+    </div>
+</div>
+
+
 
 
 @code {
@@ -26,8 +41,9 @@
     public EventCallback makeAction { get; set; }
 
     [Parameter]
-
     public EventCallback closePopUp { get; set; }
+
+    
 
     public void doAction()
     {
@@ -39,8 +55,6 @@
     {
         closePopUp.InvokeAsync();
     }
-
-
 
 
 

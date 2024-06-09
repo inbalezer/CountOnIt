@@ -152,13 +152,29 @@ namespace CountOnIt.Server.Controllers
         public async Task<IActionResult> editCategory(CategoryToEdit categoryToUpdate)
         {
 
-            object updateParam = new
+            object updateParam;
+
+            if (string.IsNullOrEmpty(categoryToUpdate.icon))
             {
-                ID = categoryToUpdate.id,
-                categroyTitle = categoryToUpdate.categroyTitle,
-                icon = categoryToUpdate.icon,
-                color = categoryToUpdate.color
-            };
+                updateParam = new
+                {
+                    ID = categoryToUpdate.id,
+                    categroyTitle = categoryToUpdate.categroyTitle,
+                    icon = "💰",
+                    color = categoryToUpdate.color
+                };
+            }
+            else
+            {
+                updateParam = new
+                {
+                    ID = categoryToUpdate.id,
+                    categroyTitle = categoryToUpdate.categroyTitle,
+                    icon = categoryToUpdate.icon,
+                    color = categoryToUpdate.color
+                };
+            }
+
 
             string UpdateCategoryQuery = "UPDATE categories set categroyTitle = @categroyTitle, icon = @icon, color = @color where id =@ID";
             bool isUpdate = await _db.SaveDataAsync(UpdateCategoryQuery, updateParam);
