@@ -32,7 +32,7 @@
                                 }
                                 @if (noEmojiBtn || isEmojiExsist)
                                 {
-                                    
+
                                     <div class="outerCancleAndEmoji">
                                         <button @onclick="deleteSelectedEmoji" class="cancleEmoji">ביטול בחירה</button>
                                         <button @onclick="ToggleKeyboard" class="selectedEmoji">
@@ -40,7 +40,7 @@
                                             <img src="../css/images/+ icon.svg" class="plusIcon" />
                                         </button>
                                     </div>
-                                 
+
                                 }
                             </div>
 
@@ -99,11 +99,41 @@
                         @if (popupTitle == "עריכת קטגוריה")
                         {
                             hideBtn = "hideDefaultEmojiBtn";
-                            <button class="saveBtn" @onclick="saveUpdatedCat">שמירה וסיום</button>
+
+                            if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
+                            {
+                                <button class="saveBtn" @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
+                                <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
+                            }
+                            else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
+                            {
+                                <button class="saveBtn" @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
+                                <span>לא ניתן לשמור קטגוריה ללא שם.</span>
+                            }
+                            else
+                            {
+                                 <button class="saveBtn" @onclick="saveUpdatedCat">שמירה וסיום</button>
+                            }
+
                         }
                         else if (popupTitle == "הוספת קטגוריה")
                         {
-                            <button class="saveBtn" @onclick="addNewCategory">שמירה וסיום</button>
+                            
+                            if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
+                            {
+                              
+                                <button class="saveBtn" @onclick="addNewCategory" disabled>שמירה וסיום</button>
+                                <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
+                            }
+                            else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
+                            {
+                                <button class="saveBtn" @onclick="addNewCategory" disabled>שמירה וסיום</button>
+                                <span>לא ניתן לשמור קטגוריה ללא שם.</span>
+                            }
+                            else
+                            {
+                                <button class="saveBtn" @onclick="addNewCategory">שמירה וסיום</button>
+                            }
                         }
                     </div>
                 </div>
@@ -111,38 +141,7 @@
         </div>
     </div>
 </div>
-@if (popupTitle == "עריכת קטגוריה")
-{
-    if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
-    {
-        <button @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
-        <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
-    }
-    else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
-    {
-        <button @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
-        <span>לא ניתן לשמור קטגוריה ללא שם.</span>
-    }
 
-}
-else if (popupTitle == "הוספת קטגוריה")
-{
-    if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
-    {
-        <button @onclick="addNewCategory" disabled>שמירה וסיום</button>
-        <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
-    }
-    else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
-    {
-        <button @onclick="addNewCategory" disabled>שמירה וסיום</button>
-        <span>לא ניתן לשמור קטגוריה ללא שם.</span>
-    }
-    else
-    {
-        <button @onclick="addNewCategory">שמירה וסיום</button>
-    }
-
-}
 
 @code {
 
@@ -216,7 +215,7 @@ else if (popupTitle == "הוספת קטגוריה")
             {
                 categoryToEdit.icon = updatedCategory.icon;
             }
-            
+
             categoryToEdit.color = updatedCategory.color;
             isCategoryOverlayOpen.InvokeAsync(false);
             closeOverlay.InvokeAsync(true);
