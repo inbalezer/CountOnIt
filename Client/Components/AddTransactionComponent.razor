@@ -1503,44 +1503,59 @@
             {
                 currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
 
-                string streakStatus = streakStatusCheck(currentStreak.WeeksWithThreeOrMoreTransactions);
-                List<string> streakStatusOpt = new List<string>()
+                if (currentStreak.AllWeeksValid)
+                {
+                    string streakStatus = streakStatusCheck(currentStreak.WeeksWithThreeOrMoreTransactions);
+                    List<string> streakStatusOpt = new List<string>()
                 {
                     "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
                 };
 
-                var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
-                if (getCurrentStatRes.IsSuccessStatusCode)
-                {
-                    string getCurrentStat = await getCurrentStatRes.Content.ReadAsStringAsync();
-                    if (streakStatusOpt.Contains(getCurrentStat))
+                    var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
+                    if (getCurrentStatRes.IsSuccessStatusCode)
                     {
-                        int statInDB= streakStatusOpt.IndexOf(getCurrentStat);
-                        int newerStat = streakStatusOpt.IndexOf(streakStatus);
-                        if (newerStat > statInDB)
+                        string getCurrentStat = await getCurrentStatRes.Content.ReadAsStringAsync();
+                        if (streakStatusOpt.Contains(getCurrentStat))
+                        {
+                            int statInDB = streakStatusOpt.IndexOf(getCurrentStat);
+                            int newerStat = streakStatusOpt.IndexOf(streakStatus);
+                            if (newerStat > statInDB)
+                            {
+                                //take the new status
+                                streakStatus = streakStatusOpt[newerStat];
+
+                                var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
+                                if (updateStreak.IsSuccessStatusCode)
+                                {
+                                    //open new status pop up
+                                    Console.WriteLine("streak status updated, new status is: " + streakStatus);
+                                    updatedStreak.InvokeAsync(streakStatus);
+                                }
+                            }
+                        }
+                        else if (getCurrentStat == null || getCurrentStat == "")
                         {
                             //take the new status
-                            streakStatus = streakStatusOpt[newerStat];
+                            streakStatus = streakStatusOpt[0];
 
                             var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
                             if (updateStreak.IsSuccessStatusCode)
                             {
                                 //open new status pop up
                                 Console.WriteLine("streak status updated, new status is: " + streakStatus);
+                                updatedStreak.InvokeAsync(streakStatus);
                             }
                         }
                     }
-                }
 
-                Console.WriteLine("streak status- " + streakStatus + ", week amount- " + currentStreak.WeeksWithThreeOrMoreTransactions);
+                    Console.WriteLine("streak status- " + streakStatus + ", week amount- " + currentStreak.WeeksWithThreeOrMoreTransactions);
+                }
             }
         }
     }
 
     public string streakStatusCheck(int weekAmount)
     {
-
-
         if (weekAmount <= 1)
         {
             return "מטבע ארד";

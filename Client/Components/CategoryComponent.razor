@@ -90,7 +90,7 @@
                         }
                         <div>
                             <div class="budget-card @(isFirstItem ? "first" : "")">
-                                <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator"></SubCategoryComponent>
+                                <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak"></SubCategoryComponent>
                             </div>
                         </div>
                         
@@ -157,7 +157,7 @@
                 <label>חובה</label>
             </div>
             <div>
-                <p>לדוגמה: לק - רצון, דלק - צורך, חובה - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
+                <p>לדוגמה: לק - רצון, דלק - צורך, שכ"ד" -חובה . העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
             </div>
             <br />
             <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
@@ -166,7 +166,7 @@
     }
     @if (openTransactionOverlay)
     {
-        <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" userID="@userID"></AddTransactionComponent>
+        <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" userID="@userID" updatedStreak="updateStreak"></AddTransactionComponent>
     }
 </div>
 
@@ -239,6 +239,9 @@
 
     [Parameter]
     public bool categoryTypeIndicator { get; set; } //will indicate if this is an expense or income category
+
+    [Parameter]
+    public EventCallback<string?> updatedStreakStat { get; set; }
 
     public bool isAccordionClick = false;
 
@@ -557,6 +560,9 @@
         closeOverlay.InvokeAsync(true);
     }
 
-    
+    public void updateStreak(string? newStreakStat)
+    {
+        updatedStreakStat.InvokeAsync(newStreakStat);
+    }
 
 }

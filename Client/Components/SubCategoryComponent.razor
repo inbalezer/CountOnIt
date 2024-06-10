@@ -59,7 +59,7 @@
 
 @if (openTransOverlay)
 {
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionToTotal="addNewTransToTotalSpendings" categoryTypeIndicator="@categoryTypeIndicator"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionToTotal="addNewTransToTotalSpendings" categoryTypeIndicator="@categoryTypeIndicator" updatedStreak="updateStreak"></AddTransactionComponent>
 
 }
 
@@ -200,6 +200,9 @@
 
     [Parameter]
     public bool categoryTypeIndicator { get; set; } //will indicate if this is an expense or income subcategory
+
+    [Parameter]
+    public EventCallback<string?> updatedStreakStat { get; set; }
 
     SubCategoryToEdit subCatToEdit = new SubCategoryToEdit();
     SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
@@ -359,4 +362,9 @@
 
     }
 
+
+    public void updateStreak(string? newStreakStat)
+    {
+        updatedStreakStat.InvokeAsync(newStreakStat);
+    }
 }

@@ -164,6 +164,29 @@ namespace CountOnIt.Server.Controllers
 
         }
 
+        [HttpGet("getTotalWeekTrans/{userID}")]
+        public async Task<IActionResult> getTotalWeekTrans(int userID)
+        {
+            if (userID > 0)
+            {
+                object param = new
+                {
+                    ID = userID
+                };
+                string getStreakQuery = "SELECT COUNT(*) AS totalWeekTransactions FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE WEEK(t.transInputDate, 0) = WEEK(CURRENT_DATE(), 0) AND YEAR(t.transInputDate) = YEAR(CURRENT_DATE()) AND t.transInputDate <= CURRENT_DATE() and u.id=@ID;";
+                var StreaksUpdate = await _db.GetRecordsAsync<int>(getStreakQuery, param);
+
+                if (StreaksUpdate!=null)
+                {
+                    return Ok(StreaksUpdate);
+                }
+                return BadRequest("couldn't get total amount of transactions done this week by this user");
+            }
+
+            return BadRequest("invalid user id");
+
+        }
+
 
         [HttpGet("incomeCatId/{userID}")] //gets the ID of the income category
         public async Task<IActionResult> GetUserIncomeID(int userID)

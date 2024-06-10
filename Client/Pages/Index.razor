@@ -33,14 +33,28 @@ else
     }
 }
 
+@if (streakOverlay) //not the final microcopy for this popup
+{
+    <div>
+        <button @onclick="()=>streakOverlay=false"><img src="../css/images/close x.svg" /></button><br />
+        <h3>כל הכבוד על ההתמדה!</h3>
+        <p>הזנת השבוע @weeklyTransAmount הוצאות,</p>
+        <p><b>שאפו!</b></p>
+        <p>זה השבוע ה-@currentStreak.WeeksWithThreeOrMoreTransactions ברציפות.</p>
+        <p>הגעת לסטטוס ה @streakStatusOpt.IndexOf(streakStatTitle) שלך.</p>
+        <p>עוד <b>@nextStreakStatIn שבועות</b> עד לסטטוס הבא!</p>
+        <button value="להזנה נוספת"></button><br/>
+        <img src="@streakImgSrc"/>
+    </div>
+}
+
 <div class="outerWrap">
     <div class="@BgOverlay"></div>
     @if (currentUser != null)
     {
         <div id="topSectionDiv">
             <div id="profileAndStreak">
-
-                </div>
+            </div>
             <div id="topText">
                 <p id="firstTitle">היי @currentUser.firstName 👋🏼</p>
 
@@ -69,10 +83,10 @@ else
                 </thead>
                 <tbody>
                     <tr>
-                        <td>@currentUser.spendingValueFullList ₪</td>
-                        <td id="middleTableRow">@currentUser.incomeValueFullList ₪</td>
+                        <td>@Math.Round(currentUser.spendingValueFullList,2) ₪</td>
+                        <td id="middleTableRow">@Math.Round(currentUser.incomeValueFullList) ₪</td>
                         <td id="leftTableRow">
-                            @currentUser.budgetFullValue%
+                            @Math.Round(currentUser.budgetFullValue)%
                             <br />
                             <span id="fromBudget">מהתקציב</span>
                         </td>
@@ -105,6 +119,7 @@ else
                             width: 20px;
                             height: 20px;
                         }
+
                             .storyPhase.active {
                                 background-color: #6874f4;
                             }
@@ -179,7 +194,7 @@ else
                 </div>
                 @if (userIncomeCat != null)
                 {
-                    <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete"></CategoryComponent>
+                    <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
                 }
             }
             else
@@ -221,14 +236,14 @@ else
                         if (category.id == givingsubCatCategoryID)
                         {
                             <div class="fullCategory">
-                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete"></CategoryComponent>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
                             </div>
 
                         }
                         else
                         {
                             <div class="fullCategory">
-                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete"></CategoryComponent>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
                             </div>
 
                         }
@@ -247,7 +262,7 @@ else
                 @foreach (CategoryToShow category in currentUser.categoriesFullList)
                 {
                     <div class="fullCategory">
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete"></CategoryComponent>
+                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
                     </div>
 
                 }
@@ -258,19 +273,6 @@ else
             {
                 @if (toSearch && (finalsearchSubCats.Any(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower()))))
                 {
-                    @* Initialize or clear the list outside the loop *@
-
-
-                    @* @foreach (SubCategoryToAdd subCatsToSearch in finalsearchSubCats.Where(sb => string.IsNullOrEmpty(searchQuery) || sb.subCategoryTitle.ToLower().Contains(searchQuery.ToLower())))
-    {*@
-                    @*foreach (CategoryToShow category in currentUser.categoriesFullList)
-    {
-    if (subCatsToSearch.categoryID == category.id)
-    {
-    subCatsToSearchIds.Add(subCatsToSearch.id);
-    selectedCategory = category;
-    }
-    }*@
 
                     foreach (var subCat in finalsearchSubCats)
                     {
@@ -332,9 +334,10 @@ else
                            givingSubCat="@givingSubCatToUpdate"
                            searchedSubCats="@relevantSubCats"
                            isSubCatSearched="@makeSearchAgain" categoryTypeIndicator="@isChecked"
-                                closeOverlay="openEditCategoryOverlay"
-                                 closeEdit="closeEdit"
-                                 closeDelete="closeDelete">
+                           closeOverlay="openEditCategoryOverlay"
+                           closeEdit="closeEdit"
+                           closeDelete="closeDelete"
+                           updatedStreakStat="updateStreak">
                             </CategoryComponent>
                         </div>
 
@@ -480,6 +483,15 @@ else
     List<SubCategoryToShow> incomeSubCats = new List<SubCategoryToShow>();
 
     UserStreakData currentStreak = new UserStreakData();
+    string streakStatTitle = "";
+    bool streakOverlay = false;
+    string streakImgSrc = "";
+    int weeklyTransAmount = 0;
+    List<string> streakStatusOpt = new List<string>()
+                {
+                    "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
+                };
+    int nextStreakStatIn = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -790,12 +802,12 @@ else
 
     }
 
-    public void  closeEdit()
+    public void closeEdit()
     {
         isEditOverlay = false;
-        
+
     }
-    public void  closeDelete()
+    public void closeDelete()
     {
         isEditOverlay = false;
         BgOverlay = "BgOverlay";
@@ -968,7 +980,7 @@ else
 
     public void NextStory()
     {
-        if (storyNav <3)
+        if (storyNav < 3)
         {
             storyNav++;
         }
@@ -999,15 +1011,66 @@ else
 
                 if (currentStreak.AllWeeksValid)
                 {
+                    var totalTransThisWeekRes = await Http.GetAsync("api/Present/getTotalWeekTrans/" + userID);
+                    weeklyTransAmount = await totalTransThisWeekRes.Content.ReadFromJsonAsync<int>();
+                    if (weeklyTransAmount==3)
+                    {
+                        switch (streakStatTitle) //will fill the related streak image route
+                        {
+                            case "מטבע ארד":
+                                streakImgSrc = "";
+                                nextStreakStatIn = 1;
+                                break;
+                            case "מטבע כסף":
+                                streakImgSrc = "";
+                                nextStreakStatIn = 6;
+                                break;
+                            case "מטבע זהב":
+                                streakImgSrc = "";
+                                nextStreakStatIn = 4;
+                                break;
+                            case "שטר":
+                                streakImgSrc = "";
+                                nextStreakStatIn = 8;
+                                break;
+                            case "שטרות":
+                                streakImgSrc = "";
+                                nextStreakStatIn = 4;
+                                break;
+                            case "גביע":
+                                streakImgSrc = "";
+                                nextStreakStatIn = 8;
+                                break;
+                            case "יהלום":
+                                streakImgSrc = "";
+                                nextStreakStatIn = 0;
+                                break;
+                            default:
+                                Console.WriteLine("no picture is associated with this streak");
+                                streakImgSrc = "";
+                                nextStreakStatIn = 0;
+                                break;
+                        }
 
+                        streakOverlay = true;
+                    }
                 }
 
             }
         }
     }
 
+    public void updateStreak(string? newStreakStat)
+    {
+        Console.WriteLine("streak status got to present home page, new status is: " + newStreakStat);
+        if (newStreakStat != null)
+        {
+            streakStatTitle = newStreakStat;
+            getStreakDetails();
+        }
+    }
 
-<!-- 
+    <!--
     //    protected override async Task OnAfterRenderAsync(bool firstRender)
     //    {
     //        if (firstRender)
@@ -1034,9 +1097,7 @@ else
     //");
     //        }
     //    } -->
-
-
-<!-- } -->
+    <!-- } -->
 }
 
 
