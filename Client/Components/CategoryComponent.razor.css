@@ -51,7 +51,7 @@
     font: inherit;
     cursor: pointer;
     outline: inherit;
-    width: 6vw;
+    
 }
 .categoryAccordion {
     border-radius: 0rem 0rem 0.2rem 0.2rem;
@@ -157,14 +157,13 @@
 }
 
 .btn-text {
-    margin-bottom: 1.3vh;
+    margin-bottom: 1vh;
     color: #6775F4;
     font-size: 1.3125rem;
     font-style: normal;
     font-weight: 700;
     text-align: right;
-    line-height: 3.1vh;
-
+    line-height: 3.4vh;
 }
 
 @media (max-width: 340px) {
@@ -196,7 +195,7 @@
     width: 8.5625rem;
     height: 0.1vh;
     background-color: #D6D9F1;
-    margin-bottom: 3vh;
+    margin-bottom: 4vh;
 }
 
 
@@ -221,4 +220,22 @@
     border-radius: 0.25rem;
     margin-bottom: 0.3vh;
     border: 0.2px solid #CBCBCB;
+}
+
+.outerEditCat {
+    display: flex;
+}
+
+.outerEdit {
+    width: 116%;
+    position: relative;
+    left: 5.7vw;
+}
+
+.closedAndOpenMenu {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-start;
+    column-gap: 1vh;
+    z-index: 2;
 }

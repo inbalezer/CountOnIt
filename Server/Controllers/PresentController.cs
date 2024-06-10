@@ -297,13 +297,29 @@ namespace CountOnIt.Server.Controllers
         public async Task<IActionResult> editCategory(CategoryToEdit categoryToUpdate)
         {
 
-            object updateParam = new
+            object updateParam;
+
+            if (string.IsNullOrEmpty(categoryToUpdate.icon))
             {
-                ID = categoryToUpdate.id,
-                categroyTitle = categoryToUpdate.categroyTitle,
-                icon = categoryToUpdate.icon,
-                color = categoryToUpdate.color
-            };
+                updateParam = new
+                {
+                    ID = categoryToUpdate.id,
+                    categroyTitle = categoryToUpdate.categroyTitle,
+                    icon = "💰",
+                    color = categoryToUpdate.color
+                };
+            }
+            else
+            {
+                updateParam = new
+                {
+                    ID = categoryToUpdate.id,
+                    categroyTitle = categoryToUpdate.categroyTitle,
+                    icon = categoryToUpdate.icon,
+                    color = categoryToUpdate.color
+                };
+            }
+
 
             string UpdateCategoryQuery = "UPDATE categories set categroyTitle = @categroyTitle, icon = @icon, color = @color where id =@ID";
             bool isUpdate = await _db.SaveDataAsync(UpdateCategoryQuery, updateParam);
@@ -320,13 +336,28 @@ namespace CountOnIt.Server.Controllers
         [HttpPost("AddCategory/{userID}")] // יצירת קטגוריה חדשה
         public async Task<IActionResult> AddCategory(int userID, CategoryToAdd categoryToAdd) // לראות איך היוזר אידי מגיע מהפרונט אנד 
         {
-            object categoryToAddParam = new
+            object categoryToAddParam;
+
+            if (string.IsNullOrEmpty(categoryToAdd.icon))
             {
-                userID = userID,
-                categroyTitle = categoryToAdd.categroyTitle,
-                icon = categoryToAdd.icon,
-                color = categoryToAdd.color
-            };
+                categoryToAddParam = new
+                {
+                    userID = userID,
+                    categroyTitle = categoryToAdd.categroyTitle,
+                    icon = "💰",
+                    color = categoryToAdd.color
+                };
+            }
+            else
+            {
+                categoryToAddParam = new
+                {
+                    userID = userID,
+                    categroyTitle = categoryToAdd.categroyTitle,
+                    icon = categoryToAdd.icon,
+                    color = categoryToAdd.color
+                };
+            }
 
             string insertCategoryQuery = "INSERT INTO categories (categroyTitle,userID, icon, color) values (@categroyTitle ,@userID ,@icon ,@color)";
 

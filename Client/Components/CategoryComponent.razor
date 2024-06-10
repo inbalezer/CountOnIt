@@ -4,7 +4,22 @@
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
 
+
+@if (deleteBtnClicked)
+{
+    <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="מחיקה" makeAction=@deleteCategory closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
+}
 <div>
+    <div class="outerEdit">
+        @if (editBtnClicked)
+        {
+
+            popupTitle = "עריכת קטגוריה";
+            <EditCategoryComponent categoryToEdit="@Category" isCategoryOverlayOpen="showEditCategory" popupTitle="@popupTitle" closeOverlay="closeEditOverlay" isEmojiExsist=true></EditCategoryComponent>
+        }
+    </div>
+   
+
     <div class="categoryWrap">
         <div id="iconAndCatTitle">
             <span class="emoji-circle">@Category.icon</span>
@@ -21,22 +36,14 @@
             }
         }
 
-
+        <div class="closedAndOpenMenu">
         <button class="options" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
         @if (isOpetionsBtnClicked)
         {
-            <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked"></OptionsMenuComponent>
+                <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked" closeOverlay="closeDeleteOverlay"></OptionsMenuComponent>
         }
+        </div>
 
-        @if (editBtnClicked)
-        {
-            popupTitle = "עריכת קטגוריה";
-            <EditCategoryComponent categoryToEdit="@Category" isCategoryOverlayOpen="showEditCategory" popupTitle="@popupTitle"></EditCategoryComponent>
-        }
-        @if (deleteBtnClicked)
-        {
-            <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" name="@Category.categroyTitle" action="🗑מחיקה" makeAction=@deleteCategory closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
-        }
     </div>
     <div class="accordionAndSubCatsWrap">
 
@@ -207,12 +214,19 @@
     public EventCallback<CategoryToShow> deleteCat { get; set; }
 
     [Parameter]
-
     public EventCallback<OverDraftBudgetToEdit> givingSubCatBudget { get; set; }
 
     [Parameter]
-
     public EventCallback<bool> isSubCatSearched { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> closeOverlay { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> closeEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> closeDelete { get; set; }
 
     [Parameter]
     public OverDraftBudgetToEdit givingSubCat { get; set; }
@@ -409,6 +423,7 @@
         editBtnClicked = !editBtnClicked;
         deleteBtnClicked = false;
         isOpetionsBtnClicked = false;
+        closeOverlay.InvokeAsync(true);
     }
 
     public void OpetionsBtnClicked()
@@ -527,4 +542,18 @@
         isSubCatSearched.InvokeAsync(true);
 
     }
+
+    void closeEditOverlay()
+    {
+        editBtnClicked = false;
+        closeEdit.InvokeAsync(true);
+    }
+
+    void closeDeleteOverlay()
+    {
+        closeOverlay.InvokeAsync(true);
+    }
+
+    
+
 }

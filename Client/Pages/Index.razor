@@ -12,13 +12,29 @@
 @inject NavigationManager Navigation
 @inject SignOutSessionStateManager SignOutManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
 
 
 <meta name="google-signin-client_id" content="1019975699349-h4jb6mru41g9tobof0f2i4dl96df2bkp.apps.googleusercontent.com">
 <div class="g-signin2" data-onsuccess="onSignIn"></div>
 
-<div id="outerWrap">
+@if (openAddCatOverlay)
+{
+    isOverlay = true;
+    BgOverlay = "BgOverlay";
+    <EditCategoryComponent popupTitle="הוספת קטגוריה" userID="@userID" newCategory="newCategory" isCategoryOverlayOpen="openCategoryOverlay" addNewCatToIndex="AddNewCat" closeOverlay="openCategoryOverlay"></EditCategoryComponent>
+}
+else
+{
+    isOverlay = false;
+    if (!isEditOverlay)
+    {
+        BgOverlay = "";
+    }
+}
 
+<div class="outerWrap">
+    <div class="@BgOverlay"></div>
     @if (currentUser != null)
     {
         <div id="topSectionDiv">
@@ -163,7 +179,7 @@
                 </div>
                 @if (userIncomeCat != null)
                 {
-                    <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" categoryTypeIndicator="@isChecked"></CategoryComponent>
+                    <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete"></CategoryComponent>
                 }
             }
             else
@@ -190,11 +206,9 @@
                     📁
                 </div>
                 <p class="addTitle">הוספת קטגוריה חדשה</p>
-                @if (openAddCatOverlay)
-                {
-                    <EditCategoryComponent popupTitle="הוספת קטגוריה" userID="@userID" newCategory="newCategory" isCategoryOverlayOpen="openCategoryOverlay" addNewCatToIndex="AddNewCat"></EditCategoryComponent>
-                }
             </button>
+
+
 
 
             @if (!string.IsNullOrEmpty(searchQuery))
@@ -207,14 +221,14 @@
                         if (category.id == givingsubCatCategoryID)
                         {
                             <div class="fullCategory">
-                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" categoryTypeIndicator="@isChecked"></CategoryComponent>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete"></CategoryComponent>
                             </div>
 
                         }
                         else
                         {
                             <div class="fullCategory">
-                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" categoryTypeIndicator="@isChecked"></CategoryComponent>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete"></CategoryComponent>
                             </div>
 
                         }
@@ -233,7 +247,7 @@
                 @foreach (CategoryToShow category in currentUser.categoriesFullList)
                 {
                     <div class="fullCategory">
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" categoryTypeIndicator="@isChecked"></CategoryComponent>
+                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete"></CategoryComponent>
                     </div>
 
                 }
@@ -317,7 +331,10 @@
                            givingSubCatBudget="@changeGivingSubCatBudget"
                            givingSubCat="@givingSubCatToUpdate"
                            searchedSubCats="@relevantSubCats"
-                           isSubCatSearched="@makeSearchAgain" categoryTypeIndicator="@isChecked">
+                           isSubCatSearched="@makeSearchAgain" categoryTypeIndicator="@isChecked"
+                                closeOverlay="openEditCategoryOverlay"
+                                 closeEdit="closeEdit"
+                                 closeDelete="closeDelete">
                             </CategoryComponent>
                         </div>
 
@@ -336,7 +353,7 @@
             }
         }
 
-        <div id="bottomNav">
+        <div id="@hideNav">
             <button class="navBtn">מבט לעבר<img src="../css/images/past.svg" /></button>
             <div class="NavLines"> </div>
             <button class="navBtn">מבט להווה<img src="../css/images/present.svg" /></button>
@@ -393,6 +410,8 @@
 </div>
 
 
+
+
 @code {
 
     [Parameter]
@@ -414,7 +433,9 @@
     string msg = "";
     string searchQuery = "";
     string currentSearch = "";
-
+    string hideNav => isScrollingDown ? "nav-hidden" : "bottomNav";
+    //string BgOverlay => isOverlay ? "BgOverlay" : "";
+    string BgOverlay = "";
     int newCurrentUserId;
     int categoryIdToSend;
     private int refreshKey;
@@ -423,8 +444,14 @@
     bool isOnInitializedOver = false;
     bool accordionRefresh = true;
     bool toSearch = false;
+    bool isScrollingDown = false;
+    bool isOverlay = false;
+    bool isEditOverlay = false;
     //bool makeSearchAgain = false;
     //bool isThereCategories => currentUser.categoriesFullList == null || currentUser.categoriesFullList.Count == 0;
+
+
+
 
     public bool storyPopUpWindow = false;
     List<StorySubCategoryTotals> subCatsTotalsStory = new List<StorySubCategoryTotals>();
@@ -753,6 +780,25 @@
     public void openCategoryOverlay()
     {
         openAddCatOverlay = !openAddCatOverlay;
+
+    }
+
+    public void openEditCategoryOverlay()
+    {
+        BgOverlay = "BgOverlay";
+        isEditOverlay = true;
+
+    }
+
+    public void  closeEdit()
+    {
+        isEditOverlay = false;
+        
+    }
+    public void  closeDelete()
+    {
+        isEditOverlay = false;
+        BgOverlay = "BgOverlay";
     }
 
     public void AddNewCat(CategoryToShow newCategory)
@@ -962,3 +1008,35 @@
 
 
 }
+<!-- 
+    //    protected override async Task OnAfterRenderAsync(bool firstRender)
+    //    {
+    //        if (firstRender)
+    //        {
+    //            isScrollingDown = false;
+    //            await JSRuntime.InvokeVoidAsync("eval", @"
+    //setTimeout(function() {
+    //    let lastScroll = window.pageYOffset || document.documentElement.scrollTop;
+    //     isScrollingDown = false;
+
+    //    window.addEventListener('scroll', function() {
+    //        let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    //        if (currentScroll > lastScroll) {
+    //isScrollingDown = true;
+
+    //        } else if (currentScroll < lastScroll) {
+    //isScrollingDown = false;
+
+    //        }
+    //        console.log(`isScrollingDown is ${isScrollingDown}!!`); // Logging the scrolling direction
+    //        lastScroll = currentScroll;
+    //    });
+    //}, 0);
+    //");
+    //        }
+    //    } -->
+
+
+<!-- } -->
+
+
