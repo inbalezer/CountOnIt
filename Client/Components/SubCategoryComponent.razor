@@ -8,7 +8,7 @@
 
 @if (deleteBtnClicked)
 {
-    <GeneralPopUpComponent popupTypeTitle="מחיקת תת קטגוריה" middleText="@popupBodyText" action="🗑️מחיקה" makeAction="deleteSubCat" closePopUp="deleteSubCatPopUp"></GeneralPopUpComponent>
+    <GeneralPopUpComponent popupTypeTitle="מחיקת תת קטגוריה" middleText="@popupBodyText" action="מחיקה" makeAction="deleteSubCat" closePopUp="deleteSubCatPopUp"></GeneralPopUpComponent>
 }
 
 <div class="budget-card">
@@ -20,7 +20,14 @@
             </div>
         </div>
 
-        <button class="options-button" @onclick="(() => isOptBtnClicked = !isOptBtnClicked)"><img src="../css/images/option menu.svg" /></button>
+        <div class="closedAndOpenMenu">
+            <button class="options-button" @onclick="(() => isOptBtnClicked = !isOptBtnClicked)"><img src="../css/images/option menu.svg" /></button>
+            @if (isOptBtnClicked)
+            {
+                <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
+            }
+        </div>
+
     </div>
 
     <div class="budget-info">
@@ -35,7 +42,9 @@
                 <span>⚠️</span>
             }
             <button class="add-transaction-button" @onclick="openAddTransOverlay"><img src="../css/images/+2.svg" /></button>
-        }else{
+        }
+        else
+        {
             <button class="budget-progress" @onclick="goToTransactionsPage">
                 @Math.Round(totalSpendings,2) ₪
             </button>
@@ -54,39 +63,41 @@
 
 }
 
-@if (isOptBtnClicked)
-{
-    <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
-}
+
 @if (editSubCatBtnClicked)
 {
-    <div>
-        <div>
-            <h2>עריכת תת קטגוריה</h2>
-            <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked">&times;</button>
-        </div>
+    <div class="outerSubCatOverlay">
+
+        <div class="innerSubCatOverlay">
+            <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked"><img src="../css/images/close x.svg" /></button>
+            <h2 class="subCatTitle">עריכת תת קטגוריה</h2>
 
 
-        @if (userCategories.Count > 0)
-        {
-            <span>עריכת תת קטגוריה ל</span>
-            @if (subCatToEdit.categroyTitle == null)
-            {
-                subCatToEdit.categroyTitle = categoryTitle;
-            }
-            <select @bind="subCatToEdit.categroyTitle">
 
-                @foreach (AllUserCategories userCategory in userCategories)
+            <div class="editAndAddSubCat">
+                @if (userCategories.Count > 0)
                 {
 
-                    <option value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+                    <span>העברת תת קטגוריה ל</span>
+                    @if (subCatToEdit.categroyTitle == null)
+                    {
+                        subCatToEdit.categroyTitle = categoryTitle;
+                    }
+                    <select class="catsDropDown" @bind="subCatToEdit.categroyTitle">
+
+                        @foreach (AllUserCategories userCategory in userCategories)
+                        {
+                            
+                            <option class="catsOptions" value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+
+                    
+
+                        }
+                </select>
 
 
                 }
-            </select>
-            <span>@subCatToEdit.categroyTitle</span>
-
-        }
+        </div>
 
         <div>
             <label for="amount">שם תת קטגוריה</label>
@@ -100,50 +111,51 @@
         <div>
             <label for="importance">עדיפות תת הקטגוריה</label>
             <span>@subCatToEdit.importance</span>
-            @if (subCatToEdit.importance == 0)
-            {
+                @if (subCatToEdit.importance == 0)
+                {
                 <input type="radio"
                name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
                 <label>רצון</label>
-            }
-            else
-            {
+                }
+                else
+                {
                 <input type="radio"
                name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
                 <label>רצון</label>
-            }
-            @if (subCatToEdit.importance == 1)
-            {
+                }
+                @if (subCatToEdit.importance == 1)
+                {
                 <input type="radio"
                name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
                 <label>צורך</label>
-            }
-            else
-            {
+                }
+                else
+                {
                 <input type="radio"
                name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
                 <label>צורך</label>
-            }
-            @if (subCatToEdit.importance == 2)
-            {
+                }
+                @if (subCatToEdit.importance == 2)
+                {
                 <input type="radio"
                name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
                 <label>חובה</label>
-            }
-            else
-            {
+                }
+                else
+                {
                 <input type="radio"
                name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
                 <label>חובה</label>
-            }
+                }
         </div>
         <div>
             <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
         </div>
         <br />
-        @* <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>*@
+        <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
         <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
     </div>
+        </div>
 }
 
 
@@ -267,10 +279,10 @@
             if (getIncomeCat.IsSuccessStatusCode)
             {
                 CategoryToShow returnedCat = await getIncomeCat.Content.ReadFromJsonAsync<CategoryToShow>();
-                AllUserCategories incomeCat= new AllUserCategories();
-                incomeCat.id=returnedCat.id;
+                AllUserCategories incomeCat = new AllUserCategories();
+                incomeCat.id = returnedCat.id;
                 incomeCat.categroyTitle = returnedCat.categroyTitle;
-                userCategories= new List<AllUserCategories>();
+                userCategories = new List<AllUserCategories>();
                 userCategories.Add(incomeCat);
             }
         }
@@ -341,4 +353,10 @@
     {
         nav.NavigateTo("./TransactionsOverview/" + subCategoryIDToGet + "/" + categoryID + "/" + budget + "/" + userID);
     }
+
+    public async Task addSubCategoryAndTransaction()
+    {
+
+    }
+
 }

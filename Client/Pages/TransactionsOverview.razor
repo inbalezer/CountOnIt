@@ -316,32 +316,34 @@
                         Console.WriteLine("Failed to find transactions. Error: " + transErrorContent);
                     }
                 }
-                else //means the sub cat is related to an expense category
+                
+            }
+
+            else //means the sub cat is related to an expense category
+            {
+                var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactions/" + subCatID);
+                if (getAllTransactions.IsSuccessStatusCode)
                 {
-                    var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactions/" + subCatID);
-                    if (getAllTransactions.IsSuccessStatusCode)
+                    var checkTransList = getAllTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
+                    if (checkTransList != null && checkTransList.Count > 0)
                     {
-                        var checkTransList = getAllTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
-                        if (checkTransList != null && checkTransList.Count > 0)
+                        allTransactions = checkTransList;
+                        foreach (TransactionOverviewToShow trans in allTransactions)
                         {
-                            allTransactions = checkTransList;
-                            foreach (TransactionOverviewToShow trans in allTransactions)
-                            {
-                                totalSpendings += trans.transValue;
-                            }
-                            prefilteredTransactions = checkTransList;
-                            await getSubCatTags();
+                            totalSpendings += trans.transValue;
                         }
-                        else
-                        {
-                            Console.WriteLine("No transactions found related to this sub category");
-                        }
+                        prefilteredTransactions = checkTransList;
+                        await getSubCatTags();
                     }
                     else
                     {
-                        var transErrorContent = await getAllTransactions.Content.ReadAsStringAsync();
-                        Console.WriteLine("Failed to find transactions. Error: " + transErrorContent);
+                        Console.WriteLine("No transactions found related to this sub category");
                     }
+                }
+                else
+                {
+                    var transErrorContent = await getAllTransactions.Content.ReadAsStringAsync();
+                    Console.WriteLine("Failed to find transactions. Error: " + transErrorContent);
                 }
             }
         }
