@@ -85,77 +85,84 @@
                     }
                     <select class="catsDropDown" @bind="subCatToEdit.categroyTitle">
 
+
                         @foreach (AllUserCategories userCategory in userCategories)
                         {
-                            
+
                             <option class="catsOptions" value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
 
-                    
+
 
                         }
-                </select>
+                    </select>
 
 
                 }
-        </div>
+            </div>
 
-        <div>
-            <label for="amount">שם תת קטגוריה</label>
-            <input type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
-        </div>
+            <div class="outerTitleName">
+                <label class="titleName" for="amount">שם תת קטגוריה</label>
+                <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
+            </div>
 
-        <div>
-            <label for="description">מה התקציב החודשי שלך עבור @subCatToEdit.subCategoryTitle? </label>
-            <input type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
+            <label class="titleName" for="description">מה התקציב החודשי שלך עבור "@subCatToEdit.subCategoryTitle"?</label>
+            <div class="outerBudget">
+                <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
+                <span class="currency-symbol">₪</span>
+                <div class="lineBetween"></div>
+            </div>
+            <div class="outerImportance">
+                <label class="titleName" for="importance">עדיפות תת הקטגוריה</label>
+                <div class="outerBtns">
+                    <div class="importanceBtns">
+                        @if (subCatToEdit.importance == 0)
+                        {
+                            <input type="radio" style="opacity:0;"
+                           name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
+                            <label>רצון</label>
+                        }
+                        else
+                        {
+                            <input type="radio" style="opacity:0;"
+                           name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
+                            <label>רצון</label>
+                        }
+                        @if (subCatToEdit.importance == 1)
+                        {
+                            <input type="radio" style="opacity:0;"
+                           name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
+                            <label>צורך</label>
+                        }
+                        else
+                        {
+                            <input type="radio" style="opacity:0;"
+                           name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
+                            <label>צורך</label>
+                        }
+                        @if (subCatToEdit.importance == 2)
+                        {
+                            <input type="radio" style="opacity:0;"
+                           name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
+                            <label>חובה</label>
+                        }
+                        else
+                        {
+                            <input type="radio" style="opacity:0;"
+                           name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
+                            <label>חובה</label>
+                        }
+                    </div>
+                </div>
+
+            </div>
+            <div>
+                <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
+            </div>
+            <br />
+            <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
+            <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
         </div>
-        <div>
-            <label for="importance">עדיפות תת הקטגוריה</label>
-            <span>@subCatToEdit.importance</span>
-                @if (subCatToEdit.importance == 0)
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
-                <label>רצון</label>
-                }
-                else
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
-                <label>רצון</label>
-                }
-                @if (subCatToEdit.importance == 1)
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
-                <label>צורך</label>
-                }
-                else
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
-                <label>צורך</label>
-                }
-                @if (subCatToEdit.importance == 2)
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
-                <label>חובה</label>
-                }
-                else
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
-                <label>חובה</label>
-                }
-        </div>
-        <div>
-            <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
-        </div>
-        <br />
-        <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
-        <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
     </div>
-        </div>
 }
 
 
