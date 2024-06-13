@@ -1502,7 +1502,7 @@
             if (streakDataRes.IsSuccessStatusCode)
             {
                 currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
-
+                Console.WriteLine("streak status is -" + currentStreak.AllWeeksValid);
                 if (currentStreak.AllWeeksValid)
                 {
                     string streakStatus = streakStatusCheck(currentStreak.WeeksWithThreeOrMoreTransactions);

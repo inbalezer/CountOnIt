@@ -96,7 +96,7 @@ namespace CountOnIt.Server.Controllers
             return Math.Round((spending / budget) * 100, 2);
         }
 
-        [HttpGet("checkStreak/{userID}")]
+        [HttpGet("checkStreak/{userID}")] //checks if the user has a current streak
         public async Task<IActionResult> CheckUserStreak(int userID)
         {
             if (userID > 0)
@@ -105,7 +105,7 @@ namespace CountOnIt.Server.Controllers
                 {
                     ID = userID
                 };
-                string getStreakQuery = "SELECT CASE WHEN COUNT(weekly_transactions.week_number) = MAX(total_weeks_data.total_weeks) THEN TRUE ELSE FALSE END AS AllWeeksValid, COUNT(weekly_transactions.week_number) AS WeeksWithThreeOrMoreTransactions FROM ( SELECT WEEK(t.transInputDate) AS week_number FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE() and u.id=4 GROUP BY WEEK(t.transInputDate) HAVING COUNT(*) >= 3) AS weekly_transactions CROSS JOIN (SELECT COUNT(DISTINCT WEEK(t.transInputDate)) AS total_weeks FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE()) AS total_weeks_data;"; //gets the amount of weeks where there was a minimum of 3 transactions
+                string getStreakQuery = "SELECT CASE WHEN COUNT(weekly_transactions.week_number) = MAX(total_weeks_data.total_weeks) THEN TRUE ELSE FALSE END AS AllWeeksValid, COUNT(weekly_transactions.week_number) AS WeeksWithThreeOrMoreTransactions FROM ( SELECT WEEK(t.transInputDate) AS week_number FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE() and u.id=@ID GROUP BY WEEK(t.transInputDate) HAVING COUNT(*) >= 3) AS weekly_transactions CROSS JOIN (SELECT COUNT(DISTINCT WEEK(t.transInputDate)) AS total_weeks FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE()) AS total_weeks_data;"; //gets the amount of weeks where there was a minimum of 3 transactions
                 var getStreaks = await _db.GetRecordsAsync<UserStreakData>(getStreakQuery, param);
                 UserStreakData weekAmountInStreak = getStreaks.FirstOrDefault();
                 if (weekAmountInStreak != null)
@@ -118,7 +118,7 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("invalid user id");
         }
 
-        [HttpGet("getUserStreakStatus/{userID}")]
+        [HttpGet("getUserStreakStatus/{userID}")] //gets the user's streak
         public async Task<IActionResult> getUserStreakStatus(int userID)
         {
             if (userID > 0)
@@ -140,7 +140,7 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("invalid user id");
         }
 
-        [HttpGet("updateStreakStat/{userID}/{newStatus}")]
+        [HttpGet("updateStreakStat/{userID}/{newStatus}")] //updates the user's streak
         public async Task<IActionResult> updateStreakStat(int userID, string newStatus)
         {
             if (userID > 0)
@@ -164,7 +164,7 @@ namespace CountOnIt.Server.Controllers
 
         }
 
-        [HttpGet("getTotalWeekTrans/{userID}")]
+        [HttpGet("getTotalWeekTrans/{userID}")] //gets the total transactions done this week by the user
         public async Task<IActionResult> getTotalWeekTrans(int userID)
         {
             if (userID > 0)

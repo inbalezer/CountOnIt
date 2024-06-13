@@ -1,0 +1,143 @@
+﻿@page "/StreakProgressPage/{userID:int}"
+@using CountOnIt.Shared.Models.present.toShow
+@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toEdit
+@using CountOnIt.Client.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject DateService DateService
+
+
+<button @onclick="goToHomePage">🔙</button>
+<button>Profile avatar</button>
+<br/>
+<h2>ההתקדמות שלי</h2>
+<p>כל הצעדים בדרך לחסכון</p>
+<div id="transAmountForNextRank">
+    <p>עוד XXX הזנות עד לדרגה הבאה</p>
+</div>
+<div id="ranks">
+    @for (int i = 0; i < streakStatusOpt.Count; i++)
+    {
+        if (i<= currentUserStreakIndex)
+        {
+        <div>
+            <h3>@streakStatusOpt[i]</h3>
+            <p>נפתח אחרי <b>@weekAmountForRank[i]</b></p>
+            </div>
+        }
+        else
+        {
+            @*add css that will make this look locked- for now I painted the text purple so we'll see the difference*@
+            <div> 
+                <h3>@streakStatusOpt[i]</h3>
+                <p style="color: cornflowerblue">נפתח אחרי <b>@weekAmountForRank[i]</b></p>
+            </div>
+        }
+
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int userID { get; set; }
+
+    UserStreakData currentStreak = new UserStreakData();
+
+    int currentUserStreakIndex = -1;
+
+    List<string> streakStatusOpt = new List<string>()
+    {
+                    "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
+    };
+
+    List<string> weekAmountForRank = new List<string>()
+    {
+       "שבוע","שבועיים","חודשיים","3 חודשים","5 חודשים","חצי שנה","8 חודשים"
+    };
+
+    public async Task OnInitializedAsync()
+    {
+        if (userID > 0)
+        {
+            var streakDataRes = await Http.GetAsync("api/Present/checkStreak/" + userID);
+            if (streakDataRes.IsSuccessStatusCode)
+            {
+                currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
+                Console.WriteLine("streak status is -" + currentStreak.AllWeeksValid);
+
+                string streakStatus = streakStatusCheck(currentStreak.WeeksWithThreeOrMoreTransactions);
+
+                var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
+                if (getCurrentStatRes.IsSuccessStatusCode)
+                {
+                    string getCurrentStat = await getCurrentStatRes.Content.ReadAsStringAsync();
+                    if (streakStatusOpt.Contains(getCurrentStat))
+                    {
+                        int streakStat = streakStatusOpt.IndexOf(getCurrentStat);
+                        currentUserStreakIndex = streakStat;
+                    }
+                    //else if (getCurrentStat == null || getCurrentStat == "")
+                    //{
+                    //    //take the new status
+                    //    streakStatus = streakStatusOpt[0];
+
+                    //    var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
+                    //    if (updateStreak.IsSuccessStatusCode)
+                    //    {
+                    //        //open new status pop up
+                    //        Console.WriteLine("streak status updated, new status is: " + streakStatus);
+                    //        currentUserStreakIndex = 0;
+                    //    }
+                    //}
+                }
+
+                Console.WriteLine("streak status- " + streakStatus + ", week amount- " + currentStreak.WeeksWithThreeOrMoreTransactions);
+
+            }
+        }
+    }
+
+    public string streakStatusCheck(int weekAmount)
+    {
+        if (weekAmount <= 1)
+        {
+            return "מטבע ארד";
+        }
+        else if (weekAmount > 1 && weekAmount <= 2)
+        {
+            return "מטבע כסף";
+        }
+        else if (weekAmount > 2 && weekAmount <= 9)
+        {
+            return "מטבע זהב";
+        }
+        else if (weekAmount > 9 && weekAmount <= 12)
+        {
+            return "שטר";
+        }
+        else if (weekAmount > 12 && weekAmount <= 20)
+        {
+            return "שטרות";
+        }
+        else if (weekAmount > 20 && weekAmount <= 24)
+        {
+            return "גביע";
+        }
+        else if (weekAmount >= 32)
+        {
+            return "יהלום";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    public void goToHomePage()
+    {
+        Nav.NavigateTo("./homePage");
+    }
+
+}

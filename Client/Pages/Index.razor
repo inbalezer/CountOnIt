@@ -54,6 +54,7 @@ else
     {
         <div id="topSectionDiv">
             <div id="profileAndStreak">
+                <button @onclick="goToStreakPage">Streak Page</button>
             </div>
             <div id="topText">
                 <p id="firstTitle">היי @currentUser.firstName 👋🏼</p>
@@ -516,7 +517,7 @@ else
                 currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
                 userID = currentUser.id;
                 searchCats = currentUser.categoriesFullList;
-
+                Console.WriteLine("current streak status- "+ currentUser.streakStatus);
 
                 var subCatToSearch = await Http.GetAsync("api/Present/getSubCategoryTitle/" + userID);
 
@@ -1068,6 +1069,11 @@ else
             streakStatTitle = newStreakStat;
             getStreakDetails();
         }
+    }
+
+    public void goToStreakPage()
+    {
+        Nav.NavigateTo("./StreakProgressPage/"+userID);
     }
 
     <!--

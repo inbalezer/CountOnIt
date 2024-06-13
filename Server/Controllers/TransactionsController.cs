@@ -66,7 +66,7 @@ namespace CountOnIt.Server.Controllers
                 ID = subCatID
             };
 
-            string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID";
+            string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE());";
             var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetCategoryCurrentSumQuery, param);
             if (recordSubCatCurrentSum != null)
             {
@@ -115,7 +115,7 @@ namespace CountOnIt.Server.Controllers
                                         categoryID = category
                                     };
 
-                                    string getFittingSubCats = "SELECT subcategories.id, subcategories.subCategoryTitle, subcategories.monthlyPlannedBudget, (monthlyPlannedBudget - COALESCE(SUM(transValue), 0)) AS remainingBudget FROM subcategories LEFT JOIN transactions ON subcategories.id = transactions.subCategoryID WHERE importance = 0 AND categoryID = @categoryID GROUP BY subcategories.id HAVING remainingBudget > @gap";
+                                    string getFittingSubCats = "SELECT subcategories.id, subcategories.subCategoryTitle, subcategories.monthlyPlannedBudget, (monthlyPlannedBudget - (monthlyPlannedBudget - (SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = subcategories.id and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE()))) AS remainingBudget FROM subcategories LEFT JOIN transactions ON subcategories.id = transactions.subCategoryID WHERE importance = 0 AND categoryID = @categoryID GROUP BY subcategories.id HAVING remainingBudget > @gap";
 
                                     var optionalSubcategories = await _db.GetRecordsAsync<OverBudgetToShow>(getFittingSubCats, gapParam);
 
