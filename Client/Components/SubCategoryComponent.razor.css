@@ -60,6 +60,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    width: 100%;
 }
 
 
@@ -156,7 +157,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 3;
+    z-index: 1000;
 }
 
 .editAndAddSubCat {
@@ -275,20 +276,142 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-}
-
-.importanceBtns {
-    border-radius: 0.375rem;
-    border: 1px solid #D6D9F1;
-    background: #FFF;
-    display: flex;
-    column-gap: 4vh;
+    row-gap: 1vh;
 }
 
 .outerBtns {
     width: 100%;
     display: flex;
     justify-content: center;
-    padding: 1vh;
 }
 
+.importanceBtns {
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.8vh;
+    border-radius: 0.375rem;
+    border: 1px solid #D6D9F1;
+    background: #FFF;
+    display: flex;
+    width: 100%;
+    position: relative;
+}
+
+    .importanceBtns input[type="radio"] {
+        display: none;
+    }
+
+    .importanceBtns label {
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s, background 0.3s;
+        padding: 10px 20px;
+        border-radius: 0.375rem;
+    }
+
+    .importanceBtns input[type="radio"]:checked + label {
+        color: #6775F4;
+        background: #EDEFF7; /* Soft blue background for selected state */
+    }
+
+.divider {
+    height: 5vh;
+    width: 1px;
+    background-color: #EDEFF7;
+}
+
+.importanceBtns label:nth-of-type(1) + .divider {
+    left: calc(33.33% - 10px); /* Adjust for padding */
+}
+
+.importanceBtns label:nth-of-type(3) + .divider {
+    left: calc(66.66% - 20px); /* Adjust for padding */
+}
+
+@media (max-width: 768px) {
+    .importanceBtns label {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .importanceBtns label {
+        font-size: 14px;
+    }
+}
+
+.outerExample {
+    border-radius: 0.375rem;
+    border: 2px solid #D6D9F1;
+    background: #EDEFF7;
+    display: flex;
+    padding: 0.7vh;
+    margin-top: 0.7vh;
+}
+
+.example{
+    font-weight:700;
+}
+
+.outerSaveBtns {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    row-gap: 1.5vh;
+    align-items: center;
+    margin: 1.3vh 0;
+}
+
+
+.primery-button {
+    border-radius: 0.25rem;
+    background: #6775F4;
+    color: #6775F4;
+    width: 15.375rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    color: #F9F9F9;
+    text-align: center;
+    font-family: Heebo;
+    font-size: 1.3125rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    border: none;
+}
+
+.secondery-button {
+    border: 1px solid #6775F4;
+    width: 15.375rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    border-radius: 0.375rem;
+    text-align: center;
+    font-family: Heebo;
+    font-size: 1.3125rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.overlay {
+    position: fixed; /* Fixed position to cover the whole screen */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Cover full viewport width */
+    height: 100vh; /* Cover full viewport height */
+    z-index: 999; /* Lower than modal but higher than anything else */
+
+    background-color: rgba(1, 5, 43, 0.28);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.optionsMenu {
+    position: absolute;
+    z-index: 3;
+    margin-left: 5vw;
+}
