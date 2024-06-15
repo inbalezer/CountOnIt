@@ -1502,10 +1502,10 @@
             if (streakDataRes.IsSuccessStatusCode)
             {
                 currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
-                Console.WriteLine("streak status is -" + currentStreak.AllWeeksValid);
-                if (currentStreak.AllWeeksValid)
+
+                if (currentStreak.streak_length != null && currentStreak.streak_length > 0 && currentStreak.current_streak_group==true)
                 {
-                    string streakStatus = streakStatusCheck(currentStreak.WeeksWithThreeOrMoreTransactions);
+                    string streakStatus = streakStatusCheck(currentStreak.streak_length);
                     List<string> streakStatusOpt = new List<string>()
                 {
                     "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
@@ -1536,19 +1536,19 @@
                         else if (getCurrentStat == null || getCurrentStat == "")
                         {
                             //take the new status
-                            streakStatus = streakStatusOpt[0];
+                            streakStatus =null;
 
                             var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
                             if (updateStreak.IsSuccessStatusCode)
                             {
                                 //open new status pop up
-                                Console.WriteLine("streak status updated, new status is: " + streakStatus);
+                                Console.WriteLine("streak status updated, new status is:null");
                                 updatedStreak.InvokeAsync(streakStatus);
                             }
                         }
                     }
 
-                    Console.WriteLine("streak status- " + streakStatus + ", week amount- " + currentStreak.WeeksWithThreeOrMoreTransactions);
+                    Console.WriteLine("streak status- " + streakStatus + ", week amount- " + currentStreak.streak_length);
                 }
             }
         }
@@ -1556,32 +1556,38 @@
 
     public string streakStatusCheck(int weekAmount)
     {
-        if (weekAmount <= 1)
+        if (weekAmount <= 1 && weekAmount < 2)
         {
             return "מטבע ארד";
         }
-        else if (weekAmount > 1 && weekAmount <= 2)
-        {
-            return "מטבע כסף";
-        }
         else if (weekAmount > 2 && weekAmount <= 9)
         {
-            return "מטבע זהב";
+
+            return "מטבע כסף";
         }
         else if (weekAmount > 9 && weekAmount <= 12)
         {
-            return "שטר";
+
+            return "מטבע זהב";
         }
         else if (weekAmount > 12 && weekAmount <= 20)
         {
-            return "שטרות";
+
+            return "שטר";
         }
         else if (weekAmount > 20 && weekAmount <= 24)
         {
-            return "גביע";
+
+            return "שטרות";
         }
         else if (weekAmount >= 32)
         {
+
+            return "גביע";
+        }
+        else if (weekAmount > 32)
+        {
+
             return "יהלום";
         }
         else

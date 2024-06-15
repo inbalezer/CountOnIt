@@ -15,7 +15,15 @@
 <h2>ההתקדמות שלי</h2>
 <p>כל הצעדים בדרך לחסכון</p>
 <div id="transAmountForNextRank">
-    <p>עוד XXX הזנות עד לדרגה הבאה</p>
+    @if (neededTransAmount<96)
+    {
+        
+        <p>עוד @neededTransAmount הזנות עד לדרגה הבאה</p>
+    }
+    else
+    {
+        <p>הגעת לדרגה הגבוהה ביותר! אליפות!</p>
+    }
 </div>
 <div id="ranks">
     @for (int i = 0; i < streakStatusOpt.Count; i++)
@@ -46,10 +54,11 @@
     UserStreakData currentStreak = new UserStreakData();
 
     int currentUserStreakIndex = -1;
+    int neededTransAmount = 0;
 
     List<string> streakStatusOpt = new List<string>()
     {
-                    "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
+         "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
     };
 
     List<string> weekAmountForRank = new List<string>()
@@ -57,80 +66,137 @@
        "שבוע","שבועיים","חודשיים","3 חודשים","5 חודשים","חצי שנה","8 חודשים"
     };
 
-    public async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         if (userID > 0)
         {
+
             var streakDataRes = await Http.GetAsync("api/Present/checkStreak/" + userID);
             if (streakDataRes.IsSuccessStatusCode)
             {
                 currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
-                Console.WriteLine("streak status is -" + currentStreak.AllWeeksValid);
+                //Console.WriteLine("streak status is -" + currentStreak.AllWeeksValid);
 
-                string streakStatus = streakStatusCheck(currentStreak.WeeksWithThreeOrMoreTransactions);
-
-                var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
-                if (getCurrentStatRes.IsSuccessStatusCode)
+                string streakStatus = streakStatusCheck(currentStreak.streak_length);
+                if (currentStreak.streak_length != null && currentStreak.streak_length > 0 && currentStreak.current_streak_group==true)
                 {
-                    string getCurrentStat = await getCurrentStatRes.Content.ReadAsStringAsync();
-                    if (streakStatusOpt.Contains(getCurrentStat))
-                    {
-                        int streakStat = streakStatusOpt.IndexOf(getCurrentStat);
-                        currentUserStreakIndex = streakStat;
-                    }
-                    //else if (getCurrentStat == null || getCurrentStat == "")
-                    //{
-                    //    //take the new status
-                    //    streakStatus = streakStatusOpt[0];
 
-                    //    var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
-                    //    if (updateStreak.IsSuccessStatusCode)
-                    //    {
-                    //        //open new status pop up
-                    //        Console.WriteLine("streak status updated, new status is: " + streakStatus);
-                    //        currentUserStreakIndex = 0;
-                    //    }
-                    //}
+                    var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
+                    if (getCurrentStatRes.IsSuccessStatusCode)
+                    {
+                        string getCurrentStat = await getCurrentStatRes.Content.ReadAsStringAsync();
+                        if (streakStatusOpt.Contains(getCurrentStat) && streakStatusOpt.Contains(streakStatus))
+                        {
+
+                            int streakStatInDB = streakStatusOpt.IndexOf(getCurrentStat);
+                            int streakStatInpage = streakStatusOpt.IndexOf(streakStatus);
+                            if (streakStatInpage >= streakStatInDB)
+                            {
+                                var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
+                                if (updateStreak.IsSuccessStatusCode)
+                                {
+                                    //open new status pop up
+                                    Console.WriteLine("streak status updated, new status is: " + streakStatus);
+                                    currentUserStreakIndex = streakStatInpage;
+                                }
+                            }
+                            else 
+                            {
+                                var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
+                                if (updateStreak.IsSuccessStatusCode)
+                                {
+                                    //open new status pop up
+                                    Console.WriteLine("streak status updated, new status is: " + streakStatus);
+                                    currentUserStreakIndex = streakStatInDB;
+                                }
+
+                            }
+
+                        }
+
+                    }
+                }
+                else
+                {
+                    streakStatus = null;
+
+                    var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
+                    if (updateStreak.IsSuccessStatusCode)
+                    {
+                        //open new status pop up
+                        Console.WriteLine("streak status updated, new status is: " + streakStatus);
+                        currentUserStreakIndex = 0;
+                        neededTransAmount = 3;
+                    }
                 }
 
-                Console.WriteLine("streak status- " + streakStatus + ", week amount- " + currentStreak.WeeksWithThreeOrMoreTransactions);
+                Console.WriteLine("streak status- " + streakStatus + ", week amount- " + currentStreak.streak_length);
 
+            }
+            else
+            {
+
+                Console.WriteLine("failed to get streak status");
             }
         }
     }
 
     public string streakStatusCheck(int weekAmount)
     {
-        if (weekAmount <= 1)
+        int rankMinTransCount = 3;
+        if (weekAmount <= 1 && weekAmount < 2)
         {
+            if (weekAmount<1)
+            {
+                rankMinTransCount = 3;
+            }
+            else if (weekAmount==1)
+            {
+                rankMinTransCount = 6;
+            }
+            //rankMinTransCount = 6;
+            neededTransAmount = rankMinTransCount - (3 * weekAmount);
             return "מטבע ארד";
-        }
-        else if (weekAmount > 1 && weekAmount <= 2)
-        {
-            return "מטבע כסף";
         }
         else if (weekAmount > 2 && weekAmount <= 9)
         {
-            return "מטבע זהב";
+            rankMinTransCount = 9 * 3;
+            neededTransAmount = rankMinTransCount - (3 * weekAmount);
+            return "מטבע כסף";
         }
         else if (weekAmount > 9 && weekAmount <= 12)
         {
-            return "שטר";
+            rankMinTransCount = 12 * 3;
+            neededTransAmount = rankMinTransCount - (3 * weekAmount);
+            return "מטבע זהב";
         }
         else if (weekAmount > 12 && weekAmount <= 20)
         {
-            return "שטרות";
+            rankMinTransCount = 20 * 3;
+            neededTransAmount = rankMinTransCount - (3 * weekAmount);
+            return "שטר";
         }
         else if (weekAmount > 20 && weekAmount <= 24)
         {
-            return "גביע";
+            rankMinTransCount = 24 * 3;
+            neededTransAmount = rankMinTransCount - (3 * weekAmount);
+            return "שטרות";
         }
         else if (weekAmount >= 32)
         {
+            rankMinTransCount = 32 * 3;
+            neededTransAmount = rankMinTransCount - (3 * weekAmount);
+            return "גביע";
+        }
+        else if (weekAmount > 32)
+        {
+            //rankMinTransCount = 32 * 3;
+            neededTransAmount = 33 * 3;
             return "יהלום";
         }
         else
         {
+            rankMinTransCount = 0;
             return "";
         }
     }

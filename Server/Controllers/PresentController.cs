@@ -105,7 +105,9 @@ namespace CountOnIt.Server.Controllers
                 {
                     ID = userID
                 };
-                string getStreakQuery = "SELECT CASE WHEN COUNT(weekly_transactions.week_number) = MAX(total_weeks_data.total_weeks) THEN TRUE ELSE FALSE END AS AllWeeksValid, COUNT(weekly_transactions.week_number) AS WeeksWithThreeOrMoreTransactions FROM ( SELECT WEEK(t.transInputDate) AS week_number FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE() and u.id=@ID GROUP BY WEEK(t.transInputDate) HAVING COUNT(*) >= 3) AS weekly_transactions CROSS JOIN (SELECT COUNT(DISTINCT WEEK(t.transInputDate)) AS total_weeks FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE()) AS total_weeks_data;"; //gets the amount of weeks where there was a minimum of 3 transactions
+                string getStreakQuery = "WITH valid_weeks AS (SELECT WEEK(t.transInputDate) AS week_number,YEAR(t.transInputDate) AS year_number,ROW_NUMBER() OVER (ORDER BY YEAR(t.transInputDate), WEEK(t.transInputDate)) AS rn FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE() AND u.id =@ID GROUP BY YEAR(t.transInputDate), WEEK(t.transInputDate) HAVING COUNT(*) >= 3),streaks AS (SELECT vw.*,(ROW_NUMBER() OVER (ORDER BY vw.year_number, vw.week_number) - vw.rn) AS streak_group FROM valid_weeks vw),current_streak AS (SELECT s.streak_group,COUNT(*) AS streak_length,MAX(CASE WHEN vw2.year_number = YEAR(CURRENT_DATE()) AND vw2.week_number = WEEK(CURRENT_DATE()) THEN 1 ELSE 0 END) AS is_current_streak FROM streaks s JOIN valid_weeks vw2 ON s.year_number = vw2.year_number AND s.week_number = vw2.week_number GROUP BY s.streak_group) SELECT CASE WHEN MAX(is_current_streak) = 1 THEN TRUE ELSE FALSE END AS current_streak_group,MAX(streak_length) AS streak_length FROM current_streak ORDER BY streak_length DESC LIMIT 1;"; 
+                //gets the amount of weeks where there was a minimum of 3 transactions (in the current streak) and the streak's length
+
                 var getStreaks = await _db.GetRecordsAsync<UserStreakData>(getStreakQuery, param);
                 UserStreakData weekAmountInStreak = getStreaks.FirstOrDefault();
                 if (weekAmountInStreak != null)
@@ -173,7 +175,7 @@ namespace CountOnIt.Server.Controllers
                 {
                     ID = userID
                 };
-                string getStreakQuery = "SELECT COUNT(*) AS totalWeekTransactions FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE WEEK(t.transInputDate, 0) = WEEK(CURRENT_DATE(), 0) AND YEAR(t.transInputDate) = YEAR(CURRENT_DATE()) AND t.transInputDate <= CURRENT_DATE() and u.id=@ID;";
+                string getStreakQuery = "SELECT COUNT(*) AS totalWeekTransactions FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE u.id=@ID and WEEK(t.transInputDate, 0) = WEEK(CURRENT_DATE(), 0) AND YEAR(t.transInputDate) = YEAR(CURRENT_DATE()) AND t.transDate <= CURRENT_DATE();";
                 var StreaksUpdate = await _db.GetRecordsAsync<int>(getStreakQuery, param);
 
                 if (StreaksUpdate!=null)

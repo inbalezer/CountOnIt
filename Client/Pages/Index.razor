@@ -40,11 +40,18 @@ else
         <h3>כל הכבוד על ההתמדה!</h3>
         <p>הזנת השבוע @weeklyTransAmount הוצאות,</p>
         <p><b>שאפו!</b></p>
-        <p>זה השבוע ה-@currentStreak.WeeksWithThreeOrMoreTransactions ברציפות.</p>
+        <p>זה השבוע ה-@currentStreak.streak_length ברציפות.</p>
         <p>הגעת לסטטוס ה @streakStatusOpt.IndexOf(streakStatTitle) שלך.</p>
-        <p>עוד <b>@nextStreakStatIn שבועות</b> עד לסטטוס הבא!</p>
-        <button value="להזנה נוספת"></button><br/>
-        <img src="@streakImgSrc"/>
+        @if (nextStreakStatIn<35)
+        {
+            <p>עוד <b>@nextStreakStatIn שבועות</b> עד לסטטוס הבא!</p>
+        }
+        else
+        {
+            <p><b>הגעת לדרגה הגבוהה ביותר! אליפות!</b></p>
+        }
+        <button value="להזנה נוספת"></button><br />
+        <img src="@streakImgSrc" />
     </div>
 }
 
@@ -54,7 +61,14 @@ else
     {
         <div id="topSectionDiv">
             <div id="profileAndStreak">
-                <button @onclick="goToStreakPage">Streak Page</button>
+                @if (streakStatTitle != null && streakStatTitle != "")
+                {
+                    <button @onclick="goToStreakPage">@streakStatTitle</button>
+                }
+                else
+                {
+                    <button @onclick="goToStreakPage">Streak Page</button>
+                }
             </div>
             <div id="topText">
                 <p id="firstTitle">היי @currentUser.firstName 👋🏼</p>
@@ -517,7 +531,8 @@ else
                 currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
                 userID = currentUser.id;
                 searchCats = currentUser.categoriesFullList;
-                Console.WriteLine("current streak status- "+ currentUser.streakStatus);
+                getCurrentStreak();
+                Console.WriteLine("current streak status- " + currentUser.streakStatus);
 
                 var subCatToSearch = await Http.GetAsync("api/Present/getSubCategoryTitle/" + userID);
 
@@ -577,6 +592,16 @@ else
             msg = "user not authenticated";
         }
     }
+
+    private async Task getCurrentStreak()
+    {
+        var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
+        if (getCurrentStatRes.IsSuccessStatusCode)
+        {
+            streakStatTitle = await getCurrentStatRes.Content.ReadAsStringAsync();
+        }
+    }
+
 
 
     private string GetHebrewMonthName(int monthNumber)
@@ -1010,12 +1035,13 @@ else
             {
                 currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
 
-                if (currentStreak.AllWeeksValid)
+                if (currentStreak.streak_length != null && currentStreak.streak_length > 0 && currentStreak.current_streak_group == true)
                 {
                     var totalTransThisWeekRes = await Http.GetAsync("api/Present/getTotalWeekTrans/" + userID);
                     weeklyTransAmount = await totalTransThisWeekRes.Content.ReadFromJsonAsync<int>();
-                    if (weeklyTransAmount==3)
+                    if (weeklyTransAmount >= 3)
                     {
+                      
                         switch (streakStatTitle) //will fill the related streak image route
                         {
                             case "מטבע ארד":
@@ -1032,7 +1058,7 @@ else
                                 break;
                             case "שטר":
                                 streakImgSrc = "";
-                                nextStreakStatIn = 8;
+                                nextStreakStatIn =8;
                                 break;
                             case "שטרות":
                                 streakImgSrc = "";
@@ -1044,7 +1070,7 @@ else
                                 break;
                             case "יהלום":
                                 streakImgSrc = "";
-                                nextStreakStatIn = 0;
+                                nextStreakStatIn = 35;
                                 break;
                             default:
                                 Console.WriteLine("no picture is associated with this streak");
@@ -1073,7 +1099,7 @@ else
 
     public void goToStreakPage()
     {
-        Nav.NavigateTo("./StreakProgressPage/"+userID);
+        Nav.NavigateTo("./StreakProgressPage/" + userID);
     }
 
     <!--
