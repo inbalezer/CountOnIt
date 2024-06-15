@@ -368,19 +368,18 @@ ORDER BY transactions.transDate DESC;";
             };
 
             string GetSubCatTagsQuery = "select distinct tagID from transactions where subCategoryID=@ID";
-            var recordSubCatTags = await _db.GetRecordsAsync<int>(GetSubCatTagsQuery, param);
-            List<int> TagsIDList = recordSubCatTags.ToList();
-            if (TagsIDList != null)
+            var recordSubCatTags = await _db.GetRecordsAsync<int?>(GetSubCatTagsQuery, param);
+            List<int?> TagsIDList = recordSubCatTags.ToList();
+            if (TagsIDList.Count>0)
             {
                 List<TagsToShow> subCatTagList = new List<TagsToShow>();
-                foreach (int tagID in TagsIDList)
+                for (int i=0; i< TagsIDList.Count; i++)
                 {
-                    if (tagID > 0)
+                    if (TagsIDList[i]>0)
                     {
-
                         object tagIdParam = new
                         {
-                            ID = tagID
+                            ID = TagsIDList[i]
                         };
                         string getTagInfoQuery = "select * from tags where ID=@ID";
                         var getTagInfo = await _db.GetRecordsAsync<TagsToShow>(getTagInfoQuery, tagIdParam);
@@ -389,17 +388,35 @@ ORDER BY transactions.transDate DESC;";
                         {
                             subCatTagList.Add(subCatTag);
                         }
-                        else
-                        {
-                            return BadRequest("tag with ID- " + tagID + " is null");
-                        }
                     }
-                    else
-                    {
-                        return BadRequest("tag ID is null or smaller than 0");
-                    }
-
                 }
+                //foreach (int tagID in TagsIDList)
+                //{
+                //    if (tagID > 0)
+                //    {
+
+                //        object tagIdParam = new
+                //        {
+                //            ID = tagID
+                //        };
+                //        string getTagInfoQuery = "select * from tags where ID=@ID";
+                //        var getTagInfo = await _db.GetRecordsAsync<TagsToShow>(getTagInfoQuery, tagIdParam);
+                //        var subCatTag = getTagInfo.FirstOrDefault();
+                //        if (subCatTag != null)
+                //        {
+                //            subCatTagList.Add(subCatTag);
+                //        }
+                //        else
+                //        {
+                //            return BadRequest("tag with ID- " + tagID + " is null");
+                //        }
+                //    }
+                //    else
+                //    {
+                //        return BadRequest("tag ID is null or smaller than 0");
+                //    }
+
+                //}
                 return Ok(subCatTagList);
             }
 

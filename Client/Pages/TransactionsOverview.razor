@@ -114,10 +114,10 @@
 <div id="sortAndFilterBtns">
     <button @onclick="() => filterBtnClicked = true">Filter</button>
     <span>@filterStatus</span>
-    @if (filterBtnClicked) 
+    @if (filterBtnClicked)
     {
-        <button @onclick="() => filterByTransTypeOverlay = true">אמצעי תשלום</button>
-        <button @onclick="() => filterByTagOverlay = true">תגית</button>
+        <button @onclick="filterByTransTypeOverlayControl">אמצעי תשלום</button>
+        <button @onclick="filterByTagsOverlayControl">תגית</button>
         <button @onclick="filterByRepeatedTrans">הוצאה חוזרת</button>
         <button @onclick="filterBySplitPayment">תשלומים</button>
 
@@ -139,16 +139,25 @@
         }
         @if (filterByTagOverlay)
         {
-            <fieldset id="subTags" name="subCatTags">
-                <legend>התגיות שלי</legend>
-                @foreach (TagsToShow tag in subCatTagsList)
-                {
-                    <input type="radio" value="@tag.tagTitle" name="subCatTags" @onchange="@(()=> filterByTag= tag.id)" /> @tag.tagTitle
-                }
-            </fieldset>
-            <button @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
+
+            if (subCatTagsList.Count > 0)
+            {
+                    <button @onclick="() => filterByTagOverlay = false">close</button>
+                <div>
+
+                    <label for="subCatTags">התגיות שלי</label><br/>
+                        @foreach (TagsToShow tag in subCatTagsList)
+                        {
+                        <input type="radio" name="subCatTags" @onchange="@(()=> filterByTag= tag.id)" />
+                            <label>@tag.tagTitle</label>
+                        }
+                    <br />
+                    <button @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
+                </div>
+            }
         }
     }
+
     <button @onclick="() => sortBtnClicked = !sortBtnClicked">Sort</button>
     @if (sortBtnClicked)
     {
@@ -159,7 +168,7 @@
             <input type="radio" value="סכום הוצאה (מהנמוך לגבוה)" name="transSorting" @onchange="@(()=> SortingOptions("sumAsc"))" /> סכום הוצאה (מהנמוך לגבוה)
         </fieldset>
     }
-        <span>@sortStatus</span>
+    <span>@sortStatus</span>
     <button @onclick="undoFilterAndSort">איפוס</button>
 
 </div>
@@ -177,12 +186,12 @@
             else
             {
                 filterStatus = "הוצאה חוזרת";
-                if (transaction.fixedMonthly==true)
+                if (transaction.fixedMonthly == true)
                 {
                     <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus" typeByCat="@typeByCat"></TransOverviewComponent>
-                    <hr/>
+                    <hr />
                 }
-             
+
             }
             if (transaction.transType == 3)
             {
@@ -193,7 +202,7 @@
                 overdraftStatus = false;
             }
 
-            
+
             @if (totalSpendings < budget && budget != null)
             {
                 overdraftStatus = false;
@@ -245,7 +254,7 @@
     bool filterByReturnTrans = false;
     bool sortBtnClicked = false;
     List<TagsToShow> subCatTagsList = new List<TagsToShow>();
-    string filterStatus="";
+    string filterStatus = "";
     string sortStatus = "";
 
     bool typeByCat = false; //false- expense, true- income
@@ -260,41 +269,62 @@
             var catTitleRes = await catTitle.Content.ReadAsStringAsync();
             categoryTitle = catTitleRes;
 
-            Console.WriteLine("catTitle had a successful request ");
-        }
-        else
-        {
-            var errorContent = await catTitle.Content.ReadAsStringAsync();
-            Console.WriteLine("Failed to find category title. Error: " + errorContent);
-        }
-        //get subcategory title:
-        var subCatTitle = await Http.GetAsync("api/Present/GetSubCategory/" + subCatID);
-        if (subCatTitle.IsSuccessStatusCode)
-        {
-            SubCategoryToShow subTitle = await subCatTitle.Content.ReadFromJsonAsync<SubCategoryToShow>();
-            subCategoryTitle = subTitle.subCategoryTitle;
-        }
-        else
-        {
-            var subCatErrorContent = await subCatTitle.Content.ReadAsStringAsync();
-            Console.WriteLine("Failed to find subcategory title. Error: " + subCatErrorContent);
-        }
-        //get transactions of current month:
-        var checkCatType = await Http.GetAsync("api/Transactions/getCatType/" + userID);
-        if (checkCatType.IsSuccessStatusCode)
-        {
-            List<int> incomeSubCats = new List<int>();
-            incomeSubCats = checkCatType.Content.ReadFromJsonAsync<List<int>>().Result;
-            if (incomeSubCats.Count > 0)
-            {
-                if (incomeSubCats.Contains(subCatID))
-                {
-                    typeByCat = true;
 
-                    var getAllIncomeTransactions = await Http.GetAsync("api/Transactions/getAllIncomeTransactions/" + subCatID);
-                    if (getAllIncomeTransactions.IsSuccessStatusCode)
+            Console.WriteLine("catTitle had a successful request ");
+            //get subcategory title:
+            var subCatTitle = await Http.GetAsync("api/Present/GetSubCategory/" + subCatID);
+            if (subCatTitle.IsSuccessStatusCode)
+            {
+                SubCategoryToShow subTitle = await subCatTitle.Content.ReadFromJsonAsync<SubCategoryToShow>();
+                subCategoryTitle = subTitle.subCategoryTitle;
+                if (categoryTitle == "הכנסות")
+                {
+                    var checkCatType = await Http.GetAsync("api/Transactions/getCatType/" + userID);
+                    if (checkCatType.IsSuccessStatusCode)
                     {
-                        var checkTransList = getAllIncomeTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
+                        List<int> incomeSubCats = new List<int>();
+                        incomeSubCats = checkCatType.Content.ReadFromJsonAsync<List<int>>().Result;
+                        if (incomeSubCats.Count > 0)
+                        {
+                            if (incomeSubCats.Contains(subCatID))
+                            {
+                                typeByCat = true;
+
+                                var getAllIncomeTransactions = await Http.GetAsync("api/Transactions/getAllIncomeTransactions/" + subCatID);
+                                if (getAllIncomeTransactions.IsSuccessStatusCode)
+                                {
+                                    var checkTransList = getAllIncomeTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
+                                    if (checkTransList != null && checkTransList.Count > 0)
+                                    {
+                                        allTransactions = checkTransList;
+                                        foreach (TransactionOverviewToShow trans in allTransactions)
+                                        {
+                                            totalSpendings += trans.transValue;
+                                        }
+                                        prefilteredTransactions = checkTransList;
+                                        await getSubCatTags();
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("No transactions found related to this sub category");
+                                    }
+                                }
+                                else
+                                {
+                                    var transErrorContent = await getAllIncomeTransactions.Content.ReadAsStringAsync();
+                                    Console.WriteLine("Failed to find transactions. Error: " + transErrorContent);
+                                }
+                            }
+
+                        }
+                    }
+                }
+                else
+                {
+                    var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactions/" + subCatID);
+                    if (getAllTransactions.IsSuccessStatusCode)
+                    {
+                        var checkTransList = getAllTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
                         if (checkTransList != null && checkTransList.Count > 0)
                         {
                             allTransactions = checkTransList;
@@ -312,40 +342,18 @@
                     }
                     else
                     {
-                        var transErrorContent = await getAllIncomeTransactions.Content.ReadAsStringAsync();
+                        var transErrorContent = await getAllTransactions.Content.ReadAsStringAsync();
                         Console.WriteLine("Failed to find transactions. Error: " + transErrorContent);
                     }
                 }
-                
+            }
+            else
+            {
+                var errorContent = await catTitle.Content.ReadAsStringAsync();
+                Console.WriteLine("Failed to find category title. Error: " + errorContent);
             }
 
-            else //means the sub cat is related to an expense category
-            {
-                var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactions/" + subCatID);
-                if (getAllTransactions.IsSuccessStatusCode)
-                {
-                    var checkTransList = getAllTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
-                    if (checkTransList != null && checkTransList.Count > 0)
-                    {
-                        allTransactions = checkTransList;
-                        foreach (TransactionOverviewToShow trans in allTransactions)
-                        {
-                            totalSpendings += trans.transValue;
-                        }
-                        prefilteredTransactions = checkTransList;
-                        await getSubCatTags();
-                    }
-                    else
-                    {
-                        Console.WriteLine("No transactions found related to this sub category");
-                    }
-                }
-                else
-                {
-                    var transErrorContent = await getAllTransactions.Content.ReadAsStringAsync();
-                    Console.WriteLine("Failed to find transactions. Error: " + transErrorContent);
-                }
-            }
+
         }
 
     }
@@ -489,9 +497,18 @@
         }
     }
 
+    public void filterByTransTypeOverlayControl()
+    {
+        filterByTransTypeOverlay = !filterByTransTypeOverlay;
+    }
+
+    public void filterByTagsOverlayControl()
+    {
+        filterByTagOverlay = !filterByTagOverlay;
+    }
+
     public async Task filterByTransType(string selectedType)
     {
-        await undoFilterAndSort();
         filterStatus = "אמצעי תשלום: " + selectedType;
         for (int i = allTransactions.Count - 1; i >= 0; i--)
         {
@@ -511,6 +528,7 @@
     public async Task filterByTags(int tagID)
     {
         await undoFilterAndSort();
+        
         Console.WriteLine(filterByTag + ", " + tagID);
         string tagTitle = "";
         for (int i = allTransactions.Count - 1; i >= 0; i--)
@@ -552,15 +570,15 @@
 
         for (int i = allTransactions.Count - 1; i >= 0; i--)
         {
-            if (allTransactions[i].parentTransID!=null)
+            if (allTransactions[i].parentTransID != null)
             {
                 var findParentRes = await Http.GetAsync("api/Transactions/identifyParent/" + allTransactions[i].parentTransID);
                 if (findParentRes.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("transaction: " + allTransactions[i] .transTitle+ " is a part of a split payment");
+                    Console.WriteLine("transaction: " + allTransactions[i].transTitle + " is a part of a split payment");
                 }
             }
-            else if (allTransactions[i].splitPayment==true)
+            else if (allTransactions[i].splitPayment == true)
             {
                 Console.WriteLine("transaction: " + allTransactions[i].transTitle + " is a parent of a split payment");
             }
@@ -637,5 +655,5 @@
     }
 
 
-   
+
 }

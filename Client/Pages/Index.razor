@@ -101,7 +101,7 @@ else
                 </thead>
                 <tbody>
                     <tr>
-                        <td>@Math.Round(currentUser.spendingValueFullList,2) ₪</td>
+                        <td>@Math.Round(currentUser.spendingValueFullList) ₪</td>
                         <td id="middleTableRow">@Math.Round(currentUser.incomeValueFullList) ₪</td>
                         <td id="leftTableRow">
                             @Math.Round(currentUser.budgetFullValue)%
@@ -210,10 +210,7 @@ else
 
                     <p class="toggleTitlesNotChosen">הוצאות</p>
                 </div>
-                @if (userIncomeCat != null)
-                {
-                    <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
-                }
+
             }
             else
             {
@@ -231,7 +228,10 @@ else
             }
         </div>
 
-
+        @if (userIncomeCat != null && isChecked)
+        {
+            <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
+        }
         @if (!isChecked) // עובר להוצאות
         {
             <button @onclick="openCategoryOverlay" id="AddNewCat">
@@ -677,7 +677,7 @@ else
                     new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
                     new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
                     new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" },
-                    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "💰", color = "blue" }
+                    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "🪙", color = "blue" }
                 };
 
                 foreach (CategoryToAdd defualtCategory in defualtCategoriesList)
