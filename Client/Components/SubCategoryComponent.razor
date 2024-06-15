@@ -152,7 +152,7 @@
             <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
         </div>
         <br />
-        <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
+            <button class="submit-btn" @onclick="EditSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
         <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
     </div>
         </div>
@@ -357,8 +357,10 @@
         nav.NavigateTo("./TransactionsOverview/" + subCategoryIDToGet + "/" + categoryID + "/" + budget + "/" + userID);
     }
 
-    public async Task addSubCategoryAndTransaction()
+    public async Task EditSubCategoryAndTransaction()
     {
+        await saveUpdatedSubCat();
+        openTransOverlay = true;
 
     }
 

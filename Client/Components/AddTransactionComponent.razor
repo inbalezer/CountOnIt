@@ -794,7 +794,7 @@
     public async Task saveAndRepeatTransactions()
     {
         newTransaction.subCategoryID = subCategoryIDTOGet;
-        newTransaction.transType = 1;
+        //newTransaction.transType = 1;
         newTransaction.tagID = null;
         if (!categoryTypeIndicator)
         {
@@ -876,8 +876,11 @@
                     await saveRepeatedTransactions(transIDtoEdit);
                     Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                     addTransactionToTotal.InvokeAsync(newTransaction.transValue);
-                    isTransactionOverlayOpen.InvokeAsync(false);
-                    newTransaction = new TransactionToAdd();
+                    //isTransactionOverlayOpen.InvokeAsync(false);
+                    newTransaction = new TransactionToAdd()
+                    {
+                            transDate = DateTime.Today // Set the transaction date to today
+                    };
                 }
                 await getStreakDetails();
             }
@@ -1542,7 +1545,7 @@
                             if (updateStreak.IsSuccessStatusCode)
                             {
                                 //open new status pop up
-                                Console.WriteLine("streak status updated, new status is:null");
+                                Console.WriteLine("streak status updated, new status is null");
                                 updatedStreak.InvokeAsync(streakStatus);
                             }
                         }

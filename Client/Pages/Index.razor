@@ -51,7 +51,7 @@ else
             <p><b>הגעת לדרגה הגבוהה ביותר! אליפות!</b></p>
         }
         <button value="להזנה נוספת"></button><br />
-        <img src="@streakImgSrc" />
+        <img src="@streakImgSrc"/>
     </div>
 }
 
@@ -61,14 +61,17 @@ else
     {
         <div id="topSectionDiv">
             <div id="profileAndStreak">
+                @*needs to be in the user profile page eventually*@ 
                 @if (streakStatTitle != null && streakStatTitle != "")
                 {
-                    <button @onclick="goToStreakPage">@streakStatTitle</button>
+                    <button @onclick="goToStreakPage">@streakStatTitle</button> 
                 }
                 else
                 {
                     <button @onclick="goToStreakPage">Streak Page</button>
                 }
+                <button value="@currentUser.profilePicOrIcon"></button> @*will lead to user's profile page*@
+                <img src="@streakImgIcon" />
             </div>
             <div id="topText">
                 <p id="firstTitle">היי @currentUser.firstName 👋🏼</p>
@@ -501,6 +504,7 @@ else
     string streakStatTitle = "";
     bool streakOverlay = false;
     string streakImgSrc = "";
+    string streakImgIcon = "";
     int weeklyTransAmount = 0;
     List<string> streakStatusOpt = new List<string>()
                 {
@@ -1046,35 +1050,43 @@ else
                         {
                             case "מטבע ארד":
                                 streakImgSrc = "";
+                                streakImgIcon = "";
                                 nextStreakStatIn = 1;
                                 break;
                             case "מטבע כסף":
                                 streakImgSrc = "";
+                                streakImgIcon = "";
                                 nextStreakStatIn = 6;
                                 break;
                             case "מטבע זהב":
                                 streakImgSrc = "";
+                                streakImgIcon = "";
                                 nextStreakStatIn = 4;
                                 break;
                             case "שטר":
                                 streakImgSrc = "";
+                                streakImgIcon = "";
                                 nextStreakStatIn =8;
                                 break;
                             case "שטרות":
                                 streakImgSrc = "";
+                                streakImgIcon = "";
                                 nextStreakStatIn = 4;
                                 break;
                             case "גביע":
                                 streakImgSrc = "";
+                                streakImgIcon = "";
                                 nextStreakStatIn = 8;
                                 break;
                             case "יהלום":
                                 streakImgSrc = "";
+                                streakImgIcon = "";
                                 nextStreakStatIn = 35;
                                 break;
                             default:
                                 Console.WriteLine("no picture is associated with this streak");
                                 streakImgSrc = "";
+                                streakImgIcon = "";
                                 nextStreakStatIn = 0;
                                 break;
                         }

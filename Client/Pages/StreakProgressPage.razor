@@ -31,6 +31,7 @@
         if (i<= currentUserStreakIndex)
         {
         <div>
+            <img src="@rankPicSrc[i]"><img/>
             <h3>@streakStatusOpt[i]</h3>
             <p>נפתח אחרי <b>@weekAmountForRank[i]</b></p>
             </div>
@@ -38,7 +39,8 @@
         else
         {
             @*add css that will make this look locked- for now I painted the text purple so we'll see the difference*@
-            <div> 
+            <div>
+                <img src="@rankPicSrc[i]"><img />
                 <h3>@streakStatusOpt[i]</h3>
                 <p style="color: cornflowerblue">נפתח אחרי <b>@weekAmountForRank[i]</b></p>
             </div>
@@ -64,6 +66,10 @@
     List<string> weekAmountForRank = new List<string>()
     {
        "שבוע","שבועיים","חודשיים","3 חודשים","5 חודשים","חצי שנה","8 חודשים"
+    };
+    List<string> rankPicSrc = new List<string>()
+    {
+       "","","","","","",""
     };
 
     protected override async Task OnInitializedAsync()
