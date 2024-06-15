@@ -1,0 +1,286 @@
+﻿.modal-close-btn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+.overlay {
+    position: fixed; /* Fixed position to cover the whole screen */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Cover full viewport width */
+    height: 100vh; /* Cover full viewport height */
+    z-index: 999; /* Lower than modal but higher than anything else */
+
+    background-color: rgba(1, 5, 43, 0.28);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.outerTransOverlay {
+    background: #F9F9F9;
+    border-radius: 1.75rem 1.4375rem 0rem 0rem;
+    background-color: #F9F9F9;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    padding: 2vh 0 2vh 0;
+    width: 100%;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.innerTransOverlay {
+    width: 88.5vw;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 0.8vh;
+}
+
+.outerTitle {
+    display: flex;
+    flex-direction: row;
+    column-gap: 1vh;
+    font-weight: 500;
+    font-size: 1.3rem;
+}
+
+.outerTitleAndDivider {
+    display: flex;
+    flex-direction: column;
+    width: 88.5vw;
+}
+
+.divider {
+    height: 0.1vh;
+    background-color: #D6D9F1;
+    margin-bottom: 4vh;
+}
+
+.accordionAndTransDetailsWrap {
+    display: flex;
+    flex-direction: column;
+    background-color: #EDEFF7;
+}
+
+.transDetailsAccordion {
+    display: flex;
+    flex-direction: row;
+    border-radius: 0rem 0rem 0.2rem 0.2rem;
+    background: #EDEFF7;
+    width: 88.5vw;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    padding: 1.4vh;
+    align-items: center;
+    align-content: flex-end;
+    z-index: 1;
+    font-weight: 700;
+}
+
+.accordionText {
+   
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+.accordionPoly {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+.outerTitleAndDateAndName {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1vh;
+    background-color: #F9F9F9;
+    padding-top: 1vh;
+    padding-bottom: 2vh;
+    padding-right:1vw;
+}
+
+
+.innerPaddingDiv{
+    width:99%
+}
+
+.titleName {
+    font-weight: 500;
+}
+
+.titleBox {
+    border-radius: 0.3125rem;
+    background: #FFF;
+    box-shadow: 0px 85px 24px 0px rgba(171, 173, 191, 0.00), 0px 55px 22px 0px rgba(171, 173, 191, 0.01), 0px 31px 18px 0px rgba(171, 173, 191, 0.05), 0px 14px 14px 0px rgba(171, 173, 191, 0.09), 0px 3px 7px 0px rgba(171, 173, 191, 0.10);
+    padding: 1vh;
+    border: none;
+}
+
+.outerTitleAndDate {
+    display: flex;
+    flex-direction: row;
+}
+
+.outerDetails {
+    display: flex;
+    justify-content: center;
+}
+
+.innerPaddingDiv {
+    width: 96%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 0.7vh;
+}
+
+.budgetBox {
+    text-align: center;
+    border-radius: 0.25rem;
+    background: #FFF;
+    box-shadow: 0px 85px 24px 0px rgba(171, 173, 191, 0.00), 0px 55px 22px 0px rgba(171, 173, 191, 0.01), 0px 31px 18px 0px rgba(171, 173, 191, 0.05), 0px 14px 14px 0px rgba(171, 173, 191, 0.09), 0px 3px 7px 0px rgba(171, 173, 191, 0.10);
+    border: none;
+    padding: 1.5vh 1vh;
+    font-size: 1.6rem;
+    width: 65%;
+}
+
+.outerBudget {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding: 1vh 0;
+    align-items: center;
+    position: relative;
+    flex-direction: column;
+}
+
+.currency-symbol {
+    position: absolute;
+    right: 64vw;
+    pointer-events: none;
+    padding-top: 1.1vh;
+}
+
+.lineBetween {
+    width: 10.542rem;
+    background-color: #EDEFF7;
+    height: 0.2vh;
+    position: relative;
+    bottom: 2vh;
+}
+
+.splitToggle {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    align-content: center;
+    flex-wrap: nowrap;
+    width: 100%;
+    column-gap: 1vh;
+}
+
+.hidden-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+.switchSpendings {
+    background-color: #D6D9F1;
+    transition: .4s;
+    border-radius: 34px;
+    width: 4em;
+    height: 1.3em;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.switch {
+    background-color: #D6D9F1;
+    transition: .4s;
+    border-radius: 34px;
+    width: 4em;
+    height: 1.3em;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+
+
+.knob {
+    position: absolute;
+    content: "";
+    height: 1.5em;
+    width: 1.5em;
+    background-color: rgb(103, 117, 244);
+    transition: all 0.4s ease 0s;
+    border-radius: 50%;
+}
+.outerDropAndAv {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.splitDrop {
+    border: none;
+    background-color: #EDEFF7;
+    height: 6vh;
+}
+
+.outerSum {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: right;
+}
