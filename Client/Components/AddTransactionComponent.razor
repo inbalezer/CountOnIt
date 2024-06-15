@@ -191,7 +191,11 @@
                         {
                             @foreach (TransactionToAdd tToCheck in transactionsToAdd)
                             {
-                                tToCheck.transValue = newTransaction.transValue;
+                                if (!isValueTypedAfterReset)
+                                {
+                                    tToCheck.transValue = newTransaction.transValue;
+                                }
+                                
                             }
 
                             @foreach (string month in months)
@@ -379,6 +383,9 @@
     }
 
 }
+
+
+
 @code {
 
     [Parameter]
@@ -685,11 +692,11 @@
     }
 
 
-
+    List<TransactionToAdd> tempChildrenList = new List<TransactionToAdd>();
     public async Task saveAndEndTransactions()
     {
         newTransaction.subCategoryID = subCategoryIDTOGet;
-        newTransaction.transType = 1;
+        //newTransaction.transType = 1;
         newTransaction.tagID = null;
         if (!categoryTypeIndicator)
         {
@@ -707,6 +714,29 @@
         if (transactionsToAdd.Count > 0 && transactionsToAdd != null)
         {
             newTransaction.fixedMonthly = true;
+            //tempChildrenList = transactionsToAdd;
+            tempChildrenList.Clear();
+            foreach (TransactionToAdd t in transactionsToAdd)
+            {
+                TransactionToAdd tr= new TransactionToAdd()
+                {
+                        transValue = t.transValue,
+                        valueType = t.valueType,
+                        description = t.description,
+                        fixedMonthly = t.fixedMonthly,
+                        tagID = t.tagID,
+                        tagTitle = t.tagTitle,
+                        tagColor = t.tagColor,
+                        transTitle = t.transTitle,
+                        subCategoryID = subCategoryIDTOGet,
+                        transDate = t.transDate,
+                        transType = t.transType,
+                        splitPayment = t.splitPayment
+                };
+
+                tempChildrenList.Add(tr);
+            }
+            transactionsToAdd.Clear();
         }
         if (newTransaction.splitPayment == true && selectedNumber > 1)
         {
@@ -767,6 +797,15 @@
             if (transToSaveRes.IsSuccessStatusCode)
             {
                 transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
+                if (tempChildrenList.Count>0 )
+                {
+                    //transactionsToAdd = tempChildrenList;
+                    transactionsToAdd.Clear();
+                    foreach (TransactionToAdd t in tempChildrenList)
+                    {
+                        transactionsToAdd.Add(t);
+                    }
+                }
                 if (!categoryTypeIndicator)
                 {
                     await checkOverdraft();
@@ -878,9 +917,9 @@
                     addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                     //isTransactionOverlayOpen.InvokeAsync(false);
                     newTransaction = new TransactionToAdd()
-                    {
+                        {
                             transDate = DateTime.Today // Set the transaction date to today
-                    };
+                        };
                 }
                 await getStreakDetails();
             }
@@ -1346,7 +1385,7 @@
     private DateTime parsedDate;
     private bool attemptedParsing = false;
 
-    public async Task repeatingTransOverlay()
+    public async Task repeatingTransOverlay() //creates the fixed monthly input overlay
     {
         if (newTransaction.fixedMonthly == true)
         {
@@ -1364,7 +1403,7 @@
 
         }
 
-        returningTrans = !returningTrans;
+        returningTrans = !returningTrans; //opens the overlay
         transactionsToAdd = new List<TransactionToAdd>();
         int currentDay = DateTime.Now.Day;
         int currentYear = DateTime.Now.Year;
@@ -1399,6 +1438,14 @@
                     transDate = parsedDate,
                     transType = newTransaction.transType
                 };
+            if (!categoryTypeIndicator)
+            {
+                childTrans.transType = 1; //expense
+            }
+            else
+            {
+                childTrans.transType = 2; //income
+            }
             transactionsToAdd.Add(childTrans);
 
         }
@@ -1506,7 +1553,7 @@
             {
                 currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
 
-                if (currentStreak.streak_length != null && currentStreak.streak_length > 0 && currentStreak.current_streak_group==true)
+                if (currentStreak.streak_length != null && currentStreak.streak_length > 0 && currentStreak.current_streak_group == true)
                 {
                     string streakStatus = streakStatusCheck(currentStreak.streak_length);
                     List<string> streakStatusOpt = new List<string>()
@@ -1539,7 +1586,7 @@
                         else if (getCurrentStat == null || getCurrentStat == "")
                         {
                             //take the new status
-                            streakStatus =null;
+                            streakStatus = null;
 
                             var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
                             if (updateStreak.IsSuccessStatusCode)
