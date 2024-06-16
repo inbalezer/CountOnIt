@@ -348,7 +348,9 @@ ORDER BY transactions.transDate DESC;";
                 ID = userID
             };
 
-            string getTagsQuery = "SELECT DISTINCT tags.id, tags.tagTitle, tags.tagColor FROM users JOIN categories ON users.id = categories.userID JOIN subcategories ON categories.id = subcategories.categoryID JOIN transactions ON subcategories.id = transactions.subCategoryID JOIN tags ON transactions.tagID = tags.id WHERE users.id = @ID";
+            //string getTagsQuery = "SELECT DISTINCT tags.id, tags.tagTitle, tags.tagColor FROM users JOIN categories ON users.id = categories.userID JOIN subcategories ON categories.id = subcategories.categoryID JOIN transactions ON subcategories.id = transactions.subCategoryID JOIN tags ON transactions.tagID = tags.id WHERE users.id = @ID";
+
+            string getTagsQuery = "SELECT distinct tags.id, tags.tagTitle, tags.tagColor from tags where userID = @ID";
             var recordUserTags = await _db.GetRecordsAsync<TagsToShow>(getTagsQuery, allTagsParam);
             List<TagsToShow> userTagsList = recordUserTags.ToList();
 
