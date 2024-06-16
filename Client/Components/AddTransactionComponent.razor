@@ -35,7 +35,7 @@
                 }
 
                 <div class="accordionAndTransDetailsWrap">
-                    <div class="transDetailsAccordion" @onclick="() => isTopDropDownOpen = !isTopDropDownOpen">
+                    <div class="transDetailsAccordion" @onclick="manageDropDown">
 
                         <span class="accordionText">פרטי ההזנה שלי</span>
                         <span class="accordionPoly"><img src="../css/images/arrow3.svg" /></span>
@@ -45,13 +45,9 @@
                     {
                         <div class="outerDetails">
                             <div class="innerPaddingDiv">
-                                <div class="outerTitleAndDateAndName">
-                                    <span class="titleName">פרטי ההזנה</span>
-                                    <div class="outerTitleAndDate">
-                                        <input class="titleBox" type="text" @bind="newTransaction.transTitle" />
-
-                                        <input type="date" @bind="newTransaction.transDate" />
-                                    </div>
+                                <div class="outerTitleAndDate">
+                                    <input class="titleBox" type="text" @bind="newTransaction.transTitle" />
+                                    <input type="date" @bind="newTransaction.transDate" class="custom-date-input" />
                                 </div>
 
                                 <div class="outerTitleAndDateAndName">
@@ -60,6 +56,18 @@
                                         <input class="budgetBox" type="number" id="description" placeholder="0" @bind="newTransaction.transValue" />
                                         <span class="currency-symbol">₪</span>
                                         <div class="lineBetween"></div>
+                                    </div>
+                                </div>
+
+                                <div class="outerTitleAndDateAndName">
+                                    <div class="outerReBtn">
+                                        <button class="repeatedBtn" @onclick=@(async () => await repeatingTransOverlay())>@repeatedBtnTitle <img src="../css/images/repeat icon.svg" /></button>
+                                        @if (isReapetedBtnClicked)
+                                        {
+                                            <button class="cancleRepeatedBtn">ביטול הוצאה חוזרת</button>
+                                            //צריך לחבר את הכפתור לפונקציה שמבטלת את ההוצאה החוזרת ואז גם לשנות את המשתנה הזה שם לפולס
+                                        }
+
                                     </div>
                                 </div>
 
@@ -79,12 +87,12 @@
                                         </div>
                                         <div class="outerDropAndAv">
                                             <select class="splitDrop" @bind="selectedNumber">
+                                                <option value="" disabled selected>מספר תשלומים</option>
                                                 @for (int i = 2; i <= 12; i++)
                                                 {
-                                                    <option value="@i">@i תשלומים</option>
 
+                                                    <option value="@i">@i תשלומים</option>
                                                 }
-                                                selectedNumber = i;
                                             </select>
                                             @if (isItAnewTrans)
                                             {
@@ -94,11 +102,13 @@
                                                     </div>
                                                     <div>
                                                         בממוצע
-                                                        <span style="font-weight:700">@(Math.Round((newTransaction.transValue / selectedNumber), 2)
-                                    ) ₪</span>
-                                                        
+                                                        <span style="font-weight:700">
+                                                            @(Math.Round((newTransaction.transValue / selectedNumber), 2)
+                                                                ) ₪
+                                                        </span>
+
                                                     </div>
-                                                    
+
 
                                                 </div>
                                             }
@@ -146,25 +156,25 @@
 
                                 </div>
 
-                                <p>אמצעי תשלום</p>
+                                <div class="outerTitleAndDateAndName">
+                                    <div class="outerPaymentMethod">
+                                        <span class="titleName">אמצעי תשלום</span>
 
-                                @if (newTransaction.valueType == null)
-                                {
-                                    newTransaction.valueType = "מזומן";
-                                }
-                                <select @bind="newTransaction.valueType">
+                                        @if (newTransaction.valueType == null)
+                                        {
+                                            newTransaction.valueType = "מזומן";
+                                        }
+                                        <select class="splitDrop" @bind="newTransaction.valueType">
 
-                                    <option value="מזומן">מזומן</option>
-                                    <option value="אשראי">אשראי</option>
-                                    <option value="ביט/פייבוקס">ביט/פייבוקס</option>
-                                    <option value="אחר">אחר</option>
+                                            <option value="מזומן">מזומן</option>
+                                            <option value="אשראי">אשראי</option>
+                                            <option value="ביט/פייבוקס">ביט/פייבוקס</option>
+                                            <option value="אחר">אחר</option>
 
-                                </select>
-                                @if (!string.IsNullOrEmpty(newTransaction.valueType))
-                                {
-                                    <p>שיטת תשלום נבחרת: @newTransaction.valueType</p>
-                                }
-                                <button @onclick=@(async () => await repeatingTransOverlay())>@repeatedBtnTitle</button>@* לעשות קומפוננטה של חלון הגדרת הוצאה כחוזרת*@
+                                        </select>
+                                    </div>
+                                </div>
+
 
                                 @if (newTransaction.fixedMonthly == true) // עריכת הוצאה חוזרת
                                 {
@@ -331,7 +341,13 @@
 
 
                 <div>
-                    <button @onclick="@(async () => await getAllUserTags())">הגדרות מתקדמות</button>
+
+                    <div class="transDetailsAccordion" @onclick="@(async () => await getAllUserTags())">
+
+                        <span class="accordionText">הגדרות מתקדמות</span>
+                        <span class="accordionPoly"><img src="../css/images/arrow3.svg" /></span>
+                    </div>
+
 
                     @if (isButtomDropDownOpen)
                     {
@@ -515,7 +531,9 @@
     bool isButtomDropDownOpen = false;
     bool openTagsMenu = false;
     bool isValueTypedAfterReset = false;
+    bool isReapetedBtnClicked = false;
     private int selectedNumber = 1; // Default value
+
     double currentGap = 0;
     public string overlayTitle = "";
     public string repeatedBtnTitle = "הגדרת ההוצאה כחוזרת";
@@ -1386,7 +1404,7 @@
 
     public async Task getAllUserTags()
     {
-
+        isTopDropDownOpen = false;
         isButtomDropDownOpen = !isButtomDropDownOpen;
 
         if (isButtomDropDownOpen)
@@ -1414,6 +1432,7 @@
 
     public async Task repeatingTransOverlay()
     {
+        isReapetedBtnClicked = true;
         if (newTransaction.fixedMonthly == true)
         {
 
@@ -1643,4 +1662,12 @@
             return "";
         }
     }
+
+    void manageDropDown()
+    {
+        isTopDropDownOpen = !isTopDropDownOpen;
+        isButtomDropDownOpen = false;
+    }
+
+
 }
