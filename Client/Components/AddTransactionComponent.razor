@@ -180,167 +180,236 @@
                                 {
                                     @if (returningTrans)
                                     {
-                                        <div>
-                                        </div>
-                                        <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
-                                        <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
-                                        @if (resetMonthValues == false)
-                                        {
-                                            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-                                            {
-                                                tToCheck.transValue = newTransaction.transValue;
-                                            }
-                                            @foreach (string month in months)
-                                            {
-                                                <div>
-                                                    <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
-
-                                                    @{
-                                                        // Attempt to find a matching transaction for the month
-                                                        var matchingTrans = reapeatedTransValuesList.FirstOrDefault(trans => trans.transDate.ToString("MMMM") == month);
-
-                                                        // Determine the value to display in the input
-                                                        string inputValue = matchingTrans != null ? matchingTrans.transValue.ToString() : "0";
-                                                    }
-                                                    @if (GetCurrentMonth() == month)
+                                        <div class="outerRepetedTrans" style="@hiddenReOverlay">
+                                            <div class="innerTransOverlay">
+                                                <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
+                                                <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
+                                                <div class="reText">במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</div>
+                                                <div class="outerMonths">
+                                                    @if (resetMonthValues == false)
                                                     {
-                                                        inputValue = newTransaction.transValue.ToString();
-                                                    }
-                                                    <input type="text"
-                                   disabled="@(GetCurrentMonth() != month && IsPastMonth(month))"
-                                   value="@inputValue"
-                                   @oninput="eventArgs => HandleRepeatedInput(eventArgs, month, matchingTrans)" />
-                                                </div>
-                                            }
-                                            <button>שמירה וחזרה</button>
-                                            <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
-                                        }
-                                        else
-                                        {
-                                            @if (!isValueTypedAfterReset)
-                                            {
-                                                @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-                                                {
-                                                    tToCheck.transValue = 0;
-                                                }
-                                            }
+                                                        @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                                                        {
+                                                            tToCheck.transValue = newTransaction.transValue;
+                                                        }
+                                                        @foreach (string month in months)
+                                                        {
+                                                            <div class="monthValueInput @thisMonthDivStyle">
+                                                                <label>@GetHebrewMonthName(month)</label>
 
-                                            @foreach (string month in months)
-                                            {
-                                                <div>
-                                                    <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+                                                                @{
+                                                                    // Attempt to find a matching transaction for the month
+                                                                    var matchingTrans = reapeatedTransValuesList.FirstOrDefault(trans => trans.transDate.ToString("MMMM") == month);
 
-                                                    @if (GetCurrentMonth() != month)
-                                                    {
-                                                        <input type="text"
-                                   disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                    <div class="monthDivider"></div>
+                                                                    // Determine the value to display in the input
+                                                                    string inputValue = matchingTrans != null ? matchingTrans.transValue.ToString() : "0";
+                                                                }
 
+                                                                @if (GetCurrentMonth() == month)
+                                                                {
+                                                                    inputValue = newTransaction.transValue.ToString();
+                                                                    thisMonthDivStyle = "thisMonthBorder";
+                                                                }
+                                                                <div class="thisOuterValue">
+                                                                    <input id="this" class="thisMonth" type="text"
+                                                   value="@inputValue"
+                                                   @oninput="eventArgs => HandleRepeatedInput(eventArgs, month, matchingTrans)" />
+                                                                    <span class="ShekelSign">₪</span>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        <div class="outerSaveBtns">
+                                                            <button class="primery-button">שמירה וחזרה</button>
+                                                            <button class="secondery-button" @onclick="() =>
+resetMonthValues = !resetMonthValues">
+                                                                @textOnResetBtn
+                                                            </button>
+                                                        </div>
                                                     }
                                                     else
                                                     {
-                                                        <input type="text"
-                                   disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                        @if (!isValueTypedAfterReset)
+                                                        {
+                                                            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                                                            {
+                                                                tToCheck.transValue = 0;
+                                                            }
+                                                        }
+
+                                                        @foreach (string month in months)
+                                                        {
+                                                            <div class="monthValueInput @thisMonthDivStyle">
+                                                                <label>@GetHebrewMonthName(month)</label>
+                                                                <div class="monthDivider"></div>
+                                                                <div class="thisOuterValue">
+                                                                    @if (GetCurrentMonth() != month)
+                                                                    {
+                                                                        <input class="month" type="text"
+                                                   disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                        <span class="ShekelSign">₪</span>
+
+                                                                    }
+                                                                </div>
+                                                                <div class="outerValue">
+                                                                    else
+                                                                    {
+                                                                    thisMonthDivStyle = "thisMonthBorder";
+                                                                    <input class="thisMonth" type="text"
+                                                   value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                    <span class="ShekelSign">₪</span>
+                                                                    }
+                                                                </div>
+
+                                                            </div>
+                                                        }
+
+                                                        <div class="outerSaveBtns">
+                                                            @if (isResetBtnClicked && !isValueTypedAfterReset)
+                                                            {
+
+                                                                <button class="primery-button" disabled>שמירה וחזרה</button>
+                                                            }
+                                                            else if (isValueTyped && isResetBtnClicked)
+                                                            {
+                                                                <button class="primery-button" disabled>שמירה וחזרה</button>
+                                                            }
+                                                            else if (isValueTypedAfterReset)
+                                                            {
+                                                                <button class="primery-button">שמירה וחזרה</button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <button class="primery-button">שמירה וחזרה</button>
+                                                            }
+                                                            <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
+                                                        </div>
                                                     }
                                                 </div>
-                                            }
-
-                                            @if (isValueTyped)
-                                            {
-                                                <button>שמירה וחזרה</button>
-                                            }
-                                            else
-                                            {
-                                                <button disabled>שמירה וחזרה</button>
-                                                <button @onclick="() => resetMonthValues = !resetMonthValues">לסכומים המקוריים</button>
-
-                                            }
-                                        }
+                                            </div>
+                                        </div>
                                     }
                                 }
                                 else
                                 {
                                     <div class="outerRepetedTrans" style="@hiddenReOverlay">
                                         <div class="innerTransOverlay">
-                                            <button class="modal-close-btn" @onclick="backToTrans" ><img src="../css/images/back-repeated.svg" /></button>
+                                            <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
                                             @if (returningTrans)
                                             {
                                                 <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
-                                                <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
-                                                @if (resetMonthValues == false)
-                                                {
-                                                    @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                                                <div class="reText">במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</div>
+                                                <div class="outerMonths">
+                                                    @if (resetMonthValues == false)
                                                     {
-                                                        tToCheck.transValue = newTransaction.transValue;
-                                                    }
-
-                                                    @foreach (string month in months)
-                                                    {
-                                                        <div>
-                                                            @if (GetCurrentMonth() == month)
-                                                            {
-                                                                <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
-                                                                <input type="text"
-                                           disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-
-                                                            }
-                                                            else
-                                                            {
-                                                                <label>@GetHebrewMonthName(month)</label>
-                                                                <input type="text"
-                                           disabled="@IsPastMonth(month)" value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                                                            }
-
-                                                        </div>
-                                                    }
-
-                                                    <button>שמירה וחזרה</button>
-                                                    <button @onclick="() => resetMonthValues = !resetMonthValues">איפוס סכומים חוזרים</button>
-                                                }
-                                                else
-                                                {
-                                                    @if (!isValueTypedAfterReset)
-                                                    {
+                                                        isResetBtnClicked = false;
                                                         @foreach (TransactionToAdd tToCheck in transactionsToAdd)
                                                         {
-                                                            tToCheck.transValue = 0;
+                                                            tToCheck.transValue = newTransaction.transValue;
                                                         }
-                                                    }
 
-                                                    @foreach (string month in months)
-                                                    {
-                                                        <div>
-                                                            <label style="@(GetCurrentMonth() == month ? "background-color: cornflowerblue;" : "")">@GetHebrewMonthName(month)</label>
+                                                        @foreach (string month in months)
+                                                        {
+                                                            <div class="monthValueInput">
+                                                                @if (GetCurrentMonth() == month)
+                                                                {
+                                                                    <label>@GetHebrewMonthName(month)</label>
+                                                                    <div class="monthDivider"></div>
+                                                                    <div class="thisOuterValue">
+                                                                        <input class="thisMonth" type="text"
+                                                   value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                        <span class="ShekelSign">₪</span>
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <label>@GetHebrewMonthName(month)</label>
+                                                                    <div class="monthDivider"></div>
+                                                                    <div class="outerValue">
+                                                                        <input class="months" type="text"
+                                                   disabled="@IsPastMonth(month)" value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                        <span class="ShekelSign">₪</span>
+                                                                    </div>
+                                                                }
 
-                                                            @if (GetCurrentMonth() != month)
-                                                            {
-                                                                <input type="text"
-                                           disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                            </div>
+                                                        }
 
-                                                            }
-                                                            else
-                                                            {
-                                                                <input type="text"
-                                           disabled value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                                                            }
-                                                        </div>
-                                                    }
-
-                                                    @if (isValueTyped)
-                                                    {
-                                                        <button>שמירה וחזרה</button>
                                                     }
                                                     else
                                                     {
-                                                        <button disabled>שמירה וחזרה</button>
-                                                        <button @onclick="() => resetMonthValues = !resetMonthValues">לסכומים המקוריים</button>
+                                                        isResetBtnClicked = true;
+                                                        isValueTyped = false;
 
+                                                        @if (!isValueTypedAfterReset)
+                                                        {
+                                                            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                                                            {
+                                                                tToCheck.transValue = 0;
+                                                            }
+                                                        }
+
+                                                        @foreach (string month in months)
+                                                        {
+                                                            <div class="monthValueInput">
+                                                                <label>@GetHebrewMonthName(month)</label> @*/סקשן איפוס!!!*@
+                                                                <div class="monthDivider"></div>
+                                                                <div class="outerValue">
+                                                                    @if (GetCurrentMonth() != month)
+                                                                    {
+                                                                        <input class="months" type="text"
+                                                   disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                        <span class="ShekelSign">₪</span>
+                                                                    }
+
+                                                                    else
+                                                                    {
+                                                                        <div class="thisOuterValue">
+                                                                            <input class="thisMonth" type="text"
+                                                       value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                            <span class="ShekelSign">₪</span>
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        }
                                                     }
-                                                }
+
+                                                </div>
+                                                <div class="outerSaveBtns">
+                                                    @if (isResetBtnClicked && !isValueTypedAfterReset)
+                                                    {
+
+                                                        <button class="primery-button" disabled>שמירה וחזרה</button>
+                                                    }
+                                                    else if (isValueTyped && isResetBtnClicked)
+                                                    {
+                                                        <button class="primery-button" disabled>שמירה וחזרה</button>
+                                                    }
+                                                    else if (isValueTypedAfterReset)
+                                                    {
+                                                        <button class="primery-button">שמירה וחזרה</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="primery-button">שמירה וחזרה</button>
+                                                    }
+
+                                                    <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
+                                                    @* @if (isValueTyped)
+                                    {
+                                    }*@
+                                                    @* else
+                                    {
+                                    <button class="primery-button" disabled>שמירה וחזרה</button>
+                                    <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
+
+                                    }*@
+                                                </div>
+
                                             }
                                         </div>
                                     </div>
-
-
                                 }
                             </div>
                         </div>
@@ -590,11 +659,14 @@
     bool disBtn = false;
     bool disNextBtn = false;
     bool isTagChosen = false;
+    bool isResetBtnClicked = false;
     string disBtnStyle => disBtn ? "disBtn" : "";
     string disNextBtnStyle => disNextBtn ? "disBtn" : "";
     string chosenTagStyle => isTagChosen ? "chosenTag" : "";
+    string textOnResetBtn => isResetBtnClicked ? "חזרה לסכומים המקוריים" : "איפוס סכומים חוזרים";
     string hiddenReOverlay = "";
-
+    string pastMonthStyle = "";
+    string thisMonthDivStyle = "";
 
 
     double currentGap = 0;
@@ -696,6 +768,7 @@
 
     private bool IsPastMonth(string month)
     {
+        pastMonthStyle = "disMonth";
         int currentMonthIndex = months.IndexOf(GetCurrentMonth());
         int monthIndex = months.IndexOf(month);
         return monthIndex < currentMonthIndex;

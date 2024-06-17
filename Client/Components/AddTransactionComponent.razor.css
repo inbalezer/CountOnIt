@@ -612,3 +612,90 @@ input:checked + .slider:before {
     bottom: 0;
     z-index: 1001;
 }
+
+.outerMonths {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-items: center;
+    width: 100%;
+    grid-column-gap: 3vh;
+    grid-row-gap: 1.5vh;
+}
+
+.monthValueInput {
+    border-radius: 0.3125rem;
+    border: 1.5px solid rgba(3, 9, 66, 0.11);
+    background: #FFF;
+    padding: 0.5vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 0.5vh;
+    box-shadow: 0px 66px 18px 0px rgba(0, 0, 0, 0.00), 0px 42px 17px 0px rgba(0, 0, 0, 0.00), 0px 24px 14px 0px rgba(0, 0, 0, 0.01), 0px 11px 11px 0px rgba(0, 0, 0, 0.02), 0px 3px 6px 0px rgba(0, 0, 0, 0.02);
+}
+
+.thisMonth {
+    width: 100%;
+    border-radius: 0.25rem;
+    border: none;
+    padding: 1vh 0;
+    text-align: center;
+    pointer-events: none;
+    background-color: #8083ef;
+    color: white;
+}
+
+.thisOuterValue {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    box-shadow: 0px 66px 18px 0px rgba(0, 0, 0, 0.00), 0px 42px 17px 0px rgba(0, 0, 0, 0.00), 0px 24px 14px 0px rgba(0, 0, 0, 0.01), 0px 11px 11px 0px rgba(0, 0, 0, 0.02), 0px 3px 6px 0px rgba(0, 0, 0, 0.02);
+    border-radius: 0.25rem;
+    background-color: #8083ef;
+    color: white;
+}
+
+.months {
+    width: 100%;
+    border-radius: 0.25rem;
+    border: none;
+    padding: 1vh 0;
+    text-align: center;
+    background-color: var(--BG-color, #EDEFF7);
+}
+
+.monthDivider {
+    background-color: #6775F4;
+    width: 82%;
+    height: 0.2vh;
+    margin-bottom: 1vh;
+}
+
+.outerValue {
+    display: flex;
+    flex-direction: row;
+    background: var(--BG-color, #EDEFF7);
+    align-items: center;
+   
+}
+
+.shekelSign {
+    margin-left: 1vw;
+    width: 6vw;
+}
+
+.disMonth{
+    opacity:50%;
+}
+
+input:disabled, button:disabled {
+    opacity: 50%;
+}
+
+.thisMonthBorder {
+    border: 2px solid #6775f4;
+}
+
+.reText{
+    margin-bottom:0.5vh;
+}
