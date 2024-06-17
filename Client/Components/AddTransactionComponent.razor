@@ -26,8 +26,8 @@
                 {
                     <div class="outerTitleAndDivider">
                         <div class="outerTitle">
-                            <span>@repeatedBtnTitle = "עריכת הוצאה חוזרת"</span>
-                            <span>@overlayTitle</span>
+                            <span>@overlayTitle:</span>
+                            <span>@ogTransaction.transTitle</span>
 
                         </div>
                         <div class="divider"> </div>
@@ -294,9 +294,10 @@ resetMonthValues = !resetMonthValues">
                                 {
                                     <div class="outerRepetedTrans" style="@hiddenReOverlay">
                                         <div class="innerTransOverlay">
-                                            <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
+
                                             @if (returningTrans)
                                             {
+                                                <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
                                                 <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
                                                 <div class="reText">במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</div>
                                                 <div class="outerMonths">
@@ -453,21 +454,63 @@ resetMonthValues = !resetMonthValues">
                                     }
                                     else
                                     {
-                                        @foreach (TagsToShow tag in allUserTags)
-                                        {
-                                            string buttonStyle = "background-color:" + tag.tagColor + ";";
-
-                                            @if (tag.id == newTransaction.tagID)
+                                        <button class="addTagBtn" @onclick="() => openTagsMenu = !openTagsMenu">
+                                            @if (chosenTag.id > 0)
                                             {
-                                                buttonStyle += "border: 2px solid black;";
-                                                <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
+                                                <img src="../css/images/after-tag.svg" />
+                                                <span class="tag tagLabel" style="background-color:@chosenTag.tagColor">@chosenTag.tagTitle</span>
                                             }
                                             else
                                             {
-                                                buttonStyle += "border: none;";
-                                                <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
+                                                <img src="../css/images/addtag.svg" />
                                             }
-                                        }
+
+
+                                        </button>
+                                        <div class="outerGalleryAndNav">
+                                            <div class="outerGallery">
+
+                                                @foreach (TagsToShow tag in GetCurrentPageTags())
+                                                {
+                                                    string buttonStyle = "background-color:" + tag.tagColor + ";";
+
+                                                    var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
+                                                    <button class="tag"
+                                            @onclick="(() => ChooseTagForTrans(tag))"
+                                            style="background-color:@tag.tagColor; @fontWeight @buttonStyle">
+                                                        @tag.tagTitle
+                                                    </button>
+
+                                                    @*@if (tag.id == newTransaction.tagID)
+                                                    {
+                                                        buttonStyle += "font-weight: 600;";
+                                                        <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        buttonStyle += "font-weight: 400;";
+                                                        <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
+                                                    }*@
+
+                                                    @if(tag.id == newTransaction.tagID)
+                                                    {
+                                                        chosenTag = tag;
+                                                    }
+                                                    
+                                                }
+                                            </div>
+                                            <div class="outerBtnAndDots">
+                                                <button class="galleryArrow @disBtnStyle" @onclick="PreviousPage"><img src="../css/images/arrow-back.svg" /></button>
+                                                <div class="pageDots">
+                                                    @for (int i = 0; i < totalPages; i++)
+                                                    {
+                                                        <span class="dot @(i == currentPage ? "active" : "")"></span>
+                                                    }
+                                                </div>
+                                                <button class="galleryArrow @disNextBtnStyle" @onclick="NextPage"><img src="../css/images/arrow-next.svg" /></button>
+
+                                            </div>
+                                        </div>
                                     }
 
                                     @if (openTagsMenu)
@@ -523,7 +566,9 @@ resetMonthValues = !resetMonthValues">
                 }
                 else
                 {
-                    <button @onclick="updateExistingTrans">שמירה וסיום</button>
+                    <div class="outerSaveBtns">
+                        <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
+                    </div>
                 }
 
                 @if (overdraftDetected)
