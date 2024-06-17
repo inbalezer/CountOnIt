@@ -113,23 +113,89 @@ else
                 </tbody>
             </table>
             <button class="primery-button" @onclick="getSubCatTotalsForStory">מצב החודש כרגע</button>
+
             @if (storyPopUpWindow)
             {
-                <div id="storyWindow">
-                    <span class="close-button" @onclick="StoryWindowControl">&times;</span> <br />
+                <div class="overlay">
+                    <div class="outerStory">
 
-                    <div class="progress-nav-bar">
 
-                        <button class="storyPhase @(storyNav == 1 ? "active" : "")" @onclick="() => OnStepClicked(1)">
-                            <div class="step-indicator"></div>
-                        </button>
-                        <button class="storyPhase @(storyNav == 2 ? "active" : "")" @onclick="() => OnStepClicked(2)">
-                            <div class="step-indicator"></div>
-                        </button>
-                        <button class="storyPhase @(storyNav == 3 ? "active" : "")" @onclick="() => OnStepClicked(3)">
-                            <div class="step-indicator"></div>
-                        </button>
+                        <div id="storyWindow">
+                            <span class="close-button" @onclick="StoryWindowControl">&times;</span> <br />
 
+                            <div class="progress-nav-bar">
+
+                                <button class="storyPhase @(storyNav == 1 ? "active" : "")" @onclick="() => OnStepClicked(1)">
+                                    <div class="step-indicator"></div>
+                                </button>
+                                <button class="storyPhase @(storyNav == 2 ? "active" : "")" @onclick="() => OnStepClicked(2)">
+                                    <div class="step-indicator"></div>
+                                </button>
+                                <button class="storyPhase @(storyNav == 3 ? "active" : "")" @onclick="() => OnStepClicked(3)">
+                                    <div class="step-indicator"></div>
+                                </button>
+
+                            </div>
+                            @*<style>
+                    .storyPhase {
+                    background-color: #D6D9F1;
+                    width: 20px;
+                    height: 20px;
+                    }
+                    .storyPhase.active {
+                    background-color: #6874f4;
+                    }
+                    </style>*@
+
+                            @if (storyNav == 1 && subCatsTotalsStory.Count > 0)
+                            {
+                                <h2>היי @currentUser.firstName! רוצה לראות איך עובר החודש?</h2>
+                                <p>אלה תתי הקטגוריות שהכי בלטו עד כה:</p>
+                                <div @onclick="NextStory">
+
+                                    <span>👍</span>
+                                    <h3>החסכון הגדול ביותר</h3>
+                                    <p>עד כה החודש הוצאת @subCatsTotalsStory[bestSavingIndex].currentMonthTotal₪ על @bestSavingSubCat, @bestSavingValue₪ פחות מחודש שעבר! </p>
+
+                                    <span>👎</span>
+                                    <h3>העלייה הגדולה ביותר</h3>
+                                    <p>עד כה החודש הוצאת @subCatsTotalsStory[worstSavingIndex].currentMonthTotal₪ על @worstSavingSubCat, @worstSavingValue₪ יותר מחודש שעבר! </p>
+                                </div>
+                            }
+                            else if (storyNav == 2 && tagsSpendingsList.Count > 0)
+                            {
+                                <div @onclick="NextStory">
+
+                                    <h3>התגיות עם הכי הרבה הוצאות</h3>
+                                    <ol>
+                                        @foreach (TagsAndSpendingsToShow tag in tagsSpendingsList)
+                                        {
+                                            <li>הוצאת על @tag.tagTitle @tag.totalValue ₪</li>
+                                        }
+                                    </ol>
+                                </div>
+
+                            }
+                            else if (storyNav == 3)
+                            {
+                                <div @onclick="NextStory">
+                                    <h3>התזרים שלי עד כה החודש</h3>
+                                    <p>פילוח ההוצאות שלך לפי קטגוריות</p>
+                                    <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
+                                    @if (incomeSum != null)
+                                    {
+                                        <p>ההכנסות שלך עומדות כרגע על @incomeSum ₪</p>
+
+                                    }
+                                    else
+                                    {
+                                        <p>לא הוזנו הכנסות בחודש זה.</p>
+                                    }
+                                </div>
+
+
+                            }
+                        </div>
                     </div>
                     <style>
                         .storyPhase {
@@ -193,7 +259,9 @@ else
                     }
                 </div>
             }
+
         </div>
+
 
         <div class="toggleWrap">
 
@@ -1113,7 +1181,7 @@ else
     {
         Nav.NavigateTo("./StreakProgressPage/" + userID);
     }
-
+}
     <!--
     //    protected override async Task OnAfterRenderAsync(bool firstRender)
     //    {
@@ -1142,6 +1210,6 @@ else
     //        }
     //    } -->
     <!-- } -->
-}
+
 
 

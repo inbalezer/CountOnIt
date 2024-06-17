@@ -18,7 +18,7 @@
             <EditCategoryComponent categoryToEdit="@Category" isCategoryOverlayOpen="showEditCategory" popupTitle="@popupTitle" closeOverlay="closeEditOverlay" isEmojiExsist=true></EditCategoryComponent>
         }
     </div>
-   
+
 
     <div class="categoryWrap">
         <div id="iconAndCatTitle">
@@ -37,11 +37,11 @@
         }
 
         <div class="closedAndOpenMenu">
-        <button class="options" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
-        @if (isOpetionsBtnClicked)
-        {
+            <button class="options" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+            @if (isOpetionsBtnClicked)
+            {
                 <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked" closeOverlay="closeDeleteOverlay"></OptionsMenuComponent>
-        }
+            }
         </div>
 
     </div>
@@ -93,7 +93,7 @@
                                 <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak"></SubCategoryComponent>
                             </div>
                         </div>
-                        
+
                         isFirstItem = false;
                     }
 
@@ -110,10 +110,71 @@
 
     @if (isSubCategoryAddOverlayOpen)
     {
-        <div>
-            <div>
-                <h2>הוספת תת קטגוריה</h2>
-                <button class="modal-close-btn" @onclick="() => isSubCategoryAddOverlayOpen = !isSubCategoryAddOverlayOpen">&times;</button>
+        <div class="overlay">
+            <div class="outerSubCatOverlay">
+                <div class="innerSubCatOverlay">
+                    <button class="modal-close-btn" @onclick="() => isSubCategoryAddOverlayOpen = !isSubCategoryAddOverlayOpen"><img src="../css/images/close x.svg" /></button>
+                    <h2>הוספת תת קטגוריה</h2>
+
+                    <div class="editAndAddSubCat">
+                        @if (userCategories.Count > 0)
+                        {
+                            <span>הוספת תת קטגוריה ל</span>
+                            <select class="catsDropDown" @bind="selectedCategoryForNewSubCat">
+
+                                @foreach (AllUserCategories userCategory in userCategories)
+                                {
+
+                                    <option class="catsOptions" value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+
+
+                                }
+                            </select>
+                        }
+                    </div>
+
+                    <div class="outerTitleName">
+                        <label class="titleName" for="amount">שם תת קטגוריה</label>
+                        <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="newSubCategory.subCategoryTitle" />
+                    </div>
+
+                    <label class="titleName" for="description">מה התקציב החודשי שלך עבור @newSubCategory.subCategoryTitle? </label>
+
+                    <div class="outerBudget">
+                        <input class="budgetBox" type="number" id="description" placeholder="0" @bind="newSubCategory.monthlyPlannedBudget" />
+                        <span class="currency-symbol">₪</span>
+                        <div class="lineBetween"></div>
+                    </div>
+
+                    <div class="outerImportance">
+                        <label class="titleName" for="importance">עדיפות תת הקטגוריה</label>
+                        <div class="outerBtns">
+                            <div class="importanceBtns">
+                                <input type="radio" id="wants" name="importance" @onchange="@(() => newSubCategory.importance = 0)" />
+                                <label for="wants">רצון</label>
+                                <span class="divider"></span>
+
+                                <input type="radio" id="needs" name="importance" @onchange="@(() => newSubCategory.importance = 1)" />
+                                <label for="needs">צורך</label>
+                                <span class="divider"></span>
+
+                                <input type="radio" id="must" name="importance" @onchange="@(() => newSubCategory.importance = 2)" />
+                                <label for="must">חובה</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="outerExample">
+                        <div>
+                            <span class="example">לדוגמה:</span>
+                            לק - רוצה, דלק - צריך, שכ״ד- חייב. העדיפות משפיעה על הטיפים לייעול התקציב.
+                        </div>
+                    </div>
+                    <div class="outerSaveBtns">
+                        <button class="primery-button" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
+                        <button class="secondery-button" @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
+                    </div>
+                </div>
             </div>
 
 
@@ -164,6 +225,7 @@
             <button class="submit-btn" @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
         </div>
     }
+
     @if (openTransactionOverlay)
     {
         <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" userID="@userID" updatedStreak="updateStreak"></AddTransactionComponent>
@@ -210,8 +272,8 @@
     public EventCallback isEditClicked { get; set; }
 
     [Parameter]
-
     public EventCallback isDeleteClicked { get; set; }
+
     [Parameter]
 
     public EventCallback<CategoryToShow> deleteCat { get; set; }
@@ -564,5 +626,6 @@
     {
         updatedStreakStat.InvokeAsync(newStreakStat);
     }
+
 
 }

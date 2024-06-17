@@ -148,11 +148,11 @@
     border-radius: 50%;
     background-color: #F4B367;
 }
-#\#7B67F4 {
+#\#AEA2F9 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background-color: #7B67F4;
+    background-color: #AEA2F9;
 }
 #\#F467AB {
     width: 25px;
@@ -166,17 +166,17 @@
     border-radius: 50%;
     background-color: #F47867;
 }
-#\#678EF4 {
+#\#6775F4 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background-color: #678EF4;
+    background-color: #6775F4;
 }
-#\#85E7A0 {
+#\#8DE4BF {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background-color: #85E7A0;
+    background-color: #8DE4BF;
 }
 #\#67CAF4 {
     width: 25px;
@@ -184,29 +184,29 @@
     border-radius: 50%;
     background-color: #67CAF4;
 }
-#\#FFEF9D {
+#\#FCE884 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background-color: #FFEF9D;
+    background-color: #FCE884;
 }
-#\#FBEBD7 {
+#\#F9D3C2 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background-color: #FBEBD7;
+    background-color: #F9D3C2;
 }
-#\#04905E {
+#\#16A78D {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background-color: #04905E;
+    background-color: #16A78D;
 }
-#\#F95050 {
+#\#696969 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
-    background-color: #F95050;
+    background-color: #696969;
 }
 #\#DADADA {
     width: 25px;
@@ -379,3 +379,8 @@
     display:flex;
     flex-direction:column;
 }
+
+.outerBtns{
+    width:100%;
+}
+
