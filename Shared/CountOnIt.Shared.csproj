@@ -6,6 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+	<PropertyGroup>
+		<SatelliteResourceLanguages>he</SatelliteResourceLanguages>
+	</PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Blazorise" Version="1.5.3" />
     <PackageReference Include="Blazorise.Bootstrap5" Version="1.5.3" />

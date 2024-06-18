@@ -9,6 +9,12 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'CountOnIt' ">
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
+	<PropertyGroup>
+		<SatelliteResourceLanguages>he</SatelliteResourceLanguages>
+	</PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Blazorise" Version="1.5.3" />
     <PackageReference Include="Blazorise.Bootstrap5" Version="1.5.3" />
