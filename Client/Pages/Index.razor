@@ -309,15 +309,25 @@ else
         }
         @if (!isChecked) // עובר להוצאות
         {
-            <button @onclick="openCategoryOverlay" id="AddNewCat">
+            if (currentUser.categoriesFullList.Count < 13)
+            {
+                <button @onclick="openCategoryOverlay" id="AddNewCat">
+                    <div class="emoji-circle">
+                        📁
+                    </div>
+                    <p class="addTitle">הוספת קטגוריה חדשה</p>
+                </button>
+            }
+            else
+            {
+                 <button @onclick="openCategoryOverlay" id="AddNewCat" disabled>
                 <div class="emoji-circle">
                     📁
                 </div>
-                <p class="addTitle">הוספת קטגוריה חדשה</p>
+                <p class="addTitle"> disabled הוספת קטגוריה חדשה</p>
             </button>
-
-
-
+  @*     לשנות את טקסט הכפתור אחרי שנוסיף עיצוב dis*@
+            }
 
             @if (!string.IsNullOrEmpty(searchQuery))
             {

@@ -59,17 +59,34 @@
         @if (isAccordionClick)
         {
             <div class="subCatsWrap">
-
-                <button class="custom-btn" @onclick="getUserCategories">
-                    <div class="btn-content">
-                        <div class="textAndLine">
-                            <span class="btn-text">תת קטגוריה חדשה</span>
-                            <div class="subCatLine">
+                @if (subCategories.Count<13)
+                {
+                    <button class="custom-btn" @onclick="getUserCategories">
+                        <div class="btn-content">
+                            <div class="textAndLine">
+                                <span class="btn-text">תת קטגוריה חדשה</span>
+                                <div class="subCatLine">
+                                </div>
                             </div>
+                            <div class="btn-icon"><img src="../css/images/+.svg" /></div>
                         </div>
-                        <div class="btn-icon"><img src="../css/images/+.svg" /></div>
-                    </div>
-                </button>
+                    </button>
+                }
+                else
+                {
+                    @*     לשנות את טקסט הכפתור אחרי שנוסיף עיצוב dis*@
+                    <button class="custom-btn" @onclick="getUserCategories" disabled>
+                        <div class="btn-content">
+                            <div class="textAndLine">
+                                <span class="btn-text">תת קטגוריה חדשה dis</span>
+                                <div class="subCatLine">
+                                </div>
+                            </div>
+                            <div class="btn-icon"><img src="../css/images/+.svg" /></div>
+                        </div>
+                    </button>
+                }
+
 
                 @if (subCategories.Count > 0)
                 {
