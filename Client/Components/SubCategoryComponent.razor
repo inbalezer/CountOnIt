@@ -143,13 +143,14 @@
                     </div>
                 </div>
                 <div class="outerSaveBtns">
-                   @*<button class="primery-button" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>*@
+                    <button class="primery-button" @onclick="EditSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
                     <button class="secondery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
                 </div>
 
             </div>
         </div>
-        <div>
+        </div>
+       @* <div>
             <label for="importance">עדיפות תת הקטגוריה</label>
            
                 @if (subCatToEdit.importance == 0)
@@ -195,7 +196,7 @@
         <br />
             <button class="submit-btn" @onclick="EditSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
         <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
-    </div>
+    </div>*@
 }
 
 
@@ -408,5 +409,10 @@
     public void updateStreak(string? newStreakStat)
     {
         updatedStreakStat.InvokeAsync(newStreakStat);
+    }
+
+    public async Task addSubCategoryAndTransaction()
+    {
+        
     }
 }

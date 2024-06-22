@@ -42,7 +42,7 @@ else
         <p><b>שאפו!</b></p>
         <p>זה השבוע ה-@currentStreak.streak_length ברציפות.</p>
         <p>הגעת לסטטוס ה @streakStatusOpt.IndexOf(streakStatTitle) שלך.</p>
-        @if (nextStreakStatIn<35)
+        @if (nextStreakStatIn < 35)
         {
             <p>עוד <b>@nextStreakStatIn שבועות</b> עד לסטטוס הבא!</p>
         }
@@ -51,7 +51,7 @@ else
             <p><b>הגעת לדרגה הגבוהה ביותר! אליפות!</b></p>
         }
         <button value="להזנה נוספת"></button><br />
-        <img src="@streakImgSrc"/>
+        @* <img src="@streakImgSrc"/>*@
     </div>
 }
 
@@ -61,17 +61,23 @@ else
     {
         <div id="topSectionDiv">
             <div id="profileAndStreak">
-                @*needs to be in the user profile page eventually*@ 
+                @*needs to be in the user profile page eventually*@
                 @if (streakStatTitle != null && streakStatTitle != "")
                 {
-                    <button @onclick="goToStreakPage">@streakStatTitle</button> 
+                    //<button @onclick="goToStreakPage">@streakStatTitle</button>
+                    @if (streakImgIcon != "")
+                    {
+                        <button @onclick="goToStreakPage"><img src=@streakImgIcon/></button>
+                        
+                    }
                 }
                 else
                 {
                     <button @onclick="goToStreakPage">Streak Page</button>
                 }
-                <button value="@currentUser.profilePicOrIcon"></button> @*will lead to user's profile page*@
-                <img src="@streakImgIcon" />
+                <button>@currentUser.profilePicOrIcon</button> @*will lead to user's profile page*@
+
+
             </div>
             <div id="topText">
                 <p id="firstTitle">היי @currentUser.firstName 👋🏼</p>
@@ -671,6 +677,49 @@ else
         if (getCurrentStatRes.IsSuccessStatusCode)
         {
             streakStatTitle = await getCurrentStatRes.Content.ReadAsStringAsync();
+            switch (streakStatTitle) //will fill the related streak image route
+            {
+                case "מטבע ארד":
+
+                    streakImgIcon = "../css/images/bronzeCoin.svg";
+
+                    break;
+                case "מטבע כסף":
+
+                    streakImgIcon = "../css/images/silverCoin.svg";
+
+                    break;
+                case "מטבע זהב":
+
+                    streakImgIcon = "../css/images/goldCoin.svg";
+
+                    break;
+                case "שטר":
+
+                    streakImgIcon = "../css/images/singleCashNote.svg";
+
+                    break;
+                case "שטרות":
+
+                    streakImgIcon = "../css/images/cashNotes.svg";
+
+                    break;
+                case "גביע":
+
+                    streakImgIcon = "../css/images/goblet.svg";
+
+                    break;
+                case "יהלום":
+
+                    streakImgIcon = "../css/images/diamond.svg";
+
+                    break;
+                default:
+                    Console.WriteLine("no picture is associated with this streak");
+                    streakImgIcon = "";
+
+                    break;
+            }
         }
     }
 
@@ -1113,42 +1162,42 @@ else
                     weeklyTransAmount = await totalTransThisWeekRes.Content.ReadFromJsonAsync<int>();
                     if (weeklyTransAmount >= 3)
                     {
-                      
+
                         switch (streakStatTitle) //will fill the related streak image route
                         {
                             case "מטבע ארד":
-                                streakImgSrc = "";
-                                streakImgIcon = "";
+                                streakImgSrc = "../css/images/bronzeCoin.svg";
+                                streakImgIcon = "../css/images/bronzeCoin.svg";
                                 nextStreakStatIn = 1;
                                 break;
                             case "מטבע כסף":
-                                streakImgSrc = "";
-                                streakImgIcon = "";
+                                streakImgSrc = "../css/images/silverCoin.svg";
+                                streakImgIcon = "../css/images/silverCoin.svg";
                                 nextStreakStatIn = 6;
                                 break;
                             case "מטבע זהב":
-                                streakImgSrc = "";
-                                streakImgIcon = "";
+                                streakImgSrc = "../css/images/goldCoin.svg";
+                                streakImgIcon = "../css/images/goldCoin.svg";
                                 nextStreakStatIn = 4;
                                 break;
                             case "שטר":
-                                streakImgSrc = "";
-                                streakImgIcon = "";
-                                nextStreakStatIn =8;
+                                streakImgSrc = "../css/images/singleCashNote.svg";
+                                streakImgIcon = "../css/images/singleCashNote.svg";
+                                nextStreakStatIn = 8;
                                 break;
                             case "שטרות":
-                                streakImgSrc = "";
-                                streakImgIcon = "";
+                                streakImgSrc = "../css/images/cashNotes.svg";
+                                streakImgIcon = "../css/images/cashNotes.svg";
                                 nextStreakStatIn = 4;
                                 break;
                             case "גביע":
-                                streakImgSrc = "";
-                                streakImgIcon = "";
+                                streakImgSrc = "../css/images/goblet.svg";
+                                streakImgIcon = "../css/images/goblet.svg";
                                 nextStreakStatIn = 8;
                                 break;
                             case "יהלום":
-                                streakImgSrc = "";
-                                streakImgIcon = "";
+                                streakImgSrc = "../css/images/diamond.svg";
+                                streakImgIcon = "../css/images/diamond.svg";
                                 nextStreakStatIn = 35;
                                 break;
                             default:

@@ -177,7 +177,7 @@
                 </div>
             </div>
 
-
+            @* 
             @if (userCategories.Count > 0)
             {
                 <span>הוספת תת קטגוריה ל</span>
@@ -192,8 +192,8 @@
                     }
                 </select>
             }
-
-            <div>
+        
+           <div>
                 <label for="amount">שם תת קטגוריה</label>
                 <input type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="newSubCategory.subCategoryTitle" />
             </div>
@@ -223,7 +223,8 @@
             <br />
             <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
             <button class="submit-btn" @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
-        </div>
+        </div>*@
+            </div>
     }
 
     @if (openTransactionOverlay)
