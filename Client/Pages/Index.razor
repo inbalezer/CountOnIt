@@ -152,6 +152,8 @@ else
                     }
                     </style>*@
 
+
+                    @*decide what happens when the user doesn't have enough data to fill the story pages*@
                             @if (storyNav == 1 && subCatsTotalsStory.Count > 0)
                             {
                                 <h2>היי @currentUser.firstName! רוצה לראות איך עובר החודש?</h2>
@@ -214,7 +216,7 @@ else
                             }
                     </style>
                     <br>
-                    @if (storyNav == 1 && subCatsTotalsStory.Count > 0)
+                   @* @if (storyNav == 1 && subCatsTotalsStory.Count > 0)
                     {
                         <h2>היי @currentUser.firstName! רוצה לראות איך עובר החודש?</h2>
                         <p>אלה תתי הקטגוריות שהכי בלטו עד כה:</p>
@@ -258,7 +260,7 @@ else
                             {
                                 <p>לא הוזנו הכנסות בחודש זה.</p>
                             }
-                        </div>
+                        </div>*@
 
 
                     }

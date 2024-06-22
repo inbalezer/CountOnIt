@@ -479,21 +479,21 @@ resetMonthValues = !resetMonthValues">
                                                     </button>
 
                                                     @*@if (tag.id == newTransaction.tagID)
-                                                    {
-                                                        buttonStyle += "font-weight: 600;";
-                                                        <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
-                                                    }
-                                                    else
-                                                    {
-                                                        buttonStyle += "font-weight: 400;";
-                                                        <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
-                                                    }*@
+                                    {
+                                    buttonStyle += "font-weight: 600;";
+                                    <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
+                                    }
+                                    else
+                                    {
+                                    buttonStyle += "font-weight: 400;";
+                                    <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
+                                    }*@
 
-                                                    @if(tag.id == newTransaction.tagID)
+                                                    @if (tag.id == newTransaction.tagID)
                                                     {
                                                         chosenTag = tag;
                                                     }
-                                                    
+
                                                 }
                                             </div>
                                             <div class="outerBtnAndDots">
@@ -576,13 +576,15 @@ resetMonthValues = !resetMonthValues">
                                 {
                                     tToCheck.transValue = newTransaction.transValue;
                                 }
-                    <div class="outerSaveBtns">
-                        <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
-                    </div>
-                }
+                            }
 
+                                <div class="outerSaveBtns">
+                                    <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
+                                </div>
                         }
 
+                    }
+                }
                         @if (overdraftDetected)
                         {
                             <div>
@@ -653,8 +655,6 @@ resetMonthValues = !resetMonthValues">
                                 <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
                             </div>
                         }
-                    }
-                }
             </div>
         </div>
     </div>
