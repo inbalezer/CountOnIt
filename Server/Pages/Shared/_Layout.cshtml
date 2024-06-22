@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - CountOnIt.Server</title>
-
+    
     <environment include="Development">
         <link rel="stylesheet" href="~/Identity/lib/bootstrap/dist/css/bootstrap.css" />
         <link rel="stylesheet" href="~/Identity/css/site.css" />
@@ -19,6 +19,7 @@
               asp-fallback-href="~/Identity/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/Identity/css/site.css" asp-append-version="true" />
+        
     </environment>
 </head>
 <body>
@@ -88,6 +89,7 @@
         </script>
         <script src="~/Identity/js/site.js" asp-append-version="true"></script>
     </environment>
+
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
