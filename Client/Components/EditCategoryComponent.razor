@@ -103,11 +103,13 @@
                             if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
                             {
                                 <button class="saveBtn" @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
+                                <br/>
                                 <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
                             }
                             else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
                             {
                                 <button class="saveBtn" @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
+                                <br />
                                 <span>לא ניתן לשמור קטגוריה ללא שם.</span>
                             }
                             else
@@ -123,11 +125,13 @@
                             {
                               
                                 <button class="saveBtn" @onclick="addNewCategory" disabled>שמירה וסיום</button>
+                                <br />
                                 <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
                             }
                             else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
                             {
                                 <button class="saveBtn" @onclick="addNewCategory" disabled>שמירה וסיום</button>
+                                <br/>
                                 <span>לא ניתן לשמור קטגוריה ללא שם.</span>
                             }
                             else

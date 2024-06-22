@@ -66,7 +66,7 @@ namespace CountOnIt.Server.Controllers
                 ID = subCatID
             };
 
-            string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID";
+            string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE());";
             var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetCategoryCurrentSumQuery, param);
             if (recordSubCatCurrentSum != null)
             {
@@ -115,7 +115,7 @@ namespace CountOnIt.Server.Controllers
                                         categoryID = category
                                     };
 
-                                    string getFittingSubCats = "SELECT subcategories.id, subcategories.subCategoryTitle, subcategories.monthlyPlannedBudget, (monthlyPlannedBudget - COALESCE(SUM(transValue), 0)) AS remainingBudget FROM subcategories LEFT JOIN transactions ON subcategories.id = transactions.subCategoryID WHERE importance = 0 AND categoryID = @categoryID GROUP BY subcategories.id HAVING remainingBudget > @gap";
+                                    string getFittingSubCats = "SELECT subcategories.id, subcategories.subCategoryTitle, subcategories.monthlyPlannedBudget, (monthlyPlannedBudget - (monthlyPlannedBudget - (SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = subcategories.id and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE()))) AS remainingBudget FROM subcategories LEFT JOIN transactions ON subcategories.id = transactions.subCategoryID WHERE importance = 0 AND categoryID = @categoryID GROUP BY subcategories.id HAVING remainingBudget > @gap";
 
                                     var optionalSubcategories = await _db.GetRecordsAsync<OverBudgetToShow>(getFittingSubCats, gapParam);
 
@@ -370,19 +370,18 @@ ORDER BY transactions.transDate DESC;";
             };
 
             string GetSubCatTagsQuery = "select distinct tagID from transactions where subCategoryID=@ID";
-            var recordSubCatTags = await _db.GetRecordsAsync<int>(GetSubCatTagsQuery, param);
-            List<int> TagsIDList = recordSubCatTags.ToList();
-            if (TagsIDList != null)
+            var recordSubCatTags = await _db.GetRecordsAsync<int?>(GetSubCatTagsQuery, param);
+            List<int?> TagsIDList = recordSubCatTags.ToList();
+            if (TagsIDList.Count>0)
             {
                 List<TagsToShow> subCatTagList = new List<TagsToShow>();
-                foreach (int tagID in TagsIDList)
+                for (int i=0; i< TagsIDList.Count; i++)
                 {
-                    if (tagID > 0)
+                    if (TagsIDList[i]>0)
                     {
-
                         object tagIdParam = new
                         {
-                            ID = tagID
+                            ID = TagsIDList[i]
                         };
                         string getTagInfoQuery = "select * from tags where ID=@ID";
                         var getTagInfo = await _db.GetRecordsAsync<TagsToShow>(getTagInfoQuery, tagIdParam);
@@ -391,17 +390,35 @@ ORDER BY transactions.transDate DESC;";
                         {
                             subCatTagList.Add(subCatTag);
                         }
-                        else
-                        {
-                            return BadRequest("tag with ID- " + tagID + " is null");
-                        }
                     }
-                    else
-                    {
-                        return BadRequest("tag ID is null or smaller than 0");
-                    }
-
                 }
+                //foreach (int tagID in TagsIDList)
+                //{
+                //    if (tagID > 0)
+                //    {
+
+                //        object tagIdParam = new
+                //        {
+                //            ID = tagID
+                //        };
+                //        string getTagInfoQuery = "select * from tags where ID=@ID";
+                //        var getTagInfo = await _db.GetRecordsAsync<TagsToShow>(getTagInfoQuery, tagIdParam);
+                //        var subCatTag = getTagInfo.FirstOrDefault();
+                //        if (subCatTag != null)
+                //        {
+                //            subCatTagList.Add(subCatTag);
+                //        }
+                //        else
+                //        {
+                //            return BadRequest("tag with ID- " + tagID + " is null");
+                //        }
+                //    }
+                //    else
+                //    {
+                //        return BadRequest("tag ID is null or smaller than 0");
+                //    }
+
+                //}
                 return Ok(subCatTagList);
             }
 

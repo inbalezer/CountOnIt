@@ -90,7 +90,7 @@
                         }
                         <div>
                             <div class="budget-card @(isFirstItem ? "first" : "")">
-                                <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator"></SubCategoryComponent>
+                                <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak"></SubCategoryComponent>
                             </div>
                         </div>
 
@@ -176,12 +176,60 @@
                     </div>
                 </div>
             </div>
-        </div>
+
+            @* 
+            @if (userCategories.Count > 0)
+            {
+                <span>הוספת תת קטגוריה ל</span>
+                <select @bind="selectedCategoryForNewSubCat">
+
+                    @foreach (AllUserCategories userCategory in userCategories)
+                    {
+
+                        <option value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+
+
+                    }
+                </select>
+            }
+        
+           <div>
+                <label for="amount">שם תת קטגוריה</label>
+                <input type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="newSubCategory.subCategoryTitle" />
+            </div>
+
+            <div>
+                <label for="description">מה התקציב החודשי שלך עבור @newSubCategory.subCategoryTitle? </label>
+                <input type="number" id="description" placeholder="0" @bind="newSubCategory.monthlyPlannedBudget" />
+            </div>
+            <div>
+                <label for="importance">עדיפות תת הקטגוריה</label>
+                <span>@newSubCategory.importance</span>
+                <input type="radio"
+                   name="importance" @onchange="@(() => newSubCategory.importance = 0)" />
+                <label>רצון</label>
+
+                <input type="radio" @onchange="@(() => newSubCategory.importance = 1)"
+                   name="importance" />
+                <label>צורך</label>
+
+                <input type="radio" @onchange="@(() => newSubCategory.importance = 2)"
+                   name="importance" />
+                <label>חובה</label>
+            </div>
+            <div>
+                <p>לדוגמה: לק - רצון, דלק - צורך, שכ"ד" -חובה . העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
+            </div>
+            <br />
+            <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
+            <button class="submit-btn" @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
+        </div>*@
+            </div>
     }
 
     @if (openTransactionOverlay)
     {
-        <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" userID="@userID"></AddTransactionComponent>
+        <AddTransactionComponent subCategoryTitle="@newSubCatTitle" subCategoryIDTOGet="@newSubCatID" isTransactionOverlayOpen="AddTransOverlay" userID="@userID" updatedStreak="updateStreak"></AddTransactionComponent>
     }
 </div>
 
@@ -254,6 +302,9 @@
 
     [Parameter]
     public bool categoryTypeIndicator { get; set; } //will indicate if this is an expense or income category
+
+    [Parameter]
+    public EventCallback<string?> updatedStreakStat { get; set; }
 
     public bool isAccordionClick = false;
 
@@ -572,6 +623,10 @@
         closeOverlay.InvokeAsync(true);
     }
 
+    public void updateStreak(string? newStreakStat)
+    {
+        updatedStreakStat.InvokeAsync(newStreakStat);
+    }
 
 
 }

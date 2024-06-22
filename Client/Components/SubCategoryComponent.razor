@@ -64,7 +64,7 @@
 
 @if (openTransOverlay)
 {
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionToTotal="addNewTransToTotalSpendings" categoryTypeIndicator="@categoryTypeIndicator"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionToTotal="addNewTransToTotalSpendings" categoryTypeIndicator="@categoryTypeIndicator" updatedStreak="updateStreak"></AddTransactionComponent>
 
 }
 
@@ -143,13 +143,60 @@
                     </div>
                 </div>
                 <div class="outerSaveBtns">
-                    <button class="primery-button" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
+                    <button class="primery-button" @onclick="EditSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
                     <button class="secondery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
                 </div>
 
             </div>
         </div>
-    </div>
+        </div>
+       @* <div>
+            <label for="importance">עדיפות תת הקטגוריה</label>
+           
+                @if (subCatToEdit.importance == 0)
+                {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
+                <label>רצון</label>
+                }
+                else
+                {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
+                <label>רצון</label>
+                }
+                @if (subCatToEdit.importance == 1)
+                {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
+                <label>צורך</label>
+                }
+                else
+                {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
+                <label>צורך</label>
+                }
+                @if (subCatToEdit.importance == 2)
+                {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
+                <label>חובה</label>
+                }
+                else
+                {
+                <input type="radio"
+               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
+                <label>חובה</label>
+                }
+        </div>
+        <div>
+            <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
+        </div>
+        <br />
+            <button class="submit-btn" @onclick="EditSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
+        <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+    </div>*@
 }
 
 
@@ -194,6 +241,9 @@
 
     [Parameter]
     public bool categoryTypeIndicator { get; set; } //will indicate if this is an expense or income subcategory
+
+    [Parameter]
+    public EventCallback<string?> updatedStreakStat { get; set; }
 
     SubCategoryToEdit subCatToEdit = new SubCategoryToEdit();
     SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
@@ -348,9 +398,21 @@
         nav.NavigateTo("./TransactionsOverview/" + subCategoryIDToGet + "/" + categoryID + "/" + budget + "/" + userID);
     }
 
-    public async Task addSubCategoryAndTransaction()
+    public async Task EditSubCategoryAndTransaction()
     {
+        await saveUpdatedSubCat();
+        openTransOverlay = true;
 
     }
 
+
+    public void updateStreak(string? newStreakStat)
+    {
+        updatedStreakStat.InvokeAsync(newStreakStat);
+    }
+
+    public async Task addSubCategoryAndTransaction()
+    {
+        
+    }
 }

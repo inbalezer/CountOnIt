@@ -294,7 +294,7 @@ resetMonthValues = !resetMonthValues">
                                 {
                                     <div class="outerRepetedTrans" style="@hiddenReOverlay">
                                         <div class="innerTransOverlay">
-
+                                            <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
                                             @if (returningTrans)
                                             {
                                                 <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
@@ -550,6 +550,7 @@ resetMonthValues = !resetMonthValues">
 
                             </div>
                         </div>
+
                     }
 
                 </div>
@@ -566,72 +567,108 @@ resetMonthValues = !resetMonthValues">
                 }
                 else
                 {
-                    <div class="outerSaveBtns">
+                    @if (returningTrans)
+                    {
+                        <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
+                        <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
+                        @if (resetMonthValues == false)
+                        {
+                            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                            {
+                                if (!isValueTypedAfterReset)
+                                {
+                                    tToCheck.transValue = newTransaction.transValue;
+                                }
+
+                            }
+                            <div class="outerSaveBtns">
                         <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
                     </div>
+                        }
+                    }
                 }
 
-                @if (overdraftDetected)
-                {
-                    <div>
-                        <h3>חרגת...</h3>
-                        <p>נראה שהוצאת ב @subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </p>
-                        <p>שזה @currentGap ₪ יותר </p>
-                        <p>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </p>
-                        <p>כדאי להגדיל את התקציב.</p>
-                        <p>הסכום שאני רוצה להעביר:</p>
-                        <input type="number" @bind="currentGap" min="@currentGap" /><span>₪</span>
-                        <p>מאיזו תת קטגוריה יועבר הסכום?</p>
+                        @if (overdraftDetected)
+                        {
+                            <div>
+                                <h3>חרגת...</h3>
+                                <p>נראה שהוצאת ב @subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </p>
+                                <p>שזה @currentGap ₪ יותר </p>
+                                <p>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </p>
+                                <p>כדאי להגדיל את התקציב.</p>
+                                <p>הסכום שאני רוצה להעביר:</p>
+                                <input type="number" @bind="currentGap" min="@currentGap" /><span>₪</span>
+                                <p>מאיזו תת קטגוריה יועבר הסכום?</p>
 
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>העברה מ:</th>
-                                    <th>העברה ל:</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <select @onchange="HandleChange">
-                                            @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
-                                            {
-                                                @if (subcategoryOpt.id != subCategoryIDTOGet)
-                                                {
-                                                    <option value="@subcategoryOpt.subCategoryTitle">
-                                                        @subcategoryOpt.subCategoryTitle
-                                                    </option>
-                                                }
-                                            }
-                                        </select>
-                                    </td>
-                                    <td>
-                                        @(overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle)
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>העברה מ:</th>
+                                            <th>העברה ל:</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <select @onchange="HandleChange">
+                                                    @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
+                                                    {
+                                                        @if (subcategoryOpt.id != subCategoryIDTOGet)
+                                                        {
+                                                            <option value="@subcategoryOpt.subCategoryTitle">
+                                                                @subcategoryOpt.subCategoryTitle
+                                                            </option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </td>
+                                            <td>
+                                                @(
+                                                    overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
+                                                    )
 
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <p>תקציב:</p>
-                                    <p>נוכחי: @chosenSubCategory.monthlyPlannedBudget</p>
-                                    <p>עתידי: @(chosenSubCategory.monthlyPlannedBudget - currentGap)</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <p>תקציב:</p>
+                                            <p>נוכחי: @chosenSubCategory.monthlyPlannedBudget</p>
+                                            <p>
+                                                עתידי: @(
+                                             chosenSubCategory.monthlyPlannedBudget - currentGap
+                                             )
+                                            </p>
 
-                                </tr>
-                                <tr>
-                                    <p>תקציב:</p>
-                                    <p>נוכחי: @(closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)</p>
-                                    <p>עתידי: @(closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap)</p>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button @onclick="manageBudgetsToTranfer">העברה</button>
-                        <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
-                    </div>
+                                        </tr>
+                                        <tr>
+                                            <p>תקציב:</p>
+                                            <p>
+                                                נוכחי: @(
+                                             closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget
+                                             )
+                                            </p>
+                                            <p>
+                                                עתידי: @(
+                                             closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap
+                                             )
+                                            </p>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <button @onclick="manageBudgetsToTranfer">העברה</button>
+                                <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
+                            </div>
+                        }
+                    }
                 }
             </div>
         </div>
     </div>
 
 }
+
+
+
+
 @code {
 
     [Parameter]
@@ -1007,11 +1044,11 @@ resetMonthValues = !resetMonthValues">
     }
 
 
-
+    List<TransactionToAdd> tempChildrenList = new List<TransactionToAdd>();
     public async Task saveAndEndTransactions()
     {
         newTransaction.subCategoryID = subCategoryIDTOGet;
-        newTransaction.transType = 1;
+        //newTransaction.transType = 1;
         newTransaction.tagID = null;
         if (!categoryTypeIndicator)
         {
@@ -1029,6 +1066,29 @@ resetMonthValues = !resetMonthValues">
         if (transactionsToAdd.Count > 0 && transactionsToAdd != null)
         {
             newTransaction.fixedMonthly = true;
+            //tempChildrenList = transactionsToAdd;
+            tempChildrenList.Clear();
+            foreach (TransactionToAdd t in transactionsToAdd)
+            {
+                TransactionToAdd tr = new TransactionToAdd()
+                    {
+                        transValue = t.transValue,
+                        valueType = t.valueType,
+                        description = t.description,
+                        fixedMonthly = t.fixedMonthly,
+                        tagID = t.tagID,
+                        tagTitle = t.tagTitle,
+                        tagColor = t.tagColor,
+                        transTitle = t.transTitle,
+                        subCategoryID = subCategoryIDTOGet,
+                        transDate = t.transDate,
+                        transType = t.transType,
+                        splitPayment = t.splitPayment
+                    };
+
+                tempChildrenList.Add(tr);
+            }
+            transactionsToAdd.Clear();
         }
         if (newTransaction.splitPayment == true && selectedNumber > 1)
         {
@@ -1089,6 +1149,15 @@ resetMonthValues = !resetMonthValues">
             if (transToSaveRes.IsSuccessStatusCode)
             {
                 transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
+                if (tempChildrenList.Count > 0)
+                {
+                    //transactionsToAdd = tempChildrenList;
+                    transactionsToAdd.Clear();
+                    foreach (TransactionToAdd t in tempChildrenList)
+                    {
+                        transactionsToAdd.Add(t);
+                    }
+                }
                 if (!categoryTypeIndicator)
                 {
                     await checkOverdraft();
@@ -1116,7 +1185,7 @@ resetMonthValues = !resetMonthValues">
     public async Task saveAndRepeatTransactions()
     {
         newTransaction.subCategoryID = subCategoryIDTOGet;
-        newTransaction.transType = 1;
+        //newTransaction.transType = 1;
         newTransaction.tagID = null;
         if (!categoryTypeIndicator)
         {
@@ -1198,8 +1267,11 @@ resetMonthValues = !resetMonthValues">
                     await saveRepeatedTransactions(transIDtoEdit);
                     Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                     addTransactionToTotal.InvokeAsync(newTransaction.transValue);
-                    isTransactionOverlayOpen.InvokeAsync(false);
-                    newTransaction = new TransactionToAdd();
+                    //isTransactionOverlayOpen.InvokeAsync(false);
+                    newTransaction = new TransactionToAdd()
+                        {
+                            transDate = DateTime.Today // Set the transaction date to today
+                        };
                 }
                 await getStreakDetails();
             }
@@ -1675,7 +1747,7 @@ resetMonthValues = !resetMonthValues">
     private DateTime parsedDate;
     private bool attemptedParsing = false;
 
-    public async Task repeatingTransOverlay()
+    public async Task repeatingTransOverlay() //creates the fixed monthly input overlay
     {
         isReapetedBtnClicked = true;
         if (newTransaction.fixedMonthly == true)
@@ -1694,7 +1766,7 @@ resetMonthValues = !resetMonthValues">
 
         }
 
-        returningTrans = !returningTrans;
+        returningTrans = !returningTrans; //opens the overlay
         transactionsToAdd = new List<TransactionToAdd>();
         int currentDay = DateTime.Now.Day;
         int currentYear = DateTime.Now.Year;
@@ -1729,6 +1801,14 @@ resetMonthValues = !resetMonthValues">
                     transDate = parsedDate,
                     transType = newTransaction.transType
                 };
+            if (!categoryTypeIndicator)
+            {
+                childTrans.transType = 1; //expense
+            }
+            else
+            {
+                childTrans.transType = 2; //income
+            }
             transactionsToAdd.Add(childTrans);
 
         }
@@ -1836,70 +1916,91 @@ resetMonthValues = !resetMonthValues">
             {
                 currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
 
-                string streakStatus = streakStatusCheck(currentStreak.WeeksWithThreeOrMoreTransactions);
-                List<string> streakStatusOpt = new List<string>()
-        {
-        "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
-        };
-
-                var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
-                if (getCurrentStatRes.IsSuccessStatusCode)
+                if (currentStreak.streak_length != null && currentStreak.streak_length > 0 && currentStreak.current_streak_group == true)
                 {
-                    string getCurrentStat = await getCurrentStatRes.Content.ReadAsStringAsync();
-                    if (streakStatusOpt.Contains(getCurrentStat))
+                    string streakStatus = streakStatusCheck(currentStreak.streak_length);
+                    List<string> streakStatusOpt = new List<string>()
+                {
+                    "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
+                };
+
+                    var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
+                    if (getCurrentStatRes.IsSuccessStatusCode)
                     {
-                        int statInDB = streakStatusOpt.IndexOf(getCurrentStat);
-                        int newerStat = streakStatusOpt.IndexOf(streakStatus);
-                        if (newerStat > statInDB)
+                        string getCurrentStat = await getCurrentStatRes.Content.ReadAsStringAsync();
+                        if (streakStatusOpt.Contains(getCurrentStat))
+                        {
+                            int statInDB = streakStatusOpt.IndexOf(getCurrentStat);
+                            int newerStat = streakStatusOpt.IndexOf(streakStatus);
+                            if (newerStat > statInDB)
+                            {
+                                //take the new status
+                                streakStatus = streakStatusOpt[newerStat];
+
+                                var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
+                                if (updateStreak.IsSuccessStatusCode)
+                                {
+                                    //open new status pop up
+                                    Console.WriteLine("streak status updated, new status is: " + streakStatus);
+                                    updatedStreak.InvokeAsync(streakStatus);
+                                }
+                            }
+                        }
+                        else if (getCurrentStat == null || getCurrentStat == "")
                         {
                             //take the new status
-                            streakStatus = streakStatusOpt[newerStat];
+                            streakStatus = null;
 
                             var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
                             if (updateStreak.IsSuccessStatusCode)
                             {
                                 //open new status pop up
-                                Console.WriteLine("streak status updated, new status is: " + streakStatus);
+                                Console.WriteLine("streak status updated, new status is null");
+                                updatedStreak.InvokeAsync(streakStatus);
                             }
                         }
                     }
-                }
 
-                Console.WriteLine("streak status- " + streakStatus + ", week amount- " + currentStreak.WeeksWithThreeOrMoreTransactions);
+                    Console.WriteLine("streak status- " + streakStatus + ", week amount- " + currentStreak.streak_length);
+                }
             }
         }
     }
 
     public string streakStatusCheck(int weekAmount)
     {
-
-
-        if (weekAmount <= 1)
+        if (weekAmount <= 1 && weekAmount < 2)
         {
             return "מטבע ארד";
         }
-        else if (weekAmount > 1 && weekAmount <= 2)
-        {
-            return "מטבע כסף";
-        }
         else if (weekAmount > 2 && weekAmount <= 9)
         {
-            return "מטבע זהב";
+
+            return "מטבע כסף";
         }
         else if (weekAmount > 9 && weekAmount <= 12)
         {
-            return "שטר";
+
+            return "מטבע זהב";
         }
         else if (weekAmount > 12 && weekAmount <= 20)
         {
-            return "שטרות";
+
+            return "שטר";
         }
         else if (weekAmount > 20 && weekAmount <= 24)
         {
-            return "גביע";
+
+            return "שטרות";
         }
         else if (weekAmount >= 32)
         {
+
+            return "גביע";
+        }
+        else if (weekAmount > 32)
+        {
+
             return "יהלום";
         }
         else
