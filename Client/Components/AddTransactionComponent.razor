@@ -550,7 +550,15 @@ resetMonthValues = !resetMonthValues">
 
                                 <div class="outerTitleAndDateAndName">
                                     <span class="titleName">פירוט:</span>
-                                    <textarea class="description" @bind="newTransaction.description"></textarea>
+                                    <textarea class="description" @bind="newTransaction.description" maxlength="60" @oninput="TransDescLengthCounter"></textarea>
+                                    @if(descLength>0)
+                                    {
+                                        <span>@descLength/60</span>
+                                    }
+                                    else
+                                    {
+                                        <span>0/60</span>
+                                    }
                                 </div>
 
                             </div>
@@ -2053,6 +2061,16 @@ resetMonthValues = !resetMonthValues">
         titleInput = e.Value.ToString();
         newTransaction.transTitle = titleInput;
         titleInputLength = titleInput.Length;
+    }
+
+    int descLength = 0;
+
+    private void TransDescLengthCounter(ChangeEventArgs e)
+    {
+        string description = "";
+        description  = e.Value.ToString();
+        newTransaction.description = description;
+        descLength = description.Length;
     }
 
     void back()
