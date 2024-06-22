@@ -1,4 +1,4 @@
-﻿@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toAdd
 @using CountOnIt.Shared.Models.present.toShow
 @using CountOnIt.Shared.Models.present.toEdit
 @using System;
@@ -72,8 +72,6 @@
                                 </div>
 
                                 <div class="outerTitleAndDateAndName">
-
-
 
                                     @if (splitPayment)
                                     {
@@ -294,7 +292,6 @@ resetMonthValues = !resetMonthValues">
                                 {
                                     <div class="outerRepetedTrans" style="@hiddenReOverlay">
                                         <div class="innerTransOverlay">
-                                            <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
                                             @if (returningTrans)
                                             {
                                                 <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
@@ -567,6 +564,9 @@ resetMonthValues = !resetMonthValues">
                 }
                 else
                 {
+                    <div class="outerSaveBtns">
+                        <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
+                    </div>
                     @if (returningTrans)
                     {
                         <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
@@ -581,9 +581,7 @@ resetMonthValues = !resetMonthValues">
                                 }
 
                             }
-                            <div class="outerSaveBtns">
-                        <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
-                    </div>
+                            
                         }
                     }
                 }

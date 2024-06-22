@@ -112,7 +112,7 @@
 }
 <div id="searchBar"></div>
 <div id="sortAndFilterBtns">
-    <button @onclick="() => filterBtnClicked = true">Filter</button>
+    <button @onclick="() => filterBtnClicked = true"><img src="../css/images/filter btn.svg" /></button>
     <span>@filterStatus</span>
     @if (filterBtnClicked)
     {
@@ -158,7 +158,7 @@
         }
     }
 
-    <button @onclick="() => sortBtnClicked = !sortBtnClicked">Sort</button>
+    <button @onclick="() => sortBtnClicked = !sortBtnClicked"><img src="../css/images/sort btn.svg" /></button>
     @if (sortBtnClicked)
     {
         <fieldset id="sortTrans" name="transSorting">
@@ -169,7 +169,10 @@
         </fieldset>
     }
     <span>@sortStatus</span>
+ 
+        
     <button @onclick="undoFilterAndSort">איפוס</button>
+    
 
 </div>
 
@@ -528,7 +531,7 @@
     public async Task filterByTags(int tagID)
     {
         await undoFilterAndSort();
-        
+
         Console.WriteLine(filterByTag + ", " + tagID);
         string tagTitle = "";
         for (int i = allTransactions.Count - 1; i >= 0; i--)
@@ -587,6 +590,7 @@
                 allTransactions.Remove(allTransactions[i]);
             }
         }
+        filterStatus = "תשלומים";
         filterBtnClicked = false;
     }
 
@@ -617,6 +621,7 @@
     public void filterByRepeatedTrans()
     {
         filterByReturnTrans = true;
+        filterBtnClicked = false;
         filterStatus = "הוצאה חוזרת";
     }
 
