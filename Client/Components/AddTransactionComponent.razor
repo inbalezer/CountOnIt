@@ -26,8 +26,9 @@
                 {
                     <div class="outerTitleAndDivider">
                         <div class="outerTitle">
-                            <span>@repeatedBtnTitle = "עריכת הוצאה חוזרת"</span>
-                            <span>@overlayTitle</span>
+                            @*<span>@repeatedBtnTitle = "עריכת הוצאה חוזרת"</span>*@
+                            <span>@overlayTitle:</span>
+                                    <span>@subCategoryTitle</span>
 
                         </div>
                         <div class="divider"> </div>
@@ -72,8 +73,6 @@
                                 </div>
 
                                 <div class="outerTitleAndDateAndName">
-
-
 
                                     @if (splitPayment)
                                     {

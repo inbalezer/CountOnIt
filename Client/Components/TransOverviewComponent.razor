@@ -10,7 +10,7 @@
 <OptionsMenuComponent deleteBtnClicked="deleteTransPopUp" editBtnClicked="editTransPopUp"></OptionsMenuComponent>
 @if (deleteBtnClicked)
 {
-    <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" action="🗑️מחיקה" makeAction="deleteTrans" closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
+    <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" action="מחיקה" makeAction="deleteTrans" closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
 }
 @if (editBtnClicked)
 {
@@ -181,7 +181,7 @@
         popupBodyText = "ההוצאה '" + transaction.transTitle + "' עומדת להמחק";
     }
 
-    protected async Task deleteTrans()
+    public async Task deleteTrans()
     {
         if (transaction.splitPayment == true) //deleting a split payment parent
         {
