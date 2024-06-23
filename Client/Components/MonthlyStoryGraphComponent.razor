@@ -12,10 +12,40 @@
 @inject HttpClient Http
 
 
+<div class="chart-container">
 
-<BarChart @ref="barChart" TItem="double" Options="@options"></BarChart>
+    <div class="chart">
 
+        <BarChart @ref="barChart" TItem="double" Options="@options" Class="my-custom-chart"></BarChart>
+    </div>
+</div>
 
+<style>
+    .chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.chart {
+    width: 95%;
+    height: 100%;
+    
+}
+
+    .my-custom-chart canvas {
+        color: transparent !important;
+        background-color: transparent !important;
+    }
+
+    /* Alternatively, if the above does not work, try more specific targeting */
+    .my-custom-chart .chartjs-render-monitor {
+        color: transparent !important;
+        background-color: transparent !important;
+    }
+</style>
 
 
 @code {
@@ -40,12 +70,26 @@
             IndexAxis = "y",
             Elements = new ChartElements
             {
-                            Bar = new()
-                            {
-                                BorderWidth = 2,
-                            }
+                Bar = new()
+                {
+                    BorderWidth = 1.5,
+                }
             },
             Responsive = true,
+            MaintainAspectRatio = false, // Allow resizing without maintaining aspect ratio
+            Layout = new()
+            {
+                Padding = new()
+                {
+                    Left = 1,
+                    Right = 1,
+                    Top = 1,
+                    Bottom = 1
+                },
+
+
+            },
+
             Scales = new ChartScales
             {
                 X = new ChartAxis

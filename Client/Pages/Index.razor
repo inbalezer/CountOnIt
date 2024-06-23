@@ -124,36 +124,42 @@ else
                 <div class="overlay">
                     <div class="outerStory">
                         <div class="storyWindow">
-                            <span class="modal-close-btn" @onclick="StoryWindowControl"><img src="../css/images/close x.svg" /></span>
 
-                            <div class="outerStoryPhase">
-                                <div class="progress-nav-bar">
+                            <div class="outerPhaseAndClose">
 
-                                    <button class="storyPhase @(storyNav == 1 ? "active" : "")" @onclick="() => OnStepClicked(1)">
-                                        <div class="step-indicator"></div>
-                                    </button>
-                                    <button class="storyPhase @(storyNav == 2 ? "active" : "")" @onclick="() => OnStepClicked(2)">
-                                        <div class="step-indicator"></div>
-                                    </button>
-                                    <button class="storyPhase @(storyNav == 3 ? "active" : "")" @onclick="() => OnStepClicked(3)">
-                                        <div class="step-indicator"></div>
-                                    </button>
+                                <span class="modal-close-btn" @onclick="StoryWindowControl"><img src="../css/images/close x.svg" /></span>
+
+                                <div class="outerStoryPhase">
+                                    <div class="progress-nav-bar">
+
+                                        <button class="storyPhase @(storyNav == 1 ? "active" : "")" @onclick="() => OnStepClicked(1)">
+                                            <div class="step-indicator"></div>
+                                        </button>
+                                        <button class="storyPhase @(storyNav == 2 ? "active" : "")" @onclick="() => OnStepClicked(2)">
+                                            <div class="step-indicator"></div>
+                                        </button>
+                                        <button class="storyPhase @(storyNav == 3 ? "active" : "")" @onclick="() => OnStepClicked(3)">
+                                            <div class="step-indicator"></div>
+                                        </button>
+                                    </div>
+
                                 </div>
 
                             </div>
 
-
                             @*decide what happens when the user doesn't have enough data to fill the story pages*@
                             @if (storyNav == 1 && subCatsTotalsStory.Count > 0)
                             {
-                                <div class="storyTitle">היי @currentUser.firstName! רוצה לראות איך עובר החודש?</div>
-                                <p>אלה תתי הקטגוריות שהכי בלטו עד כה:</p>
+                                <div class="outerText">
+                                    <div class="storyTitle">היי @currentUser.firstName! רוצה לראות איך עובר החודש?</div>
+                                    <div>אלה תתי הקטגוריות שהכי בלטו עד כה:</div>
+                                </div>
                                 <div class="outerFirstStory" @onclick="NextStory">
                                     <div class="firstStoryLike">
                                         <span class="likeIcon">👍</span>
-                                         <div class="storyTextWrapper">
-                                        <h3 class="titleFirstStory">החסכון הגדול ביותר</h3>
-                                        <div>עד כה החודש הוצאת @subCatsTotalsStory[bestSavingIndex].currentMonthTotal₪ על @bestSavingSubCat, @bestSavingValue₪ פחות מחודש שעבר! </div>
+                                        <div class="storyTextWrapper">
+                                            <h3 class="titleFirstStory">החסכון הגדול ביותר</h3>
+                                            <div>עד כה החודש הוצאת @subCatsTotalsStory[bestSavingIndex].currentMonthTotal₪ על @bestSavingSubCat, @bestSavingValue₪ פחות מחודש שעבר! </div>
                                         </div>
                                     </div>
                                     <div class="divider"></div>
@@ -161,53 +167,73 @@ else
                                         <span class="likeIcon">👎</span>
                                         <div class="storyTextWrapper">
 
-                                        <h3 class="titleFirstStory">העלייה הגדולה ביותר</h3>
-                                        <div>עד כה החודש הוצאת @subCatsTotalsStory[worstSavingIndex].currentMonthTotal₪ על @worstSavingSubCat, @worstSavingValue₪ יותר מחודש שעבר! </div>
+                                            <h3 class="titleFirstStory">העלייה הגדולה ביותר</h3>
+                                            <div>עד כה החודש הוצאת @subCatsTotalsStory[worstSavingIndex].currentMonthTotal₪ על @worstSavingSubCat, @worstSavingValue₪ יותר מחודש שעבר! </div>
                                         </div>
                                     </div>
                                     <div class="imgWrapper">
 
-                                    <img class="storyImg" src="../css/images/calendar2.svg" />
+                                        <img class="storyImg" src="../css/images/calendar2.svg" />
                                     </div>
                                 </div>
                             }
                             else if (storyNav == 2 && tagsSpendingsList.Count > 0)
                             {
-                                <div @onclick="NextStory">
+                                <div class="outerSecondStory" @onclick="NextStory">
 
-                                    <h3>התגיות עם הכי הרבה הוצאות</h3>
-                                    <ol>
+                                    <h3 class="storyTitle">התגיות עם הכי הרבה הוצאות</h3>
+                                    <ol class="outerStoryTags">
                                         @foreach (TagsAndSpendingsToShow tag in tagsSpendingsList)
                                         {
-                                            <li>הוצאת על @tag.tagTitle @tag.totalValue ₪</li>
+                                            tagCounter++;
+                                            <div class="outerPerTag">
+                                                <div class="storyTagNum">
+                                                    <div>@tagCounter</div>
+                                                </div>
+
+
+                                                <span>הוצאת על</span>
+                                                <div class="storyTag" style="background-color:@tag.tagColor">
+                                                    @tag.tagTitle
+                                                </div>
+                                                <span class="tagsAmount">@tag.totalValue ₪</span>
+                                            </div>
+                                            <div class="divider"></div>
                                         }
                                     </ol>
-
-                                    <img src="../css/images/tags-story.svg" />
-
+                                    <div class="imgWrapper">
+                                        <img class="storyImg" src="../css/images/tags-story.svg" />
+                                    </div>
                                 </div>
 
                             }
                             else if (storyNav == 3)
                             {
-                                <div @onclick="NextStory">
-                                    <h3>התזרים שלי עד כה החודש</h3>
-                                    <p>פילוח ההוצאות שלך לפי קטגוריות</p>
-                                    <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
-                                    @if (incomeSum != null)
-                                    {
-                                        <p>ההכנסות שלך עומדות כרגע על @incomeSum ₪</p>
+                                <div class="outerThirdStory" @onclick="NextStory">
+                                    <h3 class="storyTitle">התזרים שלי עד כה החודש</h3>
+                                    <div class="titleFirstStory">פילוח ההוצאות שלך לפי קטגוריות</div>
 
-                                    }
-                                    else
-                                    {
-                                        <p>לא הוזנו הכנסות בחודש זה.</p>
-                                    }
+                                    
+
+                                        <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
+
+                                        @if (incomeSum != null)
+                                        {
+                                           
+                                            <div class="titleFirstStory incomeStory">💸 ההכנסות שלך עומדות כרגע על @incomeSum ₪</div>
+
+                                        }
+                                        else
+                                        {
+                                            <div class="titleFirstStory incomeStory">💸 לא הוזנו הכנסות בחודש זה.</div>
+                                        }
+                                   
                                 </div>
 
 
                             }
                         </div>
+
                     </div>
                     <style>
                         .storyPhase {
@@ -549,6 +575,7 @@ else
     string BgOverlay = "";
     int newCurrentUserId;
     int categoryIdToSend;
+    int tagCounter = 0;
     private int refreshKey;
 
     bool doRefresh = false;
@@ -597,9 +624,9 @@ else
     string streakImgIcon = "";
     int weeklyTransAmount = 0;
     List<string> streakStatusOpt = new List<string>()
-                {
-                    "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
-                };
+    {
+    "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
+    };
     int nextStreakStatIn = 0;
 
     protected override async Task OnInitializedAsync()
@@ -806,12 +833,12 @@ else
                 isOnInitializedOver = false;
 
                 List<CategoryToAdd> defualtCategoriesList = new List<CategoryToAdd>()
-                {
-                    new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
-                    new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
-                    new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" },
-                    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "🪙", color = "blue" }
-                };
+    {
+    new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
+    new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
+    new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" },
+    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "🪙", color = "blue" }
+    };
 
                 foreach (CategoryToAdd defualtCategory in defualtCategoriesList)
                 {
@@ -827,10 +854,10 @@ else
                             case "משק בית":
 
                                 List<SubCategoryToAdd> defaultSubCategory1List = new List<SubCategoryToAdd>()
-                                {
-                                    new SubCategoryToAdd{subCategoryTitle = "חשבונות", categoryID = defaultCategory.id},
-                                    new SubCategoryToAdd{subCategoryTitle = "מזון", categoryID = defaultCategory.id}
-                                };
+    {
+    new SubCategoryToAdd{subCategoryTitle = "חשבונות", categoryID = defaultCategory.id},
+    new SubCategoryToAdd{subCategoryTitle = "מזון", categoryID = defaultCategory.id}
+    };
 
                                 foreach (SubCategoryToAdd defaultSubCategory1 in defaultSubCategory1List)
                                 {
@@ -850,10 +877,10 @@ else
                             case "רכב ותחבורה":
 
                                 List<SubCategoryToAdd> defaultSubCategory2List = new List<SubCategoryToAdd>()
-                                {
-                                    new SubCategoryToAdd{subCategoryTitle = "דלק", categoryID = defaultCategory.id},
-                                    new SubCategoryToAdd{subCategoryTitle = "תחבורה ציבורית", categoryID = defaultCategory.id}
-                                };
+    {
+    new SubCategoryToAdd{subCategoryTitle = "דלק", categoryID = defaultCategory.id},
+    new SubCategoryToAdd{subCategoryTitle = "תחבורה ציבורית", categoryID = defaultCategory.id}
+    };
 
                                 foreach (SubCategoryToAdd defaultSubCategory2 in defaultSubCategory2List)
                                 {
@@ -871,10 +898,10 @@ else
                                 break;
                             case "בריאות וטיפוח":
                                 List<SubCategoryToAdd> defaultSubCategory3List = new List<SubCategoryToAdd>()
-                                {
-                                    new SubCategoryToAdd{subCategoryTitle = "קופת חולים", categoryID = defaultCategory.id},
-                                    new SubCategoryToAdd{subCategoryTitle = "טואלטיקה", categoryID = defaultCategory.id}
-                                };
+    {
+    new SubCategoryToAdd{subCategoryTitle = "קופת חולים", categoryID = defaultCategory.id},
+    new SubCategoryToAdd{subCategoryTitle = "טואלטיקה", categoryID = defaultCategory.id}
+    };
 
                                 foreach (SubCategoryToAdd defaultSubCategory3 in defaultSubCategory3List)
                                 {
@@ -892,9 +919,9 @@ else
                                 break;
                             case "הכנסות":
                                 List<SubCategoryToAdd> defaultSubCategory4List = new List<SubCategoryToAdd>()
-                                {
-                                    new SubCategoryToAdd{subCategoryTitle = "משכורת", categoryID = defaultCategory.id}
-                                };
+    {
+    new SubCategoryToAdd{subCategoryTitle = "משכורת", categoryID = defaultCategory.id}
+    };
 
                                 foreach (SubCategoryToAdd defaultSubCategory4 in defaultSubCategory4List)
                                 {
@@ -1138,11 +1165,13 @@ else
 
     public void StoryWindowControl()
     {
+        tagCounter = 0;
         storyPopUpWindow = false;
     }
 
     public void NextStory()
     {
+        tagCounter = 0;
         if (storyNav < 3)
         {
             storyNav++;
@@ -1150,7 +1179,7 @@ else
     }
     private async Task OnStepClicked(int step)
     {
-
+        tagCounter = 0;
         if (step != storyNav && storyNav <= 3)
         {
             storyNav = step;
