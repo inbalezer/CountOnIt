@@ -1,0 +1,46 @@
+﻿.optionsMenu {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+
+.outerTrans {
+    border-radius: 0.25rem;
+    border: 1px solid #D6D9F1;
+    background: #F9F9F9;
+    width: 95%;
+    display: flex;
+    justify-content: center;
+}
+
+.outerMegaTrans{
+    display:flex;
+    justify-content:center;
+}
+
+.outerTransDeatils {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1vh 0;
+    width: 95%;
+}
+
+
+.outerDateAndTag {
+    display: flex;
+    flex-direction: column;
+}
+
+.transTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}

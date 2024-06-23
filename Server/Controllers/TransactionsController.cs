@@ -207,13 +207,13 @@ namespace CountOnIt.Server.Controllers
     transactions.transType, 
     transactions.transValue, 
     transactions.valueType, 
-    transactions.transDate, 
+    DATE_FORMAT(transactions.transDate, '%d-%m-%Y') AS transDate, 
     transactions.description, 
     transactions.fixedMonthly, 
     transactions.tagID, 
     transactions.transTitle, 
     transactions.parentTransID,
-transactions.splitPayment,
+    transactions.splitPayment,
     tags.tagTitle,
     tags.tagColor
 FROM transactions 

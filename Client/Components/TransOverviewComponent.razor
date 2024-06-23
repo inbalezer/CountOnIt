@@ -5,65 +5,95 @@
 @inject HttpClient Http
 
 
-<h4>@transaction.transTitle</h4>
-<span>@Math.Round(transaction.transValue,2) ₪</span>
-<OptionsMenuComponent deleteBtnClicked="deleteTransPopUp" editBtnClicked="editTransPopUp"></OptionsMenuComponent>
-@if (deleteBtnClicked)
-{
-    <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" action="מחיקה" makeAction="deleteTrans" closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
-}
-@if (editBtnClicked)
-{
-    if (transaction.splitPayment == true || childOfSplit == true)
-    {
-        if (transaction.splitPayment)
+<div class="outerMegaTrans">
+
+    <div class="outerTrans">
+        <div class="outerTransDeatils">
+
+            <div class="outerTitleDateAndTag">
+                <h4 class="transTitle">@transaction.transTitle</h4>
+                <div class="outerDateAndTag">
+
+                    <span style="color:#727272">@transaction.transDate</span>
+                    @if (transaction.tagID != null)
+                    {
+                        <span style="background-color:@transaction.tagColor">@transaction.tagTitle</span>
+                    }
+                </div>
+            </div>
+
+            <div class="outerTitleDateAndTag">
+                <div class="outerDotsAndAmount">
+
+                    <span>@Math.Round(transaction.transValue,2) ₪</span>
+                    <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+                    @if (isOpetionsBtnClicked)
+                    {
+                        <OptionsMenuComponent deleteBtnClicked="deleteTransPopUp" editBtnClicked="editTransPopUp"></OptionsMenuComponent>
+                    }
+                </div>
+                <div class="outerProp">
+
+                    <span>@transaction.valueType</span>
+                    @if (transaction.fixedMonthly == true)
+                    {
+                        <span>הוצאה חוזרת</span>
+                    }
+                    @if (transaction.splitPayment == true || childOfSplit == true)
+                    {
+                        <span>תשלום @transIndexInPayments/@totalPayments  </span>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+
+        @if (deleteBtnClicked)
         {
-            <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
+            <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" action="מחיקה" makeAction="deleteTrans" closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
         }
-        else if (childOfSplit)
+
+        @if (editBtnClicked)
         {
-            if (transaction.parentTransID.HasValue)
+            if (transaction.splitPayment == true || childOfSplit == true)
             {
-                if (transaction.parentTransID.Value > 0)
+                if (transaction.splitPayment)
                 {
-                    Console.WriteLine("split parent was sent to edit");
                     <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
                 }
+                else if (childOfSplit)
+                {
+                    if (transaction.parentTransID.HasValue)
+                    {
+                        if (transaction.parentTransID.Value > 0)
+                        {
+                            Console.WriteLine("split parent was sent to edit");
+                            <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
             }
         }
+        @* @if (overdraftDetected && transaction.transType == 3)
+        {
+        <span>⚠️ הזנה חורגת</span>
+        }*@
 
-    }
-    else
-    {
-        <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
-    }
-}
-@if (overdraftDetected && transaction.transType == 3)
-{
-    <span>⚠️ הזנה חורגת</span>
-}
-<br />
-<span>@transaction.transDate</span>
-<br />
-@if (transaction.description != null)
-{
-    <br />
-    <span>@transaction.description</span>
-}
-@if (transaction.tagID != null)
-{
-    <span style="background-color:@transaction.tagColor">@transaction.tagTitle</span>
-}
-<span>@transaction.valueType</span>
-@if (transaction.fixedMonthly == true)
-{
-    <span>הוצאה חוזרת</span>
-}
-@if (transaction.splitPayment == true || childOfSplit == true)
-{
-    <span>תשלום @transIndexInPayments/@totalPayments  </span>
-}
+        @*@if (transaction.description != null)
+        {
+        <br />
+        <span>@transaction.description</span>
+        }*@
 
+
+    </div>
+</div>
 
 
 @code {
@@ -94,6 +124,7 @@
 
     bool deleteBtnClicked = false;
     bool editBtnClicked = false;
+    bool isOpetionsBtnClicked = false;
     string popupTitle;
     string popupBodyText;
 
@@ -174,6 +205,13 @@
 
 
     }
+    public void OpetionsBtnClicked()
+    {
+        isOpetionsBtnClicked = !isOpetionsBtnClicked;
+
+    }
+
+
     public void deleteTransPopUp()
     {
         deleteBtnClicked = !deleteBtnClicked;
