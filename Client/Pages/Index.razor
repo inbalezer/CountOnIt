@@ -60,29 +60,32 @@ else
     @if (currentUser != null)
     {
         <div id="topSectionDiv">
-            <div id="profileAndStreak">
-                @*needs to be in the user profile page eventually*@
-                @if (streakStatTitle != null && streakStatTitle != "")
-                {
-                    @if (streakImgIcon != "")
+            <div class="outerTopSection">
+
+                <div class="profileAndStreak">
+                    @*needs to be in the user profile page eventually*@
+                    @if (streakStatTitle != null && streakStatTitle != "")
                     {
-                        <button @onclick="goToStreakPage"><img src=@streakImgIcon /></button>
+                        @if (streakImgIcon != "")
+                        {
+                            <button @onclick="goToStreakPage"><img src=@streakImgIcon /></button>
 
+                        }
                     }
-                }
-                else
-                {
-                    <button @onclick="goToStreakPage">Streak Page</button>
-                }
-                <button>@currentUser.profilePicOrIcon</button> @*will lead to user's profile page*@
+                    else
+                    {
+                        <button class="streakStatus" @onclick="goToStreakPage"></button>
+                    }
+                    <button class="profilePic">@currentUser.profilePicOrIcon</button> @*will lead to user's profile page*@
 
 
-            </div>
-            <div id="topText">
-                <p id="firstTitle">היי @currentUser.firstName 👋🏼</p>
+                </div>
+                <div id="topText">
+                    <p id="firstTitle">היי @currentUser.firstName 👋🏼</p>
 
-                <p id="secondTitle">מבט על חודש @currentMonth </p>
+                    <p id="secondTitle">מבט על חודש @currentMonth </p>
 
+                </div>
             </div>
 
             <div class="searchWrapper">
@@ -213,21 +216,21 @@ else
                                     <h3 class="storyTitle">התזרים שלי עד כה החודש</h3>
                                     <div class="titleFirstStory">פילוח ההוצאות שלך לפי קטגוריות</div>
 
-                                    
 
-                                        <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
 
-                                        @if (incomeSum != null)
-                                        {
-                                           
-                                            <div class="titleFirstStory incomeStory">💸 ההכנסות שלך עומדות כרגע על @incomeSum ₪</div>
+                                    <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
 
-                                        }
-                                        else
-                                        {
-                                            <div class="titleFirstStory incomeStory">💸 לא הוזנו הכנסות בחודש זה.</div>
-                                        }
-                                   
+                                    @if (incomeSum != null)
+                                    {
+
+                                        <div class="titleFirstStory incomeStory">💸 ההכנסות שלך עומדות כרגע על @incomeSum ₪</div>
+
+                                    }
+                                    else
+                                    {
+                                        <div class="titleFirstStory incomeStory">💸 לא הוזנו הכנסות בחודש זה.</div>
+                                    }
+
                                 </div>
 
 
