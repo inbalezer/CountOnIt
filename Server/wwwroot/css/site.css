@@ -22,6 +22,26 @@ a {
   border-color: #1861ac;
 }
 
+/*#google_login_btn {
+    border-radius: 0.25rem;
+    background: #6775F4;*/
+    /*        background-image:
+        color: #6775F4;*/
+    /*background-image: url('../areas\identity\pages\account\google.svg');
+    width: 15.375rem;
+    height: 2.3rem;
+    flex-shrink: 0;
+    color: #F9F9F9;
+    text-align: center;*/
+    /* h2 - sub titles */
+/*font-family: Heebo;
+    font-size: 1.2rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    border: none;
+        C:\Users\97258\OneDrive\Desktop\FinalProject_GithubRepository\CountOnIt\Client\wwwroot\css\images\present.svg
+}*/
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
   color: #fff;
   background-color: #1b6ec2;

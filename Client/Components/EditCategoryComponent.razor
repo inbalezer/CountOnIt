@@ -14,7 +14,25 @@
                     <button class="closeOverlay" @onclick="openCategoryOverlay"><img src="../css/images/close x.svg" /></button>
                     <h3 class="popupTitle">@popupTitle</h3>
                     <div class="titleAndIcon">
-                        <input class="catTitle" type="text" @bind="categoryToEdit.categroyTitle" placeholder="שם הקטגוריה" />
+                        <input class="catTitle" type="text" placeholder="שם הקטגוריה" maxlength="18" minlength="2" @oninput="titleLengthCounter" @bind="@titleInput" />
+                        @if (titleInput == null || titleInput == "")
+                        {
+                            <span style="color:red">0/17</span>
+                        }
+                        else
+                        {
+                            if (titleInput.Length<2 || titleInput.Length>18)
+                            {
+
+                                <span style="color:red">@titleInputLength/18</span>
+                            }
+                            else
+                            {
+                                <span>@titleInputLength/18</span>
+                                
+                            }
+                        }
+
 
                         <div class="keyBoardAndBtn">
                             <div class="outerCancleAndEmoji">
@@ -100,13 +118,13 @@
                         {
                             hideBtn = "hideDefaultEmojiBtn";
 
-                            if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
+                            if (ogCatName != "הכנסות" && titleInput == "הכנסות")
                             {
                                 <button class="saveBtn" @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
-                                <br/>
+                                <br />
                                 <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
                             }
-                            else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
+                            else if (titleInput == null || titleInput == "" || titleInput.Length > 18 || titleInput.Length < 2)
                             {
                                 <button class="saveBtn" @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
                                 <br />
@@ -114,24 +132,24 @@
                             }
                             else
                             {
-                                 <button class="saveBtn" @onclick="saveUpdatedCat">שמירה וסיום</button>
+                                <button class="saveBtn" @onclick="saveUpdatedCat">שמירה וסיום</button>
                             }
 
                         }
                         else if (popupTitle == "הוספת קטגוריה")
                         {
-                            
-                            if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
+
+                            if (ogCatName != "הכנסות" && titleInput == "הכנסות")
                             {
-                              
+
                                 <button class="saveBtn" @onclick="addNewCategory" disabled>שמירה וסיום</button>
                                 <br />
                                 <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
                             }
-                            else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
+                            else if (titleInput == null || titleInput == "" || titleInput.Length > 18 || titleInput.Length < 2)
                             {
                                 <button class="saveBtn" @onclick="addNewCategory" disabled>שמירה וסיום</button>
-                                <br/>
+                                <br />
                                 <span>לא ניתן לשמור קטגוריה ללא שם.</span>
                             }
                             else
@@ -185,13 +203,26 @@
     bool disabledEditOfIncomeTitle = false;
     string ogCatName = "";
 
+    string titleInput="";
+    int titleInputLength = 0;
+
+
     protected override async Task OnInitializedAsync()
     {
         ogCatName = categoryToEdit.categroyTitle;
+
+
         if (ogCatName == "הכנסות")
         {
             disabledEditOfIncomeTitle = true;
         }
+
+        if (categoryToEdit.categroyTitle != "" && categoryToEdit.categroyTitle != null)
+        {
+            titleInputLength = ogCatName.Length;
+            titleInput = categoryToEdit.categroyTitle;
+        }
+        
     }
 
     string color1Selected = "#F4B367";
@@ -201,7 +232,8 @@
     bool isCancleBtnClicked = false;
     public async Task saveUpdatedCat()
     {
-        editedCategory.categroyTitle = categoryToEdit.categroyTitle;
+        //editedCategory.categroyTitle = categoryToEdit.categroyTitle;
+        editedCategory.categroyTitle = titleInput;
         editedCategory.color = categoryToEdit.color;
         editedCategory.icon = categoryToEdit.icon;
         editedCategory.id = categoryToEdit.id;
@@ -237,7 +269,8 @@
 
     public async Task addNewCategory()
     {
-        newCategory.categroyTitle = categoryToEdit.categroyTitle;
+        //newCategory.categroyTitle = categoryToEdit.categroyTitle;
+        newCategory.categroyTitle = titleInput;
         newCategory.color = categoryToEdit.color;
         newCategory.icon = categoryToEdit.icon;
         newCategory.userID = userID;
@@ -353,5 +386,11 @@
         isEmojiExsist = false;
         categoryToEdit.icon = "";
         hideBtn = "";
+    }
+
+    private void titleLengthCounter(ChangeEventArgs e)
+    {
+        titleInput = e.Value.ToString();
+        titleInputLength = titleInput.Length;
     }
 }
