@@ -26,123 +26,126 @@
 
     <div class="content">
 
-        <div class="outerPageTitle">
+        <div class="outerTitleAndOptions">
 
 
-            <h3 class="pageTitle">מבט על: "@subCategoryTitle"</h3>
-            @if (!typeByCat)
-            {
-                <span class="budget">תקציב: @budget ₪</span>
-            }
-            <div class="outerDotsAndDes">
+            <div class="outerPageTitle">
 
-                <div class="closedAndOpenMenu">
+                <div class="outerTitleBudgetAndDots">
 
-                    <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
-                </div>
-                <div class="optionsMenu">
-                    @if (isOpetionsBtnClicked)
+                    <h3 class="pageTitle">מבט על: "@subCategoryTitle"</h3>
+                    @if (!typeByCat)
                     {
-
-
-                        <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
-
+                        <span class="budget">תקציב: @budget ₪</span>
                     }
+                    <div class="outerDotsAndDes">
+
+                        <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+
+                    </div>
                 </div>
+
+                @if (editSubCatBtnClicked)
+                {
+                    <div>
+                        <div>
+                            <h2>עריכת תת קטגוריה</h2>
+                            <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked">&times;</button>
+                        </div>
+
+
+                        @if (userCategories.Count > 0)
+                        {
+                            <span>עריכת תת קטגוריה ל</span>
+                            @if (subCatToEdit.categroyTitle == null)
+                            {
+                                subCatToEdit.categroyTitle = categoryTitle;
+                            }
+                            <select @bind="subCatToEdit.categroyTitle">
+
+                                @foreach (AllUserCategories userCategory in userCategories)
+                                {
+
+                                    <option value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+
+
+                                }
+                            </select>
+                            <span>@subCatToEdit.categroyTitle</span>
+
+                        }
+
+                        <div>
+                            <label for="amount">שם תת קטגוריה</label>
+                            <input type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
+                        </div>
+
+                        <div>
+                            <label for="description">מה התקציב החודשי שלך עבור @subCatToEdit.subCategoryTitle? </label>
+                            <input type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
+                        </div>
+                        <div>
+                            <label for="importance">עדיפות תת הקטגוריה</label>
+                            <span>@subCatToEdit.importance</span>
+                            @if (subCatToEdit.importance == 0)
+                            {
+                                <input type="radio"
+                               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
+                                <label>רצון</label>
+                            }
+                            else
+                            {
+                                <input type="radio"
+                               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
+                                <label>רצון</label>
+                            }
+                            @if (subCatToEdit.importance == 1)
+                            {
+                                <input type="radio"
+                               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
+                                <label>צורך</label>
+                            }
+                            else
+                            {
+                                <input type="radio"
+                               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
+                                <label>צורך</label>
+                            }
+                            @if (subCatToEdit.importance == 2)
+                            {
+                                <input type="radio"
+                               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
+                                <label>חובה</label>
+                            }
+                            else
+                            {
+                                <input type="radio"
+                               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
+                                <label>חובה</label>
+                            }
+                        </div>
+                        <div>
+                            <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
+                        </div>
+                        <br />
+                        @* <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>*@
+                        <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+                    </div>
+                }
+
             </div>
 
-
-            @if (editSubCatBtnClicked)
-            {
-                <div>
-                    <div>
-                        <h2>עריכת תת קטגוריה</h2>
-                        <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked">&times;</button>
-                    </div>
+            <div class="options">
+                @if (isOpetionsBtnClicked)
+                {
 
 
-                    @if (userCategories.Count > 0)
-                    {
-                        <span>עריכת תת קטגוריה ל</span>
-                        @if (subCatToEdit.categroyTitle == null)
-                        {
-                            subCatToEdit.categroyTitle = categoryTitle;
-                        }
-                        <select @bind="subCatToEdit.categroyTitle">
+                    <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
 
-                            @foreach (AllUserCategories userCategory in userCategories)
-                            {
-
-                                <option value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
-
-
-                            }
-                        </select>
-                        <span>@subCatToEdit.categroyTitle</span>
-
-                    }
-
-                    <div>
-                        <label for="amount">שם תת קטגוריה</label>
-                        <input type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
-                    </div>
-
-                    <div>
-                        <label for="description">מה התקציב החודשי שלך עבור @subCatToEdit.subCategoryTitle? </label>
-                        <input type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
-                    </div>
-                    <div>
-                        <label for="importance">עדיפות תת הקטגוריה</label>
-                        <span>@subCatToEdit.importance</span>
-                        @if (subCatToEdit.importance == 0)
-                        {
-                            <input type="radio"
-                           name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
-                            <label>רצון</label>
-                        }
-                        else
-                        {
-                            <input type="radio"
-                           name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
-                            <label>רצון</label>
-                        }
-                        @if (subCatToEdit.importance == 1)
-                        {
-                            <input type="radio"
-                           name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
-                            <label>צורך</label>
-                        }
-                        else
-                        {
-                            <input type="radio"
-                           name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
-                            <label>צורך</label>
-                        }
-                        @if (subCatToEdit.importance == 2)
-                        {
-                            <input type="radio"
-                           name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
-                            <label>חובה</label>
-                        }
-                        else
-                        {
-                            <input type="radio"
-                           name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
-                            <label>חובה</label>
-                        }
-                    </div>
-                    <div>
-                        <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
-                    </div>
-                    <br />
-                    @* <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>*@
-                    <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
-                </div>
-            }
-
-
-
+                }
+            </div>
         </div>
+
         @if (deleteBtnClicked)
         {
             <GeneralPopUpComponent popupTypeTitle="מחיקת תת קטגוריה" middleText="@popupBodyText" action="מחיקה" makeAction="deleteSubCat" closePopUp="deleteSubCatPopUp"></GeneralPopUpComponent>

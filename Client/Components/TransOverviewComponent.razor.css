@@ -163,3 +163,15 @@
 .outerDes {
     display: flex;
 }
+
+.outerDotsAndOptionsTrans {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: flex-start;
+}
+
+#options {
+    position: absolute;
+    z-index: 1000;
+    margin-left: 4vw;
+}

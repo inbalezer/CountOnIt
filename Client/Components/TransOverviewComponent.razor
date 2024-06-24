@@ -47,11 +47,18 @@
                 <div class="outerDotsAndAmount">
 
                     <span class="tagsValue">@Math.Round(transaction.transValue,2) ₪</span>
-                    <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
-                    @if (isOpetionsBtnClicked)
-                    {
-                        <OptionsMenuComponent deleteBtnClicked="deleteTransPopUp" editBtnClicked="editTransPopUp"></OptionsMenuComponent>
-                    }
+                    <div class="outerDotsAndOptionsTrans">
+                        <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+                       
+                        @if (isOpetionsBtnClicked)
+                        {
+                             <div id="options">
+
+                            <OptionsMenuComponent deleteBtnClicked="deleteTransPopUp" editBtnClicked="editTransPopUp"></OptionsMenuComponent>
+                        </div>
+                        }
+                    </div>
+
                 </div>
                 <div class="outerProp">
 

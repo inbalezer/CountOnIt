@@ -269,8 +269,7 @@
 }
 
 .optionsMenu {
-    position: absolute;
-    z-index: 3;
+    
 }
 
 .closedAndOpenMenu {
@@ -285,4 +284,26 @@
 .outerDotsAndDes {
     display: flex;
     flex-direction: row-reverse;
+}
+
+.outerTitleBudgetAndDots {
+    display: flex;
+    justify-content: space-between;
+    width: 95%;
+    align-items: baseline;
+}
+
+.options {
+    display: flex;
+    position: absolute;
+    z-index: 1004;
+    justify-content: flex-end;
+    width: 90%;
+    margin-top: 2.5vh;
+    margin-right: -1vw;
+}
+
+.outerTitleAndOptions{
+    display:flex;
+    flex-direction:column;
 }
