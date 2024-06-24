@@ -16,7 +16,19 @@
             <button class="backArrow" @onclick="goToHomePage"><img src="../css/images/back-repeated.svg" /></button>
             <span>@categoryTitle > @subCategoryTitle</span>
         </div>
-        <button class="profilePic"></button>
+        <div class="profileAndStreak">
+
+            <div class="streakBtn">
+                @if (streakStatTitle != null && streakStatTitle != "")
+                {
+                    if (streakImgIcon != "")
+                    {
+                        <img src=@streakImgIcon style="width:87%;" />
+                    }
+                }
+            </div>
+                <button class="profilePic">@userIcon</button>
+        </div>
     </div>
 
 
@@ -301,8 +313,31 @@
 
     bool typeByCat = false; //false- expense, true- income
 
+    string userIcon = "";
+    string streakImgIcon = "";
+    string streakStatTitle = "";
+
     protected override async Task OnInitializedAsync()
     {
+        UserID userIndex = new UserID
+            {
+                userID = userID
+            };
+        var getUserIcon = await Http.PostAsJsonAsync("api/Present/getUserIcon", userIndex);
+        if (getUserIcon.IsSuccessStatusCode)
+        {
+            string iconCheck = await getUserIcon.Content.ReadAsStringAsync();
+            userIcon = iconCheck;
+        }
+        else
+        {
+            userIcon = "🌟";
+            var errorContent = await getUserIcon.Content.ReadAsStringAsync();
+            Console.WriteLine("failed to find icon or update it to default because: " + errorContent);
+        }
+
+        await getCurrentStreak();
+
         //get category title:
 
         var catTitle = await Http.GetAsync("api/Present/getCategoryTitle/" + categoryID);
@@ -727,6 +762,58 @@
 
     }
 
+
+    private async Task getCurrentStreak()
+    {
+        var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
+        if (getCurrentStatRes.IsSuccessStatusCode)
+        {
+            streakStatTitle = await getCurrentStatRes.Content.ReadAsStringAsync();
+            switch (streakStatTitle) //will fill the related streak image route
+            {
+                case "מטבע ארד":
+
+                    streakImgIcon = "../css/images/bronzeCoin.svg";
+
+                    break;
+                case "מטבע כסף":
+
+                    streakImgIcon = "../css/images/silverCoin.svg";
+
+                    break;
+                case "מטבע זהב":
+
+                    streakImgIcon = "../css/images/goldCoin.svg";
+
+                    break;
+                case "שטר":
+
+                    streakImgIcon = "../css/images/singleCashNote.svg";
+
+                    break;
+                case "שטרות":
+
+                    streakImgIcon = "../css/images/cashNotes.svg";
+
+                    break;
+                case "גביע":
+
+                    streakImgIcon = "../css/images/goblet.svg";
+
+                    break;
+                case "יהלום":
+
+                    streakImgIcon = "../css/images/diamond.svg";
+
+                    break;
+                default:
+                    Console.WriteLine("no picture is associated with this streak");
+                    streakImgIcon = "";
+
+                    break;
+            }
+        }
+    }
     void FilterCatsOrSubCats()
     {
         //if (!string.IsNullOrEmpty(searchQuery))

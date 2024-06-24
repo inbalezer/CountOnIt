@@ -105,7 +105,7 @@ namespace CountOnIt.Server.Controllers
                 {
                     ID = userID
                 };
-                string getStreakQuery = "WITH valid_weeks AS (SELECT WEEK(t.transInputDate) AS week_number,YEAR(t.transInputDate) AS year_number,ROW_NUMBER() OVER (ORDER BY YEAR(t.transInputDate), WEEK(t.transInputDate)) AS rn FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE() AND u.id =@ID GROUP BY YEAR(t.transInputDate), WEEK(t.transInputDate) HAVING COUNT(*) >= 3),streaks AS (SELECT vw.*,(ROW_NUMBER() OVER (ORDER BY vw.year_number, vw.week_number) - vw.rn) AS streak_group FROM valid_weeks vw),current_streak AS (SELECT s.streak_group,COUNT(*) AS streak_length,MAX(CASE WHEN vw2.year_number = YEAR(CURRENT_DATE()) AND vw2.week_number = WEEK(CURRENT_DATE()) THEN 1 ELSE 0 END) AS is_current_streak FROM streaks s JOIN valid_weeks vw2 ON s.year_number = vw2.year_number AND s.week_number = vw2.week_number GROUP BY s.streak_group) SELECT CASE WHEN MAX(is_current_streak) = 1 THEN TRUE ELSE FALSE END AS current_streak_group,MAX(streak_length) AS streak_length FROM current_streak ORDER BY streak_length DESC LIMIT 1;"; 
+                string getStreakQuery = "WITH valid_weeks AS (SELECT WEEK(t.transInputDate) AS week_number,YEAR(t.transInputDate) AS year_number,ROW_NUMBER() OVER (ORDER BY YEAR(t.transInputDate), WEEK(t.transInputDate)) AS rn FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE() AND u.id =@ID GROUP BY YEAR(t.transInputDate), WEEK(t.transInputDate) HAVING COUNT(*) >= 3),streaks AS (SELECT vw.*,(ROW_NUMBER() OVER (ORDER BY vw.year_number, vw.week_number) - vw.rn) AS streak_group FROM valid_weeks vw),current_streak AS (SELECT s.streak_group,COUNT(*) AS streak_length,MAX(CASE WHEN vw2.year_number = YEAR(CURRENT_DATE()) AND vw2.week_number = WEEK(CURRENT_DATE()) THEN 1 ELSE 0 END) AS is_current_streak FROM streaks s JOIN valid_weeks vw2 ON s.year_number = vw2.year_number AND s.week_number = vw2.week_number GROUP BY s.streak_group) SELECT CASE WHEN MAX(is_current_streak) = 1 THEN TRUE ELSE FALSE END AS current_streak_group,MAX(streak_length) AS streak_length FROM current_streak ORDER BY streak_length DESC LIMIT 1;";
                 //gets the amount of weeks where there was a minimum of 3 transactions (in the current streak) and the streak's length
 
                 var getStreaks = await _db.GetRecordsAsync<UserStreakData>(getStreakQuery, param);
@@ -137,6 +137,50 @@ namespace CountOnIt.Server.Controllers
                     return Ok(streakStatus);
                 }
                 return BadRequest("couldn't find streak data for this user");
+            }
+
+            return BadRequest("invalid user id");
+        }
+
+        [HttpPost("getUserIcon")] //gets the user's icon or profile pic
+        public async Task<IActionResult> getUserIcon(UserID userID)
+        {
+            if (userID.userID > 0)
+            {
+                object param = new
+                {
+                    ID = userID.userID
+                };
+                string getIconQuery = "SELECT profilePicOrIcon FROM users where id=@ID;";
+                var getIcon = await _db.GetRecordsAsync<string?>(getIconQuery, param);
+                string? userIcon = getIcon.FirstOrDefault();
+
+                if (userIcon == null || userIcon == "" || userIcon.Length <= 0)
+                {
+
+                    object updateParam = new
+                    {
+                        ID = userID.userID,
+                        profilePicOrIcon = "🌟"
+
+                    };
+
+                    string updateUserIconQuery = "update users set profilePicOrIcon=@profilePicOrIcon where id=@ID;";
+                    bool iconUpdate = await _db.SaveDataAsync(updateUserIconQuery, updateParam);
+                    if (iconUpdate)
+                    {
+                        string defaultIcon = "🌟";
+                        return Ok(defaultIcon);
+                    }
+
+                    return BadRequest("failed to update user's icon to default");
+                }
+                else if (userIcon != null)
+                {
+                    return Ok(userIcon);
+                }
+
+                return BadRequest("couldn't find profile pic or icon for this user");
             }
 
             return BadRequest("invalid user id");
@@ -178,7 +222,7 @@ namespace CountOnIt.Server.Controllers
                 string getStreakQuery = "SELECT COUNT(*) AS totalWeekTransactions FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE u.id=@ID and WEEK(t.transInputDate, 0) = WEEK(CURRENT_DATE(), 0) AND YEAR(t.transInputDate) = YEAR(CURRENT_DATE()) AND t.transDate <= CURRENT_DATE();";
                 var StreaksUpdate = await _db.GetRecordsAsync<int>(getStreakQuery, param);
 
-                if (StreaksUpdate!=null)
+                if (StreaksUpdate != null)
                 {
                     return Ok(StreaksUpdate);
                 }
