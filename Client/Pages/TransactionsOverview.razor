@@ -34,27 +34,24 @@
             {
                 <span class="budget">תקציב: @budget ₪</span>
             }
-            <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
-            @if (isOpetionsBtnClicked)
-            {
-                <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
-            }
+            <div class="outerDotsAndDes">
+
+                <div class="closedAndOpenMenu">
+
+                    <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+                </div>
+                <div class="optionsMenu">
+                    @if (isOpetionsBtnClicked)
+                    {
 
 
-        </div>
-        @if (deleteBtnClicked)
-        {
-            <GeneralPopUpComponent popupTypeTitle="מחיקת תת קטגוריה" middleText="@popupBodyText" action="מחיקה" makeAction="deleteSubCat" closePopUp="deleteSubCatPopUp"></GeneralPopUpComponent>
-        }
-        <div class="outerLowerPart">
+                        <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
 
-            <div class="searchWrapper">
-                <div class="search__container">
-                    <img src="../css/images/search btn.svg" />
-                    <input class="searchInput" type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו תגית או הוצאה..." />
-
+                    }
                 </div>
             </div>
+
+
             @if (editSubCatBtnClicked)
             {
                 <div>
@@ -142,6 +139,24 @@
                     <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
                 </div>
             }
+
+
+
+        </div>
+        @if (deleteBtnClicked)
+        {
+            <GeneralPopUpComponent popupTypeTitle="מחיקת תת קטגוריה" middleText="@popupBodyText" action="מחיקה" makeAction="deleteSubCat" closePopUp="deleteSubCatPopUp"></GeneralPopUpComponent>
+        }
+        <div class="outerLowerPart">
+
+            <div class="searchWrapper">
+                <div class="search__container">
+                    <img src="../css/images/search btn.svg" />
+                    <input class="searchInput" type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו תגית או הוצאה..." />
+
+                </div>
+            </div>
+
 
             <div class="outerSortAndFilter">
 

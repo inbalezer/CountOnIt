@@ -263,3 +263,26 @@
     margin: 1vh 0;
 }
 
+.outerDotsAndOptions {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.optionsMenu {
+    position: absolute;
+    z-index: 3;
+}
+
+.closedAndOpenMenu {
+    display: flex;
+    /* flex-direction: row-reverse; */
+    align-items: flex-start;
+    column-gap: 1vh;
+    z-index: 2;
+}
+
+
+.outerDotsAndDes {
+    display: flex;
+    flex-direction: row-reverse;
+}
