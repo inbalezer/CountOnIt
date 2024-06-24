@@ -1113,9 +1113,9 @@ resetMonthValues = !resetMonthValues">
                             Console.WriteLine("sum pre split- " + sumPreSplit);
                             Console.WriteLine("newTransaction.transValue- " + newTransaction.transValue);
                             List<int> transStatus = new List<int>()
-        {
-        indexOfPayment, selectedNumber
-        };
+                            {
+                                indexOfPayment, selectedNumber
+                            };
                             SplitPaymentWithIndex.InvokeAsync(transStatus);
 
                         }

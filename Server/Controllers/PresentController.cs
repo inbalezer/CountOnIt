@@ -889,6 +889,28 @@ namespace CountOnIt.Server.Controllers
             }
         }
 
+        [HttpGet("getCatColor/{catID}")] 
+        public async Task<IActionResult> getCatColor(int catID)
+        {
+            if (catID > 0)
+            {
+                object param = new
+                {
+                    ID = catID
+                };
+                string getColorQuery = "SELECT color FROM categories where id=@ID;";
+                var catColorRec = await _db.GetRecordsAsync<string>(getColorQuery, param);
+                string catColorRes = catColorRec.FirstOrDefault();
+                if (catColorRes != null)
+                {
+                    return Ok(catColorRes);
+                }
+                return BadRequest("couldn't get category's color");
+            }
+
+            return BadRequest("invalid user id");
+
+        }
 
     }
 
