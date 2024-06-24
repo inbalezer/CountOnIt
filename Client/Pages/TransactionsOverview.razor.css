@@ -233,12 +233,15 @@
     cursor: pointer;
     outline: inherit;
     padding: 0.6vh;
-    display: none;
 }
 
 #sortTrans {
     width: 150%;
 }
+
+/*#sortTrans input[type="radio"] {
+    display: none;
+}*/
 
 .outerSortOptions {
     display: flex;
@@ -306,4 +309,39 @@
 .outerTitleAndOptions{
     display:flex;
     flex-direction:column;
+}
+
+.outerPaymentOverlay {
+    border-radius: 1.75rem 1.4375rem 0rem 0rem;
+    background-color: #F9F9F9;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    padding: 2vh 0 2vh 0;
+    width: 100%;
+}
+
+.outerPaymentMethodsOptions {
+    display: flex;
+    flex-direction: column;
+}
+
+.BgOverlay{
+    background-color: rgba(1, 5, 43, 0.28);
+    z-index: 3;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.outerLay{
+    display: flex;
+    bottom: 0;
+    position: fixed;
+    z-index: 4;
+    width: 100%;
 }

@@ -184,20 +184,31 @@
                                 </div>
                             </div>
 
+                        }
                             @if (filterByTransTypeOverlay)
                             {
                                 <button @onclick="() => filterByTransTypeOverlay = false">close</button>
-                                <div>
+                                <div class="outerLay">
 
-                                    <fieldset id="transValueType" name="transType">
-                                        <legend>אמצעי תשלום</legend>
-                                        <input type="radio" value="מזומן" name="transType" @onchange="@(()=> filterByType= "מזומן")" />מזומן
-                                        <input type="radio" value="אשראי" name="transType" @onchange="@(()=> filterByType= "אשראי")" />אשראי
-                                        <input type="radio" value="אחר" name="transType" @onchange="@(()=> filterByType= "ביט/פייבוקס")" /> ביט/פייבוקס
-                                        <input type="radio" value="אחר" name="transType" @onchange="@(()=> filterByType= "אחר")" /> אחר
-                                    </fieldset>
-                                    <button @onclick="@(()=>filterByTransType(filterByType))">סינון הוצאות</button>
+                                    <div class="BgOverlay">
+
+                                        <div class="outerPaymentOverlay">
+
+                                            <div class="outerPaymentMethodsOptions">
+
+                                                <fieldset id="transValueType" name="transType">
+                                                    <legend>אמצעי תשלום</legend>
+                                                    <input type="radio" value="מזומן" name="transType" @onchange="@(()=> filterByType= "מזומן")" />מזומן
+                                                    <input type="radio" value="אשראי" name="transType" @onchange="@(()=> filterByType= "אשראי")" />אשראי
+                                                    <input type="radio" value="ביט/פייבוקס" name="transType" @onchange="@(()=> filterByType= "ביט/פייבוקס")" /> ביט/פייבוקס
+                                                    <input type="radio" value="אחר" name="transType" @onchange="@(()=> filterByType= "אחר")" /> אחר
+                                                </fieldset>
+                                                <button @onclick="@(()=>filterByTransType(filterByType))">סינון הוצאות</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+
 
                             }
                             @if (filterByTagOverlay)
@@ -219,7 +230,6 @@
                                     </div>
                                 }
                             }
-                        }
                     </div>
 
 
