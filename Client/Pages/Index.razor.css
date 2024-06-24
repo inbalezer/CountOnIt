@@ -657,9 +657,8 @@ ol li::marker {
 }
 
 .profileAndStreak {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    position: relative;
+    display: inline-block;
 }
 
 
@@ -677,18 +676,31 @@ ol li::marker {
     text-align: center;
     border-radius: 50%;
     font-size: 1.8rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
 }
 
 .outerTopSection {
     display: flex;
     flex-direction: row-reverse;
+    align-items: center;
     justify-content: space-between;
 }
 
 .streakStatus {
     width: 13vw;
     height: 6vh;
+}
+
+.streakBtn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: inherit;
+    position: absolute;
+    z-index: 1;
+    top: 33%;
+    left: 50%;
+    width: 111%;
 }
