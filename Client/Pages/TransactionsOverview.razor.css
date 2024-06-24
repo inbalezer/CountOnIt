@@ -156,3 +156,110 @@
     column-gap: 1.2vh;
     margin-top: 2vh;
 }
+
+
+.outerSortAndFilter {
+    display: flex;
+    justify-content: center;
+}
+
+.sortAndFilterBtns {
+    display: flex;
+    justify-content: flex-start;
+    width: 95%;
+    column-gap: 1vh;
+}
+
+.outerFilterOptions {
+    display: flex;
+    flex-direction: row;
+    border-radius: 0.1875rem;
+    border: 0.2px solid rgba(0, 0, 0, 0.30);
+    background: #FFF;
+    box-shadow: 0px 17px 5px 0px rgba(189, 189, 189, 0.00), 0px 11px 4px 0px rgba(189, 189, 189, 0.02), 0px 6px 4px 0px rgba(189, 189, 189, 0.06), 0px 3px 3px 0px rgba(189, 189, 189, 0.10), 0px 1px 1px 0px rgba(189, 189, 189, 0.12) rgba(0, 0, 0, 0.3) rgba(255, 255, 255, 1);
+    justify-content: center;
+    width: 35%;
+    padding: 0.8vh 0;
+    z-index: 1000;
+    position: absolute;
+    margin-top: 4.3vh;
+}
+
+.dropDownOptionBtn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    /* text-decoration: underline; */
+    /* line-height: 4vh; */
+    /* border-bottom: 1px solid #000; */
+    /* padding-bottom: 0.2vh; */
+    padding: 0.6vh;
+}
+
+.filterOptions {
+    display: flex;
+    /* width: 95%; */
+    flex-direction: column;
+    align-content: flex-start;
+    /* justify-content: flex-start; */
+    align-items: flex-start;
+}
+
+.divider {
+    height: 0.1vh;
+    background-color: #D6D9F1;
+    margin-bottom: 1vh;
+    width:100%;
+}
+
+.outerFilterBtnAndOptions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.sortBtn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    padding: 0.6vh;
+    display: none;
+}
+
+#sortTrans {
+    width: 150%;
+}
+
+.outerSortOptions {
+    display: flex;
+    flex-direction: row;
+    border-radius: 0.1875rem;
+    border: 0.2px solid rgba(0, 0, 0, 0.30);
+    background: #FFF;
+    box-shadow: 0px 17px 5px 0px rgba(189, 189, 189, 0.00), 0px 11px 4px 0px rgba(189, 189, 189, 0.02), 0px 6px 4px 0px rgba(189, 189, 189, 0.06), 0px 3px 3px 0px rgba(189, 189, 189, 0.10), 0px 1px 1px 0px rgba(189, 189, 189, 0.12) rgba(0, 0, 0, 0.3) rgba(255, 255, 255, 1);
+    width: 57%;
+    padding: 2vh 0;
+    z-index: 1000;
+    position: absolute;
+    margin-top: 4.3vh;
+    justify-content: center;
+}
+
+.sortDivider {
+    height: 0.1vh;
+    background-color: #D6D9F1;
+    margin-bottom: 1vh;
+    width: 64%;
+    margin: 1vh 0;
+}
+

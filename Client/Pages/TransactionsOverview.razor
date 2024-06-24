@@ -143,69 +143,93 @@
                 </div>
             }
 
-            <div id="sortAndFilterBtns">
-                <button class="filterAndSortBtns" @onclick="() => filterBtnClicked = true"><img src="../css/images/filter btn.svg" /></button>
-                <span>@filterStatus</span>
-                @if (filterBtnClicked)
-                {
-                    <button @onclick="filterByTransTypeOverlayControl">אמצעי תשלום</button>
-                    <button @onclick="filterByTagsOverlayControl">תגית</button>
-                    <button @onclick="filterByRepeatedTrans">הוצאה חוזרת</button>
-                    <button @onclick="filterBySplitPayment">תשלומים</button>
+            <div class="outerSortAndFilter">
 
-                    @if (filterByTransTypeOverlay)
-                    {
-                        <button @onclick="() => filterByTransTypeOverlay = false">close</button>
-                        <div>
+                <div class="sortAndFilterBtns">
+                    <div class="outerFilterBtnAndOptions">
 
-                            <fieldset id="transValueType" name="transType">
-                                <legend>אמצעי תשלום</legend>
-                                <input type="radio" value="מזומן" name="transType" @onchange="@(()=> filterByType= "מזומן")" />מזומן
-                                <input type="radio" value="אשראי" name="transType" @onchange="@(()=> filterByType= "אשראי")" />אשראי
-                                <input type="radio" value="אחר" name="transType" @onchange="@(()=> filterByType= "ביט/פייבוקס")" /> ביט/פייבוקס
-                                <input type="radio" value="אחר" name="transType" @onchange="@(()=> filterByType= "אחר")" /> אחר
-                            </fieldset>
-                            <button @onclick="@(()=>filterByTransType(filterByType))">סינון הוצאות</button>
-                        </div>
 
-                    }
-                    @if (filterByTagOverlay)
-                    {
-
-                        if (subCatTagsList.Count > 0)
+                        <button class="filterAndSortBtns" @onclick="filterBtnClickedFunc"><img src="../css/images/filter btn.svg" /></button>
+                        <span>@filterStatus</span>
+                        @if (filterBtnClicked)
                         {
-                            <button @onclick="() => filterByTagOverlay = false">close</button>
-                            <div>
+                            @*sortBtnClicked = false;*@
+                            <div class="outerFilterOptions">
+                                <div class="filterOptions">
+                                    <button class="dropDownOptionBtn" @onclick="filterByTransTypeOverlayControl">אמצעי תשלום</button>
+                                    <div class="divider"></div>
+                                    <button class="dropDownOptionBtn" @onclick="filterByTagsOverlayControl">תגית</button>
+                                    <div class="divider"></div>
+                                    <button class="dropDownOptionBtn" @onclick="filterByRepeatedTrans">הוצאה חוזרת</button>
+                                    <div class="divider"></div>
+                                    <button class="dropDownOptionBtn" @onclick="filterBySplitPayment">תשלומים</button>
+                                </div>
+                            </div>
 
-                                <label for="subCatTags">התגיות שלי</label><br />
-                                @foreach (TagsToShow tag in subCatTagsList)
+                            @if (filterByTransTypeOverlay)
+                            {
+                                <button @onclick="() => filterByTransTypeOverlay = false">close</button>
+                                <div>
+
+                                    <fieldset id="transValueType" name="transType">
+                                        <legend>אמצעי תשלום</legend>
+                                        <input type="radio" value="מזומן" name="transType" @onchange="@(()=> filterByType= "מזומן")" />מזומן
+                                        <input type="radio" value="אשראי" name="transType" @onchange="@(()=> filterByType= "אשראי")" />אשראי
+                                        <input type="radio" value="אחר" name="transType" @onchange="@(()=> filterByType= "ביט/פייבוקס")" /> ביט/פייבוקס
+                                        <input type="radio" value="אחר" name="transType" @onchange="@(()=> filterByType= "אחר")" /> אחר
+                                    </fieldset>
+                                    <button @onclick="@(()=>filterByTransType(filterByType))">סינון הוצאות</button>
+                                </div>
+
+                            }
+                            @if (filterByTagOverlay)
+                            {
+
+                                if (subCatTagsList.Count > 0)
                                 {
-                                    <input type="radio" name="subCatTags" @onchange="@(()=> filterByTag= tag.id)" />
-                                    <label>@tag.tagTitle</label>
+                                    <button @onclick="() => filterByTagOverlay = false">close</button>
+                                    <div>
+
+                                        <label for="subCatTags">התגיות שלי</label><br />
+                                        @foreach (TagsToShow tag in subCatTagsList)
+                                        {
+                                            <input type="radio" name="subCatTags" @onchange="@(()=> filterByTag= tag.id)" />
+                                            <label>@tag.tagTitle</label>
+                                        }
+                                        <br />
+                                        <button @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
+                                    </div>
                                 }
-                                <br />
-                                <button @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
+                            }
+                        }
+                    </div>
+
+
+                    <div class="outerFilterBtnAndOptions">
+                        <button class="filterAndSortBtns" @onclick="sortBtnClickedFunc"><img src="../css/images/sort btn.svg" /></button>
+                        @if (sortBtnClicked)
+                        {
+                            <div class="outerSortOptions">
+                                <div class="filterOptions">
+
+                                    <fieldset id="sortTrans" name="transSorting">
+                                        <input class="sortBtn" type="radio" value="תאריך (מהחדש לישן)" name="transSorting" @onchange="@(()=> SortingOptions("dateDes"))" />תאריך (מהחדש לישן)
+                                        <div class="sortDivider"></div>
+                                        <input class="sortBtn" type="radio" value="תאריך (מהישן לחדש)" name="transSorting" @onchange="@(()=> SortingOptions("dateAsc"))" />תאריך (מהישן לחדש)
+                                        <div class="sortDivider"></div>
+                                        <input class="sortBtn" type="radio" value="סכום הוצאה (מהגבוה לנמוך)" name="transSorting" @onchange="@(()=> SortingOptions("sumDes"))" /> סכום הוצאה (מהגבוה לנמוך)
+                                        <div class="sortDivider"></div>
+                                        <input class="sortBtn" type="radio" value="סכום הוצאה (מהנמוך לגבוה)" name="transSorting" @onchange="@(()=> SortingOptions("sumAsc"))" /> סכום הוצאה (מהנמוך לגבוה)
+                                    </fieldset>
+                                </div>
                             </div>
                         }
-                    }
-                }
-
-                <button class="filterAndSortBtns" @onclick="() => sortBtnClicked = !sortBtnClicked"><img src="../css/images/sort btn.svg" /></button>
-                @if (sortBtnClicked)
-                {
-                    <fieldset id="sortTrans" name="transSorting">
-                        <input type="radio" value="תאריך (מהחדש לישן)" name="transSorting" @onchange="@(()=> SortingOptions("dateDes"))" />תאריך (מהחדש לישן)
-                        <input type="radio" value="תאריך (מהישן לחדש)" name="transSorting" @onchange="@(()=> SortingOptions("dateAsc"))" />תאריך (מהישן לחדש)
-                        <input type="radio" value="סכום הוצאה (מהגבוה לנמוך)" name="transSorting" @onchange="@(()=> SortingOptions("sumDes"))" /> סכום הוצאה (מהגבוה לנמוך)
-                        <input type="radio" value="סכום הוצאה (מהנמוך לגבוה)" name="transSorting" @onchange="@(()=> SortingOptions("sumAsc"))" /> סכום הוצאה (מהנמוך לגבוה)
-                    </fieldset>
-                }
-                <span>@sortStatus</span>
+                        <span>@sortStatus</span>
+                    </div>
+                    <button class="filterAndSortBtns" @onclick="undoFilterAndSort">איפוס</button>
 
 
-                <button class="filterAndSortBtns" @onclick="undoFilterAndSort">איפוס</button>
-
-
+                </div>
             </div>
 
             <div id="transactions">
@@ -740,6 +764,20 @@
         //    searchCats = null; // Show all categories if the search query is empty
 
         //}
+    }
+
+    void filterBtnClickedFunc()
+    {
+        filterBtnClicked = !filterBtnClicked;
+        sortBtnClicked = false;
+
+    }
+
+    void sortBtnClickedFunc()
+    {
+        sortBtnClicked = !sortBtnClicked;
+        filterBtnClicked = false;
+
     }
 
 }

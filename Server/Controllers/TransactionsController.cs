@@ -207,7 +207,7 @@ namespace CountOnIt.Server.Controllers
     transactions.transType, 
     transactions.transValue, 
     transactions.valueType, 
-    DATE_FORMAT(transactions.transDate, '%d-%m-%Y') AS transDate, 
+    DATE_FORMAT(transactions.transDate, '%d/%m/%Y') AS transDate, 
     transactions.description, 
     transactions.fixedMonthly, 
     transactions.tagID, 

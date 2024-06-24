@@ -11,7 +11,24 @@
         <div class="outerTransDeatils">
 
             <div class="outerTitleDateAndTag">
-                <h4 class="transTitle">@transaction.transTitle</h4>
+                <div class="outerTextAndDes">
+
+                    <h4 class="transTitle">@transaction.transTitle</h4>
+                    @if (transaction.description != null)
+                    {
+
+                        <button class="desBtn" @onclick="()=> openDes = !openDes"><img src="../css/images/info.svg" /></button>
+
+                    }
+                </div>
+
+                <div class="outerDes">
+                    @if (openDes)
+                    {
+
+                        <span class="transDes">@transaction.description</span>
+                    }
+                </div>
                 <div class="outerDateAndTag">
 
                     <span style="color:#727272">@transaction.transDate</span>
@@ -19,13 +36,17 @@
                     {
                         <span class="tag" style="background-color:@transaction.tagColor">@transaction.tagTitle</span>
                     }
+                    else
+                    {
+                        <span class="fakeTag"></span>
+                    }
                 </div>
             </div>
 
-            <div class="outerTitleDateAndTag">
+            <div class="outerDotsAmountAndProp">
                 <div class="outerDotsAndAmount">
 
-                    <span>@Math.Round(transaction.transValue,2) ₪</span>
+                    <span class="tagsValue">@Math.Round(transaction.transValue,2) ₪</span>
                     <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
                     @if (isOpetionsBtnClicked)
                     {
@@ -34,14 +55,45 @@
                 </div>
                 <div class="outerProp">
 
-                    <span>@transaction.valueType</span>
+                    @if (transaction.valueType == "מזומן")
+                    {
+                        <div class="paymentMethod">
+                            <span><img src="../css/images/cash icon.svg" /></span>
+
+                        </div>
+                    }
+                    else if (transaction.valueType == "אשראי")
+                    {
+                        <div class="paymentMethod">
+                            <span><img src="../css/images/credit card.svg" /></span>
+                        </div>
+                    }
+                    else if (transaction.valueType == "ביט/פייבוקס")
+                    {
+                        <div class="paymentMethod">
+                            <span><img src="../css/images/bit-and-paybox.svg" /></span>
+                        </div>
+                    }
+                    else if (transaction.valueType == "אחר")
+                    {
+                        <div class="paymentMethod">
+                            <span><img src="../css/images/wallet2.svg" /></span>
+                        </div>
+                    }
+
                     @if (transaction.fixedMonthly == true)
                     {
-                        <span>הוצאה חוזרת</span>
+                        <div class="paymentMethod">
+
+                            <span><img src="../css/images/repeat iconrestart.svg" /></span>
+                        </div>
                     }
                     @if (transaction.splitPayment == true || childOfSplit == true)
                     {
-                        <span>תשלום @transIndexInPayments/@totalPayments  </span>
+                        <div class="paymentMethod">
+                            <span><img src="../css/images/payments.svg" /></span>
+                        </div>
+                        <span>תשלום @transIndexInPayments/@totalPayments </span>
                     }
                 </div>
 
@@ -85,11 +137,7 @@
         <span>⚠️ הזנה חורגת</span>
         }*@
 
-        @*@if (transaction.description != null)
-        {
-        <br />
-        <span>@transaction.description</span>
-        }*@
+
 
 
     </div>
@@ -137,6 +185,7 @@
     OverDraftBudgetToEdit subCategoryBudgetToUpdate = new OverDraftBudgetToEdit();
 
     bool overdraftDetected = false;
+    bool openDes = false;
 
     int transIndexInPayments = 0;
     int totalPayments = 0;
