@@ -49,7 +49,7 @@
 
 
         <div class="categoryAccordion">
-            <button class="options" @onclick="accordionControl">
+            <button class="options" @onclick="accordionControl" style="background-color:@(()=>convertCatColors(categoryColor))">
                 <svg width="33" height="12" viewBox="0 0 33 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1.75 2L16.75 10L30.75 2" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
@@ -107,7 +107,7 @@
                         }
                         <div>
                             <div class="budget-card @(isFirstItem ? "first" : "")">
-                                <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak"></SubCategoryComponent>
+                                <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="categoryColor"></SubCategoryComponent>
                             </div>
                         </div>
 
@@ -227,54 +227,6 @@
                     }
                 </div>
             </div>
-
-            @*
-        @if (userCategories.Count > 0)
-        {
-        <span>הוספת תת קטגוריה ל</span>
-        <select @bind="selectedCategoryForNewSubCat">
-
-        @foreach (AllUserCategories userCategory in userCategories)
-        {
-
-        <option value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
-
-
-        }
-        </select>
-        }
-
-        <div>
-        <label for="amount">שם תת קטגוריה</label>
-        <input type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="newSubCategory.subCategoryTitle" />
-        </div>
-
-        <div>
-        <label for="description">מה התקציב החודשי שלך עבור @newSubCategory.subCategoryTitle? </label>
-        <input type="number" id="description" placeholder="0" @bind="newSubCategory.monthlyPlannedBudget" />
-        </div>
-        <div>
-        <label for="importance">עדיפות תת הקטגוריה</label>
-        <span>@newSubCategory.importance</span>
-        <input type="radio"
-        name="importance" @onchange="@(() => newSubCategory.importance = 0)" />
-        <label>רצון</label>
-
-        <input type="radio" @onchange="@(() => newSubCategory.importance = 1)"
-        name="importance" />
-        <label>צורך</label>
-
-        <input type="radio" @onchange="@(() => newSubCategory.importance = 2)"
-        name="importance" />
-        <label>חובה</label>
-        </div>
-        <div>
-        <p>לדוגמה: לק - רצון, דלק - צורך, שכ"ד" -חובה . העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
-        </div>
-        <br />
-        <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
-        <button class="submit-btn" @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
-        </div>*@
         </div>
     }
 
@@ -303,6 +255,8 @@
 
     [Parameter]
     public string categoryColor { get; set; }
+
+
 
     [Parameter]
     public bool doRefresh { get; set; }
@@ -392,6 +346,81 @@
         {
             await getSubCategories();
         }
+    }
+
+    public string convertCatColors(string? catColor)
+    {
+        string convertedColor = "";
+        switch (catColor)
+        {
+            case "#F4B367": //mustard
+                convertedColor = "rgba(244, 179, 103, 1)";
+
+                Console.WriteLine("cat color is mustard");
+                break;
+            case "#AEA2F9": //purple
+                convertedColor = "rgba(174, 162, 249, 1)";
+
+                Console.WriteLine("cat color is dark purple");
+                break;
+            case "#F467AB": //dark pink
+                convertedColor = "rgba(244, 103, 171, 1)";
+
+                Console.WriteLine("cat color is dark pink");
+                break;
+            case "#F47867": //salmon pink
+                convertedColor = "rgba(244, 120, 103, 1)";
+
+                Console.WriteLine("cat color is salmon pink");
+                break;
+            case "#678EF4": //defualt
+                convertedColor = "rgba(103, 142, 244, 1)";
+
+                Console.WriteLine("cat color is default");
+                break;
+            case "#8DE4BF": //light green
+                convertedColor = "rgba(141, 228, 191, 1)";
+
+                Console.WriteLine("cat color is light green");
+                break;
+            case "#67CAF4": //light blue
+                convertedColor = "rgba(103, 202, 244, 1)";
+
+                Console.WriteLine("cat color is light blue");
+                break;
+            case "#FCE884": //banana
+                convertedColor = "rgba(255, 239, 157, 1)";
+
+                Console.WriteLine("cat color is banana");
+                break;
+            case "#F9D3C2": //cream
+                convertedColor = "rgba(249, 211, 194, 1)";
+
+                Console.WriteLine("cat color is cream");
+                break;
+            case "#09AE73": //dark green
+                convertedColor = "rgba(9, 174, 115, 1)";
+
+                Console.WriteLine("cat color is dark green");
+                break;
+            case "#8C8B8B": //dark gray
+                convertedColor = "rgba(140, 139, 139, 1)";
+
+                Console.WriteLine("cat color is dark gray");
+                break;
+            case "#DADADA": //gray
+                convertedColor = "rgba(218, 218, 218, 1)";
+
+                Console.WriteLine("cat color is light gray");
+                break;
+            case null: //defualt
+                convertedColor = "rgba(103, 142, 244, 1)";
+
+                Console.WriteLine("cat color is default");
+                break;
+        };
+
+        return convertedColor;
     }
 
     public async Task getSubCategories()

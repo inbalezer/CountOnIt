@@ -3,6 +3,7 @@ using CountOnIt.Shared.Models.present.toEdit;
 using CountOnIt.Shared.Models.present.toShow;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using TriangleDbRepository;
 
 namespace CountOnIt.Server.Controllers
@@ -889,7 +890,7 @@ namespace CountOnIt.Server.Controllers
             }
         }
 
-        [HttpGet("getCatColor/{catID}")] 
+        [HttpGet("getCatColor/{catID}")]
         public async Task<IActionResult> getCatColor(int catID)
         {
             if (catID > 0)
@@ -910,6 +911,58 @@ namespace CountOnIt.Server.Controllers
 
             return BadRequest("invalid user id");
 
+        }
+
+        [HttpGet("checkOverdraftCats/{userID}")]
+        public async Task<IActionResult> checkOverdraftCats(int userID)
+        {
+            object param = new { ID = userID };
+
+            string GetCategoryOverviewIDQuery = "SELECT id FROM categories WHERE userID = @ID";
+            var recordCategoryOverviewID = await _db.GetRecordsAsync<int>(GetCategoryOverviewIDQuery, param);
+            List<int> catRecsList = recordCategoryOverviewID.ToList();
+            if (catRecsList == null || catRecsList.Count <= 0)
+            {
+                return Ok(new List<CategoryOverDraftCheckToShow>());  // Return an empty list if no categories found
+            }
+            var usercategoriesQuery = "SELECT DISTINCT c.id FROM categories c JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transType = 2 and c.userID=@ID;";
+            var incomeCatRec = await _db.GetRecordsAsync<int>(usercategoriesQuery, param);
+            int incomeCatID = incomeCatRec.FirstOrDefault();
+            if (catRecsList.Contains(incomeCatID))
+            {
+                int incomeIndex = catRecsList.IndexOf(incomeCatID);
+                catRecsList.RemoveAt(incomeIndex);
+
+            }
+            List<CategoryOverDraftCheckToShow> checkingOverdraftingCats = new List<CategoryOverDraftCheckToShow>();
+
+            foreach (int catID in catRecsList)
+            {
+                CategoryOverDraftCheckToShow currentCat = new CategoryOverDraftCheckToShow();
+                double subCatSum = 0;  // Reset sum for each category
+                currentCat.id = catID;
+                object categoryParam = new { ID = catID };
+
+                string GetSubCategoryIDbudget = "SELECT COALESCE(SUM(monthlyPlannedBudget), 0) FROM subcategories sc JOIN transactions t ON t.subCategoryID = sc.id JOIN categories c ON sc.categoryID = c.id WHERE c.id = @ID AND MONTH(t.transDate) = MONTH(CURRENT_DATE()) AND YEAR(t.transDate) = YEAR(CURRENT_DATE()) AND (t.transType = 1 OR t.transType = 3);";
+                var recordSubCategoryID = await _db.GetRecordsAsync<double>(GetSubCategoryIDbudget, categoryParam);
+                var subCatBudgetsRec = recordSubCategoryID.FirstOrDefault();
+
+                if (subCatBudgetsRec >= 0)
+                {
+
+                    currentCat.monthlyPlannedBudget = subCatBudgetsRec;
+
+                    // Expenses:
+                    string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(t.transValue),0) FROM transactions t JOIN subcategories sc ON t.subCategoryID = sc.id JOIN categories c ON sc.categoryID = c.id WHERE c.id = @ID AND MONTH(t.transDate) = MONTH(CURRENT_DATE()) AND YEAR(t.transDate) = YEAR(CURRENT_DATE()) AND (t.transType = 1 or t.transType=3)";
+                    var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetCategoryCurrentSumQuery, categoryParam);
+                    subCatSum = recordSubCatCurrentSum.FirstOrDefault();
+
+                    currentCat.totalTransSum = subCatSum;
+                    checkingOverdraftingCats.Add(currentCat);
+                }
+                return BadRequest("couldn't sum/find subcategories' budgets to a category with the id- " + catID);
+            }
+            return Ok(checkingOverdraftingCats);
         }
 
     }

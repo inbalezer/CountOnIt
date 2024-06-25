@@ -15,6 +15,11 @@
 
             <button class="backArrow" @onclick="goToHomePage"><img src="../css/images/back-repeated.svg" /></button>
             <span>@categoryTitle > @subCategoryTitle</span>
+            @if (overdraftStatus)
+            {
+            <span>⚠️</span>
+            }
+
         </div>
         <div class="profileAndStreak">
 
@@ -246,16 +251,6 @@
                             }
 
                         }
-                        if (transaction.transType == 3)
-                        {
-                            <span>⚠️ הזנה חורגת</span>
-                        }
-                        else
-                        {
-                            overdraftStatus = false;
-                        }
-
-
                         @if (totalSpendings < budget && budget != null)
                         {
                             overdraftStatus = false;
@@ -429,11 +424,22 @@
                         if (checkTransList != null && checkTransList.Count > 0)
                         {
                             allTransactions = checkTransList;
+
                             foreach (TransactionOverviewToShow trans in allTransactions)
                             {
                                 totalSpendings += trans.transValue;
+
                             }
                             prefilteredTransactions = checkTransList;
+
+                            if (totalSpendings>budget)
+                            {
+                                overdraftStatus = true;
+                            }
+                            else
+                            {
+                                 overdraftStatus = false;
+                            }
                             await getSubCatTags();
                         }
                         else
@@ -544,13 +550,25 @@
 
     public void transactionDeleted(int transIdToRemove)
     {
+        double checkOverdraft = 0;
         foreach (TransactionOverviewToShow transaction in allTransactions)
         {
+            checkOverdraft += transaction.transValue;
             if (transaction.id == transIdToRemove)
             {
+                checkOverdraft -= transaction.transValue;
                 allTransactions.Remove(transaction);
                 Console.WriteLine("transaction id- " + transaction.id + " deleted");
             }
+        }
+
+        if (checkOverdraft>budget)
+        {
+            overdraftStatus = true;
+        }
+        else
+        {
+            overdraftStatus = false;
         }
     }
 
@@ -568,6 +586,21 @@
             {
                 budget = newBudget.monthlyPlannedBudget;
             }
+        }
+
+
+        double checkOverdraft = 0;
+        foreach (TransactionOverviewToShow t in allTransactions)
+        {
+            checkOverdraft += t.transValue;
+        }
+        if (checkOverdraft>budget)
+        {
+            overdraftStatus = true;
+        }
+        else
+        {
+            overdraftStatus = false;
         }
     }
 
@@ -604,6 +637,19 @@
                 {
                     categoryTitle = category.categroyTitle;
                 }
+            }
+            double checkOverdraft = 0;
+            foreach (TransactionOverviewToShow t in allTransactions)
+            {
+                checkOverdraft += t.transValue;
+            }
+            if (checkOverdraft > budget)
+            {
+                overdraftStatus = true;
+            }
+            else
+            {
+                overdraftStatus = false;
             }
 
             editSubCatBtnClicked = false; //closeing the edit overlay
@@ -821,6 +867,13 @@
                 foreach (TransactionOverviewToShow trans in allTransactions)
                 {
                     totalSpendings += trans.transValue;
+                }
+                if(totalSpendings>budget){
+                    overdraftStatus = true;
+                }
+                else 
+                {
+                     overdraftStatus = false;
                 }
             }
             else

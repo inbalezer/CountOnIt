@@ -250,54 +250,6 @@ else
                             }
                     </style>
 
-                    @* @if (storyNav == 1 && subCatsTotalsStory.Count > 0)
-            {
-            <h2>היי @currentUser.firstName! רוצה לראות איך עובר החודש?</h2>
-            <p>אלה תתי הקטגוריות שהכי בלטו עד כה:</p>
-            <div @onclick="NextStory">
-
-            <span>👍</span>
-            <h3>החסכון הגדול ביותר</h3>
-            <p>עד כה החודש הוצאת @subCatsTotalsStory[bestSavingIndex].currentMonthTotal₪ על @bestSavingSubCat, @bestSavingValue₪ פחות מחודש שעבר! </p>
-
-            <span>👎</span>
-            <h3>העלייה הגדולה ביותר</h3>
-            <p>עד כה החודש הוצאת @subCatsTotalsStory[worstSavingIndex].currentMonthTotal₪ על @worstSavingSubCat, @worstSavingValue₪ יותר מחודש שעבר! </p>
-            </div>
-            }
-            else if (storyNav == 2 && tagsSpendingsList.Count > 0)
-            {
-            <div @onclick="NextStory">
-
-            <h3>התגיות עם הכי הרבה הוצאות</h3>
-            <ol>
-            @foreach (TagsAndSpendingsToShow tag in tagsSpendingsList)
-            {
-            <li>הוצאת על @tag.tagTitle @tag.totalValue ₪</li>
-            }
-            </ol>
-            </div>
-
-            }
-            else if (storyNav == 3)
-            {
-            <div @onclick="NextStory">
-            <h3>התזרים שלי עד כה החודש</h3>
-            <p>פילוח ההוצאות שלך לפי קטגוריות</p>
-            <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
-            @if (incomeSum != null)
-            {
-            <p>ההכנסות שלך עומדות כרגע על @incomeSum ₪</p>
-
-            }
-            else
-            {
-            <p>לא הוזנו הכנסות בחודש זה.</p>
-            }
-            </div>*@
-
-
-
                 </div>
             }
 
@@ -398,8 +350,16 @@ else
 
                 @foreach (CategoryToShow category in currentUser.categoriesFullList)
                 {
+                    foreach (CategoryOverDraftCheckToShow c in checkOverdraftingCats)
+                    {
+                        if (c.id==category.id && c.monthlyPlannedBudget<c.totalTransSum)
+                        {
+                            <button>חריגה⚠️</button>
+                        }
+                    }
                     <div class="fullCategory">
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
+                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryColor="@category.color"></CategoryComponent>
+
                     </div>
 
                 }
@@ -632,6 +592,8 @@ else
     };
     int nextStreakStatIn = 0;
 
+    List<CategoryOverDraftCheckToShow> checkOverdraftingCats = new List<CategoryOverDraftCheckToShow>();
+
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(1); // This is just to simulate an async process.
@@ -657,6 +619,12 @@ else
                 searchCats = currentUser.categoriesFullList;
                 getCurrentStreak();
                 Console.WriteLine("current streak status- " + currentUser.streakStatus);
+
+                var getCatDetails = await Http.GetAsync("api/Present/checkOverdraftCats/" + userID);
+                if (getCatDetails.IsSuccessStatusCode)
+                {
+                    checkOverdraftingCats = getCatDetails.Content.ReadFromJsonAsync<List<CategoryOverDraftCheckToShow>>().Result;
+                }
 
                 var subCatToSearch = await Http.GetAsync("api/Present/getSubCategoryTitle/" + userID);
 
@@ -769,7 +737,7 @@ else
         }
     }
 
-
+   
 
     private string GetHebrewMonthName(int monthNumber)
     {
@@ -1278,6 +1246,8 @@ else
     {
         Nav.NavigateTo("./StreakProgressPage/" + userID);
     }
+
+
 }
 
 

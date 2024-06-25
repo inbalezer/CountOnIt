@@ -13,7 +13,7 @@
 
 
 
-<div class="budget-card">
+<div class="budget-card" style="background-color=@(()=>convertCatColors(subCatColor))">
     <div class="optionsMenu">
         @if (isOptBtnClicked)
         {
@@ -150,53 +150,6 @@
             </div>
         </div>
         </div>
-       @* <div>
-            <label for="importance">עדיפות תת הקטגוריה</label>
-           
-                @if (subCatToEdit.importance == 0)
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
-                <label>רצון</label>
-                }
-                else
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
-                <label>רצון</label>
-                }
-                @if (subCatToEdit.importance == 1)
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
-                <label>צורך</label>
-                }
-                else
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
-                <label>צורך</label>
-                }
-                @if (subCatToEdit.importance == 2)
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
-                <label>חובה</label>
-                }
-                else
-                {
-                <input type="radio"
-               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
-                <label>חובה</label>
-                }
-        </div>
-        <div>
-            <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
-        </div>
-        <br />
-            <button class="submit-btn" @onclick="EditSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
-        <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
-    </div>*@
 }
 
 
@@ -245,6 +198,9 @@
     [Parameter]
     public EventCallback<string?> updatedStreakStat { get; set; }
 
+    [Parameter]
+    public string? subCatColor { get; set; }
+
     SubCategoryToEdit subCatToEdit = new SubCategoryToEdit();
     SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
 
@@ -256,6 +212,84 @@
     string popupBodyText = "";
 
     public bool openTransOverlay = false;
+    string? catOutlineColor = "";
+
+    public string convertCatColors(string catColor)
+    {
+        string convertedColor = "";
+        string outlineColor = "";
+        switch (catColor)
+        {
+            case "#F4B367": //mustard
+                convertedColor = "rgba(244, 179, 103, 0.13)";
+                outlineColor = "rgba(244, 179, 103, 1)";
+                Console.WriteLine("cat color is mustard");
+                break;
+            case "#AEA2F9": //purple
+                convertedColor = "rgba(174, 162, 249, 0.13)";
+                outlineColor = "rgba(174, 162, 249, 1)";
+                Console.WriteLine("cat color is dark purple");
+                break;
+            case "#F467AB": //dark pink
+                convertedColor = "rgba(244, 103, 171, 0.13)";
+                outlineColor = "rgba(244, 103, 171, 1)";
+                Console.WriteLine("cat color is dark pink");
+                break;
+            case "#F47867": //salmon pink
+                convertedColor = "rgba(244, 120, 103, 0.13)";
+                outlineColor = "rgba(244, 120, 103, 1)";
+                Console.WriteLine("cat color is salmon pink");
+                break;
+            case "#678EF4": //defualt
+                convertedColor = "rgba(103, 142, 244, 0.13)";
+                outlineColor = "rgba(103, 142, 244, 1)";
+                Console.WriteLine("cat color is default");
+                break;
+            case "#8DE4BF": //light green
+                convertedColor = "rgba(141, 228, 191, 0.13)";
+                outlineColor = "rgba(141, 228, 191, 1)";
+                Console.WriteLine("cat color is light green");
+                break;
+            case "#67CAF4": //light blue
+                convertedColor = "rgba(103, 202, 244, 0.13)";
+                outlineColor = "rgba(103, 202, 244, 1)";
+                Console.WriteLine("cat color is light blue");
+                break;
+            case "#FCE884": //banana
+                convertedColor = "rgba(255, 239, 157, 0.13)";
+                outlineColor = "rgba(255, 239, 157, 1)";
+                Console.WriteLine("cat color is banana");
+                break;
+            case "#F9D3C2": //cream
+                convertedColor = "rgba(249, 211, 194, 0.13)";
+                outlineColor = "rgba(249, 211, 194, 1)";
+                Console.WriteLine("cat color is cream");
+                break;
+            case "#09AE73": //dark green
+                convertedColor = "rgba(9, 174, 115, 0.13)";
+                outlineColor = "rgba(9, 174, 115, 1)";
+                Console.WriteLine("cat color is dark green");
+                break;
+            case "#8C8B8B": //dark gray
+                convertedColor = "rgba(140, 139, 139, 0.25)";
+                outlineColor = "rgba(140, 139, 139, 1)";
+                Console.WriteLine("cat color is dark gray");
+                break;
+            case "#DADADA": //gray
+                convertedColor = "rgba(218, 218, 218, 0.13)";
+                outlineColor = "rgba(218, 218, 218, 1)";
+                Console.WriteLine("cat color is light gray");
+                break;
+            case null: //defualt
+                convertedColor = "rgba(103, 142, 244, 0.13)";
+                outlineColor = "rgba(103, 142, 244, 1)";
+                Console.WriteLine("cat color is default");
+                break;
+        };
+
+        catOutlineColor = outlineColor;
+        return convertedColor;
+    }
 
     public void openAddTransOverlay()
     {
