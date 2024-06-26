@@ -173,6 +173,7 @@
                         {
                             @*sortBtnClicked = false;*@
                             <div class="outerFilterOptions">
+
                                 <div class="filterOptions">
                                     <button class="dropDownOptionBtn" @onclick="filterByTransTypeOverlayControl">אמצעי תשלום</button>
                                     <div class="divider"></div>
@@ -185,51 +186,66 @@
                             </div>
 
                         }
-                            @if (filterByTransTypeOverlay)
-                            {
-                                <button @onclick="() => filterByTransTypeOverlay = false">close</button>
-                                <div class="outerLay">
+                        @if (filterByTransTypeOverlay)
+                        {
+                            <div class="outerPaymentMethod">
+                                <div class="PaymentMethods">                               
+                                    <div class="outerLay">
 
-                                    <div class="BgOverlay">
+                                        <div class="BgOverlay">
 
-                                        <div class="outerPaymentOverlay">
+                                            <div class="outerPaymentOverlay">
 
-                                            <div class="outerPaymentMethodsOptions">
+                                                <div class="outerPaymentMethodsOptions">
+                                                     <button class="modal-close-btn" @onclick="() => filterByTransTypeOverlay = false"><img src="../css/images/close x.svg" /></button> 
 
-                                                <fieldset id="transValueType" name="transType">
-                                                    <legend>אמצעי תשלום</legend>
-                                                    <input type="radio" value="מזומן" name="transType" @onchange="@(()=> filterByType= "מזומן")" />מזומן
-                                                    <input type="radio" value="אשראי" name="transType" @onchange="@(()=> filterByType= "אשראי")" />אשראי
-                                                    <input type="radio" value="ביט/פייבוקס" name="transType" @onchange="@(()=> filterByType= "ביט/פייבוקס")" /> ביט/פייבוקס
-                                                    <input type="radio" value="אחר" name="transType" @onchange="@(()=> filterByType= "אחר")" /> אחר
-                                                </fieldset>
-                                                <button @onclick="@(()=>filterByTransType(filterByType))">סינון הוצאות</button>
+                                                    <fieldset id="transValueType" name="transType">
+                                                        <legend class="patmentsTitle">אמצעי תשלום</legend>
+                                                        <div class="paymentOptions">
+
+                                                        
+                                                            <input type="radio" id="מזומן" name="transType" @onchange="@(()=> filterByType= "מזומן")" />
+                                                            <label for="מזומן">מזומן</label>
+                                                        <div class="divider"></div>
+                                                        <input type="radio" id="אשראי" name="transType" @onchange="@(()=> filterByType= "אשראי")" />
+                                                            <label for="אשראי">אשראי</label>
+                                                        <div class="divider"></div>
+                                                        <input type="radio" id="ביט/פייבוקס" name="transType" @onchange="@(()=> filterByType= "ביט/פייבוקס")" /> 
+                                                        <label for="ביט/פייבוקס">ביט/פייבוקס</label>
+                                                        <div class="divider"></div>
+                                                        <input type="radio" id="אחר" name="transType" @onchange="@(()=> filterByType= "אחר")" /> 
+                                                        <label for="אחר">אחר</label>
+                                                            </div>
+                                                    </fieldset>
+                                                    <button @onclick="@(()=>filterByTransType(filterByType))">סינון הוצאות</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
 
-                            }
-                            @if (filterByTagOverlay)
+                        }
+                        @if (filterByTagOverlay)
+                        {
+
+                            if (subCatTagsList.Count > 0)
                             {
+                                <button @onclick="() => filterByTagOverlay = false">close</button>
+                                <div>
 
-                                if (subCatTagsList.Count > 0)
-                                {
-                                    <button @onclick="() => filterByTagOverlay = false">close</button>
-                                    <div>
-
-                                        <label for="subCatTags">התגיות שלי</label><br />
-                                        @foreach (TagsToShow tag in subCatTagsList)
-                                        {
-                                            <input type="radio" name="subCatTags" @onchange="@(()=> filterByTag= tag.id)" />
-                                            <label>@tag.tagTitle</label>
-                                        }
-                                        <br />
-                                        <button @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
-                                    </div>
-                                }
+                                    <label for="subCatTags">התגיות שלי</label><br />
+                                    @foreach (TagsToShow tag in subCatTagsList)
+                                    {
+                                        <input type="radio" name="subCatTags" @onchange="@(()=> filterByTag= tag.id)" />
+                                        <label>@tag.tagTitle</label>
+                                    }
+                                    <br />
+                                    <button @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
+                                </div>
                             }
+                        }
                     </div>
 
 

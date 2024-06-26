@@ -180,7 +180,7 @@
     justify-content: center;
     width: 35%;
     padding: 0.8vh 0;
-    z-index: 1000;
+    z-index: 2;
     position: absolute;
     margin-top: 4.3vh;
 }
@@ -321,27 +321,81 @@
     justify-content: space-evenly;
     padding: 2vh 0 2vh 0;
     width: 100%;
+    position: fixed;
+    bottom: 0;
 }
+
 
 .outerPaymentMethodsOptions {
     display: flex;
     flex-direction: column;
+    width: 84%;
+    align-items: flex-start;
 }
 
-.BgOverlay{
+.BgOverlay {
     background-color: rgba(1, 5, 43, 0.28);
     z-index: 3;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
+    height: 100%;
 }
 
-.outerLay{
+.outerLay {
     display: flex;
     bottom: 0;
-    position: fixed;
+    /* position: fixed; */
     z-index: 4;
     width: 100%;
+    height: 100%;
 }
+
+
+.outerPaymentMethod{
+    display:flex;
+    justify-content:center;
+
+}
+
+.PaymentMethods{
+    display:flex;
+    width:95%;
+
+}
+
+.modal-close-btn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+.patmentsTitle {
+    font-weight: 500;
+    font-size: 1.3rem;
+}
+
+.paymentOptions {
+    background-color: #EDEFF7;
+    border: 1px solid #D6D9F1;
+    padding: 1.5vh 11vw;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius:4%;
+}
+
+.paymentOptions input[type="radio"]{
+    display:none;
+}
+
+
+    .paymentOptions input[type="radio"]:checked + label {
+        color: #6775F4;
+    }
