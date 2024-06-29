@@ -104,6 +104,7 @@
     flex-direction: column;
     box-shadow: 0px 25px 25px 0px rgba(39, 53, 160, 0.09), 0px 6px 14px 0px rgba(39, 53, 160, 0.10);
     row-gap: 2vh;
+    height:100%;
 }
 
 .filterAndSortBtns {
@@ -167,7 +168,8 @@
     display: flex;
     justify-content: flex-start;
     width: 95%;
-    column-gap: 1vh;
+    column-gap: 0.5vh;
+    align-items: flex-start;
 }
 
 .outerFilterOptions {
@@ -180,7 +182,7 @@
     justify-content: center;
     width: 35%;
     padding: 0.8vh 0;
-    z-index: 1000;
+    z-index: 2;
     position: absolute;
     margin-top: 4.3vh;
 }
@@ -219,7 +221,7 @@
 
 .outerFilterBtnAndOptions {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
 }
 
@@ -299,7 +301,7 @@
 .options {
     display: flex;
     position: absolute;
-    z-index: 1004;
+    z-index: 4;
     justify-content: flex-end;
     width: 90%;
     margin-top: 2.5vh;
@@ -321,27 +323,475 @@
     justify-content: space-evenly;
     padding: 2vh 0 2vh 0;
     width: 100%;
+    position: fixed;
+    bottom: 0;
 }
+
 
 .outerPaymentMethodsOptions {
     display: flex;
     flex-direction: column;
+    width: 84%;
+    align-items: flex-start;
+    row-gap: 1vh;
 }
 
-.BgOverlay{
+.BgOverlay {
     background-color: rgba(1, 5, 43, 0.28);
     z-index: 3;
-    position: absolute;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+}
+
+.outerLay {
+    display: flex;
+    bottom: 0;
+    /* position: fixed; */
+    z-index: 4;
+    width: 100%;
+    height: 100%;
+}
+
+
+.outerPaymentMethod{
+    display:flex;
+    justify-content:center;
+
+}
+
+.PaymentMethods{
+    display:flex;
+    width:95%;
+
+}
+
+.modal-close-btn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+.patmentsTitle {
+    font-weight: 500;
+    font-size: 1.3rem;
+}
+
+.paymentOptions {
+    background-color: #EDEFF7;
+    border: 1px solid #D6D9F1;
+    padding: 1.5vh 11vw;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 4%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.paymentOptions input[type="radio"]{
+    display:none;
+}
+
+
+    .paymentOptions input[type="radio"]:checked + label {
+        color: #6775F4;
+    }
+
+
+.sortOptions input[type="radio"] {
+    display: none;
+}
+
+    .sortOptions input[type="radio"]:checked + label {
+        color: #6775F4;
+    }
+
+.primery-button {
+    border-radius: 0.25rem;
+    background: #6775F4;
+    color: #6775F4;
+    width: 15.375rem;
+    height: 2.3rem;
+    flex-shrink: 0;
+    color: #F9F9F9;
+    text-align: center;
+    /* h2 - sub titles */
+    font-family: Heebo;
+    font-size: 1.2rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    border: none;
+}
+
+.outerPaymentMethodsAndBtn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 3vh;
+    width: 100%;
+    margin-top: 1vh;
+}
+
+.straightDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 1vh;
+}
+
+.outerGallery {
+    background-color: #F9F9F9;
+    border-radius: 0.25rem;
+    justify-items: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    grid-column-gap: 0px;
+    grid-row-gap: 3vh;
+    width: 100%;
+    padding: 1vh 0;
+    padding-top: 2vh;
+}
+
+.tag {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    text-align: center;
+    border-radius: 0.25rem;
+    width: 5.5rem;
+    height: 2rem;
+    justify-items: center;
+}
+
+.pageDots {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dot {
+    height: 0.5rem;
+    width: 0.5rem;
+    margin: 0 5px;
+    background-color: #D6D9F1;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+}
+
+    .dot.active {
+        background-color: #6775F4;
+    }
+
+.galleryArrow {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+.disBtn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    opacity: 25%;
+}
+
+.outerBtnAndDots {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    padding: 3vh 2vw;
+}
+
+
+.outerGalleryAndNav {
+    background-color: #F9F9F9;
+    border-radius: 0.25rem;
+    border: 1px solid #D6D9F1;
+    box-shadow: 0px 36px 10px 0px rgba(79, 89, 176, 0.00), 0px 23px 9px 0px rgba(79, 89, 176, 0.01), 0px 13px 8px 0px rgba(79, 89, 176, 0.03), 0px 6px 6px 0px rgba(79, 89, 176, 0.05), 0px 1px 3px 0px rgba(79, 89, 176, 0.06);
+    width: 100%;
+}
+
+.outerBtnAndFilterStatus {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    column-gap: 1vh;
+}
+
+.overlay {
+    position: fixed; /* Fixed position to cover the whole screen */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Cover full viewport width */
+    height: 100vh; /* Cover full viewport height */
+    z-index: 999; /* Lower than modal but higher than anything else */
+
+    background-color: rgba(1, 5, 43, 0.28);
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
 }
 
-.outerLay{
+.outerSubCatOverlay {
+    background: #F9F9F9;
+    border-radius: 1.75rem 1.4375rem 0rem 0rem;
+    background-color: #F9F9F9;
     display: flex;
-    bottom: 0;
-    position: fixed;
-    z-index: 4;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    padding: 2vh 0 2vh 0;
     width: 100%;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+}
+
+.innerSubCatOverlay {
+    width: 88.5vw;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 0.8vh;
+}
+
+.subCatTitle {
+    font-size: 1.3rem;
+}
+
+.catsDropDown {
+    border-radius: 0.02rem;
+    background: #EDEFF7;
+    padding: 0.6vh 0;
+    border: none;
+    font-weight: 700;
+    color: #6775F4;
+    margin-bottom: 1vh;
+}
+
+.catsOptions {
+    background-color: #fff;
+    font-size: 0.875rem;
+    color: black;
+    border: none;
+    border-radius: 0.02rem;
+}
+
+    .catsOptions:checked {
+        background-color: #D6D9F1;
+    }
+
+.titleName {
+    font-weight: 500;
+}
+
+.outerTitleName {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1vh;
+}
+
+.titleBox {
+    border-radius: 0.3125rem;
+    background: #FFF;
+    box-shadow: 0px 85px 24px 0px rgba(171, 173, 191, 0.00), 0px 55px 22px 0px rgba(171, 173, 191, 0.01), 0px 31px 18px 0px rgba(171, 173, 191, 0.05), 0px 14px 14px 0px rgba(171, 173, 191, 0.09), 0px 3px 7px 0px rgba(171, 173, 191, 0.10);
+    padding: 1vh;
+    border: none;
+}
+
+.budgetBox {
+    text-align: center;
+    border-radius: 0.25rem;
+    background: #FFF;
+    box-shadow: 0px 85px 24px 0px rgba(171, 173, 191, 0.00), 0px 55px 22px 0px rgba(171, 173, 191, 0.01), 0px 31px 18px 0px rgba(171, 173, 191, 0.05), 0px 14px 14px 0px rgba(171, 173, 191, 0.09), 0px 3px 7px 0px rgba(171, 173, 191, 0.10);
+    border: none;
+    padding: 1vh 1vh;
+    font-size: 1.6rem;
+    width: 65%;
+}
+
+.outerBudget {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding: 1vh 0;
+    align-items: center;
+    position: relative;
+    flex-direction: column;
+}
+
+.currency-symbol {
+    position: absolute;
+    right: 64vw;
+    pointer-events: none;
+    padding-top: 1.1vh;
+}
+
+.lineBetween {
+    width: 10.542rem;
+    background-color: #EDEFF7;
+    height: 0.2vh;
+    position: relative;
+    bottom: 2vh;
+}
+
+.outerImportance {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    row-gap: 1vh;
+}
+
+.outerBtns {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+
+.importanceBtns label:nth-of-type(1) + .divider {
+    left: calc(33.33% - 10px); /* Adjust for padding */
+}
+
+.importanceBtns label:nth-of-type(3) + .divider {
+    left: calc(66.66% - 20px); /* Adjust for padding */
+}
+
+@media (max-width: 768px) {
+    .importanceBtns label {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .importanceBtns label {
+        font-size: 14px;
+    }
+}
+
+.outerExample {
+    border-radius: 0.375rem;
+    border: 2px solid #D6D9F1;
+    background: #EDEFF7;
+    display: flex;
+    padding: 0.7vh;
+    margin-top: 0.7vh;
+}
+
+.example {
+    font-weight: 700;
+}
+
+.outerSaveBtns {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    row-gap: 1.5vh;
+    align-items: center;
+    margin: 1.3vh 0;
+}
+
+
+.outerImportance {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    row-gap: 1vh;
+}
+
+.outerBtns {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.importanceBtns {
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.8vh;
+    border-radius: 0.375rem;
+    border: 1px solid #D6D9F1;
+    background: #FFF;
+    display: flex;
+    width: 100%;
+    position: relative;
+}
+
+    .importanceBtns input[type="radio"] {
+        display: none;
+    }
+
+    .importanceBtns label {
+        font-size: 18px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s, background 0.3s;
+        padding: 10px 20px;
+        border-radius: 0.375rem;
+    }
+
+    .importanceBtns input[type="radio"]:checked + label {
+        color: #6775F4;
+        background: #EDEFF7; /* Soft blue background for selected state */
+    }
+
+.divider {
+    height: 5vh;
+    width: 1px;
+    background-color: #EDEFF7;
+}
+
+.importanceBtns label:nth-of-type(1) + .divider {
+    left: calc(33.33% - 10px); /* Adjust for padding */
+}
+
+.importanceBtns label:nth-of-type(3) + .divider {
+    left: calc(66.66% - 20px); /* Adjust for padding */
+}
+
+@media (max-width: 768px) {
+    .importanceBtns label {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .importanceBtns label {
+        font-size: 14px;
+    }
 }

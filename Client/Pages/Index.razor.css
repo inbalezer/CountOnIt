@@ -362,7 +362,9 @@ input:checked + .slider:before {
     position: fixed;
     bottom: 0;
     width: 100%;
-    will-change: transform; /* Optimizes the animation */
+    will-change: transform; 
+    transition: opacity 0.5s ease-in-out; /* Smooth transition for the opacity */
+    
 }
 
 #nav-hidden {
@@ -703,4 +705,50 @@ ol li::marker {
     top: 33%;
     left: 50%;
     width: 111%;
+}
+
+/*.bottom-nav {
+    display: block;*/ /* Make sure it's visible initially */
+/*}*/
+
+.mainTitle{
+    font-weight:700;
+    font-size:1.3rem;
+
+}
+
+.weeklyTransAmount {
+    font-weight: 400;
+    font-size: 1.3rem;
+}
+
+.outerInfoText{
+
+}
+
+.closePopUpBtn {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+
+
+.wellDonePopUp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: right;
+    height: 100%;
+    justify-content: space-around;
+}
+
+.outerInfoText {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.statusText {
+    text-align: center;
 }

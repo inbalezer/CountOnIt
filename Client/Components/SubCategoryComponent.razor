@@ -44,6 +44,7 @@
             </button>
             @if (totalSpendings > budget)
             {
+                isOverdraft = true;
                 <span>⚠️</span>
             }
             <button class="add-transaction-button" @onclick="openAddTransOverlay"><img src="../css/images/+2.svg" /></button>
@@ -83,7 +84,6 @@
                 <div class="editAndAddSubCat">
                     @if (userCategories.Count > 0)
                     {
-
                         <span>העברת תת קטגוריה ל</span>
                         @if (subCatToEdit.categroyTitle == null)
                         {
@@ -97,12 +97,8 @@
 
                                 <option class="catsOptions" value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
 
-
-
                             }
                         </select>
-
-
                     }
                 </div>
 
@@ -122,16 +118,36 @@
                     <label class="titleName" for="importance">עדיפות תת הקטגוריה</label>
                     <div class="outerBtns">
                         <div class="importanceBtns">
-                            <input type="radio" id="wants" name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
-                            <label for="wants">רצון</label>
-                            <span class="divider"></span>
-
-                            <input type="radio" id="needs" name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
-                            <label for="needs">צורך</label>
-                            <span class="divider"></span>
-
-                            <input type="radio" id="must" name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
-                            <label for="must">חובה</label>
+                            @if (subCatToEdit.importance == 0)
+                            {
+                                <input type="radio" id="wants" name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
+                                <label class="" for="wants">רצון</label>
+                            }
+                            else
+                            {
+                                <input type="radio" id="wants" name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
+                                <label for="wants">רצון</label>
+                            }
+                            @if (subCatToEdit.importance == 1)
+                            {
+                                <input type="radio" id="needs" name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
+                                <label for="needs">צורך</label>
+                            }
+                            else
+                            {
+                                <input type="radio" id="needs" name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
+                                <label for="needs">צורך</label>
+                            }
+                            @if (subCatToEdit.importance == 2)
+                            {
+                                <input type="radio" id="must" name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
+                                <label for="must">חובה</label>
+                            }
+                            else
+                            {
+                                <input type="radio" id="must" name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
+                                <label for="must">חובה</label>
+                            }
                         </div>
                     </div>
                 </div>
@@ -253,6 +269,7 @@
     bool isOptBtnClicked = false; //the options button
     bool editSubCatBtnClicked = false;
     bool deleteBtnClicked = false;
+    bool isOverdraft = false;
     string popupBodyText = "";
 
     public bool openTransOverlay = false;
@@ -395,7 +412,8 @@
 
     public void goToTransactionsPage()
     {
-        nav.NavigateTo("./TransactionsOverview/" + subCategoryIDToGet + "/" + categoryID + "/" + budget + "/" + userID);
+        
+        nav.NavigateTo("./TransactionsOverview/" + subCategoryIDToGet + "/" + categoryID + "/" + budget + "/" + userID + "/" + isOverdraft);
     }
 
     public async Task EditSubCategoryAndTransaction()

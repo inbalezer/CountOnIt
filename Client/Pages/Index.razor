@@ -13,6 +13,7 @@
 @inject SignOutSessionStateManager SignOutManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
+@implements IDisposable
 
 
 <meta name="google-signin-client_id" content="1019975699349-h4jb6mru41g9tobof0f2i4dl96df2bkp.apps.googleusercontent.com">
@@ -33,27 +34,46 @@ else
     }
 }
 
-@if (streakOverlay) //not the final microcopy for this popup
-{
-    <div>
-        <button @onclick="()=>streakOverlay=false"><img src="../css/images/close x.svg" /></button><br />
-        <h3>כל הכבוד על ההתמדה!</h3>
-        <p>הזנת השבוע @weeklyTransAmount הוצאות,</p>
-        <p><b>שאפו!</b></p>
-        <p>זה השבוע ה-@currentStreak.streak_length ברציפות.</p>
-        <p>הגעת לסטטוס ה @streakStatusOpt.IndexOf(streakStatTitle) שלך.</p>
-        @if (nextStreakStatIn < 35)
-        {
-            <p>עוד <b>@nextStreakStatIn שבועות</b> עד לסטטוס הבא!</p>
-        }
-        else
-        {
-            <p><b>הגעת לדרגה הגבוהה ביותר! אליפות!</b></p>
-        }
-        <button value="להזנה נוספת"></button><br />
-        @* <img src="@streakImgSrc"/>*@
+@*@if (streakOverlay) //not the final microcopy for this popup
+{*@
+<div class="overlay">
+    <div class="outerStory">
+        <div class="wellDonePopUp">
+            <div class="closePopUpBtn">
+                <button class="modal-close-btn" @onclick="()=>streakOverlay=false"><img src="../css/images/close x.svg" /></button>
+            </div>
+            <div class="mainTitle">כל הכבוד על ההתמדה!</div>
+            <div class="weeklyTransAmount">הזנת השבוע @weeklyTransAmount הוצאות,</div>
+            <div class="mainTitle">שאפו!</div>
+            <div class="outerInfoText">
+                <div>זה השבוע ה-@currentStreak.streak_length ברציפות. וזו הדרך הנכונה!</div>
+                <div class="statusText">
+                    @if (nextStreakStatIn < 35)
+                    {
+                        <div>הזנה של לפחות 3 הזנות בשבוע</div>
+                        <div>
+                            <span>למשך</span>
+                            <span><b>@nextStreakStatIn השבועות הבאים</b></span>
+                        </div>
+                        <div>תוביל לסטטוס הבא!</div>
+                    }
+                    else
+                    {
+                        <p><b>הגעת לדרגה הגבוהה ביותר! אליפות!</b></p>
+                    }
+                </div>
+
+            </div>
+
+            <button class="primery-button">להזנה נוספת</button><br />
+            <div>
+                <img src="@streakImgSrc"/>
+                <span>@streakStatusOpt.IndexOf(streakStatTitle)</span>
+            </div>
+        </div>
     </div>
-}
+</div>
+@*}*@
 
 <div class="outerWrap">
     <div class="@BgOverlay"></div>
@@ -480,12 +500,7 @@ else
 
                     }
                 }
-
-
-
             }
-
-
 
             @if (doRefresh)
             {
@@ -493,10 +508,10 @@ else
             }
         }
 
-        <div id="@hideNav">
+        <div id="@hideNav" class="bottom-nav" @ref="navBar">
             <button class="navBtn">מבט לעבר<img src="../css/images/past.svg" /></button>
             <div class="NavLines"> </div>
-            <button class="navBtn">מבט להווה<img src="../css/images/present.svg" /></button>
+            <button class="navBtn" style="font-weight:600">מבט להווה<img src="../css/images/present.svg" /></button>
             <div class="NavLines"> </div>
             <button class="navBtn">מבט לעתיד<img src="../css/images/future.svg" /></button>
         </div>
@@ -548,7 +563,6 @@ else
 
     }
 </div>
-
 
 
 
@@ -1214,37 +1228,37 @@ else
                         switch (streakStatTitle) //will fill the related streak image route
                         {
                             case "מטבע ארד":
-                                streakImgSrc = "../css/images/bronzeCoin.svg";
+                                streakImgSrc = "../css/images/Bronze-welldone.svg";
                                 streakImgIcon = "../css/images/bronzeCoin.svg";
                                 nextStreakStatIn = 1;
                                 break;
                             case "מטבע כסף":
-                                streakImgSrc = "../css/images/silverCoin.svg";
+                                streakImgSrc = "../css/images/silver-welldone.svg";
                                 streakImgIcon = "../css/images/silverCoin.svg";
                                 nextStreakStatIn = 6;
                                 break;
                             case "מטבע זהב":
-                                streakImgSrc = "../css/images/goldCoin.svg";
+                                streakImgSrc = "../css/images/gold-welldone.svg";
                                 streakImgIcon = "../css/images/goldCoin.svg";
                                 nextStreakStatIn = 4;
                                 break;
                             case "שטר":
-                                streakImgSrc = "../css/images/singleCashNote.svg";
+                                streakImgSrc = "../css/images/note-welldone.svg";
                                 streakImgIcon = "../css/images/singleCashNote.svg";
                                 nextStreakStatIn = 8;
                                 break;
                             case "שטרות":
-                                streakImgSrc = "../css/images/cashNotes.svg";
+                                streakImgSrc = "../css/images/two-notes-welldone.svg";
                                 streakImgIcon = "../css/images/cashNotes.svg";
                                 nextStreakStatIn = 4;
                                 break;
                             case "גביע":
-                                streakImgSrc = "../css/images/goblet.svg";
+                                streakImgSrc = "../css/images/trophy-welldone.svg";
                                 streakImgIcon = "../css/images/goblet.svg";
                                 nextStreakStatIn = 8;
                                 break;
                             case "יהלום":
-                                streakImgSrc = "../css/images/diamond.svg";
+                                streakImgSrc = "../css/images/dimond-welldone.svg";
                                 streakImgIcon = "../css/images/diamond.svg";
                                 nextStreakStatIn = 35;
                                 break;
@@ -1278,6 +1292,22 @@ else
     {
         Nav.NavigateTo("./StreakProgressPage/" + userID);
     }
+
+    private ElementReference navBar;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("navScroll.init", navBar);
+        }
+    }
+
+    public void Dispose()
+    {
+        JSRuntime.InvokeVoidAsync("navScroll.dispose");
+    }
+
 }
 
 
