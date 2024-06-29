@@ -1,0 +1,111 @@
+﻿body {
+    background-image: url('css/images/bg-rank.svg');
+}
+.profileAndBack {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 94%;
+    margin: 1vh 0;
+}
+.TopProfileAndBack {
+    display: flex;
+    justify-content:center;
+}
+
+    .profilePic {
+        width: 2.5rem;
+        height: 2.5rem;
+        background-color: #F9F9F9;
+        border: 3.5px solid #6775F4;
+        color: inherit;
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        cursor: pointer;
+        outline: inherit;
+        text-align: center;
+        border-radius: 50%;
+        font-size: 1.8rem;
+        display: inline-block;
+    }
+.rankTxt{
+    display:flex;
+    flex-direction:column;
+}
+.rankInnerText {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #6775F4;
+}
+.rankInnerText2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 400;
+}
+.allRank {
+    border-radius: 0.3rem;
+    background: #F9F9F9;
+    display: flex;
+    width: 65%;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0.25vh 0;
+}
+.content {
+    width: 79%;
+    margin-bottom: 1vh;
+    padding: 0;
+}
+.wrapperContent{
+    display:flex;
+    justify-content:center
+}
+.topNextRank {
+    width: 100%;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    height: 6vh;
+    column-gap: 2vw;
+    justify-content: center;
+    background-color: #D6D9F1;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+.centringTop{
+    width:100%
+}
+#ranks {
+    display: flex;
+    flex-direction: column;
+    row-gap: 2vh;
+}
+
+.topRanksAndBanner{
+
+}
+
+.backbtn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+.centringTop{
+    display:flex;
+    justify-content:center;
+}
+.topRanksAndBanner{
+    display:flex;
+    flex-direction:column;
+    row-gap: 2vh;
+}
