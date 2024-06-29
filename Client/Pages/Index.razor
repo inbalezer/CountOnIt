@@ -34,46 +34,46 @@ else
     }
 }
 
-@*@if (streakOverlay) //not the final microcopy for this popup
-{*@
-<div class="overlay">
-    <div class="outerStory">
-        <div class="wellDonePopUp">
-            <div class="closePopUpBtn">
-                <button class="modal-close-btn" @onclick="()=>streakOverlay=false"><img src="../css/images/close x.svg" /></button>
-            </div>
-            <div class="mainTitle">כל הכבוד על ההתמדה!</div>
-            <div class="weeklyTransAmount">הזנת השבוע @weeklyTransAmount הוצאות,</div>
-            <div class="mainTitle">שאפו!</div>
-            <div class="outerInfoText">
-                <div>זה השבוע ה-@currentStreak.streak_length ברציפות. וזו הדרך הנכונה!</div>
-                <div class="statusText">
-                    @if (nextStreakStatIn < 35)
-                    {
-                        <div>הזנה של לפחות 3 הזנות בשבוע</div>
-                        <div>
-                            <span>למשך</span>
-                            <span><b>@nextStreakStatIn השבועות הבאים</b></span>
-                        </div>
-                        <div>תוביל לסטטוס הבא!</div>
-                    }
-                    else
-                    {
-                        <p><b>הגעת לדרגה הגבוהה ביותר! אליפות!</b></p>
-                    }
+@if (streakOverlay) //not the final microcopy for this popup
+{
+    <div class="overlay">
+        <div class="outerStory">
+            <div class="wellDonePopUp">
+                <div class="closePopUpBtn">
+                    <button class="modal-close-btn" @onclick="()=>streakOverlay=false"><img src="../css/images/close x.svg" /></button>
+                </div>
+                <div class="mainTitle">כל הכבוד על ההתמדה!</div>
+                <div class="weeklyTransAmount">הזנת השבוע @weeklyTransAmount הוצאות,</div>
+                <div class="mainTitle">שאפו!</div>
+                <div class="outerInfoText">
+                    <div>זה השבוע ה-@currentStreak.streak_length ברציפות. וזו הדרך הנכונה!</div>
+                    <div class="statusText">
+                        @if (nextStreakStatIn < 35)
+                        {
+                            <div>הזנה של לפחות 3 הזנות בשבוע</div>
+                            <div>
+                                <span>למשך</span>
+                                <span><b>@nextStreakStatIn השבועות הבאים</b></span>
+                            </div>
+                            <div>תוביל לסטטוס הבא!</div>
+                        }
+                        else
+                        {
+                            <p><b>הגעת לדרגה הגבוהה ביותר! אליפות!</b></p>
+                        }
+                    </div>
+
                 </div>
 
-            </div>
-
-            <button class="primery-button">להזנה נוספת</button><br />
-            <div>
-                <img src="@streakImgSrc"/>
-                <span>@streakStatusOpt.IndexOf(streakStatTitle)</span>
+                <button class="primery-button">להזנה נוספת</button><br />
+                <div>
+                    <img src="@streakImgSrc" />
+                    <span>@streakStatusOpt.IndexOf(streakStatTitle)</span>
+                </div>
             </div>
         </div>
     </div>
-</div>
-@*}*@
+}
 
 <div class="outerWrap">
     <div class="@BgOverlay"></div>
@@ -271,50 +271,50 @@ else
                     </style>
 
                     @* @if (storyNav == 1 && subCatsTotalsStory.Count > 0)
-            {
-            <h2>היי @currentUser.firstName! רוצה לראות איך עובר החודש?</h2>
-            <p>אלה תתי הקטגוריות שהכי בלטו עד כה:</p>
-            <div @onclick="NextStory">
+                        {
+                        <h2>היי @currentUser.firstName! רוצה לראות איך עובר החודש?</h2>
+                        <p>אלה תתי הקטגוריות שהכי בלטו עד כה:</p>
+                        <div @onclick="NextStory">
 
-            <span>👍</span>
-            <h3>החסכון הגדול ביותר</h3>
-            <p>עד כה החודש הוצאת @subCatsTotalsStory[bestSavingIndex].currentMonthTotal₪ על @bestSavingSubCat, @bestSavingValue₪ פחות מחודש שעבר! </p>
+                        <span>👍</span>
+                        <h3>החסכון הגדול ביותר</h3>
+                        <p>עד כה החודש הוצאת @subCatsTotalsStory[bestSavingIndex].currentMonthTotal₪ על @bestSavingSubCat, @bestSavingValue₪ פחות מחודש שעבר! </p>
 
-            <span>👎</span>
-            <h3>העלייה הגדולה ביותר</h3>
-            <p>עד כה החודש הוצאת @subCatsTotalsStory[worstSavingIndex].currentMonthTotal₪ על @worstSavingSubCat, @worstSavingValue₪ יותר מחודש שעבר! </p>
-            </div>
-            }
-            else if (storyNav == 2 && tagsSpendingsList.Count > 0)
-            {
-            <div @onclick="NextStory">
+                        <span>👎</span>
+                        <h3>העלייה הגדולה ביותר</h3>
+                        <p>עד כה החודש הוצאת @subCatsTotalsStory[worstSavingIndex].currentMonthTotal₪ על @worstSavingSubCat, @worstSavingValue₪ יותר מחודש שעבר! </p>
+                        </div>
+                        }
+                        else if (storyNav == 2 && tagsSpendingsList.Count > 0)
+                        {
+                        <div @onclick="NextStory">
 
-            <h3>התגיות עם הכי הרבה הוצאות</h3>
-            <ol>
-            @foreach (TagsAndSpendingsToShow tag in tagsSpendingsList)
-            {
-            <li>הוצאת על @tag.tagTitle @tag.totalValue ₪</li>
-            }
-            </ol>
-            </div>
+                        <h3>התגיות עם הכי הרבה הוצאות</h3>
+                        <ol>
+                        @foreach (TagsAndSpendingsToShow tag in tagsSpendingsList)
+                        {
+                        <li>הוצאת על @tag.tagTitle @tag.totalValue ₪</li>
+                        }
+                        </ol>
+                        </div>
 
-            }
-            else if (storyNav == 3)
-            {
-            <div @onclick="NextStory">
-            <h3>התזרים שלי עד כה החודש</h3>
-            <p>פילוח ההוצאות שלך לפי קטגוריות</p>
-            <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
-            @if (incomeSum != null)
-            {
-            <p>ההכנסות שלך עומדות כרגע על @incomeSum ₪</p>
+                        }
+                        else if (storyNav == 3)
+                        {
+                        <div @onclick="NextStory">
+                        <h3>התזרים שלי עד כה החודש</h3>
+                        <p>פילוח ההוצאות שלך לפי קטגוריות</p>
+                        <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
+                        @if (incomeSum != null)
+                        {
+                        <p>ההכנסות שלך עומדות כרגע על @incomeSum ₪</p>
 
-            }
-            else
-            {
-            <p>לא הוזנו הכנסות בחודש זה.</p>
-            }
-            </div>*@
+                        }
+                        else
+                        {
+                        <p>לא הוזנו הכנסות בחודש זה.</p>
+                        }
+                        </div>*@
 
 
 
@@ -480,21 +480,21 @@ else
                     {
                         <div class="fullCategory">
                             <CategoryComponent Category=category
-                           categoryTitle="@category.categroyTitle"
-                           icon="@category.icon"
-                           categoryColor="@category.color"
-                           doRefresh="@doRefresh"
-                           userID="@userID"
-                           deleteCat="@removeCat"
-                           subCatRefreshed="@accordionRefresh"
-                           givingSubCatBudget="@changeGivingSubCatBudget"
-                           givingSubCat="@givingSubCatToUpdate"
-                           searchedSubCats="@relevantSubCats"
-                           isSubCatSearched="@makeSearchAgain" categoryTypeIndicator="@isChecked"
-                           closeOverlay="openEditCategoryOverlay"
-                           closeEdit="closeEdit"
-                           closeDelete="closeDelete"
-                           updatedStreakStat="updateStreak">
+                                               categoryTitle="@category.categroyTitle"
+                                               icon="@category.icon"
+                                               categoryColor="@category.color"
+                                               doRefresh="@doRefresh"
+                                               userID="@userID"
+                                               deleteCat="@removeCat"
+                                               subCatRefreshed="@accordionRefresh"
+                                               givingSubCatBudget="@changeGivingSubCatBudget"
+                                               givingSubCat="@givingSubCatToUpdate"
+                                               searchedSubCats="@relevantSubCats"
+                                               isSubCatSearched="@makeSearchAgain" categoryTypeIndicator="@isChecked"
+                                               closeOverlay="openEditCategoryOverlay"
+                                               closeEdit="closeEdit"
+                                               closeDelete="closeDelete"
+                                               updatedStreakStat="updateStreak">
                             </CategoryComponent>
                         </div>
 
@@ -641,7 +641,7 @@ else
     string streakImgIcon = "";
     int weeklyTransAmount = 0;
     List<string> streakStatusOpt = new List<string>()
-    {
+{
     "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
     };
     int nextStreakStatIn = 0;
@@ -850,7 +850,7 @@ else
                 isOnInitializedOver = false;
 
                 List<CategoryToAdd> defualtCategoriesList = new List<CategoryToAdd>()
-    {
+{
     new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
     new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
     new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" },
@@ -871,7 +871,7 @@ else
                             case "משק בית":
 
                                 List<SubCategoryToAdd> defaultSubCategory1List = new List<SubCategoryToAdd>()
-    {
+{
     new SubCategoryToAdd{subCategoryTitle = "חשבונות", categoryID = defaultCategory.id},
     new SubCategoryToAdd{subCategoryTitle = "מזון", categoryID = defaultCategory.id}
     };
@@ -894,7 +894,7 @@ else
                             case "רכב ותחבורה":
 
                                 List<SubCategoryToAdd> defaultSubCategory2List = new List<SubCategoryToAdd>()
-    {
+{
     new SubCategoryToAdd{subCategoryTitle = "דלק", categoryID = defaultCategory.id},
     new SubCategoryToAdd{subCategoryTitle = "תחבורה ציבורית", categoryID = defaultCategory.id}
     };
@@ -915,7 +915,7 @@ else
                                 break;
                             case "בריאות וטיפוח":
                                 List<SubCategoryToAdd> defaultSubCategory3List = new List<SubCategoryToAdd>()
-    {
+{
     new SubCategoryToAdd{subCategoryTitle = "קופת חולים", categoryID = defaultCategory.id},
     new SubCategoryToAdd{subCategoryTitle = "טואלטיקה", categoryID = defaultCategory.id}
     };
@@ -936,7 +936,7 @@ else
                                 break;
                             case "הכנסות":
                                 List<SubCategoryToAdd> defaultSubCategory4List = new List<SubCategoryToAdd>()
-    {
+{
     new SubCategoryToAdd{subCategoryTitle = "משכורת", categoryID = defaultCategory.id}
     };
 

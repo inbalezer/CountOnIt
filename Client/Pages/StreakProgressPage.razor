@@ -7,6 +7,10 @@
 @inject HttpClient Http
 @inject NavigationManager Nav
 @inject DateService DateService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+
 <div class="TopProfileAndBack">
     <div class="profileAndBack">
         <button class="backbtn" @onclick="goToHomePage"><img src="../css/images/back-repeated.svg" </button>
@@ -22,50 +26,61 @@
     </div>
 </div>
 <div class="topRanksAndBanner">
-@if (neededTransAmount < 96)
-{
-    <div>
-        <div class="centringTop">
-            <div class="topNextRank">עוד <span style="color:#6775F4">@neededTransAmount</span> הזנות עד לדרגה הבאה</div>
+    @if (neededTransAmount < 96)
+    {
+        <div>
+            <div class="centringTop">
+                <div class="topNextRank">עוד <span style="color:#6775F4">@neededTransAmount</span> הזנות עד לדרגה הבאה</div>
+            </div>
         </div>
-    </div>
-}
-else
-{
-    <p>הגעת לדרגה הגבוהה ביותר! אליפות!</p>
-}
+    }
+    else
+    {
+        <p>הגעת לדרגה הגבוהה ביותר! אליפות!</p>
+    }
 
-<div class="wrapperContent">
-    <div class="content">
-        <div id="ranks">
-            @for (int i = 0; i < streakStatusOpt.Count; i++)
-            {
-                if (i <= currentUserStreakIndex)
+    <div class="wrapperContent">
+        <div class="content">
+            <div id="ranks">
+                @for (int i = 0; i < streakStatusOpt.Count; i++)
                 {
-                    <div class="allRank">
-                        <img style="width:25%" src="@rankPicSrc[i]"><img />
-                        <div class="rankTxt">
-                            <h3 class="rankInnerText">@streakStatusOpt[i]</h3>
-                            <p class="rankInnerText2">נפתח אחרי <b>@weekAmountForRank[i]</b></p>
+                    if (i <= currentUserStreakIndex)
+                    {
+                        <div class="outerRank" id="@i">
+                            <div class="allRank">
+                                <img style="width:25%" src="@rankPicSrc[i]"><img />
+                                <div class="rankTxt">
+                                    <h3 class="rankInnerText">@streakStatusOpt[i]</h3>
+                                    <p class="rankInnerText2">נפתח אחרי <b>@weekAmountForRank[i]</b></p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                }
-                else
-                {
-                    @*add css that will make this look locked- for now I painted the text purple so we'll see the difference*@
-                    <div class ="allRank">
-                        <img style="width:25%" src="@rankPicSrc[i]"><img />
-                        <div class="rankTxt">
-                            <h3 class="rankInnerText">@streakStatusOpt[i]</h3>
-                            <p class="rankInnerText2">נפתח אחרי <b>@weekAmountForRank[i]</b></p>
+                    }
+                    else
+                    {
+                        @*add css that will make this look locked- for now I painted the text purple so we'll see the difference*@
+                        <div class="outerRank" id="@i">
+                            <div class="allRank">
+                                <img style="width:25%" src="@rankPicSrc[i]"><img />
+                                <div class="rankTxt">
+                                    <h3 class="rankInnerText">@streakStatusOpt[i]</h3>
+                                    <p class="rankInnerText2">נפתח אחרי <b>@weekAmountForRank[i]</b></p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                }
+                    }
 
-            }
+                }
+            </div>
         </div>
     </div>
 </div>
+<div id="@hideNav" class="bottom-nav" @ref="navBar">
+    <button class="navBtn">מבט לעבר<img src="../css/images/past.svg" /></button>
+    <div class="NavLines"> </div>
+    <button class="navBtn" style="font-weight:600">מבט להווה<img src="../css/images/present.svg" /></button>
+    <div class="NavLines"> </div>
+    <button class="navBtn">מבט לעתיד<img src="../css/images/future.svg" /></button>
 </div>
 @code {
     [Parameter]
@@ -75,18 +90,22 @@ else
 
     int currentUserStreakIndex = -1;
     int neededTransAmount = 0;
+    bool isScrollingDown = false;
+    string hideNav => isScrollingDown ? "nav-hidden" : "bottomNav";
+
+
 
     List<string> streakStatusOpt = new List<string>()
-    {
+{
          "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
     };
 
     List<string> weekAmountForRank = new List<string>()
-    {
+{
        "שבוע","שבועיים","חודשיים","3 חודשים","5 חודשים","חצי שנה","8 חודשים"
     };
     List<string> rankPicSrc = new List<string>()
-    {
+{
        "../css/images/bronzeCoin.svg","../css/images/silverCoin.svg","../css/images/goldCoin.svg","../css/images/singleCashNote.svg","../css/images/cashNotes.svg","../css/images/goblet.svg","../css/images/diamond.svg"
     };
 
@@ -231,6 +250,19 @@ else
     public void goToHomePage()
     {
         Nav.NavigateTo("./homePage");
+    }
+    private ElementReference navBar;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("navScroll.init", navBar);
+        }
+    }
+
+    public void Dispose()
+    {
+        JSRuntime.InvokeVoidAsync("navScroll.dispose");
     }
 
 }

@@ -1,6 +1,7 @@
 ﻿body {
     background-image: url('css/images/bg-rank.svg');
 }
+
 .profileAndBack {
     display: flex;
     align-items: flex-start;
@@ -10,60 +11,76 @@
     width: 94%;
     margin: 1vh 0;
 }
+
 .TopProfileAndBack {
     display: flex;
-    justify-content:center;
+    justify-content: center;
 }
 
-    .profilePic {
-        width: 2.5rem;
-        height: 2.5rem;
-        background-color: #F9F9F9;
-        border: 3.5px solid #6775F4;
-        color: inherit;
-        padding: 0;
-        margin: 0;
-        font: inherit;
-        cursor: pointer;
-        outline: inherit;
-        text-align: center;
-        border-radius: 50%;
-        font-size: 1.8rem;
-        display: inline-block;
-    }
-.rankTxt{
-    display:flex;
-    flex-direction:column;
+.profilePic {
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: #F9F9F9;
+    border: 3.5px solid #6775F4;
+    color: inherit;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    display: inline-block;
 }
+
+.rankTxt {
+    display: flex;
+    flex-direction: column;
+}
+
 .rankInnerText {
     margin: 0;
     font-size: 1rem;
     font-weight: 700;
     color: #6775F4;
 }
+
 .rankInnerText2 {
     margin: 0;
     font-size: 1rem;
     font-weight: 400;
 }
+
 .allRank {
     border-radius: 0.3rem;
     background: #F9F9F9;
     display: flex;
-    width: 65%;
+    width: 50%;
     align-items: center;
     justify-content: space-around;
-    padding: 0.25vh 0;
+    padding: 0.5vh 0;
 }
+
+
 .content {
-    width: 79%;
-    margin-bottom: 1vh;
+    height: 90%;
+    /* width: 79%; */
+    /* margin-bottom: 1vh; */
     padding: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
-.wrapperContent{
-    display:flex;
-    justify-content:center
+
+.wrapperContent {
+    display: flex;
+    align-items: center;
+    align-content: flex-end;
+    flex-direction: column;
+    height: 90%;
 }
+
 .topNextRank {
     width: 100%;
     display: flex;
@@ -76,16 +93,31 @@
     font-weight: 600;
     font-size: 1.2rem;
 }
-.centringTop{
-    width:100%
-}
+
+
 #ranks {
     display: flex;
     flex-direction: column;
-    row-gap: 2vh;
+    /* row-gap: 2vh; */
+    justify-content: space-evenly;
+    margin-top: 0;
+    width: 100%;
 }
 
-.topRanksAndBanner{
+.topRanksAndBanner {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 80vh;
+}
+
+.outerRank {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+}
 
 }
 
@@ -100,12 +132,70 @@
     outline: inherit;
 }
 
-.centringTop{
-    display:flex;
-    justify-content:center;
+.centringTop {
+    display: flex;
+    justify-content: center;
+    width: 100%
 }
-.topRanksAndBanner{
-    display:flex;
-    flex-direction:column;
-    row-gap: 2vh;
+
+
+#bottomNav {
+    background-color: #F9F9F9;
+    border-radius: 1.25rem 1.25rem 0rem 0rem;
+    height: 10vh;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    position: relative;
+    align-content: stretch;
+    align-items: center;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1); /* Shadow added here */
+    position: fixed;
+    bottom: 0;
+    z-index: 2;
+    transition: transform 0.3s ease-in-out;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    will-change: transform;
+    transition: opacity 0.5s ease-in-out; /* Smooth transition for the opacity */
+}
+
+#nav-hidden {
+    display: none; /* Moves the navbar out of view */
+}
+
+
+.NavLines {
+    content: "";
+    display: block;
+    width: 0.06rem;
+    height: 60%;
+    background-color: #D6D9F1;
+    display: flex;
+    align-self: auto;
+    right: 14.5vh;
+    top: 20%;
+    /* flex-direction: column-reverse; */
+    /* flex-wrap: wrap; */
+    /* align-content: stretch; */
+    align-items: baseline;
+}
+
+.navBtn {
+    position: relative;
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    row-gap: 0.4vh;
 }
