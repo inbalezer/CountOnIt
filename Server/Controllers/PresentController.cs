@@ -988,103 +988,7 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("user is null");
         }
 
-        //[HttpPost("updateUser")]
-        //public async Task<IActionResult> updateUserData(userProfileDataToShow editedUser)
-        //{
-        //    object newUser = new
-        //    {
-        //        ID=editedUser.id,
-        //        firstName=editedUser.firstName,
-        //        lastName=editedUser.lastName,
-        //        profilePicOrIcon=editedUser.profilePicOrIcon,
-        //        monthStartDate= editedUser.monthStartDate
-        //    };
 
-        //    string updateUserQuery = "update users set firstName=@firstName, lastName=@lastName, profilePicOrIcon=@profilePicOrIcon, monthStartDate=@monthStartDate where id=@ID";
-
-        //    bool userUpdateRes = await _db.SaveDataAsync(updateUserQuery, newUser);
-        //    if (userUpdateRes)
-        //    {
-        //        List<int> tagsToDelete = new List<int>();
-        //        List<TagsToShow> tagsToUpdate = new List<TagsToShow>();
-        //        List<TagsToShow> tagsToInsert = new List<TagsToShow>();
-        //        object param = new { ID = editedUser.id };
-        //        string getUserTagsQuery = "select * from tags where userID=4";
-        //        var userTagsRes = await _db.GetRecordsAsync<TagsToShow>(getUserTagsQuery, param);
-        //        List<TagsToShow> userTagList = userTagsRes.ToList();
-        //        if (userTagList.Count>0)
-        //        {
-        //            TagsToShow currentTag = new TagsToShow();
-        //            for (int i = 0; i < userTagList.Count; i++)
-        //            {
-        //                currentTag = new TagsToShow();
-        //                for (int j=0; j<editedUser.userTags.Count; j++)
-        //                {
-        //                    if (userTagList[i].id== editedUser.userTags[j].id) //if a tag needs an update
-        //                    {
-        //                        if (userTagList[i].tagTitle!= editedUser.userTags[j].tagTitle || userTagList[i].tagColor != editedUser.userTags[j].tagColor)
-        //                        {
-        //                            currentTag = editedUser.userTags[j];
-        //                            tagsToUpdate.Add(currentTag);
-        //                        }
-        //                    }
-        //                    else if (editedUser.userTags[j].id==null || editedUser.userTags[j].id==0) //if it's a new tag
-        //                    {
-        //                        currentTag = editedUser.userTags[j];
-        //                        tagsToInsert.Add(currentTag);
-        //                    }
-        //                    else //if a tag needs to be deleted
-        //                    {
-        //                        currentTag = userTagList[i];
-        //                        tagsToDelete.Add(currentTag.id);
-        //                    }
-        //                }
-        //            }
-
-
-        //            if (tagsToUpdate.Count>0)
-        //            {
-        //                for (int tIndex=0; tIndex< tagsToUpdate.Count; tIndex++)
-        //                {
-        //                    object tagToUpdate = new
-        //                    {
-        //                        ID= tagsToUpdate[tIndex].id,
-        //                        tagTitle= tagsToUpdate[tIndex].tagTitle,
-        //                        tagColor= tagsToUpdate[tIndex].tagColor
-        //                    };
-        //                    string updateTagQuery = "update tags set tagTitle=@tagTitle, tagColor=@tagColor where id=@ID";
-        //                    bool isTagUpdate = await _db.SaveDataAsync(updateTagQuery, tagToUpdate);
-        //                    if (!isTagUpdate)
-        //                    {
-        //                        return BadRequest("failed to update a tag with the id- " + tagsToUpdate[tIndex].id);
-        //                    }
-        //                }
-
-        //            }
-        //            if (tagsToInsert.Count>0)
-        //            {
-        //                for (int t=0; t<tagsToInsert.Count;t++)
-        //                {
-        //                    object tagToInsertParam = new
-        //                    {
-        //                        userID = editedUser.id,
-        //                        tagTitle = tagsToUpdate[t].tagTitle,
-        //                        tagColor = tagsToUpdate[t].tagColor
-        //                    };
-        //                    string insertTagQuery = "insert into tags(tagTitle,tagColor,userID) values (@tagTitle,@tagColor,@userID)";
-        //                    int isTagInserted = await _db.InsertReturnId(insertTagQuery, tagToInsertParam);
-        //                    if (isTagInserted<=0)
-        //                    {
-        //                        return BadRequest("failed to add a tag with the title- " + tagsToInsert[t].tagTitle);
-        //                    }
-        //                }
-        //            }
-
-        //            return Ok(tagsToDelete);
-        //        }
-        //    }
-        //    return BadRequest("Failed to update user and their tags");
-        //}
 
         [HttpPost("updateUser")]
         public async Task<IActionResult> UpdateUserData(userProfileDataToShow editedUser)
@@ -1195,37 +1099,28 @@ namespace CountOnIt.Server.Controllers
             return await _db.InsertReturnId(insertTagQuery, new { tagTitle = tag.tagTitle, tagColor = tag.tagColor, userID = userId });
         }
 
-        [HttpDelete("deleteTags")]
-        public async Task<IActionResult> deleteTags(List<int> tagsToDelete)
+        [HttpDelete("deleteTags/tagToDelete")]
+        public async Task<IActionResult> deleteTags(int tagToDelete)
         {
-            int deletedTagsCounter = 0;
-            int tagListCount = tagsToDelete.Count;
 
-            foreach (int tagID in tagsToDelete)
+            object tagParam = new
             {
-                object tagParam = new
-                {
-                    tagID = tagID
-                };
-                string updateTransTagQuery = "update transactions set tagID=null where tagID=@tagID";
-                bool didTransUpdate = await _db.SaveDataAsync(updateTransTagQuery, tagParam);
-                if (!didTransUpdate)
-                {
-                    return BadRequest("failed to update tagID to null of transactions with the tagID- " + tagID);
-                }
+                tagID = tagToDelete
+            };
+            string updateTransTagQuery = "update transactions set tagID=null where tagID=@tagID";
+            bool didTransUpdate = await _db.SaveDataAsync(updateTransTagQuery, tagParam);
+            if (!didTransUpdate)
+            {
+                return BadRequest("failed to update tagID to null of transactions with the tagID- " + tagToDelete);
+            }
 
-                string deleteTagQuery = "delete from tags where id=@tagID";
-                var deleteTag = await _db.SaveDataAsync(deleteTagQuery, tagParam);
-                if (deleteTag)
-                {
-                    deletedTagsCounter++;
-                }
-            }
-            if (deletedTagsCounter==tagListCount)
+            string deleteTagQuery = "delete from tags where id=@tagID";
+            var deleteTag = await _db.SaveDataAsync(deleteTagQuery, tagParam);
+            if (deleteTag)
             {
-                return Ok("tags deleted successfully");
+                return Ok("tag deleted successfully");
             }
-            return BadRequest("not all tags were deleted successfully");
+            return BadRequest("tag wasn't deleted successfully");
         }
     }
 

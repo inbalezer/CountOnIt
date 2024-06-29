@@ -352,9 +352,26 @@
         var updateUserRec = await Http.PostAsJsonAsync("api/Present/updateUser", updatedUser);
         if (updateUserRec.IsSuccessStatusCode)
         {
-            
+            Console.WriteLine("updated user data");
             var tagsToDeleteRes = updateUserRec.Content.ReadFromJsonAsync<List<int>>().Result;
 
+            int deletedTagsCounter = 0;
+            foreach (int tagIDtoDelete in tagsToDeleteRes)
+            {
+                var deleteTagsRec = await Http.DeleteAsync("api/Present/deleteTags/"+tagIDtoDelete);
+                if (deleteTagsRec.IsSuccessStatusCode)
+                {
+                    deletedTagsCounter++;
+                }
+            }
+            if (deletedTagsCounter==tagsToDeleteRes.Count)
+            {
+                editBtnClicked = false;
+            }
+            else
+            {
+                Console.WriteLine("not all tags were successfully deleted");
+            }
         }
     }
 }
