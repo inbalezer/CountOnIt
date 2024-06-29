@@ -172,7 +172,26 @@
 
 #options {
     position: absolute;
-    z-index: 1000;
+    z-index: 4;
     margin-left: 4vw;
+}
+
+
+.importanceBtns input[type="radio"] {
+    display: none;
+}
+
+.importanceBtns label {
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s, background 0.3s;
+    padding: 10px 20px;
+    border-radius: 0.375rem;
+}
+
+.importanceBtns input[type="radio"]:checked + label {
+    color: #6775F4;
+    background: #EDEFF7; /* Soft blue background for selected state */
 }
 

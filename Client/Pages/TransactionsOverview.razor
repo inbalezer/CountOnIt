@@ -1,4 +1,4 @@
-﻿@page "/TransactionsOverview/{subCatID:int}/{categoryID:int}/{budget:double}/{userID:int}"
+﻿@page "/TransactionsOverview/{subCatID:int}/{categoryID:int}/{budget:double}/{userID:int}/{isOverdraft:bool}"
 @using CountOnIt.Shared.Models.present.toShow
 @using CountOnIt.Shared.Models.present.toAdd
 @using CountOnIt.Shared.Models.present.toEdit
@@ -14,7 +14,16 @@
         <div class="outerBackAndProfile">
 
             <button class="backArrow" @onclick="goToHomePage"><img src="../css/images/back-repeated.svg" /></button>
-            <span>@categoryTitle > @subCategoryTitle</span>
+            @if (isOverdraft)
+            {
+                <span>@returnToMainPage > @categoryTitle > @subCategoryTitle <img src="../css/images/overdraft-warning.svg" /></span>
+            }
+            else
+            {
+                <span>@returnToMainPage > @categoryTitle > @subCategoryTitle</span>
+            }
+
+
         </div>
         <button class="profilePic"></button>
     </div>
@@ -45,95 +54,104 @@
                     </div>
                 </div>
 
-                @if (editSubCatBtnClicked)
-                {
-                    <div>
-                        <div>
+            </div>
+
+            @if (editSubCatBtnClicked)
+            {
+                <div class="overlay">
+                    <div class="outerSubCatOverlay">
+
+                        <div class="innerSubCatOverlay">
+                            <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked"><img src="../css/images/close x.svg" /></button>
                             <h2>עריכת תת קטגוריה</h2>
-                            <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked">&times;</button>
-                        </div>
+                            <div class="editAndAddSubCat">
 
-
-                        @if (userCategories.Count > 0)
-                        {
-                            <span>עריכת תת קטגוריה ל</span>
-                            @if (subCatToEdit.categroyTitle == null)
-                            {
-                                subCatToEdit.categroyTitle = categoryTitle;
-                            }
-                            <select @bind="subCatToEdit.categroyTitle">
-
-                                @foreach (AllUserCategories userCategory in userCategories)
+                                @if (userCategories.Count > 0)
                                 {
+                                    <span>עריכת תת קטגוריה ל</span>
+                                    @if (subCatToEdit.categroyTitle == null)
+                                    {
+                                        subCatToEdit.categroyTitle = categoryTitle;
+                                    }
+                                    <select class="catsDropDown" @bind="subCatToEdit.categroyTitle">
 
-                                    <option value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+                                        @foreach (AllUserCategories userCategory in userCategories)
+                                        {
 
+                                            <option class="catsOptions" value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+
+
+                                        }
+                                    </select>
 
                                 }
-                            </select>
-                            <span>@subCatToEdit.categroyTitle</span>
+                            </div>
+                            <div class="outerTitleName">
+                                <label class="titleName" for="amount">שם תת קטגוריה</label>
+                                <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
+                            </div>
 
-                        }
-
-                        <div>
-                            <label for="amount">שם תת קטגוריה</label>
-                            <input type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
-                        </div>
-
-                        <div>
                             <label for="description">מה התקציב החודשי שלך עבור @subCatToEdit.subCategoryTitle? </label>
-                            <input type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
-                        </div>
-                        <div>
-                            <label for="importance">עדיפות תת הקטגוריה</label>
-                            <span>@subCatToEdit.importance</span>
-                            @if (subCatToEdit.importance == 0)
-                            {
-                                <input type="radio"
-                               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
-                                <label>רצון</label>
-                            }
-                            else
-                            {
-                                <input type="radio"
-                               name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
-                                <label>רצון</label>
-                            }
-                            @if (subCatToEdit.importance == 1)
-                            {
-                                <input type="radio"
-                               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
-                                <label>צורך</label>
-                            }
-                            else
-                            {
-                                <input type="radio"
-                               name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
-                                <label>צורך</label>
-                            }
-                            @if (subCatToEdit.importance == 2)
-                            {
-                                <input type="radio"
-                               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
-                                <label>חובה</label>
-                            }
-                            else
-                            {
-                                <input type="radio"
-                               name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
-                                <label>חובה</label>
-                            }
-                        </div>
-                        <div>
-                            <p>לדוגמה: לק - רוצה, דלק - צריך, חייב - שכ״ד. העדיפות משפיעה על הטיפים שתקבל לייעול התקציב שלך.</p>
-                        </div>
-                        <br />
-                        @* <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>*@
-                        <button class="submit-btn" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
-                    </div>
-                }
+                            <div class="outerBudget">
+                                <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
+                                <span class="currency-symbol">₪</span>
+                                <div class="lineBetween"></div>
+                            </div>
+                            <div class="outerImportance">
+                                <label class="titleName" for="importance">עדיפות תת הקטגוריה</label>
 
-            </div>
+                                @* <span>@subCatToEdit.importance</span>*@
+                                <div class="outerBtns">
+                                    <div class="importanceBtns">
+                                        @if (subCatToEdit.importance == 0)
+                                        {
+                                            <input type="radio" id="wants" name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
+                                            <label class="" for="wants">רצון</label>
+                                        }
+                                        else
+                                        {
+                                            <input type="radio" id="wants" name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
+                                            <label for="wants">רצון</label>
+                                        }
+                                        @if (subCatToEdit.importance == 1)
+                                        {
+                                            <input type="radio" id="needs" name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
+                                            <label for="needs">צורך</label>
+                                        }
+                                        else
+                                        {
+                                            <input type="radio" id="needs" name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
+                                            <label for="needs">צורך</label>
+                                        }
+                                        @if (subCatToEdit.importance == 2)
+                                        {
+                                            <input type="radio" id="must" name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
+                                            <label for="must">חובה</label>
+                                        }
+                                        else
+                                        {
+                                            <input type="radio" id="must" name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
+                                            <label for="must">חובה</label>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="outerExample">
+                                <div>
+                                    <span class="example">לדוגמה:</span>
+                                    לק - רוצה, דלק - צריך, שכ״ד- חייב. העדיפות משפיעה על הטיפים לייעול התקציב.
+                                </div>
+                            </div>
+                            <div class="outerSaveBtns">
+                                @* <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>*@
+                                <button class="primery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            }
 
             <div class="options">
                 @if (isOpetionsBtnClicked)
@@ -166,9 +184,11 @@
                 <div class="sortAndFilterBtns">
                     <div class="outerFilterBtnAndOptions">
 
+                        <div class="outerBtnAndFilterStatus">
+                            <button class="filterAndSortBtns" @onclick="filterBtnClickedFunc"><img src="../css/images/filter btn.svg" /></button>
+                            <span>@filterStatus</span>
+                        </div>
 
-                        <button class="filterAndSortBtns" @onclick="filterBtnClickedFunc"><img src="../css/images/filter btn.svg" /></button>
-                        <span>@filterStatus</span>
                         @if (filterBtnClicked)
                         {
                             @*sortBtnClicked = false;*@
@@ -270,7 +290,7 @@
                                                                     style="background-color:@tag.tagColor; @fontWeight">
                                                                             @tag.tagTitle
                                                                         </button>
-                                                                      
+
                                                                     }
                                                                 </div>
                                                                 <div class="outerBtnAndDots">
@@ -310,27 +330,36 @@
 
 
                     <div class="outerFilterBtnAndOptions">
-                        <button class="filterAndSortBtns" @onclick="sortBtnClickedFunc"><img src="../css/images/sort btn.svg" /></button>
+                        <div class="outerBtnAndFilterStatus">
+                            <button class="filterAndSortBtns" @onclick="sortBtnClickedFunc"><img src="../css/images/sort btn.svg" /></button>
+                            <span>@sortStatus</span>
+                        </div>
                         @if (sortBtnClicked)
                         {
                             <div class="outerSortOptions">
                                 <div class="filterOptions">
 
                                     <fieldset id="sortTrans" name="transSorting">
-                                        <input class="sortBtn" type="radio" value="תאריך (מהחדש לישן)" name="transSorting" @onchange="@(()=> SortingOptions("dateDes"))" />תאריך (מהחדש לישן)
-                                        <div class="sortDivider"></div>
-                                        <input class="sortBtn" type="radio" value="תאריך (מהישן לחדש)" name="transSorting" @onchange="@(()=> SortingOptions("dateAsc"))" />תאריך (מהישן לחדש)
-                                        <div class="sortDivider"></div>
-                                        <input class="sortBtn" type="radio" value="סכום הוצאה (מהגבוה לנמוך)" name="transSorting" @onchange="@(()=> SortingOptions("sumDes"))" /> סכום הוצאה (מהגבוה לנמוך)
-                                        <div class="sortDivider"></div>
-                                        <input class="sortBtn" type="radio" value="סכום הוצאה (מהנמוך לגבוה)" name="transSorting" @onchange="@(()=> SortingOptions("sumAsc"))" /> סכום הוצאה (מהנמוך לגבוה)
+                                        <div class="sortOptions">
+                                            <input class="sortBtn" type="radio" id="תאריך (מהחדש לישן)" name="transSorting" @onchange="@(()=> SortingOptions("dateDes"))" />
+                                            <label for="תאריך (מהחדש לישן)">תאריך (מהחדש לישן)</label>
+                                            <div class="sortDivider"></div>
+                                            <input class="sortBtn" type="radio" id="תאריך (מהישן לחדש)" name="transSorting" @onchange="@(()=> SortingOptions("dateAsc"))" />
+                                            <label for="תאריך (מהישן לחדש)">תאריך (מהישן לחדש)</label>
+                                            <div class="sortDivider"></div>
+                                            <input class="sortBtn" type="radio" id="סכום הוצאה (מהגבוה לנמוך)" name="transSorting" @onchange="@(()=> SortingOptions("sumDes"))" />
+                                            <label for="סכום הוצאה (מהגבוה לנמוך)">סכום הוצאה (מהגבוה לנמוך)</label>
+                                            <div class="sortDivider"></div>
+                                            <input class="sortBtn" type="radio" id="סכום הוצאה (מהנמוך לגבוה)" name="transSorting" @onchange="@(()=> SortingOptions("sumAsc"))" />
+                                            <label for="סכום הוצאה (מהנמוך לגבוה)">סכום הוצאה (מהנמוך לגבוה)</label>
+                                        </div>
                                     </fieldset>
                                 </div>
                             </div>
                         }
-                        <span>@sortStatus</span>
+
                     </div>
-                    <button class="filterAndSortBtns" @onclick="undoFilterAndSort">איפוס</button>
+                    <button class="filterAndSortBtns" @onclick="undoFilterAndSort"><img src="../css/images/reset.svg" /></button>
 
 
                 </div>
@@ -393,6 +422,9 @@
     public double? budget { get; set; }
 
     [Parameter]
+    public bool isOverdraft { get; set; }
+
+    [Parameter]
     public EventCallback<SubCategoryToEdit> updateEditedSubCat { get; set; }
 
     public string categoryTitle = "";
@@ -434,6 +466,7 @@
     private int currentPage = 0;
     private int pageSize = 6;
     private int totalPages => (int)Math.Ceiling(subCatTagsList.Count / (double)pageSize);
+    string returnToMainPage = "סביבת ההווה";
 
 
     bool typeByCat = false; //false- expense, true- income
@@ -694,7 +727,7 @@
 
     public async Task filterByTransType(string selectedType)
     {
-        filterStatus = "אמצעי תשלום: " + selectedType;
+        filterStatus = selectedType;
         for (int i = allTransactions.Count - 1; i >= 0; i--)
         {
             if (allTransactions[i].valueType != selectedType)
@@ -727,7 +760,7 @@
                 tagTitle = allTransactions[i].tagTitle;
             }
         }
-        filterStatus = "תגית: " + tagTitle;
+        filterStatus = tagTitle;
         filterByTagOverlay = false;
         filterBtnClicked = false;
 
@@ -940,5 +973,4 @@
         //    chosenTag = tag; // Set the new selected tag
         //}
     }
-
 }

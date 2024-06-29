@@ -4,7 +4,7 @@
     left: 0;
     width: 100vw; /* Cover full viewport width */
     height: 100vh; /* Cover full viewport height */
-    z-index: 999; /* Lower than modal but higher than anything else */
+    z-index: 1000; /* Lower than modal but higher than anything else */
 
     background-color: rgba(1, 5, 43, 0.28);
     top: 0;

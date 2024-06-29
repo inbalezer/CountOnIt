@@ -403,7 +403,7 @@ input:checked + .slider:before {
     border: 1px solid #6775F4; /* Border color */
     padding: 5px; /* Padding */
     border-radius: 4px; /* Border radius */
-    width: 100%; /* Adjust width as needed */
+    /*width: 100%;*/ /* Adjust width as needed */
     -webkit-appearance: none; /* Remove default styling in WebKit browsers */
     -moz-appearance: none; /* Remove default styling in Firefox */
     appearance: none; /* Remove default styling in other browsers */
@@ -699,3 +699,37 @@ input:disabled, button:disabled {
 .reText{
     margin-bottom:0.5vh;
 }
+
+.outerTitleAndCounter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.input-container {
+    position: relative;
+    width: 100%; /* Ensure full width */
+}
+
+.titleBox {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.counter {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: #666;
+    font-size: 12px;
+    padding: 2px 6px;
+    
+}
+
+    .counter span {
+        color: inherit; /* Inherit color from parent */
+        color: #636363
+    }
