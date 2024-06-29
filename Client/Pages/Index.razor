@@ -13,6 +13,7 @@
 @inject SignOutSessionStateManager SignOutManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IJSRuntime JSRuntime
+@implements IDisposable
 
 
 <meta name="google-signin-client_id" content="1019975699349-h4jb6mru41g9tobof0f2i4dl96df2bkp.apps.googleusercontent.com">
@@ -493,7 +494,7 @@ else
             }
         }
 
-        <div id="@hideNav">
+        <div id="@hideNav" class="bottom-nav" @ref="navBar">
             <button class="navBtn">מבט לעבר<img src="../css/images/past.svg" /></button>
             <div class="NavLines"> </div>
             <button class="navBtn">מבט להווה<img src="../css/images/present.svg" /></button>
@@ -548,7 +549,6 @@ else
 
     }
 </div>
-
 
 
 
@@ -1278,6 +1278,22 @@ else
     {
         Nav.NavigateTo("./StreakProgressPage/" + userID);
     }
+
+    private ElementReference navBar;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("navScroll.init", navBar);
+        }
+    }
+
+    public void Dispose()
+    {
+        JSRuntime.InvokeVoidAsync("navScroll.dispose");
+    }
+
 }
 
 
