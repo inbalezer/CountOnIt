@@ -965,6 +965,28 @@ namespace CountOnIt.Server.Controllers
             return Ok(checkingOverdraftingCats);
         }
 
+
+        [HttpGet("userProfileData/{userID}")]
+        public async Task<IActionResult> getuserProfileData(int userID)
+        {
+            object param = new { ID = userID };
+            string getProfileDataQuery = "SELECT * FROM users where id=@ID;";
+
+            var userDataRes = await _db.GetRecordsAsync<userProfileDataToShow>(getProfileDataQuery, param);
+
+
+            userProfileDataToShow userData= userDataRes.FirstOrDefault();
+            if (userData != null)
+            {
+                string getUserTagsQuery = "SELECT id, tagTitle, tagColor FROM tags where userID=@ID;";
+                var userTagsRes= await _db.GetRecordsAsync<TagsToShow>(getUserTagsQuery, param);
+                List<TagsToShow> userTagList = userTagsRes.ToList();
+                userData.userTags=userTagList;
+                return Ok(userData);
+            }
+            return BadRequest("user is null");
+        }
+
     }
 
 }

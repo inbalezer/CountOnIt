@@ -1,0 +1,101 @@
+﻿@page "/ProfilePage/{userID:int}"
+@using CountOnIt.Shared.Models.present.toShow
+@using CountOnIt.Shared.Models.present.toAdd
+@using CountOnIt.Shared.Models.present.toEdit
+@using CountOnIt.Client.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inject HttpClient Http
+@inject NavigationManager Nav
+@inject DateService DateService
+@inject SignOutSessionStateManager SignOutManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IJSRuntime JSRuntime
+<div id="topOptBar">
+    <button class="backArrow" @onclick="goToFormerPage"><img src="../css/images/back-repeated.svg" /></button>
+    <h3>הפרופיל של @currentUser.firstName @currentUser.lastName</h3>
+    <div class="outerOptions">
+        <button class="optionButton editButton">
+            <img src="../css/images/edit_pencil.svg" class="icon" />
+            עריכה
+        </button>
+    </div>
+    <div id="mainUserInfo">
+        <p>@currentUser.profilePicOrIcon</p>
+        <AuthorizeView>
+            <Authorized>
+                <p>@context.User.Identity.Name</p>
+            </Authorized>
+        </AuthorizeView>
+    </div>
+    <div>
+        <p>יום תחילת תזרים:</p>
+        <div>
+            <div>
+                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=1)">ה-1 לחודש</button>
+                <div class="divider"></div>
+                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=2)">ה-2 לחודש</button>
+                <div class="divider"></div>
+                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=10)">ה-10 לחודש</button>
+                <div class="divider"></div>
+                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=15)">ה-15 לחודש</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+@code {
+    [Parameter]
+    public int userID { get; set; }
+
+    [Parameter]
+    public string formerPage { get; set; }
+
+    userProfileDataToShow currentUser = new userProfileDataToShow();
+
+
+    public bool editBtnClicked = false;
+    public bool closeOverlay = false;
+
+    public int startMonthDate = 0;
+
+    public void goToFormerPage()
+    {
+
+        if (formerPage != null && formerPage!="")
+        {
+            //Nav.NavigateTo("./"+formerPage);
+            Nav.NavigateTo("/homePage");
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userRes = await Http.GetAsync("api/Present/userProfileData/" + userID);
+        if (userRes.IsSuccessStatusCode)
+        {
+            currentUser = await userRes.Content.ReadFromJsonAsync<userProfileDataToShow>();
+
+            switch (currentUser.monthStartDate)
+            {
+                case 1:
+                    startMonthDate = 1;
+                    break;
+                case 2:
+                    startMonthDate = 2;
+                    break;
+                case 10:
+                    startMonthDate = 10;
+                    break;
+                case 15:
+                    startMonthDate = 15;
+                    break;
+            }
+        }
+    }
+
+}
