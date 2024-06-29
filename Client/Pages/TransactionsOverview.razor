@@ -189,7 +189,7 @@
                         @if (filterByTransTypeOverlay)
                         {
                             <div class="outerPaymentMethod">
-                                <div class="PaymentMethods">                               
+                                <div class="PaymentMethods">
                                     <div class="outerLay">
 
                                         <div class="BgOverlay">
@@ -197,27 +197,34 @@
                                             <div class="outerPaymentOverlay">
 
                                                 <div class="outerPaymentMethodsOptions">
-                                                     <button class="modal-close-btn" @onclick="() => filterByTransTypeOverlay = false"><img src="../css/images/close x.svg" /></button> 
+                                                    <div class="straightDiv">
+                                                        <button class="modal-close-btn" @onclick="() => filterByTransTypeOverlay = false"><img src="../css/images/close x.svg" /></button>
 
-                                                    <fieldset id="transValueType" name="transType">
-                                                        <legend class="patmentsTitle">אמצעי תשלום</legend>
-                                                        <div class="paymentOptions">
+                                                        <div class="patmentsTitle">אמצעי תשלום</div>
+                                                    </div>
 
-                                                        
-                                                            <input type="radio" id="מזומן" name="transType" @onchange="@(()=> filterByType= "מזומן")" />
-                                                            <label for="מזומן">מזומן</label>
-                                                        <div class="divider"></div>
-                                                        <input type="radio" id="אשראי" name="transType" @onchange="@(()=> filterByType= "אשראי")" />
-                                                            <label for="אשראי">אשראי</label>
-                                                        <div class="divider"></div>
-                                                        <input type="radio" id="ביט/פייבוקס" name="transType" @onchange="@(()=> filterByType= "ביט/פייבוקס")" /> 
-                                                        <label for="ביט/פייבוקס">ביט/פייבוקס</label>
-                                                        <div class="divider"></div>
-                                                        <input type="radio" id="אחר" name="transType" @onchange="@(()=> filterByType= "אחר")" /> 
-                                                        <label for="אחר">אחר</label>
+
+                                                    <div class="outerPaymentMethodsAndBtn">
+                                                        <fieldset id="transValueType" name="transType">
+
+                                                            <div class="paymentOptions">
+                                                                <input type="radio" id="מזומן" name="transType" @onchange="@(()=> filterByType= "מזומן")" />
+                                                                <label for="מזומן">מזומן</label>
+                                                                <div class="divider"></div>
+                                                                <input type="radio" id="אשראי" name="transType" @onchange="@(()=> filterByType= "אשראי")" />
+                                                                <label for="אשראי">אשראי</label>
+                                                                <div class="divider"></div>
+                                                                <input type="radio" id="ביט/פייבוקס" name="transType" @onchange="@(()=> filterByType= "ביט/פייבוקס")" />
+                                                                <label for="ביט/פייבוקס">ביט/פייבוקס</label>
+                                                                <div class="divider"></div>
+                                                                <input type="radio" id="אחר" name="transType" @onchange="@(()=> filterByType= "אחר")" />
+                                                                <label for="אחר">אחר</label>
                                                             </div>
-                                                    </fieldset>
-                                                    <button @onclick="@(()=>filterByTransType(filterByType))">סינון הוצאות</button>
+                                                        </fieldset>
+
+                                                        <button class="primery-button" @onclick="@(()=>filterByTransType(filterByType))">סינון הוצאות</button>
+                                                    </div>
+
                                                 </div>
                                             </div>
                                         </div>
@@ -229,22 +236,75 @@
                         }
                         @if (filterByTagOverlay)
                         {
+                            <div class="outerPaymentMethod">
+                                <div class="PaymentMethods">
+                                    <div class="outerLay">
 
-                            if (subCatTagsList.Count > 0)
-                            {
-                                <button @onclick="() => filterByTagOverlay = false">close</button>
-                                <div>
+                                        <div class="BgOverlay">
 
-                                    <label for="subCatTags">התגיות שלי</label><br />
-                                    @foreach (TagsToShow tag in subCatTagsList)
-                                    {
-                                        <input type="radio" name="subCatTags" @onchange="@(()=> filterByTag= tag.id)" />
-                                        <label>@tag.tagTitle</label>
-                                    }
-                                    <br />
-                                    <button @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
+                                            <div class="outerPaymentOverlay">
+
+                                                <div class="outerPaymentMethodsOptions">
+
+                                                    @if (subCatTagsList.Count > 0)
+                                                    {
+
+                                                        <div class="straightDiv">
+
+
+                                                            <button class="modal-close-btn" @onclick="() => filterByTagOverlay = false"><img src="../css/images/close x.svg" /></button>
+                                                            <div class="patmentsTitle">התגיות שלי</div>
+                                                        </div>
+
+
+
+                                                        <div class="outerPaymentMethodsAndBtn">
+
+                                                            <div class="outerGalleryAndNav">
+                                                                <div class="outerGallery">
+
+                                                                    @foreach (TagsToShow tag in subCatTagsList)
+                                                                    {
+                                                                        var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
+                                                                        <button class="tag" @onclick="(() => chosenFilterByTag(tag))"
+                                                                    style="background-color:@tag.tagColor; @fontWeight">
+                                                                            @tag.tagTitle
+                                                                        </button>
+                                                                      
+                                                                    }
+                                                                </div>
+                                                                <div class="outerBtnAndDots">
+
+                                                                    <button class="galleryArrow @disBtnStyle" @onclick="PreviousPage"><img src="../css/images/arrow-back.svg" /></button>
+                                                                    <div class="pageDots">
+                                                                        @for (int i = 0; i < totalPages; i++)
+                                                                        {
+                                                                            <span class="dot @(i == currentPage ? "active" : "")"></span>
+                                                                        }
+                                                                    </div>
+                                                                    <button class="galleryArrow @disNextBtnStyle" @onclick="NextPage"><img src="../css/images/arrow-next.svg" /></button>
+
+                                                                </div>
+                                                            </div>
+
+
+
+
+                                                            @*@foreach (TagsToShow tag in subCatTagsList)
+                                                    {
+                                                    <input type="radio" name="subCatTags"  />
+                                                    <label>@tag.tagTitle</label>
+                                                    }*@
+
+                                                            <button class="primery-button" @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            }
+                            </div>
                         }
                     </div>
 
@@ -348,6 +408,7 @@
     SubCategoryToEdit subCatToEdit = new SubCategoryToEdit();
     List<AllUserCategories> userCategories = new List<AllUserCategories>();
     SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
+    TagsToShow chosenTag = new TagsToShow();
     public string popupBodyText = "";
     public bool overdraftStatus = false;
 
@@ -362,10 +423,18 @@
     bool filterByReturnTrans = false;
     bool sortBtnClicked = false;
     bool isOpetionsBtnClicked = false;
+    bool disBtn = false;
+    bool disNextBtn = false;
     List<TagsToShow> subCatTagsList = new List<TagsToShow>();
     string filterStatus = "";
     string sortStatus = "";
     string searchQuery = "";
+    string disBtnStyle => disBtn ? "disBtn" : "";
+    string disNextBtnStyle => disNextBtn ? "disBtn" : "";
+    private int currentPage = 0;
+    private int pageSize = 6;
+    private int totalPages => (int)Math.Ceiling(subCatTagsList.Count / (double)pageSize);
+
 
     bool typeByCat = false; //false- expense, true- income
 
@@ -822,6 +891,54 @@
         sortBtnClicked = !sortBtnClicked;
         filterBtnClicked = false;
 
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages - 1)
+        {
+            disBtn = false;
+            disNextBtn = false;
+            currentPage++;
+        }
+        if (currentPage == totalPages - 1)
+        {
+            disNextBtn = true;
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 0)
+        {
+            disNextBtn = false;
+            disBtn = false;
+            currentPage--;
+        }
+        if (currentPage == 0)
+        {
+            disBtn = true;
+        }
+
+    }
+
+    void chosenFilterByTag(TagsToShow tagAfterFilter)
+    {
+        filterByTag = tagAfterFilter.id;
+        chosenTag = tagAfterFilter; // Set the new selected tag
+
+        //isTagChosen = !isTagChosen;
+        ////chosenTag = tag;
+
+        //if (chosenTag == tag)
+        //{
+        //    chosenTag = new TagsToShow(); // Unselect the tag
+
+        //}
+        //else
+        //{
+        //    chosenTag = tag; // Set the new selected tag
+        //}
     }
 
 }

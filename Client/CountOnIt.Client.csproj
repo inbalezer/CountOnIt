@@ -6,6 +6,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<Optimize>False</Optimize>
+	</PropertyGroup>
+		
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'CountOnIt' ">
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
@@ -40,5 +44,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\CountOnIt.Shared.csproj" />
   </ItemGroup>
+
 
 </Project>
