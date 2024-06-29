@@ -7,11 +7,13 @@
     <UserSecretsId>CountOnIt.Server-5F033871-3FCD-45BC-8662-5E98BD9E026A</UserSecretsId>
 	<ServiceWorkerAssetsManifest>wwwroot\service-worker-assets.js</ServiceWorkerAssetsManifest>
 	<WasmServiceWorkerAssetsManifest>wwwroot\service-worker-wasm-assets.js</WasmServiceWorkerAssetsManifest>
+	<Configurations>Debug;Release;</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>True</Optimize>
   </PropertyGroup>
+
 	<PropertyGroup>
 		<SatelliteResourceLanguages>he</SatelliteResourceLanguages>
 	</PropertyGroup>

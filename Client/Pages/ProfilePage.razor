@@ -1,4 +1,4 @@
-﻿@page "/ProfilePage/{userID:int}"
+﻿@page "/ProfilePage/{userID:int}/{formerPage:string}"
 @using CountOnIt.Shared.Models.present.toShow
 @using CountOnIt.Shared.Models.present.toAdd
 @using CountOnIt.Shared.Models.present.toEdit
@@ -16,35 +16,154 @@
     <button class="backArrow" @onclick="goToFormerPage"><img src="../css/images/back-repeated.svg" /></button>
     <h3>הפרופיל של @currentUser.firstName @currentUser.lastName</h3>
     <div class="outerOptions">
-        <button class="optionButton editButton">
+        <button class="optionButton editButton" @onclick="editProfile">
             <img src="../css/images/edit_pencil.svg" class="icon" />
             עריכה
         </button>
     </div>
     <div id="mainUserInfo">
-        <p>@currentUser.profilePicOrIcon</p>
-        <AuthorizeView>
-            <Authorized>
-                <p>@context.User.Identity.Name</p>
-            </Authorized>
-        </AuthorizeView>
-    </div>
-    <div>
-        <p>יום תחילת תזרים:</p>
-        <div>
-            <div>
-                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=1)">ה-1 לחודש</button>
-                <div class="divider"></div>
-                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=2)">ה-2 לחודש</button>
-                <div class="divider"></div>
-                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=10)">ה-10 לחודש</button>
-                <div class="divider"></div>
-                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=15)">ה-15 לחודש</button>
+        @if (editBtnClicked)
+        {
+            <div class="keyBoardAndBtn">
+                <div class="outerCancleAndEmoji">
+                    @if (currentUser.profilePicOrIcon.Length>0)
+                    {
+                        <button @onclick="ToggleKeyboard" id="emoji-trigger" class="hideDefaultEmojiBtn"><img src="../css/images/add emoji (1).svg" /></button>
+                    }
+                    else if (isCancleBtnClicked)
+                    {
+                        <button @onclick="ToggleKeyboard" id="emoji-trigger"><img src="../css/images/add emoji (1).svg" /></button>
+                    }
+                    else
+                    {
+                        <button @onclick="ToggleKeyboard" id="emoji-trigger" class="@hideBtn"><img src="../css/images/add emoji (1).svg" /></button>
+                    }
+                    @if (noEmojiBtn || currentUser.profilePicOrIcon.Length > 0)
+                    {
+
+                        <div class="outerCancleAndEmoji">
+                            <button @onclick="deleteSelectedEmoji" class="cancleEmoji">ביטול בחירה</button>
+                            <button @onclick="ToggleKeyboard" class="selectedEmoji">
+                                <span class="emoji">@currentUser.profilePicOrIcon</span>
+                                <img src="../css/images/+ icon.svg" class="plusIcon" />
+                            </button>
+                        </div>
+
+                    }
+                </div>
+
+
+                <div class="emoji-keyboard @visibilityClass">
+                    <div class="emoji-categories">
+                        @foreach (var category in emojiCategories.Keys)
+                        {
+                            <button class="category-button @(selectedCategory == category ? "active" : "")"
+                            @onclick="() => SelectCategory(category)">
+                                @category
+                            </button>
+                        }
+                    </div>
+                    <div class="emoji-section">
+
+                        <span @onclick="() => SelectEmoji(currentUser.profilePicOrIcon)" class="emoji">@currentUser.profilePicOrIcon</span>
+                        
+                    </div>
+                </div>
+
             </div>
+        }
+        else
+        {
+            <p>@currentUser.profilePicOrIcon</p>
+            <p>@currentUser.firstName @currentUser.lastName</p>
+            <AuthorizeView>
+                <Authorized>
+                    <p>@context.User.Identity.Name</p>
+                </Authorized>
+            </AuthorizeView>
+        }
+
+    </div>
+</div>
+<div>
+    <p>יום תחילת תזרים:</p>
+    <div>
+@*        <div>
+            <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=1)">ה-1 לחודש</button>
+            <div class="divider"></div>
+            <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=2)">ה-2 לחודש</button>
+            <div class="divider"></div>
+            <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=10)">ה-10 לחודש</button>
+            <div class="divider"></div>
+            <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=15)">ה-15 לחודש</button>
+        </div>*@
+        <select @bind="currentUser.monthStartDate">
+            <option value="ה-1 לחודש" @onclick="@(()=>currentUser.monthStartDate=1)"></option>
+            <option value="ה-2 לחודש" @onclick="@(()=>currentUser.monthStartDate=2)"></option>
+            <option value="ה-10 לחודש" @onclick="@(()=>currentUser.monthStartDate=10)"></option>
+            <option value="ה-15 לחודש" @onclick="@(()=>currentUser.monthStartDate=15)"></option>
+        </select>
+    </div>
+</div>
+<div>
+    <p>תאריך הרשמה:</p>
+    <p>@currentUser.signUpDate</p>
+</div>
+<div>
+    <p>התגיות שלי</p>
+    <div class="outerGalleryAndNav">
+        <div class="outerGallery">
+            @if (currentUser.userTags.Count > 0)
+            {
+                foreach (TagsToShow tag in currentUser.userTags)
+                {
+                    var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
+                    <button class="tag"
+                    @onclick="(() => ChooseTagForTrans(tag))"
+                    style="background-color:@tag.tagColor; @fontWeight">
+                        @tag.tagTitle
+                    </button>
+                }
+                <div class="outerBtnAndDots">
+                    <button class="galleryArrow @disBtnStyle" @onclick="PreviousPage"><img src="../css/images/arrow-back.svg" /></button>
+                    <div class="pageDots">
+                        @for (int i = 0; i < totalPages; i++)
+                        {
+                            <span class="dot @(i == currentPage ? "active" : "")"></span>
+                        }
+                    </div>
+                    <button class="galleryArrow @disNextBtnStyle" @onclick="NextPage"><img src="../css/images/arrow-next.svg" /></button>
+
+                </div>
+            }
         </div>
     </div>
-
 </div>
+
+<div>
+    @if (editBtnClicked)
+    {
+         <br />
+        <button value="שמירה וחזרה"></button>
+    }
+    else
+    {
+        <p>מעבר מחדש על ההדרכה</p>
+        <div>
+            @*להוסיף פונקציה שתעביר מחדש אונבורדינג בהתאם לבחירה*@
+            <select placeholder="בחירת סביבה להדרכה">
+                <option value="סביבת ‘מבט אל העבר’"></option>
+                <option value="סביבת ‘מבט אל ההווה’"></option>
+                <option value="סביבת ‘מבט אל העתיד’"></option>
+            </select>
+        </div>
+        <br />
+         <button value="התנתקות מהמערכת" @onclick="BeginSignOut"></button>
+    }
+   
+</div>
+
+
 
 
 @code {
@@ -62,16 +181,50 @@
 
     public int startMonthDate = 0;
 
-    public void goToFormerPage()
+    //Tag gallery variables:
+    TagsToShow chosenTag = new TagsToShow();
+    bool disBtn = false;
+    bool disNextBtn = false;
+    bool isTagChosen = false;
+    string disBtnStyle => disBtn ? "disBtn" : "";
+    string disNextBtnStyle => disNextBtn ? "disBtn" : "";
+    string chosenTagStyle => isTagChosen ? "chosenTag" : "";
+
+    private int currentPage = 0;
+    private int pageSize = 6;
+    private int totalPages => (int)Math.Ceiling(currentUser.userTags.Count / (double)pageSize);
+
+    //Emoji keyboard:
+    private bool isVisible = false;
+    bool isCancleBtnClicked = false;
+    string hideBtn = "";
+    bool noEmojiBtn = false;
+    private Dictionary<string, List<string>> emojiCategories = new Dictionary<string, List<string>>
     {
+        {"כללי", new List<string> {
+                "🏠", "🛏️", "🚿", "💡", "📞", "🖥️", "🚗", "🚌", "🛒", "🍲",
+                "🏥", "💊", "👕", "🧹", "🧺", "🍼", "🐶", "🧑‍🔧", "📚", "🧾",
+                "🕶️", "🌂", "🔑", "📦"
+            }},
+        {"כיף", new List<string> {
+                "🎭", "🎟️", "🎮", "🎨", "📸", "🍽️", "🏋️‍♂️", "🧘", "🎸", "✈️",
+                "🏕️", "🛍️", "🍷", "🎁", "🎈", "📖", "🍰", "🌐", "🕹️", "🚤",
+                "🚵", "🛀", "🎷", "🎙️"
+            }},
+        {"פיננסי", new List<string> {
+             "💳",
+        "🏦", "💰", "🪙", "💸", "💹",
+        "📈", "📉", "📊", "💲", "🏧",
+        "🧾", "💱", "💲", "💹", "🏦",
+        "🖋️", "💎", "📜", "🏧",
+        "📅", "🖥️", "🖨️", "🔍"
+            }}
+    };
 
-        if (formerPage != null && formerPage!="")
-        {
-            //Nav.NavigateTo("./"+formerPage);
-            Nav.NavigateTo("/homePage");
-        }
+    private string visibilityClass => isVisible ? "visible" : "";
+    private string selectedCategory = "כללי";
 
-    }
+    //------
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,4 +251,110 @@
         }
     }
 
+
+    public void goToFormerPage()
+    {
+
+        if (formerPage != null && formerPage != "")
+        {
+            Nav.NavigateTo("./" + formerPage);
+            //Nav.NavigateTo("/homePage");
+        }
+
+    }
+
+
+
+    public void ChooseTagForTrans(TagsToShow tag)
+    {
+        isTagChosen = !isTagChosen;
+        //chosenTag = tag;
+
+        if (chosenTag == tag)
+        {
+            chosenTag = new TagsToShow(); // Unselect the tag
+
+        }
+        else
+        {
+            chosenTag = tag; // Set the new selected tag
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 0)
+        {
+            disNextBtn = false;
+            disBtn = false;
+            currentPage--;
+        }
+        if (currentPage == 0)
+        {
+            disBtn = true;
+        }
+
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages - 1)
+        {
+            disBtn = false;
+            disNextBtn = false;
+            currentPage++;
+        }
+        if (currentPage == totalPages - 1)
+        {
+            disNextBtn = true;
+        }
+    }
+    private async Task BeginSignOut(MouseEventArgs args)
+    {
+        await SignOutManager.SetSignOutState();
+        Nav.NavigateTo($"authentication/logout");
+    }
+
+
+    public void editProfile()
+    {
+        editBtnClicked = !editBtnClicked;
+    }
+    private void ToggleKeyboard()
+    {
+        isVisible = !isVisible;
+    }
+
+    private void deleteSelectedEmoji()
+    {
+        isCancleBtnClicked = true;
+        noEmojiBtn = false;
+
+        currentUser.profilePicOrIcon = "";
+        hideBtn = "";
+    }
+
+    private void SelectEmoji(string emoji)
+    {
+        noEmojiBtn = true;
+        isCancleBtnClicked = false;
+        hideBtn = "hideDefaultEmojiBtn";
+        currentUser.profilePicOrIcon = emoji;
+    }
+
+    private void SelectCategory(string category)
+    {
+        selectedCategory = category;
+    }
+
+    public async Task saveEditedProfile(userProfileDataToShow updatedUser)
+    {
+        var updateUserRec = await Http.PostAsJsonAsync("api/Present/updateUser", updatedUser);
+        if (updateUserRec.IsSuccessStatusCode)
+        {
+            
+            var tagsToDeleteRes = updateUserRec.Content.ReadFromJsonAsync<List<int>>().Result;
+
+        }
+    }
 }
