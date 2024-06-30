@@ -68,13 +68,13 @@ else
                     {
                         @if (streakImgIcon != "")
                         {
-                            <button @onclick="goToStreakPage" class="streakBtn"><img src=@streakImgIcon style="width:87%;" /></button>
+                            <button @onclick="goToSProfilePage" class="streakBtn"><img src=@streakImgIcon style="width:87%;" /></button>
 
                         }
                     }
                     else
                     {
-                        <button class="streakStatus" @onclick="goToStreakPage"></button>
+                        <button class="streakStatus" @onclick="goToSProfilePage"></button>
                     }
                     <button class="profilePic">@currentUser.profilePicOrIcon</button> @*will lead to user's profile page*@
 
@@ -1242,9 +1242,9 @@ else
         }
     }
 
-    public void goToStreakPage()
+    public void goToSProfilePage()
     {
-        Nav.NavigateTo("./StreakProgressPage/" + userID);
+        Nav.NavigateTo("./ProfilePage/" + userID);
     }
 
 

@@ -1122,6 +1122,48 @@ namespace CountOnIt.Server.Controllers
             }
             return BadRequest("tag wasn't deleted successfully");
         }
+
+
+        [HttpPost("updateTag")]
+        public async Task<IActionResult> updateTag(TagsToShow tagToUpdate)
+        {
+            object editedTagParam = new
+            {
+                id=tagToUpdate.id,
+                tagTitle=tagToUpdate.tagTitle,
+                tagColor=tagToUpdate.tagColor
+            };
+            string updateTagQuery = "update tags set tagTitle=@tagTitle, tagColor=@tagColor where id=@ID";
+
+            bool didTagUpdate = await _db.SaveDataAsync(updateTagQuery, editedTagParam);
+            if (didTagUpdate)
+            {
+                return Ok();
+            }
+            return BadRequest("failed to update tag");
+        }
+
+        [HttpPost("addTag/{userID}")]
+        public async Task<IActionResult> addTag(int userID,TagsToShow tagToUpdate)
+        {
+            object newTagParam = new
+            {
+                tagTitle = tagToUpdate.tagTitle,
+                tagColor = tagToUpdate.tagColor,
+                userID= userID
+            };
+            string insertTagQuery = "insert into tags(tagTitle, tagColor, userID) values (@tagTitle, @tagColor, @userID)";
+
+            int wasTagAdded = await _db.InsertReturnId(insertTagQuery, newTagParam);
+            if (wasTagAdded>0)
+            {
+                return Ok();
+            }
+            return BadRequest("failed to add tag");
+        }
     }
 
+
 }
+
+

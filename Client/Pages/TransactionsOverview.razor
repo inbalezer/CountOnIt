@@ -7,13 +7,14 @@
 @inject HttpClient Http
 @inject NavigationManager Nav
 @inject DateService DateService
+@inject IJSRuntime JSRuntime
 
 <div class="outerPage">
 
     <div class="outerTop">
         <div class="outerBackAndProfile">
 
-            <button class="backArrow" @onclick="goToHomePage"><img src="../css/images/back-repeated.svg" /></button>
+            <button class="backArrow" @onclick="goBack"><img src="../css/images/back-repeated.svg" /></button>
             <span>@categoryTitle > @subCategoryTitle</span>
             @if (overdraftStatus)
             {
@@ -32,7 +33,7 @@
                     }
                 }
             </div>
-                <button class="profilePic">@userIcon</button>
+                <button class="profilePic" @onclick="goToSProfilePage">@userIcon</button>
         </div>
     </div>
 
@@ -543,9 +544,9 @@
 
 
 
-    public void goToHomePage()
+    public async Task goBack()
     {
-        Nav.NavigateTo("./homePage");
+        await JSRuntime.InvokeVoidAsync("navigateBack");
     }
 
     public void transactionDeleted(int transIdToRemove)
@@ -720,7 +721,7 @@
         if (deleteRes.IsSuccessStatusCode)
         {
             Console.WriteLine("sub category deleted");
-            goToHomePage();
+            goBack();
 
         }
         else
@@ -970,6 +971,12 @@
             }
         }
     }
+
+    public void goToSProfilePage()
+    {
+        Nav.NavigateTo("./ProfilePage/" + userID);
+    }
+
     void FilterCatsOrSubCats()
     {
         //if (!string.IsNullOrEmpty(searchQuery))

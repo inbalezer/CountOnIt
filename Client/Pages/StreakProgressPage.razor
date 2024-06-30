@@ -7,9 +7,10 @@
 @inject HttpClient Http
 @inject NavigationManager Nav
 @inject DateService DateService
+@inject IJSRuntime JSRuntime
 
 
-<button @onclick="goToHomePage">🔙</button>
+<button @onclick="goBack">🔙</button>
 <button>Profile avatar</button>
 <br/>
 <h2>ההתקדמות שלי</h2>
@@ -210,9 +211,9 @@
         }
     }
 
-    public void goToHomePage()
+    public async Task goBack()
     {
-        Nav.NavigateTo("./homePage");
+        await JSRuntime.InvokeVoidAsync("navigateBack");
     }
 
 }
