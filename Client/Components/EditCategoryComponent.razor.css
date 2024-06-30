@@ -311,6 +311,12 @@
         width: 90%;
     }
 
+.emojiBtnAndKeyboard{
+    display:flex;
+    flex-direction:column;
+    row-gap:1vh;
+}
+
 .emoji-categories {
     display: flex;
     justify-content: center;

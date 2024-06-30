@@ -456,6 +456,22 @@ input:checked + .slider:before {
     bottom: 0;
 }
 
+.registerOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 3;
+    background-color: #6775F4;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+}
+
 .modal-close-btn{
     background: none;
     color: inherit;
@@ -539,6 +555,11 @@ input:checked + .slider:before {
     background-color: #D6D9F1;
     height: 0.2vh;
 }
+
+.titleName {
+    font-weight: 600;
+}
+
 
 .outerFirstStory {
     display: flex;
@@ -751,4 +772,435 @@ ol li::marker {
 
 .statusText {
     text-align: center;
+}
+
+.registerBgOverlay {
+    background-color: rgba(1, 5, 43, 0.28);
+    z-index: 3;
+}
+
+
+.outerRegisterInfo {
+    border-radius: 1.75rem 1.4375rem 0rem 0rem;
+    background-color: #F9F9F9;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    padding: 2vh 0 2vh 0;
+    width: 100%;
+    bottom: 0;
+    position: fixed;
+    z-index: 4;
+    row-gap:3vh;
+}
+
+.outerLay {
+    display: flex;
+    bottom: 0;
+    position: fixed;
+    z-index: 4;
+    width: 100%;
+}
+
+.registerOuterLay {
+    display: flex;
+    z-index: 4;
+    width: 100%;
+}
+
+.paddingDiv {
+    display: flex;
+    flex-direction: column;
+    row-gap: 5vh;
+    width: 90%;
+}
+
+
+.megaOuterLay{
+    width:100%;
+}
+
+.registerPaddingDiv {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.outerLogoAndOpeningText {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    color: #F9F9F9;
+    font-weight: 500;
+    z-index: 4;
+}
+.outerTitleAndIcon {
+    display: flex;
+    width: 90%;
+    align-items: flex-start;
+    flex-direction: column;
+    row-gap: 2vh;
+}
+
+.catTitle {
+    width: 60vw;
+    height: 5vh;
+    border-radius: 0.3125rem;
+    background: #FFF;
+    box-shadow: 0px 85px 24px 0px rgba(171, 173, 191, 0.00), 0px 55px 22px 0px rgba(171, 173, 191, 0.01), 0px 31px 18px 0px rgba(171, 173, 191, 0.05), 0px 14px 14px 0px rgba(171, 173, 191, 0.09), 0px 3px 7px 0px rgba(171, 173, 191, 0.10);
+    border: none;
+    top: -1vh;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2vw;
+}
+
+.emoji {
+    font-size: 1.6em;
+}
+
+.keyBoardAndBtn {
+    display: flex;
+    justify-content: space-between;
+}
+
+.titleAndIcon {
+    display: flex;
+    flex-direction: row;
+    column-gap: 10vw;
+    /* width: 90%; */
+    justify-content: space-evenly;
+    align-items: flex-end;
+}
+
+#emoji-trigger {
+    background: none; /* Removes default background */
+    color: inherit; /* Inherits text color from parent */
+    border: none; /* Removes default border */
+    padding: 0; /* Removes default padding */
+    margin: 0; /* Removes default margin */
+    font: inherit; /* Inherits font from parent */
+    cursor: pointer; /* Ensures the cursor appears clickable */
+    outline: inherit;
+}
+
+
+.emoji-keyboard {
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: absolute;
+    bottom: 80%;
+    left: 67%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+    visibility: hidden;
+    width: 943%;
+    z-index: 1;
+}
+
+    .emoji-keyboard.visible {
+        opacity: 1;
+        visibility: visible;
+        padding: 2vh 5vw;
+        width: 142%;
+    }
+
+.hideDefaultEmojiBtn {
+    display: none;
+}
+
+.emoji-categories {
+    display: flex;
+    justify-content: center;
+    gap: 14vw;
+    margin-bottom: 1.5vh;
+    margin-top: 0.5vh;
+}
+
+.outerEmojiBtnAndKeyboard{
+    display:flex;
+    flex-direction:column;
+    row-gap:1vh;
+    position:relative;
+    width:100%;
+}
+
+.outerEmojiKeyboard {
+    position: absolute;
+    top: -2vh;
+    width: 100%;
+}
+
+.category-button {
+    /* padding: 8px 16px; */
+    font-size: 14px;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.2s, padding 0.2s;
+    font-weight: 600;
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    font-weight: 500;
+}
+
+    .category-button.active {
+        text-decoration: underline;
+        text-decoration-color: #6775F4;
+        text-decoration-thickness: 0.4vh;
+        text-underline-offset: 1vh;
+        background: none;
+        color: inherit;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        cursor: pointer;
+        outline: inherit;
+        font-weight: 600;
+    }
+
+.removeKeybord{
+    display:none;
+}
+.cancleEmoji {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    text-decoration: underline;
+    text-decoration-color: #030942;
+    text-decoration-thickness: 0.1vh;
+    text-underline-offset: 0.7vh;
+}
+
+
+.selectedEmoji {
+    background: none; /* Removes default background */
+    color: inherit; /* Inherits text color from parent */
+    border: none; /* Removes default border */
+    padding: 0; /* Removes default padding */
+    margin: 0; /* Removes default margin */
+    font: inherit; /* Inherits font from parent */
+    cursor: pointer; /* Ensures the cursor appears clickable */
+    outline: inherit;
+}
+
+.outerCancleAndEmoji {
+    display: inline-block;
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+}
+
+.selectedEmoji {
+    position: relative;
+    border: none; /* Adjust as needed */
+    background: none; /* Adjust as needed */
+    padding: 5px; /* Adjust padding as needed */
+    display: flex;
+    align-items: center;
+}
+
+.emoji {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.plusIcon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px; /* Adjust the size as needed */
+    height: auto;
+    transition: all 0.3s ease; /* Smooth transition for responsiveness */
+}
+
+#emoji-trigger {
+    background: none; /* Removes default background */
+    color: inherit; /* Inherits text color from parent */
+    border: none; /* Removes default border */
+    padding: 0; /* Removes default padding */
+    margin: 0; /* Removes default margin */
+    font: inherit; /* Inherits font from parent */
+    cursor: pointer; /* Ensures the cursor appears clickable */
+    outline: inherit;
+}
+
+.category-button {
+    /* padding: 8px 16px; */
+    font-size: 14px;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.2s, padding 0.2s;
+    font-weight: 600;
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    font-weight: 500;
+}
+
+    .category-button.active {
+        text-decoration: underline;
+        text-decoration-color: #6775F4;
+        text-decoration-thickness: 0.4vh;
+        text-underline-offset: 1vh;
+        background: none;
+        color: inherit;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        cursor: pointer;
+        outline: inherit;
+        font-weight: 600;
+    }
+
+
+.emoji-section {
+    background-color: #EDEFF7;
+    border-radius: 0.6em;
+}
+
+.dropDownOptionBtn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    /* text-decoration: underline; */
+    /* line-height: 4vh; */
+    /* border-bottom: 1px solid #000; */
+    /* padding-bottom: 0.2vh; */
+    padding: 0.6vh;
+}
+
+
+.outerDaysOptions {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.accordionPoly {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+.outerDaysTitleAndPoly {
+    display: flex;
+    width: 83%;
+}
+
+
+.outerUserDetails {
+    display: flex;
+    flex-direction: column;
+    row-gap: 3vh;
+}
+
+.firstLastAndEmoji {
+    display: flex;
+    flex-direction: column;
+    width: 83%;
+    row-gap: 3vh;
+}
+
+.outerMonthDayOptions {
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.1875rem;
+    border: 0.2px solid rgba(0, 0, 0, 0.30);
+    background: #FFF;
+    box-shadow: 0px 17px 5px 0px rgba(189, 189, 189, 0.00), 0px 11px 4px 0px rgba(189, 189, 189, 0.02), 0px 6px 4px 0px rgba(189, 189, 189, 0.06), 0px 3px 3px 0px rgba(189, 189, 189, 0.10), 0px 1px 1px 0px rgba(189, 189, 189, 0.12) rgba(0, 0, 0, 0.3) rgba(255, 255, 255, 1);
+    justify-content: center;
+    width: 100%;
+    padding: 0.8vh 0;
+    z-index: 2;
+    /* margin-top: 4.3vh; */
+    align-items: flex-start;
+}
+
+.megaOuterDaysOptions {
+    display: flex;
+    flex-direction: column;
+    row-gap: 2vh;
+    width: 83%;
+    align-items: flex-start;
+    margin-bottom: 2vh;
+}
+
+.daydivider {
+    background-color: #D6D9F1;
+    height: 0.2vh;
+    width: 100%;
+}
+
+.dropDownTitle {
+    width: 60vw;
+    height: 5vh;
+    border-radius: 0.3125rem;
+    background: #FFF;
+    box-shadow: 0px 85px 24px 0px rgba(171, 173, 191, 0.00), 0px 55px 22px 0px rgba(171, 173, 191, 0.01), 0px 31px 18px 0px rgba(171, 173, 191, 0.05), 0px 14px 14px 0px rgba(171, 173, 191, 0.09), 0px 3px 7px 0px rgba(171, 173, 191, 0.10);
+    border: none;
+    top: -0.5vh;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2vw;
 }
