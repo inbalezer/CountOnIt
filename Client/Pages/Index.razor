@@ -271,50 +271,50 @@ else
                     </style>
 
                     @* @if (storyNav == 1 && subCatsTotalsStory.Count > 0)
-                        {
-                        <h2>היי @currentUser.firstName! רוצה לראות איך עובר החודש?</h2>
-                        <p>אלה תתי הקטגוריות שהכי בלטו עד כה:</p>
-                        <div @onclick="NextStory">
+            {
+            <h2>היי @currentUser.firstName! רוצה לראות איך עובר החודש?</h2>
+            <p>אלה תתי הקטגוריות שהכי בלטו עד כה:</p>
+            <div @onclick="NextStory">
 
-                        <span>👍</span>
-                        <h3>החסכון הגדול ביותר</h3>
-                        <p>עד כה החודש הוצאת @subCatsTotalsStory[bestSavingIndex].currentMonthTotal₪ על @bestSavingSubCat, @bestSavingValue₪ פחות מחודש שעבר! </p>
+            <span>👍</span>
+            <h3>החסכון הגדול ביותר</h3>
+            <p>עד כה החודש הוצאת @subCatsTotalsStory[bestSavingIndex].currentMonthTotal₪ על @bestSavingSubCat, @bestSavingValue₪ פחות מחודש שעבר! </p>
 
-                        <span>👎</span>
-                        <h3>העלייה הגדולה ביותר</h3>
-                        <p>עד כה החודש הוצאת @subCatsTotalsStory[worstSavingIndex].currentMonthTotal₪ על @worstSavingSubCat, @worstSavingValue₪ יותר מחודש שעבר! </p>
-                        </div>
-                        }
-                        else if (storyNav == 2 && tagsSpendingsList.Count > 0)
-                        {
-                        <div @onclick="NextStory">
+            <span>👎</span>
+            <h3>העלייה הגדולה ביותר</h3>
+            <p>עד כה החודש הוצאת @subCatsTotalsStory[worstSavingIndex].currentMonthTotal₪ על @worstSavingSubCat, @worstSavingValue₪ יותר מחודש שעבר! </p>
+            </div>
+            }
+            else if (storyNav == 2 && tagsSpendingsList.Count > 0)
+            {
+            <div @onclick="NextStory">
 
-                        <h3>התגיות עם הכי הרבה הוצאות</h3>
-                        <ol>
-                        @foreach (TagsAndSpendingsToShow tag in tagsSpendingsList)
-                        {
-                        <li>הוצאת על @tag.tagTitle @tag.totalValue ₪</li>
-                        }
-                        </ol>
-                        </div>
+            <h3>התגיות עם הכי הרבה הוצאות</h3>
+            <ol>
+            @foreach (TagsAndSpendingsToShow tag in tagsSpendingsList)
+            {
+            <li>הוצאת על @tag.tagTitle @tag.totalValue ₪</li>
+            }
+            </ol>
+            </div>
 
-                        }
-                        else if (storyNav == 3)
-                        {
-                        <div @onclick="NextStory">
-                        <h3>התזרים שלי עד כה החודש</h3>
-                        <p>פילוח ההוצאות שלך לפי קטגוריות</p>
-                        <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
-                        @if (incomeSum != null)
-                        {
-                        <p>ההכנסות שלך עומדות כרגע על @incomeSum ₪</p>
+            }
+            else if (storyNav == 3)
+            {
+            <div @onclick="NextStory">
+            <h3>התזרים שלי עד כה החודש</h3>
+            <p>פילוח ההוצאות שלך לפי קטגוריות</p>
+            <MonthlyStoryGraphComponent userID="@userID" allUserCategories="@currentUser.categoriesFullList" incomeSumValue="displayTotalIncome"></MonthlyStoryGraphComponent>
+            @if (incomeSum != null)
+            {
+            <p>ההכנסות שלך עומדות כרגע על @incomeSum ₪</p>
 
-                        }
-                        else
-                        {
-                        <p>לא הוזנו הכנסות בחודש זה.</p>
-                        }
-                        </div>*@
+            }
+            else
+            {
+            <p>לא הוזנו הכנסות בחודש זה.</p>
+            }
+            </div>*@
 
 
 
@@ -480,21 +480,21 @@ else
                     {
                         <div class="fullCategory">
                             <CategoryComponent Category=category
-                                               categoryTitle="@category.categroyTitle"
-                                               icon="@category.icon"
-                                               categoryColor="@category.color"
-                                               doRefresh="@doRefresh"
-                                               userID="@userID"
-                                               deleteCat="@removeCat"
-                                               subCatRefreshed="@accordionRefresh"
-                                               givingSubCatBudget="@changeGivingSubCatBudget"
-                                               givingSubCat="@givingSubCatToUpdate"
-                                               searchedSubCats="@relevantSubCats"
-                                               isSubCatSearched="@makeSearchAgain" categoryTypeIndicator="@isChecked"
-                                               closeOverlay="openEditCategoryOverlay"
-                                               closeEdit="closeEdit"
-                                               closeDelete="closeDelete"
-                                               updatedStreakStat="updateStreak">
+                           categoryTitle="@category.categroyTitle"
+                           icon="@category.icon"
+                           categoryColor="@category.color"
+                           doRefresh="@doRefresh"
+                           userID="@userID"
+                           deleteCat="@removeCat"
+                           subCatRefreshed="@accordionRefresh"
+                           givingSubCatBudget="@changeGivingSubCatBudget"
+                           givingSubCat="@givingSubCatToUpdate"
+                           searchedSubCats="@relevantSubCats"
+                           isSubCatSearched="@makeSearchAgain" categoryTypeIndicator="@isChecked"
+                           closeOverlay="openEditCategoryOverlay"
+                           closeEdit="closeEdit"
+                           closeDelete="closeDelete"
+                           updatedStreakStat="updateStreak">
                             </CategoryComponent>
                         </div>
 
@@ -508,57 +508,120 @@ else
             }
         }
 
-     @*   <div id="@hideNav" class="bottom-nav" @ref="navBar">
-            <button class="navBtn">מבט לעבר<img src="../css/images/past.svg" /></button>
-            <div class="NavLines"> </div>
-            <button class="navBtn" style="font-weight:600">מבט להווה<img src="../css/images/present.svg" /></button>
-            <div class="NavLines"> </div>
-            <button class="navBtn">מבט לעתיד<img src="../css/images/future.svg" /></button>
-        </div>*@
+        @*   <div id="@hideNav" class="bottom-nav" @ref="navBar">
+    <button class="navBtn">מבט לעבר<img src="../css/images/past.svg" /></button>
+    <div class="NavLines"> </div>
+    <button class="navBtn" style="font-weight:600">מבט להווה<img src="../css/images/present.svg" /></button>
+    <div class="NavLines"> </div>
+    <button class="navBtn">מבט לעתיד<img src="../css/images/future.svg" /></button>
+    </div>*@
     }
 
     @if (currentUser == null && isOnInitializedOver)
     {
-        <div>
-            <div>
-                <p>
-                    אז אנחנו Count On It,
-                    אבל כל החבר׳ה קוראים לנו COI.
+        <div class="megaOuterLay">
+            <div class="outerLay">
+                <div class="overlay">
+                    <div class="paddingDiv">
 
-                    אנחנו אפליקציה לניהול תקציב מבית איה תמרי - יועצת
-                    פיננסית לכלכלת המשפחה.
-                    אנחנו כאן ללוות אותך בדרך לניהול תקציב נכון.
-                    ועכשיו קצת עלייך :)
-                </p>
+                        <div class="outerTitleAndIcon">
+                            <div>
+                                <img src="../css/images/light logo small.svg" />
+                                <div>
+                                    אפליקציה לניהול תקציב מבית איה תמרי
+  אנחנו כאן ללוות אותך בדרך לניהול תקציב נכון
+                                </div>
+                            </div>
+                            <div>
+                                <input class="catTitle" type="text" @bind=newUser.firstName placeholder=" שם פרטי:" />
+                                <input class="catTitle" type="text" @bind=newUser.lastName placeholder=" שם משפחה:" />
+                                @*@if (titleInput == null || titleInput == "")
+                                {
+                                    <span style="color:red">0/17</span>
+                                }
+                                else
+                                {
+                                    if (titleInput.Length < 2 || titleInput.Length > 18)
+                                    {
+
+                                        <span style="color:red">@titleInputLength/18</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@titleInputLength/18</span>
+
+                                    }
+                                }*@
+
+                                <div class="keyBoardAndBtn">
+                                    <span class="catTitle">אייקון הפרופיל שלי</span>
+                                    <div class="outerCancleAndEmoji">
+                                        @if (isCancleBtnClicked)
+                                        {
+                                            <button @onclick="ToggleKeyboard" id="emoji-trigger"><img src="../css/images/add emoji (1).svg" /></button>
+                                        }
+                                        else
+                                        {
+                                            <button @onclick="ToggleKeyboard" id="emoji-trigger" class="@hideBtn"><img src="../css/images/add emoji (1).svg" /></button>
+                                        }
+                                        @if (noEmojiBtn)
+                                        {
+
+                                            <div class="outerCancleAndEmoji">
+                                                <button @onclick="deleteSelectedEmoji" class="cancleEmoji">ביטול בחירה</button>
+                                                <button @onclick="ToggleKeyboard" class="selectedEmoji">
+                                                    <span class="emoji">@newUser.profilePicOrIcon</span>
+                                                    <img src="../css/images/+ icon.svg" class="plusIcon" />
+                                                </button>
+                                            </div>
+
+                                        }
+                                    </div>
+
+
+                                    <div class="emoji-keyboard @visibilityClass">
+                                        <div class="emoji-categories">
+                                            @foreach (var category in emojiCategories.Keys)
+                                            {
+                                                <button class="category-button @(selectedCategory == category ? "active" : "")"
+                                                @onclick="() => SelectCategory(category)">
+                                                    @category
+                                                </button>
+                                            }
+                                        </div>
+                                        <div class="emoji-section">
+                                            @foreach (var emoji in emojiCategories[selectedCategory])
+                                            {
+                                                <span @onclick="() => SelectEmoji(emoji)" class="emoji">@emoji</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div>
+                                <p>באיזה יום התזרים החודשי שלך מתחיל?</p>
+                                @if (newUser.monthStartDate == null)
+                                {
+                                    newUser.monthStartDate = 1;
+                                }
+                                <select @bind="newUser.monthStartDate">
+                                    <option value="1">ה-1 לחודש</option>
+                                    <option value="2">ה-2 לחודש</option>
+                                    <option value="10">ה-10 לחודש</option>
+                                    <option value="15">ה-15 לחודש</option>
+
+                                </select>
+                            </div>
+
+                            <div>
+                            <button class="primery-button" @onclick="@(async () => await createNewUser())">שמירה</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <input type="text" @bind=newUser.firstName placeholder=" שם פרטי:" />
-                <input type="text" @bind=newUser.lastName placeholder=" שם משפחה:" />
-                <p>
-                    תמונת פרופיל: (לא חובה)
-                    נ.ב. אם כן, כדאי אחת מייצגת או אמוג’י
-                </p>
-                <input type="text" @bind=newUser.profilePicOrIcon placeholder="אייקון" />
-
-            </div>
-            <div>
-                <p>באיזה יום התזרים החודשי שלך מתחיל?</p>
-                @if (newUser.monthStartDate == null)
-                {
-                    newUser.monthStartDate = 1;
-                }
-                <select @bind="newUser.monthStartDate">
-                    <option value="1">ה-1 לחודש</option>
-                    <option value="2">ה-2 לחודש</option>
-                    <option value="10">ה-10 לחודש</option>
-                    <option value="15">ה-15 לחודש</option>
-
-                </select>
-            </div>
-
-            <button @onclick="@(async () => await createNewUser())">שמירה</button>
-
-
         </div>
 
     }
@@ -585,8 +648,12 @@ else
     private string userGoogleId;
     private bool isChecked = false;
     string msg = "";
+    string hideBtn = "";
+    bool noEmojiBtn = false;
+    private string visibilityClass => isVisible ? "visible" : "";
     string searchQuery = "";
     string currentSearch = "";
+    string titleInput = "";
     string hideNav => isScrollingDown ? "nav-hidden" : "bottomNav";
     //string BgOverlay => isOverlay ? "BgOverlay" : "";
     string BgOverlay = "";
@@ -602,6 +669,7 @@ else
     bool isScrollingDown = false;
     bool isOverlay = false;
     bool isEditOverlay = false;
+    bool isCancleBtnClicked = false;
     //bool makeSearchAgain = false;
     //bool isThereCategories => currentUser.categoriesFullList == null || currentUser.categoriesFullList.Count == 0;
 
@@ -645,6 +713,31 @@ else
     "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
     };
     int nextStreakStatIn = 0;
+
+    private bool isVisible = false;
+    private string selectedCategory = "כללי";
+    private Dictionary<string, List<string>> emojiCategories = new Dictionary<string, List<string>>
+    {
+        {"כללי", new List<string> {
+                "🏠", "🛏️", "🚿", "💡", "📞", "🖥️", "🚗", "🚌", "🛒", "🍲",
+                "🏥", "💊", "👕", "🧹", "🧺", "🍼", "🐶", "🧑‍🔧", "📚", "🧾",
+                "🕶️", "🌂", "🔑", "📦"
+            }},
+        {"כיף", new List<string> {
+                "🎭", "🎟️", "🎮", "🎨", "📸", "🍽️", "🏋️‍♂️", "🧘", "🎸", "✈️",
+                "🏕️", "🛍️", "🍷", "🎁", "🎈", "📖", "🍰", "🌐", "🕹️", "🚤",
+                "🚵", "🛀", "🎷", "🎙️"
+            }},
+        {"פיננסי", new List<string> {
+             "💳",
+        "🏦", "💰", "🪙", "💸", "💹",
+        "📈", "📉", "📊", "💲", "🏧",
+        "🧾", "💱", "💲", "💹", "🏦",
+        "🖋️", "💎", "📜", "🏧",
+        "📅", "🖥️", "🖨️", "🔍"
+            }}
+    };
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -1306,6 +1399,39 @@ else
     public void Dispose()
     {
         JSRuntime.InvokeVoidAsync("navScroll.dispose");
+    }
+
+    private void SelectEmoji(string emoji)
+    {
+        //Console.WriteLine($"Emoji selected: {emoji}"); // Replace this with actual logic
+        noEmojiBtn = true;
+        isCancleBtnClicked = false;
+        hideBtn = "hideDefaultEmojiBtn";
+        newUser.profilePicOrIcon = emoji;
+    }
+
+    private void deleteSelectedEmoji()
+    {
+        isCancleBtnClicked = true;
+        noEmojiBtn = false;
+        newUser.profilePicOrIcon = "";
+        hideBtn = "";
+    }
+
+     private void ToggleKeyboard()
+    {
+        isVisible = !isVisible;
+    }
+
+    private void titleLengthCounter(ChangeEventArgs e)
+    {
+        titleInput = e.Value.ToString();
+        titleInputLength = titleInput.Length;
+    }
+
+    private void SelectCategory(string category)
+    {
+        selectedCategory = category;
     }
 
 }
