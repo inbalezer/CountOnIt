@@ -20,18 +20,32 @@
             <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
         }
     </div>
-    
+
     <div class="budget-header">
         <div class="textAndLine">
-            <h3 class="subCatTitle">@subCategoryTitle</h3>
+            <div class="outerTitleAndOverdraft">
+                <h3 class="subCatTitle">
+                    @subCategoryTitle
+
+                </h3>
+                @if (totalSpendings > budget)
+                {
+                    isOverdraft = true;
+                    <span>⚠️</span>
+                }
+            </div>
+
             <div class="subCatLine">
             </div>
         </div>
 
+
+
         <div class="closedAndOpenMenu">
-            <button class="options-button" @onclick="(() => isOptBtnClicked = !isOptBtnClicked)"><img src="../css/images/option menu.svg"/></button>
-           
+            <button class="options-button" @onclick="(() => isOptBtnClicked = !isOptBtnClicked)"><img src="../css/images/option menu.svg" /></button>
+
         </div>
+
 
     </div>
 
@@ -42,11 +56,7 @@
             <button class="budget-progress" @onclick="goToTransactionsPage">
                 @budget /  @Math.Round(totalSpendings,2) ₪
             </button>
-            @if (totalSpendings > budget)
-            {
-                isOverdraft = true;
-                <span>⚠️</span>
-            }
+
             <button class="add-transaction-button" @onclick="openAddTransOverlay"><img src="../css/images/+2.svg" /></button>
         }
         else
@@ -165,10 +175,10 @@
 
             </div>
         </div>
-        </div>
-       @* <div>
+    </div>
+    @* <div>
             <label for="importance">עדיפות תת הקטגוריה</label>
-           
+
                 @if (subCatToEdit.importance == 0)
                 {
                 <input type="radio"
@@ -412,7 +422,7 @@
 
     public void goToTransactionsPage()
     {
-        
+
         nav.NavigateTo("./TransactionsOverview/" + subCategoryIDToGet + "/" + categoryID + "/" + budget + "/" + userID + "/" + isOverdraft);
     }
 
@@ -431,6 +441,6 @@
 
     public async Task addSubCategoryAndTransaction()
     {
-        
+
     }
 }
