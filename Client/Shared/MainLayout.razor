@@ -1,18 +1,49 @@
 ﻿@inherits LayoutComponentBase
+@inject IJSRuntime JSRuntime
+@implements IDisposable
 
-<div style="background-color:#EDEFF7">
+<div>
     @*<div class="sidebar">
         <NavMenu />
     </div>
 *@
     <main>  
-        <div class="top-row auth">
+        
             <LoginDisplay />
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
+            @*<a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>*@
+       
 
         <article>
             @Body
         </article>
+
+        <div id="@hideNav" class="bottom-nav" @ref="navBar">
+            <button class="navBtn">מבט לעבר<img src="../css/images/past.svg" /></button>
+            <div class="NavLines"> </div>
+            <button class="navBtn" style="font-weight:600">מבט להווה<img src="../css/images/present.svg" /></button>
+            <div class="NavLines"> </div>
+            <button class="navBtn">מבט לעתיד<img src="../css/images/future.svg" /></button>
+        </div>
     </main>
 </div>
+
+@code{
+    bool isScrollingDown = false;
+    string hideNav => isScrollingDown ? "nav-hidden" : "bottomNav";
+
+    private ElementReference navBar;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("navScroll.init", navBar);
+        }
+    }
+
+    public void Dispose()
+    {
+        JSRuntime.InvokeVoidAsync("navScroll.dispose");
+    }
+
+}
