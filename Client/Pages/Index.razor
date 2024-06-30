@@ -529,29 +529,29 @@ else
                                 <img src="../css/images/light logo small.svg" />
                                 <div>
                                     אפליקציה לניהול תקציב מבית איה תמרי
-  אנחנו כאן ללוות אותך בדרך לניהול תקציב נכון
+                                    אנחנו כאן ללוות אותך בדרך לניהול תקציב נכון
                                 </div>
                             </div>
                             <div>
                                 <input class="catTitle" type="text" @bind=newUser.firstName placeholder=" שם פרטי:" />
                                 <input class="catTitle" type="text" @bind=newUser.lastName placeholder=" שם משפחה:" />
                                 @*@if (titleInput == null || titleInput == "")
-                                {
-                                    <span style="color:red">0/17</span>
-                                }
-                                else
-                                {
-                                    if (titleInput.Length < 2 || titleInput.Length > 18)
-                                    {
+                            {
+                            <span style="color:red">0/17</span>
+                            }
+                            else
+                            {
+                            if (titleInput.Length < 2 || titleInput.Length > 18)
+                            {
 
-                                        <span style="color:red">@titleInputLength/18</span>
-                                    }
-                                    else
-                                    {
-                                        <span>@titleInputLength/18</span>
+                            <span style="color:red">@titleInputLength/18</span>
+                            }
+                            else
+                            {
+                            <span>@titleInputLength/18</span>
 
-                                    }
-                                }*@
+                            }
+                            }*@
 
                                 <div class="keyBoardAndBtn">
                                     <span class="catTitle">אייקון הפרופיל שלי</span>
@@ -600,841 +600,846 @@ else
 
 
                             </div>
-                            <div>
-                                <p>באיזה יום התזרים החודשי שלך מתחיל?</p>
-                                @if (newUser.monthStartDate == null)
-                                {
-                                    newUser.monthStartDate = 1;
-                                }
-                                <select @bind="newUser.monthStartDate">
-                                    <option value="1">ה-1 לחודש</option>
-                                    <option value="2">ה-2 לחודש</option>
-                                    <option value="10">ה-10 לחודש</option>
-                                    <option value="15">ה-15 לחודש</option>
-
-                                </select>
+                            <div>                                                              
+                                <div>יום תחילת תזרים:</div>
+                                <div>
+                                    <div>
+                                        <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=1)">ה-1 לחודש</button>
+                                        <div class="divider"></div>
+                                        <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=2)">ה-2 לחודש</button>
+                                        <div class="divider"></div>
+                                        <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=10)">ה-10 לחודש</button>
+                                        <div class="divider"></div>
+                                        <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=15)">ה-15 לחודש</button>
+                                    </div>
+                                           
+                                    <select @bind="currentUser.monthStartDate">
+                                        <option value="ה-1 לחודש" @onclick="@(()=>currentUser.monthStartDate=1)"></option>
+                                        <option value="ה-2 לחודש" @onclick="@(()=>currentUser.monthStartDate=2)"></option>
+                                        <option value="ה-10 לחודש" @onclick="@(()=>currentUser.monthStartDate=10)"></option>
+                                        <option value="ה-15 לחודש" @onclick="@(()=>currentUser.monthStartDate=15)"></option>
+                                    </select>
+                                </div>                                                            
                             </div>
-
                             <div>
-                            <button class="primery-button" @onclick="@(async () => await createNewUser())">שמירה</button>
+                                <button class="primery-button" @onclick="@(async () => await createNewUser())">שמירה                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            }
         </div>
 
-    }
-</div>
 
 
+        @code {
 
-@code {
+            [Parameter]
+            public int userID { get; set; }
 
-    [Parameter]
-    public int userID { get; set; }
+            userToShow currentUser;
+            UserToAdd newUser = new UserToAdd();
+            CategoryToShow defaultCategory = new CategoryToShow();
+            List<CategoryToShow> searchCats = new List<CategoryToShow>();
+            List<SubCategoryToAdd> searchSubCats = new List<SubCategoryToAdd>();
+            List<SubCategoryToAdd> finalsearchSubCats = new List<SubCategoryToAdd>();
+            List<int> subCatsToSearchIds = new List<int>();
 
-    userToShow currentUser;
-    UserToAdd newUser = new UserToAdd();
-    CategoryToShow defaultCategory = new CategoryToShow();
-    List<CategoryToShow> searchCats = new List<CategoryToShow>();
-    List<SubCategoryToAdd> searchSubCats = new List<SubCategoryToAdd>();
-    List<SubCategoryToAdd> finalsearchSubCats = new List<SubCategoryToAdd>();
-    List<int> subCatsToSearchIds = new List<int>();
-
-    Dictionary<CategoryToShow, List<int>> categorizedSubCats = new Dictionary<CategoryToShow, List<int>>();
+            Dictionary<CategoryToShow, List<int>> categorizedSubCats = new Dictionary<CategoryToShow, List<int>>();
 
     private string currentMonth;
-    private string userGoogleId;
-    private bool isChecked = false;
-    string msg = "";
-    string hideBtn = "";
-    bool noEmojiBtn = false;
-    private string visibilityClass => isVisible ? "visible" : "";
-    string searchQuery = "";
-    string currentSearch = "";
-    string titleInput = "";
-    string hideNav => isScrollingDown ? "nav-hidden" : "bottomNav";
-    //string BgOverlay => isOverlay ? "BgOverlay" : "";
-    string BgOverlay = "";
-    int newCurrentUserId;
-    int categoryIdToSend;
-    int tagCounter = 0;
-    private int refreshKey;
+        private string userGoogleId;
+        private bool isChecked = false;
+        string msg = "";
+        string hideBtn = "";
+        bool noEmojiBtn = false;
+        private string visibilityClass => isVisible ? "visible" : "";
+        string searchQuery = "";
+        string currentSearch = "";
+        string titleInput = "";
+        string hideNav => isScrollingDown ? "nav-hidden" : "bottomNav";
+        //string BgOverlay => isOverlay ? "BgOverlay" : "";
+        string BgOverlay = "";
+        int newCurrentUserId;
+        int categoryIdToSend;
+        int tagCounter = 0;
+        private int refreshKey;
 
-    bool doRefresh = false;
-    bool isOnInitializedOver = false;
-    bool accordionRefresh = true;
-    bool toSearch = false;
-    bool isScrollingDown = false;
-    bool isOverlay = false;
-    bool isEditOverlay = false;
-    bool isCancleBtnClicked = false;
-    //bool makeSearchAgain = false;
-    //bool isThereCategories => currentUser.categoriesFullList == null || currentUser.categoriesFullList.Count == 0;
-
-
+        bool doRefresh = false;
+        bool isOnInitializedOver = false;
+        bool accordionRefresh = true;
+        bool toSearch = false;
+        bool isScrollingDown = false;
+        bool isOverlay = false;
+        bool isEditOverlay = false;
+        bool isCancleBtnClicked = false;
+        //bool makeSearchAgain = false;
+        //bool isThereCategories => currentUser.categoriesFullList == null || currentUser.categoriesFullList.Count == 0;
 
 
-    public bool storyPopUpWindow = false;
-    List<StorySubCategoryTotals> subCatsTotalsStory = new List<StorySubCategoryTotals>();
-    string bestSavingSubCat = "";
-    string worstSavingSubCat = "";
-    int bestSavingIndex = 0;
-    int worstSavingIndex = 0;
-    double bestSavingValue = 0;
-    double worstSavingValue = 0;
-    int storyNav = 1;
-    List<TagsAndSpendingsToShow> tagsSpendingsList = new List<TagsAndSpendingsToShow>();
-    double incomeSum = 0;
 
 
-    CategoryToShow userIncomeCat = new CategoryToShow();
+        public bool storyPopUpWindow = false;
+        List<StorySubCategoryTotals> subCatsTotalsStory = new List<StorySubCategoryTotals>();
+        string bestSavingSubCat = "";
+        string worstSavingSubCat = "";
+        int bestSavingIndex = 0;
+        int worstSavingIndex = 0;
+        double bestSavingValue = 0;
+        double worstSavingValue = 0;
+        int storyNav = 1;
+        List<TagsAndSpendingsToShow> tagsSpendingsList = new List<TagsAndSpendingsToShow>();
+        double incomeSum = 0;
 
-    CategoryToShow catToDelete = new CategoryToShow();
 
-    CategoryToAdd newCategory = new CategoryToAdd();
-    bool openAddCatOverlay = false;
+        CategoryToShow userIncomeCat = new CategoryToShow();
 
-    OverDraftBudgetToEdit givingSubCatToUpdate = new OverDraftBudgetToEdit();
-    public int givingsubCatCategoryID = 0;
+        CategoryToShow catToDelete = new CategoryToShow();
+
+        CategoryToAdd newCategory = new CategoryToAdd();
+        bool openAddCatOverlay = false;
+
+        OverDraftBudgetToEdit givingSubCatToUpdate = new OverDraftBudgetToEdit();
+        public int givingsubCatCategoryID = 0;
 
 
-    List<SubCategoryToShow> incomeSubCats = new List<SubCategoryToShow>();
+        List<SubCategoryToShow> incomeSubCats = new List<SubCategoryToShow>();
 
-    UserStreakData currentStreak = new UserStreakData();
-    string streakStatTitle = "";
-    bool streakOverlay = false;
-    string streakImgSrc = "";
-    string streakImgIcon = "";
-    int weeklyTransAmount = 0;
-    List<string> streakStatusOpt = new List<string>()
-{
+        UserStreakData currentStreak = new UserStreakData();
+        string streakStatTitle = "";
+        bool streakOverlay = false;
+        string streakImgSrc = "";
+        string streakImgIcon = "";
+        int weeklyTransAmount = 0;
+        List<string> streakStatusOpt = new List<string>()
+    {
     "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
     };
-    int nextStreakStatIn = 0;
+        int nextStreakStatIn = 0;
 
-    private bool isVisible = false;
-    private string selectedCategory = "כללי";
-    private Dictionary<string, List<string>> emojiCategories = new Dictionary<string, List<string>>
+        private bool isVisible = false;
+        private string selectedCategory = "כללי";
+        private Dictionary<string, List<string>> emojiCategories = new Dictionary<string, List<string>>
     {
-        {"כללי", new List<string> {
-                "🏠", "🛏️", "🚿", "💡", "📞", "🖥️", "🚗", "🚌", "🛒", "🍲",
-                "🏥", "💊", "👕", "🧹", "🧺", "🍼", "🐶", "🧑‍🔧", "📚", "🧾",
-                "🕶️", "🌂", "🔑", "📦"
-            }},
-        {"כיף", new List<string> {
-                "🎭", "🎟️", "🎮", "🎨", "📸", "🍽️", "🏋️‍♂️", "🧘", "🎸", "✈️",
-                "🏕️", "🛍️", "🍷", "🎁", "🎈", "📖", "🍰", "🌐", "🕹️", "🚤",
-                "🚵", "🛀", "🎷", "🎙️"
-            }},
-        {"פיננסי", new List<string> {
-             "💳",
-        "🏦", "💰", "🪙", "💸", "💹",
-        "📈", "📉", "📊", "💲", "🏧",
-        "🧾", "💱", "💲", "💹", "🏦",
-        "🖋️", "💎", "📜", "🏧",
-        "📅", "🖥️", "🖨️", "🔍"
-            }}
+    {"כללי", new List<string> {
+    "🏠", "🛏️", "🚿", "💡", "📞", "🖥️", "🚗", "🚌", "🛒", "🍲",
+    "🏥", "💊", "👕", "🧹", "🧺", "🍼", "🐶", "🧑‍🔧", "📚", "🧾",
+    "🕶️", "🌂", "🔑", "📦"
+    }},
+    {"כיף", new List<string> {
+    "🎭", "🎟️", "🎮", "🎨", "📸", "🍽️", "🏋️‍♂️", "🧘", "🎸", "✈️",
+    "🏕️", "🛍️", "🍷", "🎁", "🎈", "📖", "🍰", "🌐", "🕹️", "🚤",
+    "🚵", "🛀", "🎷", "🎙️"
+    }},
+    {"פיננסי", new List<string> {
+    "💳",
+    "🏦", "💰", "🪙", "💸", "💹",
+    "📈", "📉", "📊", "💲", "🏧",
+    "🧾", "💱", "💲", "💹", "🏦",
+    "🖋️", "💎", "📜", "🏧",
+    "📅", "🖥️", "🖨️", "🔍"
+    }}
     };
 
 
-    protected override async Task OnInitializedAsync()
-    {
-        await Task.Delay(1); // This is just to simulate an async process.
-
-        int currentMonthNumber = DateTime.Now.Month; // Gets the current month number
-        currentMonth = GetHebrewMonthName(currentMonthNumber);
-        StateHasChanged();
-
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity.IsAuthenticated)
+        protected override async Task OnInitializedAsync()
         {
-            userGoogleId = user.FindFirst("sub")?.Value;
-            isOnInitializedOver = true;
+            await Task.Delay(1); // This is just to simulate an async process.
 
-            var userRes = await Http.GetAsync("api/Present/userToShow/" + userGoogleId);
+            int currentMonthNumber = DateTime.Now.Month; // Gets the current month number
+            currentMonth = GetHebrewMonthName(currentMonthNumber);
+            StateHasChanged();
 
-            if (userRes.IsSuccessStatusCode)
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity.IsAuthenticated)
             {
-                currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
-                userID = currentUser.id;
-                searchCats = currentUser.categoriesFullList;
-                getCurrentStreak();
-                Console.WriteLine("current streak status- " + currentUser.streakStatus);
+                userGoogleId = user.FindFirst("sub")?.Value;
+                isOnInitializedOver = true;
 
-                var subCatToSearch = await Http.GetAsync("api/Present/getSubCategoryTitle/" + userID);
+                var userRes = await Http.GetAsync("api/Present/userToShow/" + userGoogleId);
 
-                if (subCatToSearch.IsSuccessStatusCode)
+                if (userRes.IsSuccessStatusCode)
                 {
-                    List<SubCategoryToAdd> subCatId = subCatToSearch.Content.ReadFromJsonAsync<List<SubCategoryToAdd>>().Result;
-                    searchSubCats = subCatId;
+                    currentUser = userRes.Content.ReadFromJsonAsync<userToShow>().Result;
+                    userID = currentUser.id;
+                    searchCats = currentUser.categoriesFullList;
+                    getCurrentStreak();
+                    Console.WriteLine("current streak status- " + currentUser.streakStatus);
 
-                }
-                else
-                {
-                    Console.WriteLine("couldn't find any sub categories");
-                }
+                    var subCatToSearch = await Http.GetAsync("api/Present/getSubCategoryTitle/" + userID);
 
-                var getIncomeCatID = await Http.GetAsync("api/Present/incomeCatId/" + userID);
-                if (getIncomeCatID.IsSuccessStatusCode)
-                {
-                    int incomeID = await getIncomeCatID.Content.ReadFromJsonAsync<int>();
-                    if (incomeID > 0)
+                    if (subCatToSearch.IsSuccessStatusCode)
                     {
-                        for (int i = 0; i < currentUser.categoriesFullList.Count; i++)
-                        {
-                            if (currentUser.categoriesFullList[i].id == incomeID)
-                            {
-                                userIncomeCat = currentUser.categoriesFullList[i];
-                                currentUser.categoriesFullList.RemoveAt(i);
-                            }
+                        List<SubCategoryToAdd> subCatId = subCatToSearch.Content.ReadFromJsonAsync<List<SubCategoryToAdd>>().Result;
+                        searchSubCats = subCatId;
 
-                        }
                     }
                     else
                     {
-                        Console.WriteLine("insufficient income id- it's not larger than 0");
+                        Console.WriteLine("couldn't find any sub categories");
+                    }
+
+                    var getIncomeCatID = await Http.GetAsync("api/Present/incomeCatId/" + userID);
+                    if (getIncomeCatID.IsSuccessStatusCode)
+                    {
+                        int incomeID = await getIncomeCatID.Content.ReadFromJsonAsync<int>();
+                        if (incomeID > 0)
+                        {
+                            for (int i = 0; i < currentUser.categoriesFullList.Count; i++)
+                            {
+                                if (currentUser.categoriesFullList[i].id == incomeID)
+                                {
+                                    userIncomeCat = currentUser.categoriesFullList[i];
+                                    currentUser.categoriesFullList.RemoveAt(i);
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("insufficient income id- it's not larger than 0");
+                        }
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("couldn't find income category that belongs to this user");
                     }
 
                 }
                 else
                 {
-                    Console.WriteLine("couldn't find income category that belongs to this user");
-                }
+                    string error = userRes.Content.ReadAsStringAsync().Result;
+                    switch (error)
+                    {
+                        case "User Not Found":
+                            msg = "User not found ";
+                            break;
+                    }
 
+                }
             }
             else
             {
-                string error = userRes.Content.ReadAsStringAsync().Result;
-                switch (error)
+                msg = "user not authenticated";
+            }
+        }
+
+        private async Task getCurrentStreak()
+        {
+            var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
+            if (getCurrentStatRes.IsSuccessStatusCode)
+            {
+                streakStatTitle = await getCurrentStatRes.Content.ReadAsStringAsync();
+                switch (streakStatTitle) //will fill the related streak image route
                 {
-                    case "User Not Found":
-                        msg = "User not found ";
+                    case "מטבע ארד":
+
+                        streakImgIcon = "../css/images/bronzeCoin.svg";
+
+                        break;
+                    case "מטבע כסף":
+
+                        streakImgIcon = "../css/images/silverCoin.svg";
+
+                        break;
+                    case "מטבע זהב":
+
+                        streakImgIcon = "../css/images/goldCoin.svg";
+
+                        break;
+                    case "שטר":
+
+                        streakImgIcon = "../css/images/singleCashNote.svg";
+
+                        break;
+                    case "שטרות":
+
+                        streakImgIcon = "../css/images/cashNotes.svg";
+
+                        break;
+                    case "גביע":
+
+                        streakImgIcon = "../css/images/goblet.svg";
+
+                        break;
+                    case "יהלום":
+
+                        streakImgIcon = "../css/images/diamond.svg";
+
+                        break;
+                    default:
+                        Console.WriteLine("no picture is associated with this streak");
+                        streakImgIcon = "";
+
                         break;
                 }
-
             }
         }
-        else
-        {
-            msg = "user not authenticated";
-        }
-    }
 
-    private async Task getCurrentStreak()
-    {
-        var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
-        if (getCurrentStatRes.IsSuccessStatusCode)
+
+
+        private string GetHebrewMonthName(int monthNumber)
         {
-            streakStatTitle = await getCurrentStatRes.Content.ReadAsStringAsync();
-            switch (streakStatTitle) //will fill the related streak image route
+            switch (monthNumber)
             {
-                case "מטבע ארד":
-
-                    streakImgIcon = "../css/images/bronzeCoin.svg";
-
-                    break;
-                case "מטבע כסף":
-
-                    streakImgIcon = "../css/images/silverCoin.svg";
-
-                    break;
-                case "מטבע זהב":
-
-                    streakImgIcon = "../css/images/goldCoin.svg";
-
-                    break;
-                case "שטר":
-
-                    streakImgIcon = "../css/images/singleCashNote.svg";
-
-                    break;
-                case "שטרות":
-
-                    streakImgIcon = "../css/images/cashNotes.svg";
-
-                    break;
-                case "גביע":
-
-                    streakImgIcon = "../css/images/goblet.svg";
-
-                    break;
-                case "יהלום":
-
-                    streakImgIcon = "../css/images/diamond.svg";
-
-                    break;
+                case 1:
+                    return "ינואר";
+                case 2:
+                    return "פברואר";
+                case 3:
+                    return "מרץ";
+                case 4:
+                    return "אפריל";
+                case 5:
+                    return "מאי";
+                case 6:
+                    return "יוני";
+                case 7:
+                    return "יולי";
+                case 8:
+                    return "אוגוסט";
+                case 9:
+                    return "ספטמבר";
+                case 10:
+                    return "אוקטובר";
+                case 11:
+                    return "נובמבר";
+                case 12:
+                    return "דצמבר";
                 default:
-                    Console.WriteLine("no picture is associated with this streak");
-                    streakImgIcon = "";
-
-                    break;
+                    return "חודש לא תקין"; // Handle invalid month numbers
             }
         }
-    }
 
 
-
-    private string GetHebrewMonthName(int monthNumber)
-    {
-        switch (monthNumber)
+        public void refreshBudgetsOfSubCats(bool refreshBudget)
         {
-            case 1:
-                return "ינואר";
-            case 2:
-                return "פברואר";
-            case 3:
-                return "מרץ";
-            case 4:
-                return "אפריל";
-            case 5:
-                return "מאי";
-            case 6:
-                return "יוני";
-            case 7:
-                return "יולי";
-            case 8:
-                return "אוגוסט";
-            case 9:
-                return "ספטמבר";
-            case 10:
-                return "אוקטובר";
-            case 11:
-                return "נובמבר";
-            case 12:
-                return "דצמבר";
-            default:
-                return "חודש לא תקין"; // Handle invalid month numbers
-        }
-    }
-
-
-    public void refreshBudgetsOfSubCats(bool refreshBudget)
-    {
-        if (refreshBudget)
-        {
-            doRefresh = refreshBudget;
-            Nav.NavigateTo("./", true);
-        }
-    }
-
-
-
-
-    public async Task createNewUser()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity.IsAuthenticated)
-        {
-            userGoogleId = user.FindFirst("sub")?.Value;
-
-            var newUserRes = await Http.PostAsJsonAsync("api/Present/AddUser/" + userGoogleId, newUser);
-
-            if (newUserRes.IsSuccessStatusCode)
+            if (refreshBudget)
             {
+                doRefresh = refreshBudget;
+                Nav.NavigateTo("./", true);
+            }
+        }
 
-                userID = newUserRes.Content.ReadFromJsonAsync<int>().Result;
-                UserToAdd newUser = new UserToAdd();
-                isOnInitializedOver = false;
 
-                List<CategoryToAdd> defualtCategoriesList = new List<CategoryToAdd>()
-{
+
+
+        public async Task createNewUser()
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity.IsAuthenticated)
+            {
+                userGoogleId = user.FindFirst("sub")?.Value;
+
+                var newUserRes = await Http.PostAsJsonAsync("api/Present/AddUser/" + userGoogleId, newUser);
+
+                if (newUserRes.IsSuccessStatusCode)
+                {
+
+                    userID = newUserRes.Content.ReadFromJsonAsync<int>().Result;
+                    UserToAdd newUser = new UserToAdd();
+                    isOnInitializedOver = false;
+
+                    List<CategoryToAdd> defualtCategoriesList = new List<CategoryToAdd>()
+    {
     new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
     new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
     new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" },
     new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "🪙", color = "blue" }
     };
 
-                foreach (CategoryToAdd defualtCategory in defualtCategoriesList)
-                {
-                    var defaultCategories = await Http.PostAsJsonAsync("api/Present/AddCategory/" + defualtCategory.userID, defualtCategory);
-
-                    if (defaultCategories.IsSuccessStatusCode)
+                    foreach (CategoryToAdd defualtCategory in defualtCategoriesList)
                     {
+                        var defaultCategories = await Http.PostAsJsonAsync("api/Present/AddCategory/" + defualtCategory.userID, defualtCategory);
 
-                        defaultCategory = defaultCategories.Content.ReadFromJsonAsync<CategoryToShow>().Result;
-
-                        switch (defaultCategory.categroyTitle)
+                        if (defaultCategories.IsSuccessStatusCode)
                         {
-                            case "משק בית":
 
-                                List<SubCategoryToAdd> defaultSubCategory1List = new List<SubCategoryToAdd>()
-{
+                            defaultCategory = defaultCategories.Content.ReadFromJsonAsync<CategoryToShow>().Result;
+
+                            switch (defaultCategory.categroyTitle)
+                            {
+                                case "משק בית":
+
+                                    List<SubCategoryToAdd> defaultSubCategory1List = new List<SubCategoryToAdd>()
+    {
     new SubCategoryToAdd{subCategoryTitle = "חשבונות", categoryID = defaultCategory.id},
     new SubCategoryToAdd{subCategoryTitle = "מזון", categoryID = defaultCategory.id}
     };
 
-                                foreach (SubCategoryToAdd defaultSubCategory1 in defaultSubCategory1List)
-                                {
-                                    var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory1);
-
-                                    if (defaultCategories.IsSuccessStatusCode)
+                                    foreach (SubCategoryToAdd defaultSubCategory1 in defaultSubCategory1List)
                                     {
-                                        msg = "ווהוו לא מעניין את מלכית";
-                                    }
-                                    else
-                                    {
-                                        msg = "לא ווהו, כן מעניין את מלכית";
-                                    }
-                                }
-                                // Code for when number is 1
-                                break;
-                            case "רכב ותחבורה":
+                                        var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory1);
 
-                                List<SubCategoryToAdd> defaultSubCategory2List = new List<SubCategoryToAdd>()
-{
+                                        if (defaultCategories.IsSuccessStatusCode)
+                                        {
+                                            msg = "ווהוו לא מעניין את מלכית";
+                                        }
+                                        else
+                                        {
+                                            msg = "לא ווהו, כן מעניין את מלכית";
+                                        }
+                                    }
+                                    // Code for when number is 1
+                                    break;
+                                case "רכב ותחבורה":
+
+                                    List<SubCategoryToAdd> defaultSubCategory2List = new List<SubCategoryToAdd>()
+    {
     new SubCategoryToAdd{subCategoryTitle = "דלק", categoryID = defaultCategory.id},
     new SubCategoryToAdd{subCategoryTitle = "תחבורה ציבורית", categoryID = defaultCategory.id}
     };
 
-                                foreach (SubCategoryToAdd defaultSubCategory2 in defaultSubCategory2List)
-                                {
-                                    var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory2);
+                                    foreach (SubCategoryToAdd defaultSubCategory2 in defaultSubCategory2List)
+                                    {
+                                        var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory2);
 
-                                    if (defaultCategories.IsSuccessStatusCode)
-                                    {
-                                        msg = "ווהוו לא מעניין את מלכית";
+                                        if (defaultCategories.IsSuccessStatusCode)
+                                        {
+                                            msg = "ווהוו לא מעניין את מלכית";
+                                        }
+                                        else
+                                        {
+                                            msg = "לא ווהו, כן מעניין את מלכית";
+                                        }
                                     }
-                                    else
-                                    {
-                                        msg = "לא ווהו, כן מעניין את מלכית";
-                                    }
-                                }
-                                break;
-                            case "בריאות וטיפוח":
-                                List<SubCategoryToAdd> defaultSubCategory3List = new List<SubCategoryToAdd>()
-{
+                                    break;
+                                case "בריאות וטיפוח":
+                                    List<SubCategoryToAdd> defaultSubCategory3List = new List<SubCategoryToAdd>()
+    {
     new SubCategoryToAdd{subCategoryTitle = "קופת חולים", categoryID = defaultCategory.id},
     new SubCategoryToAdd{subCategoryTitle = "טואלטיקה", categoryID = defaultCategory.id}
     };
 
-                                foreach (SubCategoryToAdd defaultSubCategory3 in defaultSubCategory3List)
-                                {
-                                    var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory3);
+                                    foreach (SubCategoryToAdd defaultSubCategory3 in defaultSubCategory3List)
+                                    {
+                                        var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory3);
 
-                                    if (defaultCategories.IsSuccessStatusCode)
-                                    {
-                                        msg = "ווהוו לא מעניין את מלכית";
+                                        if (defaultCategories.IsSuccessStatusCode)
+                                        {
+                                            msg = "ווהוו לא מעניין את מלכית";
+                                        }
+                                        else
+                                        {
+                                            msg = "לא ווהו, כן מעניין את מלכית";
+                                        }
                                     }
-                                    else
-                                    {
-                                        msg = "לא ווהו, כן מעניין את מלכית";
-                                    }
-                                }
-                                break;
-                            case "הכנסות":
-                                List<SubCategoryToAdd> defaultSubCategory4List = new List<SubCategoryToAdd>()
-{
+                                    break;
+                                case "הכנסות":
+                                    List<SubCategoryToAdd> defaultSubCategory4List = new List<SubCategoryToAdd>()
+    {
     new SubCategoryToAdd{subCategoryTitle = "משכורת", categoryID = defaultCategory.id}
     };
 
-                                foreach (SubCategoryToAdd defaultSubCategory4 in defaultSubCategory4List)
-                                {
-                                    var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory4);
-
-                                    if (defaultCategories.IsSuccessStatusCode)
+                                    foreach (SubCategoryToAdd defaultSubCategory4 in defaultSubCategory4List)
                                     {
-                                        msg = "ווהוו לא מעניין את מלכית";
-                                    }
-                                    else
-                                    {
-                                        msg = "לא ווהו, כן מעניין את מלכית";
-                                    }
-                                }
-                                break;
+                                        var defaultSubCategories = await Http.PostAsJsonAsync("api/Present/AddSubCategory/", defaultSubCategory4);
 
-                            default:
-                                msg = "Error creating new sub category";
-                                break;
+                                        if (defaultCategories.IsSuccessStatusCode)
+                                        {
+                                            msg = "ווהוו לא מעניין את מלכית";
+                                        }
+                                        else
+                                        {
+                                            msg = "לא ווהו, כן מעניין את מלכית";
+                                        }
+                                    }
+                                    break;
+
+                                default:
+                                    msg = "Error creating new sub category";
+                                    break;
+                            }
+
+                            Navigation.NavigateTo("/PastHomePage");
                         }
 
-                        Navigation.NavigateTo("/PastHomePage");
+                        else
+                        {
+                            msg = "Error creating new category";
+                        }
                     }
 
-                    else
-                    {
-                        msg = "Error creating new category";
-                    }
                 }
 
+                else
+                {
+                    msg = "Error adding new user";
+                }
+            }
+        }
+
+        public void removeCat(CategoryToShow catallToDelete)
+        {
+            catToDelete = catallToDelete;
+            currentUser.categoriesFullList.Remove(catallToDelete);
+            Console.WriteLine(catToDelete);
+        }
+
+        public async Task changeGivingSubCatBudget(OverDraftBudgetToEdit givingSubCat)
+        {
+            var getCatID = await Http.GetAsync("api/Present/getGivingCatID/" + givingSubCat.id);
+            if (getCatID.IsSuccessStatusCode)
+            {
+                givingsubCatCategoryID = await getCatID.Content.ReadFromJsonAsync<int>();
+                givingSubCatToUpdate.id = givingSubCat.id;
+                givingSubCatToUpdate.monthlyPlannedBudget = givingSubCat.monthlyPlannedBudget;
+            }
+        }
+
+        public void openCategoryOverlay()
+        {
+            openAddCatOverlay = !openAddCatOverlay;
+
+        }
+
+        public void openEditCategoryOverlay()
+        {
+            BgOverlay = "BgOverlay";
+            isEditOverlay = true;
+
+        }
+
+        public void closeEdit()
+        {
+            isEditOverlay = false;
+
+        }
+        public void closeDelete()
+        {
+            isEditOverlay = false;
+            BgOverlay = "BgOverlay";
+        }
+
+        public void AddNewCat(CategoryToShow newCategory)
+        {
+            if (newCategory != null)
+            {
+                currentUser.categoriesFullList.Add(newCategory);
+            }
+        }
+
+        void UpdateSearchQuery(ChangeEventArgs e)
+        {
+            searchQuery = e.Value.ToString();
+
+            //FilterCatsOrSubCats();
+
+        }
+
+        void HandleKeyUp(KeyboardEventArgs e)
+        {
+            if (e.Key == "Enter")  // Trigger when Enter key is released
+            {
+                toSearch = true;
+
+                if (string.IsNullOrEmpty(searchQuery))
+                {
+                    finalsearchSubCats = new List<SubCategoryToAdd>();
+                }
+                FilterCatsOrSubCats();
             }
 
+        }
+
+        void FilterCatsOrSubCats()
+        {
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchCats = currentUser.categoriesFullList.Where(category => category.categroyTitle.Contains(searchQuery)).ToList();
+                finalsearchSubCats = searchSubCats.Where(subCategory => subCategory.subCategoryTitle.Contains(searchQuery)).ToList();
+
+            }
             else
             {
-                msg = "Error adding new user";
+                searchCats = null; // Show all categories if the search query is empty
+
             }
         }
-    }
 
-    public void removeCat(CategoryToShow catallToDelete)
-    {
-        catToDelete = catallToDelete;
-        currentUser.categoriesFullList.Remove(catallToDelete);
-        Console.WriteLine(catToDelete);
-    }
-
-    public async Task changeGivingSubCatBudget(OverDraftBudgetToEdit givingSubCat)
-    {
-        var getCatID = await Http.GetAsync("api/Present/getGivingCatID/" + givingSubCat.id);
-        if (getCatID.IsSuccessStatusCode)
+        void makeSearchAgain(bool filter)
         {
-            givingsubCatCategoryID = await getCatID.Content.ReadFromJsonAsync<int>();
-            givingSubCatToUpdate.id = givingSubCat.id;
-            givingSubCatToUpdate.monthlyPlannedBudget = givingSubCat.monthlyPlannedBudget;
-        }
-    }
-
-    public void openCategoryOverlay()
-    {
-        openAddCatOverlay = !openAddCatOverlay;
-
-    }
-
-    public void openEditCategoryOverlay()
-    {
-        BgOverlay = "BgOverlay";
-        isEditOverlay = true;
-
-    }
-
-    public void closeEdit()
-    {
-        isEditOverlay = false;
-
-    }
-    public void closeDelete()
-    {
-        isEditOverlay = false;
-        BgOverlay = "BgOverlay";
-    }
-
-    public void AddNewCat(CategoryToShow newCategory)
-    {
-        if (newCategory != null)
-        {
-            currentUser.categoriesFullList.Add(newCategory);
-        }
-    }
-
-    void UpdateSearchQuery(ChangeEventArgs e)
-    {
-        searchQuery = e.Value.ToString();
-
-        //FilterCatsOrSubCats();
-
-    }
-
-    void HandleKeyUp(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")  // Trigger when Enter key is released
-        {
-            toSearch = true;
-
-            if (string.IsNullOrEmpty(searchQuery))
-            {
-                finalsearchSubCats = new List<SubCategoryToAdd>();
-            }
+            filter = false;
             FilterCatsOrSubCats();
         }
 
-    }
-
-    void FilterCatsOrSubCats()
-    {
-        if (!string.IsNullOrEmpty(searchQuery))
+        public async Task getSubCatTotalsForStory()
         {
-            searchCats = currentUser.categoriesFullList.Where(category => category.categroyTitle.Contains(searchQuery)).ToList();
-            finalsearchSubCats = searchSubCats.Where(subCategory => subCategory.subCategoryTitle.Contains(searchQuery)).ToList();
-
-        }
-        else
-        {
-            searchCats = null; // Show all categories if the search query is empty
-
-        }
-    }
-
-    void makeSearchAgain(bool filter)
-    {
-        filter = false;
-        FilterCatsOrSubCats();
-    }
-
-    public async Task getSubCatTotalsForStory()
-    {
-        storyPopUpWindow = !storyPopUpWindow;
-        if (storyPopUpWindow)
-        {
-            List<SubCategoryToShow> subCategories = new List<SubCategoryToShow>();
-            subCatsTotalsStory = new List<StorySubCategoryTotals>();
-            //first story stuff:
-            if (currentUser.categoriesFullList.Count > 0)
+            storyPopUpWindow = !storyPopUpWindow;
+            if (storyPopUpWindow)
             {
-                foreach (CategoryToShow cat in currentUser.categoriesFullList)
+                List<SubCategoryToShow> subCategories = new List<SubCategoryToShow>();
+                subCatsTotalsStory = new List<StorySubCategoryTotals>();
+                //first story stuff:
+                if (currentUser.categoriesFullList.Count > 0)
                 {
-                    var getAllSubCats = await Http.GetAsync("api/Present/subCategoryToShow/" + cat.id);
-                    if (getAllSubCats.IsSuccessStatusCode)
+                    foreach (CategoryToShow cat in currentUser.categoriesFullList)
                     {
-                        List<SubCategoryToShow> subToAddList = getAllSubCats.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
-                        if (subToAddList.Count > 0)
+                        var getAllSubCats = await Http.GetAsync("api/Present/subCategoryToShow/" + cat.id);
+                        if (getAllSubCats.IsSuccessStatusCode)
                         {
-                            foreach (SubCategoryToShow subToAdd in subToAddList)
+                            List<SubCategoryToShow> subToAddList = getAllSubCats.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
+                            if (subToAddList.Count > 0)
                             {
-                                subCategories.Add(subToAdd);
-                            }
+                                foreach (SubCategoryToShow subToAdd in subToAddList)
+                                {
+                                    subCategories.Add(subToAdd);
+                                }
 
-                        }
-                        else
-                        {
-                            Console.WriteLine("couldn't get one of the sub cats for the story- returned null");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("couldn't get one of the sub cats for the story- server bad request");
-                    }
-                }
-                if (subCategories.Count > 0)
-                {
-                    foreach (SubCategoryToShow subToCheck in subCategories)
-                    {
-                        var getSubCatTotals = await Http.GetAsync("api/Present/getBestAndWorstSpendings/" + subToCheck.id);
-                        if (getSubCatTotals.IsSuccessStatusCode)
-                        {
-                            StorySubCategoryTotals requestedSubInfo = await getSubCatTotals.Content.ReadFromJsonAsync<StorySubCategoryTotals>();
-                            if (requestedSubInfo != null)
-                            {
-                                subCatsTotalsStory.Add(requestedSubInfo);
                             }
                             else
                             {
-                                Console.WriteLine("couldn't get totals of one of the sub cats for the story- returned null");
+                                Console.WriteLine("couldn't get one of the sub cats for the story- returned null");
                             }
-
                         }
                         else
                         {
-                            Console.WriteLine("couldn't get totals of one of the sub cats for the story- server bad request");
+                            Console.WriteLine("couldn't get one of the sub cats for the story- server bad request");
                         }
                     }
-                    if (subCatsTotalsStory.Count > 0)
+                    if (subCategories.Count > 0)
                     {
-                        bestSavingValue = subCatsTotalsStory[0].lastMonthTotal - subCatsTotalsStory[0].currentMonthTotal;
-                        worstSavingValue = subCatsTotalsStory[0].lastMonthTotal - subCatsTotalsStory[0].currentMonthTotal;
-
-                        for (int i = 1; i < subCatsTotalsStory.Count; i++)
+                        foreach (SubCategoryToShow subToCheck in subCategories)
                         {
-                            double gapCheck = subCatsTotalsStory[i].lastMonthTotal - subCatsTotalsStory[i].currentMonthTotal;
-                            if (gapCheck < worstSavingValue)
+                            var getSubCatTotals = await Http.GetAsync("api/Present/getBestAndWorstSpendings/" + subToCheck.id);
+                            if (getSubCatTotals.IsSuccessStatusCode)
                             {
-                                worstSavingValue = gapCheck;
-                                worstSavingIndex = i;
+                                StorySubCategoryTotals requestedSubInfo = await getSubCatTotals.Content.ReadFromJsonAsync<StorySubCategoryTotals>();
+                                if (requestedSubInfo != null)
+                                {
+                                    subCatsTotalsStory.Add(requestedSubInfo);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("couldn't get totals of one of the sub cats for the story- returned null");
+                                }
+
                             }
-                            if (gapCheck > bestSavingValue)
+                            else
                             {
-                                bestSavingValue = gapCheck;
-                                bestSavingIndex = i;
+                                Console.WriteLine("couldn't get totals of one of the sub cats for the story- server bad request");
                             }
                         }
-
-                        bestSavingSubCat = subCatsTotalsStory[bestSavingIndex].subCategoryTitle;
-                        bestSavingValue = Math.Round(subCatsTotalsStory[bestSavingIndex].lastMonthTotal - subCatsTotalsStory[bestSavingIndex].currentMonthTotal, 2);
-                        if (bestSavingValue < 0)
+                        if (subCatsTotalsStory.Count > 0)
                         {
-                            bestSavingValue *= -1;
-                        }
+                            bestSavingValue = subCatsTotalsStory[0].lastMonthTotal - subCatsTotalsStory[0].currentMonthTotal;
+                            worstSavingValue = subCatsTotalsStory[0].lastMonthTotal - subCatsTotalsStory[0].currentMonthTotal;
 
-                        worstSavingSubCat = subCatsTotalsStory[worstSavingIndex].subCategoryTitle;
-                        worstSavingValue = Math.Round(subCatsTotalsStory[worstSavingIndex].currentMonthTotal - subCatsTotalsStory[worstSavingIndex].lastMonthTotal, 2);
-                        if (worstSavingValue < 0)
-                        {
-                            worstSavingValue *= -1;
+                            for (int i = 1; i < subCatsTotalsStory.Count; i++)
+                            {
+                                double gapCheck = subCatsTotalsStory[i].lastMonthTotal - subCatsTotalsStory[i].currentMonthTotal;
+                                if (gapCheck < worstSavingValue)
+                                {
+                                    worstSavingValue = gapCheck;
+                                    worstSavingIndex = i;
+                                }
+                                if (gapCheck > bestSavingValue)
+                                {
+                                    bestSavingValue = gapCheck;
+                                    bestSavingIndex = i;
+                                }
+                            }
+
+                            bestSavingSubCat = subCatsTotalsStory[bestSavingIndex].subCategoryTitle;
+                            bestSavingValue = Math.Round(subCatsTotalsStory[bestSavingIndex].lastMonthTotal - subCatsTotalsStory[bestSavingIndex].currentMonthTotal, 2);
+                            if (bestSavingValue < 0)
+                            {
+                                bestSavingValue *= -1;
+                            }
+
+                            worstSavingSubCat = subCatsTotalsStory[worstSavingIndex].subCategoryTitle;
+                            worstSavingValue = Math.Round(subCatsTotalsStory[worstSavingIndex].currentMonthTotal - subCatsTotalsStory[worstSavingIndex].lastMonthTotal, 2);
+                            if (worstSavingValue < 0)
+                            {
+                                worstSavingValue *= -1;
+                            }
                         }
                     }
                 }
-            }
-            //second story stuff:
-            tagsSpendingsList = new List<TagsAndSpendingsToShow>();
-            var getUserSpendingsByTags = await Http.GetAsync("api/Present/GetTagsAndSpendings/" + currentUser.id);
-            if (getUserSpendingsByTags.IsSuccessStatusCode)
-            {
-                tagsSpendingsList = getUserSpendingsByTags.Content.ReadFromJsonAsync<List<TagsAndSpendingsToShow>>().Result;
-            }
-            storyNav = 1;
-        }
-        else
-        {
-            storyNav = 0;
-        }
-    }
-
-    public void StoryWindowControl()
-    {
-        tagCounter = 0;
-        storyPopUpWindow = false;
-    }
-
-    public void NextStory()
-    {
-        tagCounter = 0;
-        if (storyNav < 3)
-        {
-            storyNav++;
-        }
-    }
-    private async Task OnStepClicked(int step)
-    {
-        tagCounter = 0;
-        if (step != storyNav && storyNav <= 3)
-        {
-            storyNav = step;
-            Console.WriteLine("storyNav- " + storyNav);
-        }
-    }
-
-    public void displayTotalIncome(double incomeSum_)
-    {
-        incomeSum = incomeSum_;
-    }
-
-    public async Task getStreakDetails()
-    {
-        if (userID > 0)
-        {
-            var streakDataRes = await Http.GetAsync("api/Present/checkStreak/" + userID);
-            if (streakDataRes.IsSuccessStatusCode)
-            {
-                currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
-
-                if (currentStreak.streak_length != null && currentStreak.streak_length > 0 && currentStreak.current_streak_group == true)
+                //second story stuff:
+                tagsSpendingsList = new List<TagsAndSpendingsToShow>();
+                var getUserSpendingsByTags = await Http.GetAsync("api/Present/GetTagsAndSpendings/" + currentUser.id);
+                if (getUserSpendingsByTags.IsSuccessStatusCode)
                 {
-                    var totalTransThisWeekRes = await Http.GetAsync("api/Present/getTotalWeekTrans/" + userID);
-                    weeklyTransAmount = await totalTransThisWeekRes.Content.ReadFromJsonAsync<int>();
-                    if (weeklyTransAmount >= 3)
-                    {
-
-                        switch (streakStatTitle) //will fill the related streak image route
-                        {
-                            case "מטבע ארד":
-                                streakImgSrc = "../css/images/Bronze-welldone.svg";
-                                streakImgIcon = "../css/images/bronzeCoin.svg";
-                                nextStreakStatIn = 1;
-                                break;
-                            case "מטבע כסף":
-                                streakImgSrc = "../css/images/silver-welldone.svg";
-                                streakImgIcon = "../css/images/silverCoin.svg";
-                                nextStreakStatIn = 6;
-                                break;
-                            case "מטבע זהב":
-                                streakImgSrc = "../css/images/gold-welldone.svg";
-                                streakImgIcon = "../css/images/goldCoin.svg";
-                                nextStreakStatIn = 4;
-                                break;
-                            case "שטר":
-                                streakImgSrc = "../css/images/note-welldone.svg";
-                                streakImgIcon = "../css/images/singleCashNote.svg";
-                                nextStreakStatIn = 8;
-                                break;
-                            case "שטרות":
-                                streakImgSrc = "../css/images/two-notes-welldone.svg";
-                                streakImgIcon = "../css/images/cashNotes.svg";
-                                nextStreakStatIn = 4;
-                                break;
-                            case "גביע":
-                                streakImgSrc = "../css/images/trophy-welldone.svg";
-                                streakImgIcon = "../css/images/goblet.svg";
-                                nextStreakStatIn = 8;
-                                break;
-                            case "יהלום":
-                                streakImgSrc = "../css/images/dimond-welldone.svg";
-                                streakImgIcon = "../css/images/diamond.svg";
-                                nextStreakStatIn = 35;
-                                break;
-                            default:
-                                Console.WriteLine("no picture is associated with this streak");
-                                streakImgSrc = "";
-                                streakImgIcon = "";
-                                nextStreakStatIn = 0;
-                                break;
-                        }
-
-                        streakOverlay = true;
-                    }
+                    tagsSpendingsList = getUserSpendingsByTags.Content.ReadFromJsonAsync<List<TagsAndSpendingsToShow>>().Result;
                 }
-
+                storyNav = 1;
+            }
+            else
+            {
+                storyNav = 0;
             }
         }
-    }
 
-    public void updateStreak(string? newStreakStat)
-    {
-        Console.WriteLine("streak status got to present home page, new status is: " + newStreakStat);
-        if (newStreakStat != null)
+        public void StoryWindowControl()
         {
-            streakStatTitle = newStreakStat;
-            getStreakDetails();
+            tagCounter = 0;
+            storyPopUpWindow = false;
         }
-    }
 
-    public void goToStreakPage()
-    {
-        Nav.NavigateTo("./StreakProgressPage/" + userID);
-    }
-
-    private ElementReference navBar;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        public void NextStory()
         {
-            await JSRuntime.InvokeVoidAsync("navScroll.init", navBar);
+            tagCounter = 0;
+            if (storyNav < 3)
+            {
+                storyNav++;
+            }
         }
-    }
+        private async Task OnStepClicked(int step)
+        {
+            tagCounter = 0;
+            if (step != storyNav && storyNav <= 3)
+            {
+                storyNav = step;
+                Console.WriteLine("storyNav- " + storyNav);
+            }
+        }
 
-    public void Dispose()
-    {
-        JSRuntime.InvokeVoidAsync("navScroll.dispose");
-    }
+        public void displayTotalIncome(double incomeSum_)
+        {
+            incomeSum = incomeSum_;
+        }
 
-    private void SelectEmoji(string emoji)
-    {
-        //Console.WriteLine($"Emoji selected: {emoji}"); // Replace this with actual logic
-        noEmojiBtn = true;
-        isCancleBtnClicked = false;
-        hideBtn = "hideDefaultEmojiBtn";
-        newUser.profilePicOrIcon = emoji;
-    }
+        public async Task getStreakDetails()
+        {
+            if (userID > 0)
+            {
+                var streakDataRes = await Http.GetAsync("api/Present/checkStreak/" + userID);
+                if (streakDataRes.IsSuccessStatusCode)
+                {
+                    currentStreak = await streakDataRes.Content.ReadFromJsonAsync<UserStreakData>();
 
-    private void deleteSelectedEmoji()
-    {
-        isCancleBtnClicked = true;
-        noEmojiBtn = false;
-        newUser.profilePicOrIcon = "";
-        hideBtn = "";
-    }
+                    if (currentStreak.streak_length != null && currentStreak.streak_length > 0 && currentStreak.current_streak_group == true)
+                    {
+                        var totalTransThisWeekRes = await Http.GetAsync("api/Present/getTotalWeekTrans/" + userID);
+                        weeklyTransAmount = await totalTransThisWeekRes.Content.ReadFromJsonAsync<int>();
+                        if (weeklyTransAmount >= 3)
+                        {
 
-     private void ToggleKeyboard()
-    {
-        isVisible = !isVisible;
-    }
+                            switch (streakStatTitle) //will fill the related streak image route
+                            {
+                                case "מטבע ארד":
+                                    streakImgSrc = "../css/images/Bronze-welldone.svg";
+                                    streakImgIcon = "../css/images/bronzeCoin.svg";
+                                    nextStreakStatIn = 1;
+                                    break;
+                                case "מטבע כסף":
+                                    streakImgSrc = "../css/images/silver-welldone.svg";
+                                    streakImgIcon = "../css/images/silverCoin.svg";
+                                    nextStreakStatIn = 6;
+                                    break;
+                                case "מטבע זהב":
+                                    streakImgSrc = "../css/images/gold-welldone.svg";
+                                    streakImgIcon = "../css/images/goldCoin.svg";
+                                    nextStreakStatIn = 4;
+                                    break;
+                                case "שטר":
+                                    streakImgSrc = "../css/images/note-welldone.svg";
+                                    streakImgIcon = "../css/images/singleCashNote.svg";
+                                    nextStreakStatIn = 8;
+                                    break;
+                                case "שטרות":
+                                    streakImgSrc = "../css/images/two-notes-welldone.svg";
+                                    streakImgIcon = "../css/images/cashNotes.svg";
+                                    nextStreakStatIn = 4;
+                                    break;
+                                case "גביע":
+                                    streakImgSrc = "../css/images/trophy-welldone.svg";
+                                    streakImgIcon = "../css/images/goblet.svg";
+                                    nextStreakStatIn = 8;
+                                    break;
+                                case "יהלום":
+                                    streakImgSrc = "../css/images/dimond-welldone.svg";
+                                    streakImgIcon = "../css/images/diamond.svg";
+                                    nextStreakStatIn = 35;
+                                    break;
+                                default:
+                                    Console.WriteLine("no picture is associated with this streak");
+                                    streakImgSrc = "";
+                                    streakImgIcon = "";
+                                    nextStreakStatIn = 0;
+                                    break;
+                            }
 
-    private void titleLengthCounter(ChangeEventArgs e)
-    {
-        titleInput = e.Value.ToString();
-        titleInputLength = titleInput.Length;
-    }
+                            streakOverlay = true;
+                        }
+                    }
 
-    private void SelectCategory(string category)
-    {
-        selectedCategory = category;
-    }
+                }
+            }
+        }
 
-}
+        public void updateStreak(string? newStreakStat)
+        {
+            Console.WriteLine("streak status got to present home page, new status is: " + newStreakStat);
+            if (newStreakStat != null)
+            {
+                streakStatTitle = newStreakStat;
+                getStreakDetails();
+            }
+        }
+
+        public void goToStreakPage()
+        {
+            Nav.NavigateTo("./StreakProgressPage/" + userID);
+        }
+
+        private ElementReference navBar;
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await JSRuntime.InvokeVoidAsync("navScroll.init", navBar);
+            }
+        }
+
+        public void Dispose()
+        {
+            JSRuntime.InvokeVoidAsync("navScroll.dispose");
+        }
+
+        private void SelectEmoji(string emoji)
+        {
+            //Console.WriteLine($"Emoji selected: {emoji}"); // Replace this with actual logic
+            noEmojiBtn = true;
+            isCancleBtnClicked = false;
+            hideBtn = "hideDefaultEmojiBtn";
+            newUser.profilePicOrIcon = emoji;
+        }
+
+        private void deleteSelectedEmoji()
+        {
+            isCancleBtnClicked = true;
+            noEmojiBtn = false;
+            newUser.profilePicOrIcon = "";
+            hideBtn = "";
+        }
+
+        private void ToggleKeyboard()
+        {
+            isVisible = !isVisible;
+        }
+
+        private void titleLengthCounter(ChangeEventArgs e)
+        {
+            titleInput = e.Value.ToString();
+            titleInputLength = titleInput.Length;
+        }
+
+        private void SelectCategory(string category)
+        {
+            selectedCategory = category;
+        }
+
+    }
 
 
 
