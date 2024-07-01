@@ -62,9 +62,9 @@
 
     List<CategoriesOverviewToShow> allCatDetails = new List<CategoriesOverviewToShow>();
 
-    List<double> catSums = new List<double>();
+    List<int> catSums = new List<int>();
 
-    BarChart<double> barChart;
+    BarChart<int> barChart;
     BarChartOptions options = new BarChartOptions()
         {
             IndexAxis = "y",
@@ -145,7 +145,7 @@
                     else
                     {
                         Labels.Add(allCatDetails[i].categroyTitle);
-                        catSums.Add(allCatDetails[i].currentCategorySum);
+                        catSums.Add(Convert.ToInt32(allCatDetails[i].currentCategorySum));
                     }
 
                     foreach (CategoryToShow cat in allUserCategories)
@@ -232,7 +232,7 @@
             GetBarChartDataset(""));
     }
 
-    BarChartDataset<double> GetBarChartDataset(string label)
+    BarChartDataset<int> GetBarChartDataset(string label)
     {
         return new BarChartDataset<int>
             {

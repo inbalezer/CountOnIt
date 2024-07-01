@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>C:\Users\97258\OneDrive\Desktop\FinalProject_GithubRepository\CountOnIt\Server\bin\Release\net6.0\publish\</_PublishTargetUrl>
-    <History>True|2024-06-18T17:08:04.8245921Z;True|2024-06-18T20:05:03.5800653+03:00;</History>
+    <History>True|2024-07-01T12:50:18.8220222Z;True|2024-07-01T15:48:57.2947086+03:00;True|2024-06-18T20:08:04.8245921+03:00;True|2024-06-18T20:05:03.5800653+03:00;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>
