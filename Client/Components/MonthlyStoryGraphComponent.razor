@@ -16,7 +16,7 @@
 
     <div class="chart">
 
-        <BarChart @ref="barChart" TItem="double" Options="@options" Class="my-custom-chart"></BarChart>
+        <BarChart @ref="barChart" TItem="int" Options="@options" Class="my-custom-chart"></BarChart>
     </div>
 </div>
 
@@ -234,7 +234,7 @@
 
     BarChartDataset<double> GetBarChartDataset(string label)
     {
-        return new BarChartDataset<double>
+        return new BarChartDataset<int>
             {
                 Label = label,
                 Data = catSums,
