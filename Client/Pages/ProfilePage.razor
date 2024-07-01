@@ -289,7 +289,15 @@
 
         @if (tagToEdit.id > 0)
         {
-            <button @onclick="updateTag">שמירה וסיום</button>
+            if (tagToEdit.tagTitle.Length > 0 && tagToEdit.tagColor.Length > 0)
+            {
+                <button @onclick="updateTag">שמירה וסיום</button>
+            }
+            else
+            {
+                 <button @onclick="updateTag" disabled>שמירה וסיום</button>
+            }
+            
         }
         else
         {
@@ -321,8 +329,6 @@
     [Parameter]
     public int userID { get; set; }
 
-    //[Parameter]
-    //public string formerPage { get; set; }
 
     bool onInitializedOver = false;
     userProfileDataToShow currentUser = new userProfileDataToShow();
@@ -334,7 +340,7 @@
     public int startMonthDate = 0;
     string newFirstName = "";
     string newLastName = "";
-    //string formattedSignUpDate = "";
+
 
     //Tag gallery variables:
     TagsToShow chosenTag = new TagsToShow();
@@ -414,7 +420,7 @@
             }
             newFirstNameLength = currentUser.firstName.Length;
             newLastNameLength = currentUser.lastName.Length;
-         //formattedSignUpDate = currentUser.signUpDate.ToString("dd/MM/yyyy");
+         
             onInitializedOver = true;
         }
     }
@@ -434,7 +440,6 @@
     public void ChooseTagForTrans(TagsToShow tag)
     {
         isTagChosen = !isTagChosen;
-        //chosenTag = tag;
 
         if (chosenTag == tag)
         {
