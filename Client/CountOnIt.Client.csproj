@@ -7,6 +7,10 @@
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<Optimize>False</Optimize>
+	</PropertyGroup>
+		
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'CountOnIt' ">
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>

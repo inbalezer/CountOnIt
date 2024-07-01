@@ -1,18 +1,34 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 
 @inject NavigationManager Navigation
 @inject SignOutSessionStateManager SignOutManager
 
 <AuthorizeView>
     <Authorized>
-        Hello, @context.User.Identity.Name! 
+        @*Hello, @context.User.Identity.Name! 
         <a href="/homePage">home Page</a>
-        <button class="nav-link btn btn-link" @onclick="BeginSignOut">Log out</button>
+        <button class="nav-link btn btn-link" @onclick="BeginSignOut">Log out</button>*@
+        @*@code {
+        protected override async Task OnInitializedAsync()
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity.IsAuthenticated)
+            {
+                // Redirect to a specific page if the user is authenticated
+                NavigationManager.NavigateTo("/homePage");
+            }
+        }
+        }*@
     </Authorized>
     <NotAuthorized>
-        <a href="authentication/login">Log in</a>
-        <a href="/homePage">home Page</a>
+        @*<a href="authentication/login">Log in</a>
+        <a href="/homePage">home Page</a>*@
         
     </NotAuthorized>
 </AuthorizeView>

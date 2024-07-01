@@ -8,46 +8,83 @@
 @inject NavigationManager Nav
 @inject DateService DateService
 @inject IJSRuntime JSRuntime
+@implements IDisposable
 
 
-<button @onclick="goBack">🔙</button>
-<button>Profile avatar</button>
-<br/>
-<h2>ההתקדמות שלי</h2>
-<p>כל הצעדים בדרך לחסכון</p>
-<div id="transAmountForNextRank">
-    @if (neededTransAmount<96)
+<div class="TopProfileAndBack">
+    <div class="profileAndBack">
+        <button class="backbtn" @onclick="goBack"><img src="../css/images/back-repeated.svg"></button>
+        <button class="profilePic"></button>
+    </div>
+</div>
+<div class="wrapperContent">
+    <div class="textContent">
+        <div style="font-weight:700; font-size:1rem;">ההתקדמות שלי | </div>
+        <div style="font-weight:400">כל הצעדים בדרך לחסכון</div>
+        <div id="transAmountForNextRank">
+        </div>
+    </div>
+</div>
+<div class="topRanksAndBanner">
+    @if (neededTransAmount < 96)
     {
-        
-        <p>עוד @neededTransAmount הזנות עד לדרגה הבאה</p>
+        <div>
+            <div class="centringTop">
+                <div class="topNextRank">עוד <span style="color:#6775F4">@neededTransAmount</span> הזנות עד לדרגה הבאה</div>
+            </div>
+        </div>
     }
     else
     {
         <p>הגעת לדרגה הגבוהה ביותר! אליפות!</p>
     }
-</div>
-<div id="ranks">
-    @for (int i = 0; i < streakStatusOpt.Count; i++)
-    {
-        if (i<= currentUserStreakIndex)
-        {
-        <div>
-            <img src="@rankPicSrc[i]"><img/>
-            <h3>@streakStatusOpt[i]</h3>
-            <p>נפתח אחרי <b>@weekAmountForRank[i]</b></p>
-            </div>
-        }
-        else
-        {
-            @*add css that will make this look locked- for now I painted the text purple so we'll see the difference*@
-            <div>
-                <img src="@rankPicSrc[i]"><img />
-                <h3>@streakStatusOpt[i]</h3>
-                <p style="color: cornflowerblue">נפתח אחרי <b>@weekAmountForRank[i]</b></p>
-            </div>
-        }
 
-    }
+    <div class="wrapperContent">
+        
+        <div class="content">
+            <div id="ranks">
+                @for (int i = 0; i < streakStatusOpt.Count; i++)
+                {
+                    if (i <= currentUserStreakIndex)
+                    {
+                        <div class="outerRank" id="rank_@i">
+                            <div class="allRank">
+                                <img style="width:25%" src="@rankPicSrc[i]"><img />
+                                <div class="rankTxt">
+                                    <h3 class="rankInnerText">@streakStatusOpt[i]</h3>
+                                    <p class="rankInnerText2">נפתח אחרי <b>@weekAmountForRank[i]</b></p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        @*add css that will make this look locked- for now I painted the text purple so we'll see the difference*@
+                        <div class="outerRank" id="rank_@i">
+                            <div class="lockRank">
+                                <img class="lockImg" src="../css/images/lock.svg" />
+                                <div class="allRankLock">
+                                    <img style="width:25%" src="@rankPicSrc[i]" alt="Rank Image">
+                                    <div class="rankTxt">
+                                        <h3 class="rankInnerText">@streakStatusOpt[i]</h3>
+                                        <p class="rankInnerText2">נפתח אחרי <b>@weekAmountForRank[i]</b></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                }
+            </div>
+        </div>
+    </div>
+    <div id="@hideNav" class="bottom-nav" @ref="navBar">
+        <button class="navBtn">מבט לעבר<img src="../css/images/past.svg" /></button>
+        <div class="NavLines"> </div>
+        <button class="navBtn" style="font-weight:600">מבט להווה<img src="../css/images/present.svg" /></button>
+        <div class="NavLines"> </div>
+        <button class="navBtn">מבט לעתיד<img src="../css/images/future.svg" /></button>
+    </div>
 </div>
 
 @code {
@@ -58,18 +95,22 @@
 
     int currentUserStreakIndex = -1;
     int neededTransAmount = 0;
+    bool isScrollingDown = false;
+    string hideNav => isScrollingDown ? "nav-hidden" : "bottomNav";
+
+
 
     List<string> streakStatusOpt = new List<string>()
-    {
+{
          "מטבע ארד", "מטבע כסף", "מטבע זהב", "שטר", "שטרות","גביע","יהלום"
     };
 
     List<string> weekAmountForRank = new List<string>()
-    {
+{
        "שבוע","שבועיים","חודשיים","3 חודשים","5 חודשים","חצי שנה","8 חודשים"
     };
     List<string> rankPicSrc = new List<string>()
-    {
+{
        "../css/images/bronzeCoin.svg","../css/images/silverCoin.svg","../css/images/goldCoin.svg","../css/images/singleCashNote.svg","../css/images/cashNotes.svg","../css/images/goblet.svg","../css/images/diamond.svg"
     };
 
@@ -88,7 +129,7 @@
                 //Console.WriteLine("streak status is -" + currentStreak.AllWeeksValid);
 
                 string streakStatus = streakStatusCheck(currentStreak.streak_length);
-                if (currentStreak.streak_length != null && currentStreak.streak_length > 0 && currentStreak.current_streak_group==true)
+                if (currentStreak.streak_length != null && currentStreak.streak_length > 0 && currentStreak.current_streak_group == true)
                 {
 
                     var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
@@ -110,7 +151,7 @@
                                     currentUserStreakIndex = streakStatInpage;
                                 }
                             }
-                            else 
+                            else
                             {
                                 var updateStreak = await Http.GetAsync("api/Present/updateStreakStat/" + userID + "/" + streakStatus);
                                 if (updateStreak.IsSuccessStatusCode)
@@ -156,11 +197,11 @@
         int rankMinTransCount = 3;
         if (weekAmount <= 1 && weekAmount < 2)
         {
-            if (weekAmount<1)
+            if (weekAmount < 1)
             {
                 rankMinTransCount = 3;
             }
-            else if (weekAmount==1)
+            else if (weekAmount == 1)
             {
                 rankMinTransCount = 6;
             }
@@ -214,6 +255,19 @@
     public async Task goBack()
     {
         await JSRuntime.InvokeVoidAsync("navigateBack");
+    }
+    private ElementReference navBar;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("navScroll.init", navBar);
+        }
+    }
+
+    public void Dispose()
+    {
+        JSRuntime.InvokeVoidAsync("navScroll.dispose");
     }
 
 }
