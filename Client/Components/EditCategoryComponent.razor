@@ -14,24 +14,31 @@
                     <button class="closeOverlay" @onclick="openCategoryOverlay"><img src="../css/images/close x.svg" /></button>
                     <h3 class="popupTitle">@popupTitle</h3>
                     <div class="titleAndIcon">
-                        <input class="catTitle" type="text" placeholder="שם הקטגוריה" maxlength="18" minlength="2" @oninput="titleLengthCounter" @bind="@titleInput" />
-                        @if (titleInput == null || titleInput == "")
-                        {
-                            <span style="color:red">0/17</span>
-                        }
-                        else
-                        {
-                            if (titleInput.Length<2 || titleInput.Length>18)
-                            {
+                        <div class="outerTitleAndCounter">
+                            <div class="input-container">
+                                <input class="catTitle" type="text" placeholder="שם הקטגוריה" maxlength="18" minlength="2" @oninput="titleLengthCounter" @bind="@titleInput" />
+                                <div class="counter">
+                                    @if (titleInput == null || titleInput == "")
+                                    {
+                                        <span>0/17</span>
+                                    }
+                                    else
+                                    {
+                                        if (titleInput.Length < 2 || titleInput.Length > 18)
+                                        {
 
-                                <span style="color:red">@titleInputLength/18</span>
-                            }
-                            else
-                            {
-                                <span>@titleInputLength/18</span>
-                                
-                            }
-                        }
+                                            <span>@titleInputLength/18</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@titleInputLength/18</span>
+
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
 
 
                         <div class="keyBoardAndBtn">
@@ -82,7 +89,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
 
                         </div>
                         @*<input type="text" id="emoji-input" @bind="categoryToEdit.icon">*@
@@ -206,7 +213,7 @@
     bool disabledEditOfIncomeTitle = false;
     string ogCatName = "";
 
-    string titleInput="";
+    string titleInput = "";
     int titleInputLength = 0;
 
 
@@ -225,7 +232,7 @@
             titleInputLength = ogCatName.Length;
             titleInput = categoryToEdit.categroyTitle;
         }
-        
+
     }
 
     string color1Selected = "#F4B367";

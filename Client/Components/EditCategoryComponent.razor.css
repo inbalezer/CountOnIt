@@ -390,3 +390,29 @@
     width:100%;
 }
 
+.counter {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    top: 1rem;
+    color: #666;
+    font-size: 12px;
+    padding: 0vh 2vw;
+}
+
+    .counter span {
+        color: inherit; /* Inherit color from parent */
+        color: #636363
+    }
+
+.input-container {
+    position: relative;
+    width: 100%; /* Ensure full width */
+}
+
+
+.outerTitleAndCounter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}

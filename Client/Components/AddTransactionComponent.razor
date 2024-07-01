@@ -213,7 +213,7 @@
                                                                     // Attempt to find a matching transaction for the month
                                                                     var matchingTrans = reapeatedTransValuesList.FirstOrDefault(trans => trans.transDate.ToString("MMMM") == month);
 
-                                                                    <div class="monthDivider"></div>
+                                                                        <div class="monthDivider"></div>
                                                                     // Determine the value to display in the input
                                                                     string inputValue = matchingTrans != null ? matchingTrans.transValue.ToString() : "0";
                                                                 }
@@ -636,155 +636,229 @@ resetMonthValues = !resetMonthValues">
                     }
                 }
 
-                @if (overdraftDetected)
-                {
-                    <div>
-                        <h3>חרגת...</h3>
-                        <p>נראה שהוצאת ב @subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </p>
-                        <p>שזה @currentGap ₪ יותר </p>
-                        <p>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </p>
-                        <p>כדאי להגדיל את התקציב.</p>
-                        <p>הסכום שאני רוצה להעביר:</p>
-                        <input type="number" @bind="currentGap" min="@currentGap" /><span>₪</span>
-                        <p>מאיזו תת קטגוריה יועבר הסכום?</p>
-
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>העברה מ:</th>
-                                    <th>העברה ל:</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <select @onchange="HandleChange">
-                                            @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
-                                            {
-                                                @if (subcategoryOpt.id != subCategoryIDTOGet)
-                                                {
-                                                    <option value="@subcategoryOpt.subCategoryTitle">
-                                                        @subcategoryOpt.subCategoryTitle
-                                                    </option>
-                                                }
-                                            }
-                                        </select>
-                                    </td>
-                                    <td>
-                                        @(
-                                            overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
-                                            )
-
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <p>תקציב:</p>
-                                    <p>נוכחי: @chosenSubCategory.monthlyPlannedBudget</p>
-                                    <p>
-                                        עתידי: @(
-                                     chosenSubCategory.monthlyPlannedBudget - currentGap
-                                     )
-                                    </p>
-
-                                </tr>
-                                <tr>
-                                    <p>תקציב:</p>
-                                    <p>
-                                        נוכחי: @(
-                                     closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget
-                                     )
-                                    </p>
-                                    <p>
-                                        עתידי: @(
-                                     closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap
-                                     )
-                                    </p>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button @onclick="manageBudgetsToTranfer">העברה</button>
-                        <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
-
-                        <div class="outerSaveBtns">
-                            <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
-                        </div>
-                    </div>
-                }
 
 
-                @if (overdraftDetected)
-                {
-                    <div>
-                        <h3>חרגת...</h3>
-                        <p>נראה שהוצאת ב @subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </p>
-                        <p>שזה @currentGap ₪ יותר </p>
-                        <p>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </p>
-                        <p>כדאי להגדיל את התקציב.</p>
-                        <p>הסכום שאני רוצה להעביר:</p>
-                        <input type="number" @bind="currentGap" min="@currentGap" /><span>₪</span>
-                        <p>מאיזו תת קטגוריה יועבר הסכום?</p>
 
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>העברה מ:</th>
-                                    <th>העברה ל:</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <select @onchange="HandleChange">
-                                            @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
-                                            {
-                                                @if (subcategoryOpt.id != subCategoryIDTOGet)
-                                                {
-                                                    <option value="@subcategoryOpt.subCategoryTitle">
-                                                        @subcategoryOpt.subCategoryTitle
-                                                    </option>
-                                                }
-                                            }
-                                        </select>
-                                    </td>
-                                    <td>
-                                        @(
-                                            overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
-                                            )
+                @* @if (overdraftDetected)
+            {
+            <div>
+            <h3>חרגת...</h3>
+            <p>נראה שהוצאת ב @subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </p>
+            <p>שזה @currentGap ₪ יותר </p>
+            <p>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </p>
+            <p>כדאי להגדיל את התקציב.</p>
+            <p>הסכום שאני רוצה להעביר:</p>
+            <input type="number" @bind="currentGap" min="@currentGap" /><span>₪</span>
+            <p>מאיזו תת קטגוריה יועבר הסכום?</p>
 
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <p>תקציב:</p>
-                                    <p>נוכחי: @chosenSubCategory.monthlyPlannedBudget</p>
-                                    <p>
-                                        עתידי: @(
-                                     chosenSubCategory.monthlyPlannedBudget - currentGap
-                                     )
-                                    </p>
+            <table>
+            <thead>
+            <tr>
+            <th>העברה מ:</th>
+            <th>העברה ל:</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td>
+            <select @onchange="HandleChange">
+            @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
+            {
+            @if (subcategoryOpt.id != subCategoryIDTOGet)
+            {
+            <option value="@subcategoryOpt.subCategoryTitle">
+            @subcategoryOpt.subCategoryTitle
+            </option>
+            }
+            }
+            </select>
+            </td>
+            <td>
+            @(
+            overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
+            )
 
-                                </tr>
-                                <tr>
-                                    <p>תקציב:</p>
-                                    <p>
-                                        נוכחי: @(
-                                     closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget
-                                     )
-                                    </p>
-                                    <p>
-                                        עתידי: @(
-                                     closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap
-                                     )
-                                    </p>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button @onclick="manageBudgetsToTranfer">העברה</button>
-                        <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
-                    </div>
-                }
+            </td>
+            </tr>
+            <tr>
+            <p>תקציב:</p>
+            <p>נוכחי: @chosenSubCategory.monthlyPlannedBudget</p>
+            <p>
+            עתידי: @(
+            chosenSubCategory.monthlyPlannedBudget - currentGap
+            )
+            </p>
+
+            </tr>
+            <tr>
+            <p>תקציב:</p>
+            <p>
+            נוכחי: @(
+            closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget
+            )
+            </p>
+            <p>
+            עתידי: @(
+            closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap
+            )
+            </p>
+            </tr>
+            </tbody>
+            </table>
+            <button @onclick="manageBudgetsToTranfer">העברה</button>
+            <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
+            </div>
+            }*@
             </div>
         </div>
     </div>
+
+
+    @if (overdraftDetected)
+    {
+        <div class="overlay">
+            <div class="outerOverdraft">
+                <div class="overdraftWindow">
+
+                    <div class="outerText">
+                        <h3 class="titleText">חרגת...</h3>
+
+                        <div>נראה שהוצאת ב @subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </div>
+                        <div>שזה <span><b>@currentGap ₪</b></span> יותר </div>
+                        <div>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </div>
+                        <div>כדאי להגדיל את התקציב.</div>
+                        <div><b>הסכום שאני רוצה להעביר:</b></div>
+                        <div class="outerCurrentGap">
+                            <input class="currentGap" type="number" @bind="currentGap" min="@currentGap" />
+                            <span class="currency-symbolOverDraft">₪</span>
+                            <div class="lineBetweenOverdraft"></div>
+                        </div>
+
+                        <div>מאיזו תת קטגוריה יועבר הסכום?</div>
+                    </div>
+                    <div class="outerTranferTable">
+
+                        <div class="outerFromSubCats">
+                            <span style="font-weight:700;">העברה מ:</span>
+                            <div class="outerDropAndOptions">
+                                <div class="outerDropAndPoly" @onclick="()=>openSubCatsOptions =! openSubCatsOptions">
+                                    <div class="subCatsDrop">
+                                        <span>@chosenSubCategory.subCategoryTitle</span>
+                                        <span class="accordionPoly"><img style="width:7vw;" src="../css/images/arrow3.svg" /></span>
+                                    </div>
+
+                                </div>
+                                @if (openSubCatsOptions)
+                                {
+                                    <div class="subCatsDropDown">
+                                        @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
+                                        {
+                                            @if (subcategoryOpt.id != subCategoryIDTOGet)
+                                            {
+                                                <div @onclick="()=>HandleChange(subcategoryOpt)">
+                                                    @subcategoryOpt.subCategoryTitle
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+
+                                }
+                            </div>
+                            <div class="outerBudgets">
+                                <div class="outerBudgetTitle">
+                                    <div style="font-weight: 600;">תקציב:</div>
+                                    <div class="titleDivder"></div>
+                                </div>
+                                @if (string.IsNullOrEmpty(chosenSubCategory.subCategoryTitle))
+                                {
+                                    <div>
+                                        נוכחי: 0 <span>₪</span>
+
+                                    </div>
+                                    <div>
+                                        עתידי: 0 <span>₪</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>
+                                        נוכחי: @chosenSubCategory.monthlyPlannedBudget
+                                        <span>₪</span>
+                                    </div>
+                                    <div>
+                                        עתידי: @(
+                                     chosenSubCategory.monthlyPlannedBudget - currentGap
+                                     )
+                                        <span>₪</span>
+                                    </div>
+                                }
+                            </div>
+
+                        </div>
+                        <div class="outerToSubCat">
+
+                            <span style="font-weight:700;">העברה ל:</span>
+                            <div class="outerDropAndOptions">
+                                <div class="outerDropAndPoly">
+                                    <div class="subCatsDrop" style="justify-content: center;">
+                                        @(
+                                            overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
+                                            )
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="outerBudgets">
+                                <div class="outerBudgetTitle">
+                                    <div style="font-weight: 600;">תקציב:</div>
+                                    <div class="titleDivder"></div>
+                                </div>
+                                @if (string.IsNullOrEmpty(chosenSubCategory.subCategoryTitle))
+                                {
+                                    <div>
+                                        נוכחי: @(
+                                     closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)
+                                        <span>₪</span>
+                                    </div>
+                                    <div>
+                                        עתידי: 0 <span>₪</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>
+                                        נוכחי: @(
+                                     closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)
+                                        <span>₪</span>
+                                    </div>
+                                    <div>
+                                        עתידי: @(
+                                     closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap)
+                                        <span>₪</span>
+                                    </div>
+
+                                }
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="outerBtns">
+
+                        <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
+                        <button class="thirdBtn" @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
+
+                        @*<div class="outerSaveBtns">
+                            <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
+                        </div>*@
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    }
 
 }
 
@@ -824,6 +898,9 @@ resetMonthValues = !resetMonthValues">
     public EventCallback<bool> overdraftNotTreated { get; set; }
 
     [Parameter]
+    public EventCallback closeAddTransAfterOverdraft { get; set; }
+
+    [Parameter]
     public EventCallback<List<int>> SplitPaymentWithIndex { get; set; }
 
     [Parameter]
@@ -859,6 +936,7 @@ resetMonthValues = !resetMonthValues">
     bool openTagsMenu = false;
     bool isValueTypedAfterReset = false;
     bool isReapetedBtnClicked = false;
+    bool openSubCatsOptions = false;
     private int selectedNumber = 1; // Default value
     bool disBtn = false;
     bool disNextBtn = false;
@@ -1162,10 +1240,12 @@ resetMonthValues = !resetMonthValues">
 
 
 
-    private void HandleChange(ChangeEventArgs e)
+    private void HandleChange(OverBudgetToShow chosenSubCat)
     {
-        var selectedTitle = e.Value.ToString();
-        chosenSubCategory = closeOverdraftOpts.FirstOrDefault(opt => opt.subCategoryTitle == selectedTitle);
+        /*var selectedTitle = e.Value.ToString()*/
+
+        chosenSubCategory = chosenSubCat;
+        openSubCatsOptions = !openSubCatsOptions;
     }
 
 
@@ -1756,6 +1836,9 @@ resetMonthValues = !resetMonthValues">
         Console.WriteLine(overDraftSubCategory.monthlyPlannedBudget);
 
         await updateSubCategoryBudget(budgetToUpdate);
+        await updateExistingTrans();
+        closeAddTransAfterOverdraft.InvokeAsync();
+
 
     }
 
@@ -1771,7 +1854,7 @@ resetMonthValues = !resetMonthValues">
 
             overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
             overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
-            chosenSubCategory = closeOverdraftOpts[0];
+            //chosenSubCategory = closeOverdraftOpts[0];
 
 
         }

@@ -230,6 +230,19 @@ else
                                 </div>
 
                             }
+                            else if(storyNav == 2 && tagsSpendingsList.Count == 0)
+                            {
+                                <div class="outerSecondStory" @onclick="NextStory">
+
+                                    <h3 class="storyTitle">לא נמצאו הזנות עם תגיות החודש</h3>
+                                    <div class="noTagsDiv">
+                                        
+                                    </div>
+                                    <div class="imgWrapper">
+                                        <img class="storyImg" src="../css/images/tags-story.svg" />
+                                    </div>
+                                </div>
+                            }
                             else if (storyNav == 3)
                             {
                                 <div class="outerThirdStory" @onclick="NextStory">
