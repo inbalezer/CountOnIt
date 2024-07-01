@@ -218,3 +218,208 @@
     border-radius: 50%;
     background-color: #DADADA;
 }
+
+.backArrow {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+
+.outerTopSection {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    justify-content: space-between;
+    padding: 3vh 0 2vh;
+    align-items: baseline;
+}
+
+.myProfileText{
+    font-size:1.3rem;
+    font-weight:500;
+}
+
+.megaOuterTopSection {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.outerSecondSection {
+    display: flex;
+    flex-direction: column;
+    background-color: #F9F9F9;
+    border-radius: 0.25rem;
+    width: 93%;
+}
+
+.profilePic {
+    width: 6rem;
+    height: 6rem;
+    background-color: #F9F9F9;
+    border: 3.5px solid #6775F4;
+    color: inherit;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 3rem;
+    display: inline-block;
+}
+
+.profileAndStreak {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2vh 0;
+}
+
+#mainUserInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 1vh;
+}
+
+.progressBtn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+    border-radius: 0.25rem;
+    background: #6775F4;
+    color: #6775F4;
+    width: 13rem;
+    height: 2.3rem;
+    flex-shrink: 0;
+    color: #F9F9F9;
+    text-align: center;
+    font-family: Heebo;
+    font-size: 1.2rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    border: none;
+}
+
+.outerTitleAndStartDay {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1vh;
+    padding-top: 1vh;
+    padding-bottom: 1vh;
+    padding-right: 1vw;
+    align-items: flex-start;
+}
+
+
+.titleName {
+    font-weight: 600;
+    width: 94%;
+}
+
+
+.outerDay {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    flex-direction: column;
+}
+
+.dayBox {
+    border-radius: 0.25rem;
+    background: #FFF;
+    box-shadow: 0px 85px 24px 0px rgba(171, 173, 191, 0.00), 0px 55px 22px 0px rgba(171, 173, 191, 0.01), 0px 31px 18px 0px rgba(171, 173, 191, 0.05), 0px 14px 14px 0px rgba(171, 173, 191, 0.09), 0px 3px 7px 0px rgba(171, 173, 191, 0.10);
+    border: none;
+    padding: 1vh 1vh;
+    font-size: 1.1rem;
+    width: 93%;
+}
+
+
+.outerText {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.outerThirdSection {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1vh;
+}
+
+
+.outerTagsProfile {
+    border: none;
+    padding: 1vh 1vh;
+    font-size: 1.1rem;
+    width: 93%;
+}
+
+.outerOnbaordings {
+    border-radius: 0.25rem;
+    background: #FFF;
+    box-shadow: 0px 85px 24px 0px rgba(171, 173, 191, 0.00), 0px 55px 22px 0px rgba(171, 173, 191, 0.01), 0px 31px 18px 0px rgba(171, 173, 191, 0.05), 0px 14px 14px 0px rgba(171, 173, 191, 0.09), 0px 3px 7px 0px rgba(171, 173, 191, 0.10);
+    border: none;
+    padding: 1vh 1vh;
+    font-size: 1.1rem;
+    width: 60%;
+}
+
+.outerDropAndPoly {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.onBoardings {
+
+    display: flex;
+    flex-direction: column;
+    border-radius: 0.1875rem;
+    border: 0.2px solid rgba(0, 0, 0, 0.30);
+    background: #FFF;
+    justify-content: center;
+    width: 36.5%;
+    padding: 0.8vh 1vw;
+    z-index: 2;
+    position: absolute;
+    margin-top: 3.8vh;
+    box-shadow: 0px 31px 9px 0px rgba(0, 0, 0, 0.00), 0px 20px 8px 0px rgba(0, 0, 0, 0.02), 0px 11px 7px 0px rgba(0, 0, 0, 0.06), 0px 5px 5px 0px rgba(0, 0, 0, 0.10), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+}
+
+.divider {
+    background-color: #D6D9F1;
+    height: 0.2vh;
+}
+
+.outerOn {
+    display: flex;
+    width: 94%;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    flex-direction: column;
+}
+
+.megaOuterOn {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+}

@@ -11,13 +11,8 @@
 		<Optimize>False</Optimize>
 	</PropertyGroup>
 		
-  <PropertyGroup Condition=" '$(RunConfiguration)' == 'CountOnIt' ">
-    <ExternalConsole>true</ExternalConsole>
-  </PropertyGroup>
 	<PropertyGroup>
 		<SatelliteResourceLanguages>he</SatelliteResourceLanguages>
-		<BaseOutputPath>C:\Users\97258\OneDrive\Desktop\FinalProject_GithubRepository\CountOnIt\Client\bin</BaseOutputPath>
-		<BaseIntermediateOutputPath>C:\Users\97258\OneDrive\Desktop\FinalProject_GithubRepository\CountOnIt\Client\obj</BaseIntermediateOutputPath>
 	</PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>True</Optimize>
@@ -52,10 +47,6 @@
     <ProjectReference Include="..\Shared\CountOnIt.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="CountOnIt.Client">
-      <HintPath>obj\Debug\net6.0\CountOnIt.Client.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+
 
 </Project>
