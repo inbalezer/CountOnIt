@@ -72,13 +72,7 @@ else
 
                         }
                     }
-                    else
-                    {
-                        <button class="streakStatus" @onclick="goToSProfilePage"></button>
-                    }
-                    <button class="profilePic">@currentUser.profilePicOrIcon</button> @*will lead to user's profile page*@
-
-
+                    <button class="profilePic" @onclick="goToSProfilePage">@currentUser.profilePicOrIcon</button>
                 </div>
                 <div id="topText">
                     <p id="firstTitle">היי @currentUser.firstName 👋🏼</p>
@@ -737,7 +731,7 @@ else
         }
     }
 
-   
+
 
     private string GetHebrewMonthName(int monthNumber)
     {
@@ -1226,6 +1220,11 @@ else
 
                         streakOverlay = true;
                     }
+                }else if (!currentStreak.current_streak_group)
+                {
+                    streakImgSrc = "";
+                    streakImgIcon = "";
+                    nextStreakStatIn = 0;
                 }
 
             }

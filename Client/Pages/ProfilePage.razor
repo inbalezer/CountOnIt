@@ -28,12 +28,14 @@
             @if (editBtnClicked)
             {
                 <div>
-                    <div>שם פרטי:</div><br/>
-                    <input type="text" maxlength="15" @oninput="firstNameLengthCheck" placeholder="@currentUser.firstName"/>
-                    @if (newFirstNameLength>0)
+                    <div>שם פרטי:</div><br />
+                    <input type="text" maxlength="15" @oninput="firstNameLengthCheck" placeholder="@currentUser.firstName" />
+                    @if (newFirstNameLength > 0)
                     {
                         <span>@newFirstNameLength/15</span>
-                    }else{
+                    }
+                    else
+                    {
                         <span style="color:red">@newFirstNameLength/15</span>
                     }
                     <div>שם משפחה:</div>
@@ -127,26 +129,24 @@
                     <span> ה - @currentUser.monthStartDate לחודש</span>
                 }
             </div>
-            <div>
-                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=1)">ה-1 לחודש</button>
-                <div class="divider"></div>
-                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=2)">ה-2 לחודש</button>
-                <div class="divider"></div>
-                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=10)">ה-10 לחודש</button>
-                <div class="divider"></div>
-                <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=15)">ה-15 לחודש</button>
-            </div>
-            @*            <select @bind="currentUser.monthStartDate">
-        <option value="ה-1 לחודש" @onclick="@(()=>currentUser.monthStartDate=1)"></option>
-        <option value="ה-2 לחודש" @onclick="@(()=>currentUser.monthStartDate=2)"></option>
-        <option value="ה-10 לחודש" @onclick="@(()=>currentUser.monthStartDate=10)"></option>
-        <option value="ה-15 לחודש" @onclick="@(()=>currentUser.monthStartDate=15)"></option>
-        </select>*@
+            @if (editBtnClicked)
+            {
+                <div>
+                    <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=1)">ה-1 לחודש</button>
+                    <div class="divider"></div>
+                    <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=2)">ה-2 לחודש</button>
+                    <div class="divider"></div>
+                    <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=10)">ה-10 לחודש</button>
+                    <div class="divider"></div>
+                    <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=15)">ה-15 לחודש</button>
+                </div>
+            }
         </div>
     </div>
     <div>
         <div>תאריך הרשמה:</div>
-        <div>@currentUser.signUpDate</div>
+
+        <div>@currentUser.signUpDate.ToString("dd/MM/yyyy")</div>
     </div>
     <div>
         <div>התגיות שלי</div>
@@ -332,8 +332,9 @@
     public bool closeOverlay = false;
 
     public int startMonthDate = 0;
-    string newFirstName="";
+    string newFirstName = "";
     string newLastName = "";
+    //string formattedSignUpDate = "";
 
     //Tag gallery variables:
     TagsToShow chosenTag = new TagsToShow();
@@ -411,8 +412,9 @@
                     startMonthDate = 15;
                     break;
             }
-            newFirstNameLength=currentUser.firstName.Length;
+            newFirstNameLength = currentUser.firstName.Length;
             newLastNameLength = currentUser.lastName.Length;
+         //formattedSignUpDate = currentUser.signUpDate.ToString("dd/MM/yyyy");
             onInitializedOver = true;
         }
     }
@@ -519,7 +521,7 @@
         {
             updatedUser.monthStartDate = startMonthDate;
         }
-        if (newFirstName!="" && newFirstName!=currentUser.firstName)
+        if (newFirstName != "" && newFirstName != currentUser.firstName)
         {
             currentUser.firstName = newFirstName;
         }
@@ -649,7 +651,7 @@
 
     private void lastNameLengthCheck(ChangeEventArgs e)
     {
-        newLastName=e.Value.ToString();
+        newLastName = e.Value.ToString();
         newLastNameLength = newLastName.Length;
     }
 
