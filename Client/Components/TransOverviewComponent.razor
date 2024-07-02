@@ -3,6 +3,7 @@
 @using CountOnIt.Shared.Models.present.toEdit
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
+@inject DateService DateService
 
 
 <div class="outerMegaTrans">
@@ -195,6 +196,7 @@
     bool childOfSplit = false;
     TransactionToEdit splitParentTrans = new TransactionToEdit();
     int transIDtoEdit = 0;
+    DateTime date;
 
     protected override async Task OnInitializedAsync()
     {
@@ -252,6 +254,17 @@
                     }
                 }
             }
+        }
+
+
+
+        bool convertingDate = DateTime.TryParse(transaction.transDate, out date);
+        string convertedDate = "";
+        if (convertingDate)
+        {
+            convertedDate = date.ToString("dd/MM/yyyy");
+            transaction.transDate = convertedDate;
+            Console.WriteLine("trans date format- " + date + " , trans date as string- " + convertedDate);
         }
 
 

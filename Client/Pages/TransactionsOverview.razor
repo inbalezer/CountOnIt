@@ -15,7 +15,7 @@
         <div class="outerBackAndProfile">
 
             <button class="backArrow" @onclick="goBack"><img src="../css/images/back-repeated.svg" /></button>
-                       @if (isOverdraft)
+            @if (isOverdraft)
             {
                 <span>@returnToMainPage > @categoryTitle > @subCategoryTitle <img src="../css/images/overdraft-warning.svg" /></span>
             }
@@ -35,7 +35,7 @@
                     }
                 }
             </div>
-                <button class="profilePic" @onclick="goToSProfilePage">@userIcon</button>
+            <button class="profilePic" @onclick="goToSProfilePage">@userIcon</button>
 
         </div>
     </div>
@@ -508,13 +508,12 @@
             categoryTitle = catTitleRes;
 
             var catColorRes = await Http.GetAsync("api/Present/getCatColor/" + categoryID);
-            Console.WriteLine("cat color in db- ");
             if (catColorRes.IsSuccessStatusCode)
             {
                 var colorFromDB = await catColorRes.Content.ReadAsStringAsync();
-                Console.WriteLine("cat color in db- "+colorFromDB);
+                Console.WriteLine("cat color in db- " + colorFromDB);
 
-                if (colorFromDB!=null)
+                if (colorFromDB != null)
                 {
                     catColor = convertCatColors(colorFromDB);
                 }
@@ -591,13 +590,13 @@
                             }
                             prefilteredTransactions = checkTransList;
 
-                            if (totalSpendings>budget)
+                            if (totalSpendings > budget)
                             {
                                 overdraftStatus = true;
                             }
                             else
                             {
-                                 overdraftStatus = false;
+                                overdraftStatus = false;
                             }
                             await getSubCatTags();
                         }
@@ -672,12 +671,12 @@
                 break;
             case "#F9D3C2": //cream
                 convertedColor = "rgba(249, 211, 194, 0.13)";
-                outlineColor="rgba(249, 211, 194, 1)";
+                outlineColor = "rgba(249, 211, 194, 1)";
                 Console.WriteLine("cat color is cream");
                 break;
             case "#09AE73": //dark green
                 convertedColor = "rgba(9, 174, 115, 0.13)";
-                outlineColor="rgba(9, 174, 115, 1)";
+                outlineColor = "rgba(9, 174, 115, 1)";
                 Console.WriteLine("cat color is dark green");
                 break;
             case "#8C8B8B": //dark gray
@@ -689,6 +688,11 @@
                 convertedColor = "rgba(218, 218, 218, 0.13)";
                 outlineColor = "rgba(218, 218, 218, 1)";
                 Console.WriteLine("cat color is light gray");
+                break;
+            default:
+                convertedColor = "rgba(103, 142, 244, 0.13)";
+                outlineColor = "rgba(103, 142, 244, 1)";
+                Console.WriteLine("cat color is default");
                 break;
         };
 
@@ -721,7 +725,7 @@
             }
         }
 
-        if (checkOverdraft>budget)
+        if (checkOverdraft > budget)
         {
             overdraftStatus = true;
         }
@@ -753,7 +757,7 @@
         {
             checkOverdraft += t.transValue;
         }
-        if (checkOverdraft>budget)
+        if (checkOverdraft > budget)
         {
             overdraftStatus = true;
         }
@@ -1027,12 +1031,13 @@
                 {
                     totalSpendings += trans.transValue;
                 }
-                if(totalSpendings>budget){
+                if (totalSpendings > budget)
+                {
                     overdraftStatus = true;
                 }
-                else 
+                else
                 {
-                     overdraftStatus = false;
+                    overdraftStatus = false;
                 }
             }
             else

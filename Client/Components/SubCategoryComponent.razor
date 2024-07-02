@@ -28,7 +28,7 @@
                     @subCategoryTitle
 
                 </h3>
-                @if (totalSpendings > budget)
+                @if (totalSpendings > budget && categoryTypeIndicator==false)
                 {
                     isOverdraft = true;
                     <span>⚠️</span>
@@ -75,7 +75,7 @@
 
 @if (openTransOverlay)
 {
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionToTotal="addNewTransToTotalSpendings" categoryTypeIndicator="@categoryTypeIndicator" updatedStreak="updateStreak" closeAddTransAfterOverdraft="closeAddTrans"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionToTotal="addNewTransToTotalSpendings" categoryTypeIndicator="@categoryTypeIndicator" updatedStreak="updateStreak" closeAddTransAfterOverdraft="closeAddTrans" ></AddTransactionComponent>
 
 }
 
@@ -240,6 +240,10 @@
 
     public bool openTransOverlay = false;
     string? catOutlineColor = "";
+
+    double? ogBudget = 0;
+
+
 
     public string convertCatColors(string catColor)
     {

@@ -635,80 +635,6 @@ resetMonthValues = !resetMonthValues">
                         }
                     }
                 }
-
-
-
-
-                @* @if (overdraftDetected)
-            {
-            <div>
-            <h3>חרגת...</h3>
-            <p>נראה שהוצאת ב @subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </p>
-            <p>שזה @currentGap ₪ יותר </p>
-            <p>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </p>
-            <p>כדאי להגדיל את התקציב.</p>
-            <p>הסכום שאני רוצה להעביר:</p>
-            <input type="number" @bind="currentGap" min="@currentGap" /><span>₪</span>
-            <p>מאיזו תת קטגוריה יועבר הסכום?</p>
-
-            <table>
-            <thead>
-            <tr>
-            <th>העברה מ:</th>
-            <th>העברה ל:</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-            <td>
-            <select @onchange="HandleChange">
-            @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
-            {
-            @if (subcategoryOpt.id != subCategoryIDTOGet)
-            {
-            <option value="@subcategoryOpt.subCategoryTitle">
-            @subcategoryOpt.subCategoryTitle
-            </option>
-            }
-            }
-            </select>
-            </td>
-            <td>
-            @(
-            overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
-            )
-
-            </td>
-            </tr>
-            <tr>
-            <p>תקציב:</p>
-            <p>נוכחי: @chosenSubCategory.monthlyPlannedBudget</p>
-            <p>
-            עתידי: @(
-            chosenSubCategory.monthlyPlannedBudget - currentGap
-            )
-            </p>
-
-            </tr>
-            <tr>
-            <p>תקציב:</p>
-            <p>
-            נוכחי: @(
-            closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget
-            )
-            </p>
-            <p>
-            עתידי: @(
-            closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap
-            )
-            </p>
-            </tr>
-            </tbody>
-            </table>
-            <button @onclick="manageBudgetsToTranfer">העברה</button>
-            <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
-            </div>
-            }*@
             </div>
         </div>
     </div>
@@ -1227,6 +1153,7 @@ resetMonthValues = !resetMonthValues">
             overlayTitle = "הוספה לתת קטגוריה";
             isItAnewTrans = true;
             isLoadComplete = true;
+            Console.WriteLine("transaction value type is- " + categoryTypeIndicator);
         }
 
         if (newTransaction.tagID > 0)

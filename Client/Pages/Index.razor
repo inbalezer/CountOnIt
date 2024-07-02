@@ -318,7 +318,7 @@ else
 
         @if (userIncomeCat != null && isChecked)
         {
-            <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
+            <CategoryComponent Category="@userIncomeCat" categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryTypeIndicator="true"></CategoryComponent>
         }
         @if (!isChecked) // עובר להוצאות
         {
@@ -956,10 +956,10 @@ else
 
                 List<CategoryToAdd> defualtCategoriesList = new List<CategoryToAdd>()
     {
-    new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
-    new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
-    new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" },
-    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "🪙", color = "blue" }
+    new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "#6775F4" },
+    new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "#6775F4" },
+    new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "#6775F4" },
+    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "🪙", color = "#6775F4" }
     };
 
                 foreach (CategoryToAdd defualtCategory in defualtCategoriesList)
