@@ -385,7 +385,14 @@
                 </div>
                 <div class="outerBtns">
 
-                    <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
+                    @if (chosenSubCategory == null)
+                    {
+                        <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer" disabled>העברה</button>
+                    }
+                    else
+                    {
+                        <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
+                    }
                     <button class="thirdBtn" @onclick="NotTreatedOverdraft">אטפל בהמשך</button>
                 </div>
 
@@ -941,6 +948,7 @@
 
             overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
             overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
+            chosenSubCategory = new OverBudgetToShow();
         }
         else
         {
@@ -1019,11 +1027,4 @@
         //overdraftOverlayOpen = false;
 
     }
-
-    //public async Task openOverdraftOverlay(int subcatID)
-    //{
-    //    overdraftDetected = true;
-    //    closeOverdraftOpts = new List<OverBudgetToShow>();
-    //    await checkOverdraft(subcatID);
-    //}
 }

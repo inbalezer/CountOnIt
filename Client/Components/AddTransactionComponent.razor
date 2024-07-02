@@ -773,7 +773,14 @@ resetMonthValues = !resetMonthValues">
                     </div>
                     <div class="outerBtns">
 
-                        <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
+                        @if (chosenSubCategory == null)
+                        {
+                            <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer" disabled>העברה</button>
+                        }
+                        else
+                        {
+                            <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
+                        }
                         <button class="thirdBtn" @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
                     </div>
 
