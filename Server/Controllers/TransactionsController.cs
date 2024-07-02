@@ -394,33 +394,6 @@ ORDER BY transactions.transDate DESC;";
                         }
                     }
                 }
-                //foreach (int tagID in TagsIDList)
-                //{
-                //    if (tagID > 0)
-                //    {
-
-                //        object tagIdParam = new
-                //        {
-                //            ID = tagID
-                //        };
-                //        string getTagInfoQuery = "select * from tags where ID=@ID";
-                //        var getTagInfo = await _db.GetRecordsAsync<TagsToShow>(getTagInfoQuery, tagIdParam);
-                //        var subCatTag = getTagInfo.FirstOrDefault();
-                //        if (subCatTag != null)
-                //        {
-                //            subCatTagList.Add(subCatTag);
-                //        }
-                //        else
-                //        {
-                //            return BadRequest("tag with ID- " + tagID + " is null");
-                //        }
-                //    }
-                //    else
-                //    {
-                //        return BadRequest("tag ID is null or smaller than 0");
-                //    }
-
-                //}
                 return Ok(subCatTagList);
             }
 
