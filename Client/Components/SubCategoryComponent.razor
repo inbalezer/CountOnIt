@@ -119,9 +119,21 @@
 
                 <label class="titleName" for="description">מה התקציב החודשי שלך עבור "@subCatToEdit.subCategoryTitle"?</label>
                 <div class="outerBudget">
-                    <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
+                    <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" @onfocusout="calculateBudgetChange" />
                     <span class="currency-symbol">₪</span>
-                    <div class="lineBetween"></div>
+                    <br/>
+                    @if(ogBudget<0){
+                        <span>הקטנת את התקציב ב- @(ogBudget*-1)%.</span>
+                        <br/>
+                    }
+                    else if(ogBudget>0)
+                    {
+                        <span>הגדלת את התקציב ב-@ogBudget%.</span>
+                        <br />
+                    }
+                    
+                            
+                            <div class="lineBetween"></div>
                 </div>
 
                 <div class="outerImportance">
@@ -165,7 +177,7 @@
                 <div class="outerExample">
                     <div>
                         <span class="example">לדוגמה:</span>
-                        לק - רוצה, דלק - צריך, שכ״ד- חייב. העדיפות משפיעה על הטיפים לייעול התקציב.
+                        לק - רצון, דלק - צורך, שכ״ד- חובה. העדיפות משפיעה על הטיפים לייעול התקציב.
                     </div>
                 </div>
                 <div class="outerSaveBtns">
@@ -243,7 +255,21 @@
 
     double? ogBudget = 0;
 
-
+    protected override async Task OnInitializedAsync()
+    {
+        if (budget.HasValue && subCatToEdit.monthlyPlannedBudget.HasValue)
+        {
+            if (budget.Value == subCatToEdit.monthlyPlannedBudget.Value)
+            {
+                ogBudget = 0;
+            }
+            else if ( budget.Value > 0 && subCatToEdit.monthlyPlannedBudget.Value > 0)
+            {
+                ogBudget = budget;
+            }
+        }
+        
+    }
 
     public string convertCatColors(string catColor)
     {
@@ -486,5 +512,25 @@
     void closeAddTrans()
     {
         openTransOverlay = false;
+    }
+
+    public void calculateBudgetChange()
+    {
+        if (budget != null)
+        {
+            if (budget.HasValue && budget.Value > 0 && subCatToEdit.monthlyPlannedBudget.HasValue)
+            {
+                double budgetGap = subCatToEdit.monthlyPlannedBudget.Value- budget.Value ;
+                ogBudget = ((budgetGap/budget.Value) * 100);
+            }
+            else if (budget.Value <= 0 || subCatToEdit.monthlyPlannedBudget.Value<=0)
+            {
+                ogBudget = 100;
+            }else if (budget.Value==subCatToEdit.monthlyPlannedBudget.Value)
+            {
+                ogBudget = 0;
+            }
+            Console.WriteLine("ogBudget- " + ogBudget+", budget- "+budget);
+        }
     }
 }
