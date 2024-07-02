@@ -54,7 +54,7 @@
 
 .categoryAccordion {
     border-radius: 0rem 0rem 0.2rem 0.2rem;
-    background: #6775F4;
+/*    background: #6775F4;*/
     width: 88.5vw;
     display: flex;
     justify-content: flex-start;

@@ -36,8 +36,8 @@
             }
         }
 
-        <div class="closedAndOpenMenu">
-            <button class="options" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+        <div class="closedAndOpenMenu" @onfocusout="@(()=>isOpetionsBtnClicked=false)">
+            <button class="options" @onclick="OpetionsBtnClicked" ><img src="../css/images/option menu.svg" /></button>
             @if (isOpetionsBtnClicked)
             {
                 <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked" closeOverlay="closeDeleteOverlay"></OptionsMenuComponent>
@@ -48,8 +48,8 @@
     <div class="accordionAndSubCatsWrap">
 
 
-        <div class="categoryAccordion">
-            <button class="options" @onclick="accordionControl" style="background-color:@(()=>convertCatColors(categoryColor))">
+        <div class="categoryAccordion" style="background: @categoryColor">
+            <button class="options" @onclick="accordionControl" >
                 <svg width="33" height="12" viewBox="0 0 33 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1.75 2L16.75 10L30.75 2" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
@@ -115,7 +115,7 @@
                             else
                             {
                                 <div class="budget-card @(isFirstItem ? "first" : "")">
-                                    <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="categoryColor" openOverdraftOverlay="@(()=> checkOverdraft(subcategory.id))"></SubCategoryComponent>
+                                    <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="@categoryColor" openOverdraftOverlay="@(()=> checkOverdraft(subcategory.id))"></SubCategoryComponent>
                                 </div>
                             }
 
@@ -504,6 +504,14 @@
     bool openSubCatsOptions = false;
     OverBudgetToShow chosenSubCategory = new OverBudgetToShow();
 
+    protected override void OnInitialized()
+    {
+        if (categoryColor==null || categoryColor=="")
+        {
+            categoryColor="#678EF4"; //default color
+        }
+    }
+
     public async Task accordionControl()
     {
         isAccordionClick = !isAccordionClick;
@@ -513,80 +521,80 @@
         }
     }
 
-    public string convertCatColors(string? catColor)
-    {
-        string convertedColor = "";
-        switch (catColor)
-        {
-            case "#F4B367": //mustard
-                convertedColor = "rgba(244, 179, 103, 1)";
+    //public string convertCatColors(string? catColor)
+    //{
+    //    string convertedColor = "";
+    //    switch (catColor)
+    //    {
+    //        case "#F4B367": //mustard
+    //            convertedColor = "rgba(244, 179, 103, 1)";
 
-                Console.WriteLine("cat color is mustard");
-                break;
-            case "#AEA2F9": //purple
-                convertedColor = "rgba(174, 162, 249, 1)";
+    //            Console.WriteLine("cat color is mustard");
+    //            break;
+    //        case "#AEA2F9": //purple
+    //            convertedColor = "rgba(174, 162, 249, 1)";
 
-                Console.WriteLine("cat color is dark purple");
-                break;
-            case "#F467AB": //dark pink
-                convertedColor = "rgba(244, 103, 171, 1)";
+    //            Console.WriteLine("cat color is dark purple");
+    //            break;
+    //        case "#F467AB": //dark pink
+    //            convertedColor = "rgba(244, 103, 171, 1)";
 
-                Console.WriteLine("cat color is dark pink");
-                break;
-            case "#F47867": //salmon pink
-                convertedColor = "rgba(244, 120, 103, 1)";
+    //            Console.WriteLine("cat color is dark pink");
+    //            break;
+    //        case "#F47867": //salmon pink
+    //            convertedColor = "rgba(244, 120, 103, 1)";
 
-                Console.WriteLine("cat color is salmon pink");
-                break;
-            case "#678EF4": //defualt
-                convertedColor = "rgba(103, 142, 244, 1)";
+    //            Console.WriteLine("cat color is salmon pink");
+    //            break;
+    //        case "#678EF4": //defualt
+    //            convertedColor = "rgba(103, 142, 244, 1)";
 
-                Console.WriteLine("cat color is default");
-                break;
-            case "#8DE4BF": //light green
-                convertedColor = "rgba(141, 228, 191, 1)";
+    //            Console.WriteLine("cat color is default");
+    //            break;
+    //        case "#8DE4BF": //light green
+    //            convertedColor = "rgba(141, 228, 191, 1)";
 
-                Console.WriteLine("cat color is light green");
-                break;
-            case "#67CAF4": //light blue
-                convertedColor = "rgba(103, 202, 244, 1)";
+    //            Console.WriteLine("cat color is light green");
+    //            break;
+    //        case "#67CAF4": //light blue
+    //            convertedColor = "rgba(103, 202, 244, 1)";
 
-                Console.WriteLine("cat color is light blue");
-                break;
-            case "#FCE884": //banana
-                convertedColor = "rgba(255, 239, 157, 1)";
+    //            Console.WriteLine("cat color is light blue");
+    //            break;
+    //        case "#FCE884": //banana
+    //            convertedColor = "rgba(255, 239, 157, 1)";
 
-                Console.WriteLine("cat color is banana");
-                break;
-            case "#F9D3C2": //cream
-                convertedColor = "rgba(249, 211, 194, 1)";
+    //            Console.WriteLine("cat color is banana");
+    //            break;
+    //        case "#F9D3C2": //cream
+    //            convertedColor = "rgba(249, 211, 194, 1)";
 
-                Console.WriteLine("cat color is cream");
-                break;
-            case "#09AE73": //dark green
-                convertedColor = "rgba(9, 174, 115, 1)";
+    //            Console.WriteLine("cat color is cream");
+    //            break;
+    //        case "#09AE73": //dark green
+    //            convertedColor = "rgba(9, 174, 115, 1)";
 
-                Console.WriteLine("cat color is dark green");
-                break;
-            case "#8C8B8B": //dark gray
-                convertedColor = "rgba(140, 139, 139, 1)";
+    //            Console.WriteLine("cat color is dark green");
+    //            break;
+    //        case "#8C8B8B": //dark gray
+    //            convertedColor = "rgba(140, 139, 139, 1)";
 
-                Console.WriteLine("cat color is dark gray");
-                break;
-            case "#DADADA": //gray
-                convertedColor = "rgba(218, 218, 218, 1)";
+    //            Console.WriteLine("cat color is dark gray");
+    //            break;
+    //        case "#DADADA": //gray
+    //            convertedColor = "rgba(218, 218, 218, 1)";
 
-                Console.WriteLine("cat color is light gray");
-                break;
-            case null: //defualt
-                convertedColor = "rgba(103, 142, 244, 1)";
+    //            Console.WriteLine("cat color is light gray");
+    //            break;
+    //        case null: //defualt
+    //            convertedColor = "rgba(103, 142, 244, 1)";
 
-                Console.WriteLine("cat color is default");
-                break;
-        };
+    //            Console.WriteLine("cat color is default");
+    //            break;
+    //    };
 
-        return convertedColor;
-    }
+    //    return convertedColor;
+    //}
 
     public async Task getSubCategories()
     {
@@ -750,6 +758,7 @@
         deleteBtnClicked = false;
         isOpetionsBtnClicked = false;
         closeOverlay.InvokeAsync(true);
+        OpetionsBtnClicked();
     }
 
     public void OpetionsBtnClicked()
@@ -763,6 +772,7 @@
         deleteBtnClicked = !deleteBtnClicked;
         editBtnClicked = false;
         isOpetionsBtnClicked = false;
+        OpetionsBtnClicked();
 
     }
 
@@ -898,7 +908,9 @@
 
     void closeDeleteOverlay()
     {
+        OpetionsBtnClicked();
         closeOverlay.InvokeAsync(true);
+
     }
 
     public void updateStreak(string? newStreakStat)

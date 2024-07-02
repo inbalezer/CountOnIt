@@ -408,15 +408,6 @@ resetMonthValues = !resetMonthValues">
                                                     }
 
                                                     <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
-                                                    @* @if (isValueTyped)
-                                    {
-                                    }*@
-                                                    @* else
-                                    {
-                                    <button class="primery-button" disabled>שמירה וחזרה</button>
-                                    <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
-
-                                    }*@
                                                 </div>
 
                                             }
@@ -492,18 +483,6 @@ resetMonthValues = !resetMonthValues">
                                             style="background-color:@tag.tagColor; @fontWeight @buttonStyle">
                                                         @tag.tagTitle
                                                     </button>
-
-                                                    @*@if (tag.id == newTransaction.tagID)
-                                    {
-                                    buttonStyle += "font-weight: 600;";
-                                    <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
-                                    }
-                                    else
-                                    {
-                                    buttonStyle += "font-weight: 400;";
-                                    <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
-                                    }*@
-
                                                     @if (tag.id == newTransaction.tagID)
                                                     {
                                                         chosenTag = tag;
@@ -577,8 +556,7 @@ resetMonthValues = !resetMonthValues">
 
                 @if (isItAnewTrans)
                 {
-
-                    @if (titleInput.Length >= 2 && titleInput.Length < 19 && newTransaction.transValue > 0 && newTransaction.transDate != null && newTransaction.valueType != null)
+                    if (titleInput.Length >= 2 && titleInput.Length < 19 && newTransaction.transValue > 0 && newTransaction.transDate != null && newTransaction.valueType != null)
                     {
                         <div class="outerSaveBtns">
                             <button class="primery-button" @onclick="saveAndRepeatTransactions">שמירה והזנה נוספת</button>
@@ -617,7 +595,7 @@ resetMonthValues = !resetMonthValues">
                     <div class="outerSaveBtns">
                         <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
                     </div>
-                    @if (returningTrans)
+                   @* @if (returningTrans)
                     {
                         <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
                         <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
@@ -633,7 +611,7 @@ resetMonthValues = !resetMonthValues">
                             }
 
                         }
-                    }
+                    }*@
                 }
             </div>
         </div>
@@ -1101,6 +1079,8 @@ resetMonthValues = !resetMonthValues">
                             splitPayment = ogTransaction.splitPayment
                         };
 
+                    Console.WriteLine(newTransaction.transTitle);
+                    titleInput = newTransaction.transTitle;
                     initialSplitPayment = newTransaction.splitPayment;
                     initialFixedMonthly = newTransaction.fixedMonthly;
                     if (newTransaction.splitPayment == true)

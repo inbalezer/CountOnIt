@@ -51,7 +51,7 @@
 
             <div class="outerPageTitle" style="background-color:@catColor;border:1px solid @catOutlineColor;">
 
-                <div class="outerTitleBudgetAndDots">
+                <div class="outerTitleBudgetAndDots" @onfocusout="@(()=>isOpetionsBtnClicked=false)">
 
                     <h3 class="pageTitle">מבט על: "@subCategoryTitle"</h3>
                     @if (!typeByCat)
@@ -165,11 +165,9 @@
                 </div>
             }
 
-            <div class="options">
+            <div class="options" >
                 @if (isOpetionsBtnClicked)
                 {
-
-
                     <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
 
                 }

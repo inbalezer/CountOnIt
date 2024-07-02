@@ -48,7 +48,7 @@
                 <div class="outerDotsAndAmount">
 
                     <span class="tagsValue">@Math.Round(transaction.transValue,2) ₪</span>
-                    <div class="outerDotsAndOptionsTrans">
+                    <div class="outerDotsAndOptionsTrans" @onfocusout="@(()=>isOpetionsBtnClicked=false)">
                         <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
                        
                         @if (isOpetionsBtnClicked)
@@ -256,18 +256,20 @@
             }
         }
 
-
-
-        bool convertingDate = DateTime.TryParse(transaction.transDate, out date);
-        string convertedDate = "";
-        if (convertingDate)
+        if (typeByCat)
         {
-            convertedDate = date.ToString("dd/MM/yyyy");
-            transaction.transDate = convertedDate;
-            Console.WriteLine("trans date format- " + date + " , trans date as string- " + convertedDate);
+            Console.WriteLine("trans date pre switch- " + transaction.transDate);
+            bool convertingDate = DateTime.TryParse(transaction.transDate, out date);
+            string convertedDate = "";
+            if (convertingDate)
+            {
+                convertedDate = date.ToString("dd/MM/yyyy");
+                transaction.transDate = convertedDate;
+                Console.WriteLine("trans date format- " + date + " , trans date as string- " + convertedDate);
+            }
         }
 
-
+ 
     }
     public void OpetionsBtnClicked()
     {
