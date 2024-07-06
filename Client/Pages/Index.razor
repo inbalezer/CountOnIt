@@ -318,7 +318,7 @@ else
 
         @if (userIncomeCat != null && isChecked)
         {
-            <CategoryComponent Category=userIncomeCat categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
+            <CategoryComponent Category="@userIncomeCat" categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryTypeIndicator="true"></CategoryComponent>
         }
         @if (!isChecked) // עובר להוצאות
         {
@@ -474,14 +474,6 @@ else
                 refreshBudgetsOfSubCats(true);
             }
         }
-
-        @*   <div id="@hideNav" class="bottom-nav" @ref="navBar">
-    <button class="navBtn">מבט לעבר<img src="../css/images/past.svg" /></button>
-    <div class="NavLines"> </div>
-    <button class="navBtn" style="font-weight:600">מבט להווה<img src="../css/images/present.svg" /></button>
-    <div class="NavLines"> </div>
-    <button class="navBtn">מבט לעתיד<img src="../css/images/future.svg" /></button>
-    </div>*@
     }
 
     @if (currentUser == null && isOnInitializedOver)
@@ -514,24 +506,6 @@ else
                                     <input class="catTitle" type="text" @bind=newUser.lastName />
                                 </div>
 
-
-                                @*@if (titleInput == null || titleInput == "")
-                            {
-                            <span style="color:red">0/17</span>
-                            }
-                            else
-                            {
-                            if (titleInput.Length < 2 || titleInput.Length > 18)
-                            {
-
-                            <span style="color:red">@titleInputLength/18</span>
-                            }
-                            else
-                            {
-                            <span>@titleInputLength/18</span>
-
-                            }
-                            }*@
 
                                 <div class="keyBoardAndBtn">
                                     <span class="titleName">אייקון הפרופיל שלי</span>
@@ -956,10 +930,10 @@ else
 
                 List<CategoryToAdd> defualtCategoriesList = new List<CategoryToAdd>()
     {
-    new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "blue" },
-    new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "blue" },
-    new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "blue" },
-    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "🪙", color = "blue" }
+    new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "#6775F4" },
+    new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "#6775F4" },
+    new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "#6775F4" },
+    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "🪙", color = "#6775F4" }
     };
 
                 foreach (CategoryToAdd defualtCategory in defualtCategoriesList)

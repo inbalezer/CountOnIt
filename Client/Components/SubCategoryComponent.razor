@@ -13,7 +13,7 @@
 
 
 
-<div class="budget-card" style="background-color=@(()=>convertCatColors(subCatColor))">
+<div class="budget-card" style="background-color:@subCatColor;border:1px solid @catOutlineColor" @onfocusout="@(()=>isOptBtnClicked=false)">
     <div class="optionsMenu">
         @if (isOptBtnClicked)
         {
@@ -28,10 +28,10 @@
                     @subCategoryTitle
 
                 </h3>
-                @if (totalSpendings > budget)
+                @if (totalSpendings > budget && categoryTypeIndicator == false || overdraftNotTreated==true)
                 {
                     isOverdraft = true;
-                    <span>⚠️</span>
+                    <button @onclick="triggerOverdraftOverlay">⚠️</button>
                 }
             </div>
 
@@ -42,7 +42,7 @@
 
 
         <div class="closedAndOpenMenu">
-            <button class="options-button" @onclick="(() => isOptBtnClicked = !isOptBtnClicked)"><img src="../css/images/option menu.svg" /></button>
+            <button class="options-button" @onclick="toggleOptionsMenu"><img src="../css/images/option menu.svg" /></button>
 
         </div>
 
@@ -89,85 +89,108 @@
                 <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked"><img src="../css/images/close x.svg" /></button>
                 <h2 class="subCatTitle">עריכת תת קטגוריה</h2>
 
-
-
-                <div class="editAndAddSubCat">
-                    @if (userCategories.Count > 0)
-                    {
-                        <span>העברת תת קטגוריה ל</span>
-                        @if (subCatToEdit.categroyTitle == null)
+                @if (!categoryTypeIndicator)
+                {
+                    <div class="editAndAddSubCat">
+                        @if (userCategories.Count > 0)
                         {
-                            subCatToEdit.categroyTitle = categoryTitle;
+                            <span>העברת תת קטגוריה ל</span>
+                            @if (subCatToEdit.categroyTitle == null)
+                            {
+                                subCatToEdit.categroyTitle = categoryTitle;
+                            }
+                            <select class="catsDropDown" @bind="subCatToEdit.categroyTitle">
+
+
+                                @foreach (AllUserCategories userCategory in userCategories)
+                                {
+
+                                    <option class="catsOptions" value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
+
+                                }
+                            </select>
                         }
-                        <select class="catsDropDown" @bind="subCatToEdit.categroyTitle">
+                    </div>
+
+                    <div class="outerTitleName">
+                        <label class="titleName" for="amount">שם תת קטגוריה</label>
+                        <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
+                    </div>
+
+                    <label class="titleName" for="description">מה התקציב החודשי שלך עבור "@subCatToEdit.subCategoryTitle"?</label>
+                    <div class="outerBudget">
+                        <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" @onfocusout="calculateBudgetChange" />
+                        <span class="currency-symbol">₪</span>
+                        <br />
+                        @if (ogBudget < 0)
+                        {
+                            <span>הקטנת את התקציב ב- @(Math.Round((ogBudget * -1),2))%.</span>
+                            <br />
+                        }
+                        else if (ogBudget > 0)
+                        {
+                            <span>הגדלת את התקציב ב- @(Math.Round(ogBudget, 2))%.</span>
+                            <br />
+                        }
 
 
-                            @foreach (AllUserCategories userCategory in userCategories)
-                            {
+                        <div class="lineBetween"></div>
+                    </div>
 
-                                <option class="catsOptions" value=@userCategory.categroyTitle> @userCategory.categroyTitle</option>
-
-                            }
-                        </select>
-                    }
-                </div>
-
-                <div class="outerTitleName">
-                    <label class="titleName" for="amount">שם תת קטגוריה</label>
-                    <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
-                </div>
-
-                <label class="titleName" for="description">מה התקציב החודשי שלך עבור "@subCatToEdit.subCategoryTitle"?</label>
-                <div class="outerBudget">
-                    <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
-                    <span class="currency-symbol">₪</span>
-                    <div class="lineBetween"></div>
-                </div>
-
-                <div class="outerImportance">
-                    <label class="titleName" for="importance">עדיפות תת הקטגוריה</label>
-                    <div class="outerBtns">
-                        <div class="importanceBtns">
-                            @if (subCatToEdit.importance == 0)
-                            {
-                                <input type="radio" id="wants" name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
-                                <label class="" for="wants">רצון</label>
-                            }
-                            else
-                            {
-                                <input type="radio" id="wants" name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
-                                <label for="wants">רצון</label>
-                            }
-                            @if (subCatToEdit.importance == 1)
-                            {
-                                <input type="radio" id="needs" name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
-                                <label for="needs">צורך</label>
-                            }
-                            else
-                            {
-                                <input type="radio" id="needs" name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
-                                <label for="needs">צורך</label>
-                            }
-                            @if (subCatToEdit.importance == 2)
-                            {
-                                <input type="radio" id="must" name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
-                                <label for="must">חובה</label>
-                            }
-                            else
-                            {
-                                <input type="radio" id="must" name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
-                                <label for="must">חובה</label>
-                            }
+                    <div class="outerImportance">
+                        <label class="titleName" for="importance">עדיפות תת הקטגוריה</label>
+                        <div class="outerBtns">
+                            <div class="importanceBtns">
+                                @if (subCatToEdit.importance == 0)
+                                {
+                                    <input type="radio" id="wants" name="importance" @onchange="@(() => subCatToEdit.importance = 0)" checked />
+                                    <label class="" for="wants">רצון</label>
+                                }
+                                else
+                                {
+                                    <input type="radio" id="wants" name="importance" @onchange="@(() => subCatToEdit.importance = 0)" />
+                                    <label for="wants">רצון</label>
+                                }
+                                @if (subCatToEdit.importance == 1)
+                                {
+                                    <input type="radio" id="needs" name="importance" @onchange="@(() => subCatToEdit.importance = 1)" checked />
+                                    <label for="needs">צורך</label>
+                                }
+                                else
+                                {
+                                    <input type="radio" id="needs" name="importance" @onchange="@(() => subCatToEdit.importance = 1)" />
+                                    <label for="needs">צורך</label>
+                                }
+                                @if (subCatToEdit.importance == 2)
+                                {
+                                    <input type="radio" id="must" name="importance" @onchange="@(() => subCatToEdit.importance = 2)" checked />
+                                    <label for="must">חובה</label>
+                                }
+                                else
+                                {
+                                    <input type="radio" id="must" name="importance" @onchange="@(() => subCatToEdit.importance = 2)" />
+                                    <label for="must">חובה</label>
+                                }
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="outerExample">
-                    <div>
-                        <span class="example">לדוגמה:</span>
-                        לק - רוצה, דלק - צריך, שכ״ד- חייב. העדיפות משפיעה על הטיפים לייעול התקציב.
+                    <div class="outerExample">
+                        <div>
+                            <span class="example">לדוגמה:</span>
+                            לק - רצון, דלק - צורך, שכ״ד- חובה. העדיפות משפיעה על הטיפים לייעול התקציב.
+                        </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="outerTitleName">
+                        <label class="titleName" for="amount">שם תת קטגוריה</label>
+                        <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
+                    </div>
+                }
+
+
                 <div class="outerSaveBtns">
                     <button class="primery-button" @onclick="EditSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
                     <button class="secondery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
@@ -175,7 +198,7 @@
 
             </div>
         </div>
-        </div>
+    </div>
 }
 
 
@@ -227,6 +250,12 @@
     [Parameter]
     public string? subCatColor { get; set; }
 
+    [Parameter]
+    public bool overdraftNotTreated { get; set; }
+
+    [Parameter]
+    public EventCallback<int> openOverdraftOverlay { get; set; }
+
     SubCategoryToEdit subCatToEdit = new SubCategoryToEdit();
     SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
 
@@ -241,74 +270,101 @@
     public bool openTransOverlay = false;
     string? catOutlineColor = "";
 
-    public string convertCatColors(string catColor)
+    double ogBudget = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (budget.HasValue && subCatToEdit.monthlyPlannedBudget.HasValue)
+        {
+            if (budget.Value == subCatToEdit.monthlyPlannedBudget.Value)
+            {
+                ogBudget = 0;
+            }
+            else if (budget.Value > 0 && subCatToEdit.monthlyPlannedBudget.Value > 0)
+            {
+                ogBudget = budget.Value;
+            }
+        }
+
+        if (subCatColor==null || subCatColor=="")
+        {
+            subCatColor = convertCatColors("#678EF4");
+        }
+        else
+        {
+            subCatColor = convertCatColors(subCatColor);
+        }
+
+    }
+
+    public string convertCatColors(string? catColor)
     {
         string convertedColor = "";
         string outlineColor = "";
         switch (catColor)
         {
             case "#F4B367": //mustard
-                convertedColor = "rgba(244, 179, 103, 0.13)";
+                convertedColor = "#f4b36721";
                 outlineColor = "rgba(244, 179, 103, 1)";
                 Console.WriteLine("cat color is mustard");
                 break;
             case "#AEA2F9": //purple
-                convertedColor = "rgba(174, 162, 249, 0.13)";
+                convertedColor = "#aea2f921";
                 outlineColor = "rgba(174, 162, 249, 1)";
                 Console.WriteLine("cat color is dark purple");
                 break;
             case "#F467AB": //dark pink
-                convertedColor = "rgba(244, 103, 171, 0.13)";
+                convertedColor = "#f467ab21";
                 outlineColor = "rgba(244, 103, 171, 1)";
                 Console.WriteLine("cat color is dark pink");
                 break;
             case "#F47867": //salmon pink
-                convertedColor = "rgba(244, 120, 103, 0.13)";
+                convertedColor = "#f4786721";
                 outlineColor = "rgba(244, 120, 103, 1)";
                 Console.WriteLine("cat color is salmon pink");
                 break;
             case "#678EF4": //defualt
-                convertedColor = "rgba(103, 142, 244, 0.13)";
+                convertedColor = "#678ef421";
                 outlineColor = "rgba(103, 142, 244, 1)";
                 Console.WriteLine("cat color is default");
                 break;
             case "#8DE4BF": //light green
-                convertedColor = "rgba(141, 228, 191, 0.13)";
+                convertedColor = "#8de4bf21";
                 outlineColor = "rgba(141, 228, 191, 1)";
                 Console.WriteLine("cat color is light green");
                 break;
             case "#67CAF4": //light blue
-                convertedColor = "rgba(103, 202, 244, 0.13)";
+                convertedColor = "#67caf421";
                 outlineColor = "rgba(103, 202, 244, 1)";
                 Console.WriteLine("cat color is light blue");
                 break;
             case "#FCE884": //banana
-                convertedColor = "rgba(255, 239, 157, 0.13)";
+                convertedColor = "#ffef9d21";
                 outlineColor = "rgba(255, 239, 157, 1)";
                 Console.WriteLine("cat color is banana");
                 break;
             case "#F9D3C2": //cream
-                convertedColor = "rgba(249, 211, 194, 0.13)";
+                convertedColor = "#f9d3c221";
                 outlineColor = "rgba(249, 211, 194, 1)";
                 Console.WriteLine("cat color is cream");
                 break;
             case "#09AE73": //dark green
-                convertedColor = "rgba(9, 174, 115, 0.13)";
+                convertedColor = "#09ae7321";
                 outlineColor = "rgba(9, 174, 115, 1)";
                 Console.WriteLine("cat color is dark green");
                 break;
             case "#8C8B8B": //dark gray
-                convertedColor = "rgba(140, 139, 139, 0.25)";
+                convertedColor = "#8c8b8b40";
                 outlineColor = "rgba(140, 139, 139, 1)";
                 Console.WriteLine("cat color is dark gray");
                 break;
             case "#DADADA": //gray
-                convertedColor = "rgba(218, 218, 218, 0.13)";
+                convertedColor = "#dadada21";
                 outlineColor = "rgba(218, 218, 218, 1)";
                 Console.WriteLine("cat color is light gray");
                 break;
             case null: //defualt
-                convertedColor = "rgba(103, 142, 244, 0.13)";
+                convertedColor = "#678ef421";
                 outlineColor = "rgba(103, 142, 244, 1)";
                 Console.WriteLine("cat color is default");
                 break;
@@ -329,7 +385,10 @@
 
     }
 
-
+    public void triggerOverdraftOverlay()
+    {
+        openOverdraftOverlay.InvokeAsync(subCategoryIDToGet);
+    }
 
     public async Task getUserCategories()
     {
@@ -392,6 +451,7 @@
             }
         }
         editSubCatBtnClicked = !editSubCatBtnClicked;
+        toggleOptionsMenu();
     }
 
     public async Task saveUpdatedSubCat()
@@ -420,6 +480,7 @@
             updateEditedSubCat.InvokeAsync(subCatToEdit);
 
             editSubCatBtnClicked = false; //closeing the edit overlay
+           
 
             Console.WriteLine("sub category updated");
 
@@ -435,6 +496,7 @@
     {
         deleteBtnClicked = !deleteBtnClicked;
         popupBodyText = "תת הקטגוריה '" + subCategoryTitle + "' עומדת להמחק";
+        toggleOptionsMenu();
     }
     public async Task deleteSubCat()
     {
@@ -482,5 +544,31 @@
     void closeAddTrans()
     {
         openTransOverlay = false;
+    }
+
+    public void calculateBudgetChange()
+    {
+        if (budget != null)
+        {
+            if (budget.HasValue && budget.Value > 0 && subCatToEdit.monthlyPlannedBudget.HasValue)
+            {
+                double budgetGap = subCatToEdit.monthlyPlannedBudget.Value - budget.Value;
+                ogBudget = ((budgetGap / budget.Value) * 100);
+            }
+            else if (budget.Value <= 0 || subCatToEdit.monthlyPlannedBudget.Value <= 0)
+            {
+                ogBudget = 100;
+            }
+            else if (budget.Value == subCatToEdit.monthlyPlannedBudget.Value)
+            {
+                ogBudget = 0;
+            }
+            Console.WriteLine("ogBudget- " + ogBudget + ", budget- " + budget);
+        }
+    }
+
+   void toggleOptionsMenu()
+    {
+        isOptBtnClicked = !isOptBtnClicked;
     }
 }

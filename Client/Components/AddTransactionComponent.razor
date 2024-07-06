@@ -408,15 +408,6 @@ resetMonthValues = !resetMonthValues">
                                                     }
 
                                                     <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
-                                                    @* @if (isValueTyped)
-                                    {
-                                    }*@
-                                                    @* else
-                                    {
-                                    <button class="primery-button" disabled>שמירה וחזרה</button>
-                                    <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
-
-                                    }*@
                                                 </div>
 
                                             }
@@ -492,18 +483,6 @@ resetMonthValues = !resetMonthValues">
                                             style="background-color:@tag.tagColor; @fontWeight @buttonStyle">
                                                         @tag.tagTitle
                                                     </button>
-
-                                                    @*@if (tag.id == newTransaction.tagID)
-                                    {
-                                    buttonStyle += "font-weight: 600;";
-                                    <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
-                                    }
-                                    else
-                                    {
-                                    buttonStyle += "font-weight: 400;";
-                                    <button @onclick="(() => ChooseTagForTrans(tag))" style=@buttonStyle>@tag.tagTitle</button>
-                                    }*@
-
                                                     @if (tag.id == newTransaction.tagID)
                                                     {
                                                         chosenTag = tag;
@@ -577,8 +556,7 @@ resetMonthValues = !resetMonthValues">
 
                 @if (isItAnewTrans)
                 {
-
-                    @if (titleInput.Length >= 2 && titleInput.Length < 19 && newTransaction.transValue > 0 && newTransaction.transDate != null && newTransaction.valueType != null)
+                    if (titleInput.Length >= 2 && titleInput.Length < 19 && newTransaction.transValue > 0 && newTransaction.transDate != null && newTransaction.valueType != null)
                     {
                         <div class="outerSaveBtns">
                             <button class="primery-button" @onclick="saveAndRepeatTransactions">שמירה והזנה נוספת</button>
@@ -617,7 +595,7 @@ resetMonthValues = !resetMonthValues">
                     <div class="outerSaveBtns">
                         <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
                     </div>
-                    @if (returningTrans)
+                   @* @if (returningTrans)
                     {
                         <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
                         <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
@@ -633,82 +611,8 @@ resetMonthValues = !resetMonthValues">
                             }
 
                         }
-                    }
+                    }*@
                 }
-
-
-
-
-                @* @if (overdraftDetected)
-            {
-            <div>
-            <h3>חרגת...</h3>
-            <p>נראה שהוצאת ב @subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </p>
-            <p>שזה @currentGap ₪ יותר </p>
-            <p>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </p>
-            <p>כדאי להגדיל את התקציב.</p>
-            <p>הסכום שאני רוצה להעביר:</p>
-            <input type="number" @bind="currentGap" min="@currentGap" /><span>₪</span>
-            <p>מאיזו תת קטגוריה יועבר הסכום?</p>
-
-            <table>
-            <thead>
-            <tr>
-            <th>העברה מ:</th>
-            <th>העברה ל:</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-            <td>
-            <select @onchange="HandleChange">
-            @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
-            {
-            @if (subcategoryOpt.id != subCategoryIDTOGet)
-            {
-            <option value="@subcategoryOpt.subCategoryTitle">
-            @subcategoryOpt.subCategoryTitle
-            </option>
-            }
-            }
-            </select>
-            </td>
-            <td>
-            @(
-            overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
-            )
-
-            </td>
-            </tr>
-            <tr>
-            <p>תקציב:</p>
-            <p>נוכחי: @chosenSubCategory.monthlyPlannedBudget</p>
-            <p>
-            עתידי: @(
-            chosenSubCategory.monthlyPlannedBudget - currentGap
-            )
-            </p>
-
-            </tr>
-            <tr>
-            <p>תקציב:</p>
-            <p>
-            נוכחי: @(
-            closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget
-            )
-            </p>
-            <p>
-            עתידי: @(
-            closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap
-            )
-            </p>
-            </tr>
-            </tbody>
-            </table>
-            <button @onclick="manageBudgetsToTranfer">העברה</button>
-            <button @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
-            </div>
-            }*@
             </div>
         </div>
     </div>
@@ -847,12 +751,15 @@ resetMonthValues = !resetMonthValues">
                     </div>
                     <div class="outerBtns">
 
-                        <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
+                        @if (chosenSubCategory == null)
+                        {
+                            <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer" disabled>העברה</button>
+                        }
+                        else
+                        {
+                            <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
+                        }
                         <button class="thirdBtn" @onclick="@(async () => await closeOverdraftWindow())">אטפל בהמשך</button>
-
-                        @*<div class="outerSaveBtns">
-                            <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
-                        </div>*@
                     </div>
 
                 </div>
@@ -1172,6 +1079,8 @@ resetMonthValues = !resetMonthValues">
                             splitPayment = ogTransaction.splitPayment
                         };
 
+                    Console.WriteLine(newTransaction.transTitle);
+                    titleInput = newTransaction.transTitle;
                     initialSplitPayment = newTransaction.splitPayment;
                     initialFixedMonthly = newTransaction.fixedMonthly;
                     if (newTransaction.splitPayment == true)
@@ -1227,6 +1136,7 @@ resetMonthValues = !resetMonthValues">
             overlayTitle = "הוספה לתת קטגוריה";
             isItAnewTrans = true;
             isLoadComplete = true;
+            Console.WriteLine("transaction value type is- " + categoryTypeIndicator);
         }
 
         if (newTransaction.tagID > 0)

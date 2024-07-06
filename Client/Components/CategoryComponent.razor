@@ -31,13 +31,13 @@
 
             if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget)
             {
-                <span>חריגה⚠️</span>
+                <button @onclick="@(()=>checkOverdraft(overDraftsubcategory.id))">חריגה⚠️</button>
                 break;
             }
         }
 
-        <div class="closedAndOpenMenu">
-            <button class="options" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+        <div class="closedAndOpenMenu" @onfocusout="@(()=>isOpetionsBtnClicked=false)">
+            <button class="options" @onclick="OpetionsBtnClicked" ><img src="../css/images/option menu.svg" /></button>
             @if (isOpetionsBtnClicked)
             {
                 <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked" closeOverlay="closeDeleteOverlay"></OptionsMenuComponent>
@@ -48,8 +48,8 @@
     <div class="accordionAndSubCatsWrap">
 
 
-        <div class="categoryAccordion">
-            <button class="options" @onclick="accordionControl" style="background-color:@(()=>convertCatColors(categoryColor))">
+        <div class="categoryAccordion" style="background: @categoryColor">
+            <button class="options" @onclick="accordionControl" >
                 <svg width="33" height="12" viewBox="0 0 33 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1.75 2L16.75 10L30.75 2" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
@@ -106,9 +106,19 @@
                             subcategory.monthlyPlannedBudget = 0;
                         }
                         <div>
-                            <div class="budget-card @(isFirstItem ? "first" : "")">
-                                <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="categoryColor"></SubCategoryComponent>
-                            </div>
+                            @if(subcategory.id== overDraftSubCategory.id)
+                            {
+                                <div class="budget-card @(isFirstItem ? "first" : "")">
+                                    <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="categoryColor" overdraftNotTreated="@overdraftNotTreated" openOverdraftOverlay="@(()=> checkOverdraft(subcategory.id))"></SubCategoryComponent>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="budget-card @(isFirstItem ? "first" : "")">
+                                    <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="@categoryColor" openOverdraftOverlay="@(()=> checkOverdraft(subcategory.id))"></SubCategoryComponent>
+                                </div>
+                            }
+
                         </div>
 
                         isFirstItem = false;
@@ -153,16 +163,16 @@
                     <div class="outerTitleName">
                         <label class="titleName" for="amount">שם תת קטגוריה</label>
                         <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" maxlength="18" minlength="2" @bind="titleInput" @oninput="SubCatTitleLengthCounter" />
-                        @if (titleInputLength>0)
+                        @if (titleInputLength > 0)
                         {
-                            
+
                             <span>@titleInput.Length/18</span>
                         }
                         else
                         {
                             <span style="color:red">0/18</span>
                         }
-                        </div>
+                    </div>
 
                     <label class="titleName" for="description">מה התקציב החודשי שלך עבור @newSubCategory.subCategoryTitle? </label>
 
@@ -209,7 +219,7 @@
                         <div class="outerSaveBtns">
                             <button class="primery-button" disabled @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
                             <button class="secondery-button" disabled @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
-                           
+
                         </div>
                         if (titleInput.Length < 2 || titleInput.Length > 18)
                         {
@@ -240,6 +250,155 @@
 {
     isAccordionClick = true;
     getSearchedSubCat();
+}
+
+@if (overdraftDetected)
+{
+    <div class="overlay">
+        <div class="outerOverdraft">
+            <div class="overdraftWindow">
+
+                <div class="outerText">
+                    <h3 class="titleText">חרגת...</h3>
+
+                    <div>נראה שהוצאת ב @overDraftSubCategory.subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </div>
+                    <div>שזה <span><b>@currentGap ₪</b></span> יותר </div>
+                    <div>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </div>
+                    <div>כדאי להגדיל את התקציב.</div>
+                    <div><b>הסכום שאני רוצה להעביר:</b></div>
+                    <div class="outerCurrentGap">
+                        <input class="currentGap" type="number" @bind="currentGap" min="@currentGap" />
+                        <span class="currency-symbolOverDraft">₪</span>
+                        <div class="lineBetweenOverdraft"></div>
+                    </div>
+
+                    <div>מאיזו תת קטגוריה יועבר הסכום?</div>
+                </div>
+                <div class="outerTranferTable">
+
+                    <div class="outerFromSubCats">
+                        <span style="font-weight:700;">העברה מ:</span>
+                        <div class="outerDropAndOptions">
+                            <div class="outerDropAndPoly" @onclick="()=>openSubCatsOptions =! openSubCatsOptions">
+                                <div class="subCatsDrop">
+                                    <span>@chosenSubCategory.subCategoryTitle</span>
+                                    <span class="accordionPoly"><img style="width:7vw;" src="../css/images/arrow3.svg" /></span>
+                                </div>
+
+                            </div>
+                            @if (openSubCatsOptions)
+                            {
+                                <div class="subCatsDropDown">
+                                    @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
+                                    {
+                                        @if (subcategoryOpt.id != overDraftSubCategory.id)
+                                        {
+                                            <div @onclick="()=>HandleChange(subcategoryOpt)">
+                                                @subcategoryOpt.subCategoryTitle
+                                            </div>
+                                        }
+                                    }
+                                </div>
+
+                            }
+                        </div>
+                        <div class="outerBudgets">
+                            <div class="outerBudgetTitle">
+                                <div style="font-weight: 600;">תקציב:</div>
+                                <div class="titleDivder"></div>
+                            </div>
+                            @if (string.IsNullOrEmpty(chosenSubCategory.subCategoryTitle))
+                            {
+                                <div>
+                                    נוכחי: 0 <span>₪</span>
+
+                                </div>
+                                <div>
+                                    עתידי: 0 <span>₪</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div>
+                                    נוכחי: @chosenSubCategory.monthlyPlannedBudget
+                                    <span>₪</span>
+                                </div>
+                                <div>
+                                    עתידי: @(
+                                 chosenSubCategory.monthlyPlannedBudget - currentGap
+                                 )
+                                    <span>₪</span>
+                                </div>
+                            }
+                        </div>
+
+                    </div>
+                    <div class="outerToSubCat">
+
+                        <span style="font-weight:700;">העברה ל:</span>
+                        <div class="outerDropAndOptions">
+                            <div class="outerDropAndPoly">
+                                <div class="subCatsDrop" style="justify-content: center;">
+                                    @(
+                                        overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
+                                        )
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="outerBudgets">
+                            <div class="outerBudgetTitle">
+                                <div style="font-weight: 600;">תקציב:</div>
+                                <div class="titleDivder"></div>
+                            </div>
+                            @if (string.IsNullOrEmpty(chosenSubCategory.subCategoryTitle))
+                            {
+                                <div>
+                                    נוכחי: @(
+                                 closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)
+                                    <span>₪</span>
+                                </div>
+                                <div>
+                                    עתידי: 0 <span>₪</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div>
+                                    נוכחי: @(
+                                 closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)
+                                    <span>₪</span>
+                                </div>
+                                <div>
+                                    עתידי: @(
+                                 closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap)
+                                    <span>₪</span>
+                                </div>
+
+                            }
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="outerBtns">
+
+                    @if (chosenSubCategory == null)
+                    {
+                        <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer" disabled>העברה</button>
+                    }
+                    else
+                    {
+                        <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
+                    }
+                    <button class="thirdBtn" @onclick="NotTreatedOverdraft">אטפל בהמשך</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 }
 
 @code {
@@ -339,6 +498,20 @@
     string titleInput = "";
     int titleInputLength = 0;
 
+    bool overdraftDetected = false;
+    bool overdraftOverlayOpen = false;
+    bool overdraftNotTreated = false;
+    bool openSubCatsOptions = false;
+    OverBudgetToShow chosenSubCategory = new OverBudgetToShow();
+
+    protected override void OnInitialized()
+    {
+        if (categoryColor==null || categoryColor=="")
+        {
+            categoryColor="#678EF4"; //default color
+        }
+    }
+
     public async Task accordionControl()
     {
         isAccordionClick = !isAccordionClick;
@@ -348,80 +521,80 @@
         }
     }
 
-    public string convertCatColors(string? catColor)
-    {
-        string convertedColor = "";
-        switch (catColor)
-        {
-            case "#F4B367": //mustard
-                convertedColor = "rgba(244, 179, 103, 1)";
+    //public string convertCatColors(string? catColor)
+    //{
+    //    string convertedColor = "";
+    //    switch (catColor)
+    //    {
+    //        case "#F4B367": //mustard
+    //            convertedColor = "rgba(244, 179, 103, 1)";
 
-                Console.WriteLine("cat color is mustard");
-                break;
-            case "#AEA2F9": //purple
-                convertedColor = "rgba(174, 162, 249, 1)";
+    //            Console.WriteLine("cat color is mustard");
+    //            break;
+    //        case "#AEA2F9": //purple
+    //            convertedColor = "rgba(174, 162, 249, 1)";
 
-                Console.WriteLine("cat color is dark purple");
-                break;
-            case "#F467AB": //dark pink
-                convertedColor = "rgba(244, 103, 171, 1)";
+    //            Console.WriteLine("cat color is dark purple");
+    //            break;
+    //        case "#F467AB": //dark pink
+    //            convertedColor = "rgba(244, 103, 171, 1)";
 
-                Console.WriteLine("cat color is dark pink");
-                break;
-            case "#F47867": //salmon pink
-                convertedColor = "rgba(244, 120, 103, 1)";
+    //            Console.WriteLine("cat color is dark pink");
+    //            break;
+    //        case "#F47867": //salmon pink
+    //            convertedColor = "rgba(244, 120, 103, 1)";
 
-                Console.WriteLine("cat color is salmon pink");
-                break;
-            case "#678EF4": //defualt
-                convertedColor = "rgba(103, 142, 244, 1)";
+    //            Console.WriteLine("cat color is salmon pink");
+    //            break;
+    //        case "#678EF4": //defualt
+    //            convertedColor = "rgba(103, 142, 244, 1)";
 
-                Console.WriteLine("cat color is default");
-                break;
-            case "#8DE4BF": //light green
-                convertedColor = "rgba(141, 228, 191, 1)";
+    //            Console.WriteLine("cat color is default");
+    //            break;
+    //        case "#8DE4BF": //light green
+    //            convertedColor = "rgba(141, 228, 191, 1)";
 
-                Console.WriteLine("cat color is light green");
-                break;
-            case "#67CAF4": //light blue
-                convertedColor = "rgba(103, 202, 244, 1)";
+    //            Console.WriteLine("cat color is light green");
+    //            break;
+    //        case "#67CAF4": //light blue
+    //            convertedColor = "rgba(103, 202, 244, 1)";
 
-                Console.WriteLine("cat color is light blue");
-                break;
-            case "#FCE884": //banana
-                convertedColor = "rgba(255, 239, 157, 1)";
+    //            Console.WriteLine("cat color is light blue");
+    //            break;
+    //        case "#FCE884": //banana
+    //            convertedColor = "rgba(255, 239, 157, 1)";
 
-                Console.WriteLine("cat color is banana");
-                break;
-            case "#F9D3C2": //cream
-                convertedColor = "rgba(249, 211, 194, 1)";
+    //            Console.WriteLine("cat color is banana");
+    //            break;
+    //        case "#F9D3C2": //cream
+    //            convertedColor = "rgba(249, 211, 194, 1)";
 
-                Console.WriteLine("cat color is cream");
-                break;
-            case "#09AE73": //dark green
-                convertedColor = "rgba(9, 174, 115, 1)";
+    //            Console.WriteLine("cat color is cream");
+    //            break;
+    //        case "#09AE73": //dark green
+    //            convertedColor = "rgba(9, 174, 115, 1)";
 
-                Console.WriteLine("cat color is dark green");
-                break;
-            case "#8C8B8B": //dark gray
-                convertedColor = "rgba(140, 139, 139, 1)";
+    //            Console.WriteLine("cat color is dark green");
+    //            break;
+    //        case "#8C8B8B": //dark gray
+    //            convertedColor = "rgba(140, 139, 139, 1)";
 
-                Console.WriteLine("cat color is dark gray");
-                break;
-            case "#DADADA": //gray
-                convertedColor = "rgba(218, 218, 218, 1)";
+    //            Console.WriteLine("cat color is dark gray");
+    //            break;
+    //        case "#DADADA": //gray
+    //            convertedColor = "rgba(218, 218, 218, 1)";
 
-                Console.WriteLine("cat color is light gray");
-                break;
-            case null: //defualt
-                convertedColor = "rgba(103, 142, 244, 1)";
+    //            Console.WriteLine("cat color is light gray");
+    //            break;
+    //        case null: //defualt
+    //            convertedColor = "rgba(103, 142, 244, 1)";
 
-                Console.WriteLine("cat color is default");
-                break;
-        };
+    //            Console.WriteLine("cat color is default");
+    //            break;
+    //    };
 
-        return convertedColor;
-    }
+    //    return convertedColor;
+    //}
 
     public async Task getSubCategories()
     {
@@ -498,7 +671,7 @@
             newSubCatToShow.transactionsValue = 0;
             if (newSubCategory.categoryID == Category.id)
             {
-            subCategories.Add(newSubCatToShow);
+                subCategories.Add(newSubCatToShow);
             }
             newSubCatToShow = new SubCategoryToShow();
             // להפעיל מחדש פונקציה שמושכת את האלמנטים בדף הבית
@@ -585,6 +758,7 @@
         deleteBtnClicked = false;
         isOpetionsBtnClicked = false;
         closeOverlay.InvokeAsync(true);
+        OpetionsBtnClicked();
     }
 
     public void OpetionsBtnClicked()
@@ -598,6 +772,7 @@
         deleteBtnClicked = !deleteBtnClicked;
         editBtnClicked = false;
         isOpetionsBtnClicked = false;
+        OpetionsBtnClicked();
 
     }
 
@@ -651,7 +826,28 @@
             else if (editedSubCat.id == subcategory.id)
             {
                 subcategory.subCategoryTitle = editedSubCat.subCategoryTitle;
-                subcategory.monthlyPlannedBudget = editedSubCat.monthlyPlannedBudget;
+
+                if (!categoryTypeIndicator)
+                {
+                    subcategory.monthlyPlannedBudget = editedSubCat.monthlyPlannedBudget;
+                    //checking overdraft:
+                    for (int i = 0; i < subCategories.Count; i++)
+                    {
+                        if (subCategories[i].id == editedSubCat.id)
+                        {
+                            if (editedSubCat.monthlyPlannedBudget.HasValue)
+                            {
+                                if (editedSubCat.monthlyPlannedBudget.Value < subCategories[i].transactionsValue)
+                                {
+                                    //alert overdraft pop up
+
+                                    checkOverdraft(subCategories[i].id);
+                                }
+                            }
+                        }
+                    }
+                }
+
             }
         }
     }
@@ -712,7 +908,9 @@
 
     void closeDeleteOverlay()
     {
+        OpetionsBtnClicked();
         closeOverlay.InvokeAsync(true);
+
     }
 
     public void updateStreak(string? newStreakStat)
@@ -724,5 +922,121 @@
     {
         titleInput = e.Value.ToString();
         titleInputLength = titleInput.Length;
+    }
+    //--------------------//
+    List<OverBudgetToShow> closeOverdraftOpts = new List<OverBudgetToShow>();
+    double currentGap = 0;
+    OverBudgetToShow overDraftSubCategory = new OverBudgetToShow();
+
+    public async Task checkOverdraft(int subCatID)
+    {
+        //if (overDraftSubCategory==null)
+        //{
+        var getOverdraftDetails= await Http.GetAsync("api/Present/GetSubCategory/"+subCatID);
+        if (getOverdraftDetails.IsSuccessStatusCode)
+        {
+            SubCategoryToShow tempSub = await getOverdraftDetails.Content.ReadFromJsonAsync<SubCategoryToShow>();
+            if (tempSub!=null)
+            {
+                overDraftSubCategory.id=subCatID;
+                overDraftSubCategory.subCategoryTitle=tempSub.subCategoryTitle;
+
+                overDraftSubCategory.remainingBudget = tempSub.transactionsValue;
+                if (tempSub.monthlyPlannedBudget.HasValue)
+                {
+                    overDraftSubCategory.monthlyPlannedBudget = tempSub.monthlyPlannedBudget.Value;
+                }
+            }
+        }
+        //}
+        var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
+        if (overdraftRes.IsSuccessStatusCode)
+        {
+            overdraftDetected = true;
+            overdraftOverlayOpen = true;
+            closeOverdraftOpts = new List<OverBudgetToShow>();
+            closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
+            currentGap = (closeOverdraftOpts[closeOverdraftOpts.Count - 1].remainingBudget) - (closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget);
+
+            overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
+            overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
+            chosenSubCategory = new OverBudgetToShow();
+        }
+        else
+        {
+            Console.WriteLine("No overdraft detected");
+
+        }
+    }
+
+    private void HandleChange(OverBudgetToShow chosenSubCat)
+    {
+        /*var selectedTitle = e.Value.ToString()*/
+
+        chosenSubCategory = chosenSubCat;
+        openSubCatsOptions = !openSubCatsOptions;
+    }
+
+    List<OverDraftBudgetToEdit> budgetToUpdate = new List<OverDraftBudgetToEdit>();
+    public async Task manageBudgetsToTranfer()
+    {
+        budgetToUpdate = new List<OverDraftBudgetToEdit>();
+
+        budgetToUpdate.Add(new OverDraftBudgetToEdit
+            {
+                id = chosenSubCategory.id,  // ID of chosen subcategory
+                monthlyPlannedBudget = chosenSubCategory.monthlyPlannedBudget - currentGap // Updated budget
+
+            });
+
+
+        budgetToUpdate.Add(new OverDraftBudgetToEdit
+            {
+                id = overDraftSubCategory.id, // ID of the overdraft subcategory
+                monthlyPlannedBudget = overDraftSubCategory.monthlyPlannedBudget + currentGap // Updated budget
+            });
+
+        await updateSubCategoryBudget(budgetToUpdate);
+
+    }
+
+    public async Task updateSubCategoryBudget(List<OverDraftBudgetToEdit> budgetsToUpdate)
+    {
+
+        var budgetToSaveRes = await Http.PostAsJsonAsync("api/Transactions/EditSubCategoriesNewBudgets", budgetsToUpdate);
+        if (budgetToSaveRes.IsSuccessStatusCode)
+        {
+            Console.WriteLine("התקציבים עודכנו בהצלחה :)");
+
+            overdraftDetected = false;
+            overdraftNotTreated = false;
+
+            foreach (SubCategoryToShow sub in subCategories)
+            {
+                if (sub.id == budgetsToUpdate[1].id)
+                {
+                    sub.monthlyPlannedBudget = budgetsToUpdate[1].monthlyPlannedBudget;
+                }
+                if (sub.id == budgetsToUpdate[0].id)
+                {
+                    sub.monthlyPlannedBudget = budgetsToUpdate[0].monthlyPlannedBudget;
+
+                }
+            }
+            await accordionControl();
+
+        }
+        else
+        {
+            Console.WriteLine("עדכון התקציבים נכשל");
+        }
+    }
+
+    public void NotTreatedOverdraft()
+    {
+        overdraftDetected=false;
+        overdraftNotTreated=true;
+        //overdraftOverlayOpen = false;
+
     }
 }
