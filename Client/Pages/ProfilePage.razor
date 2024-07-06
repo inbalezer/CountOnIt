@@ -60,9 +60,11 @@
                             <button @onclick="ToggleKeyboard" id="emoji-trigger" class="hideDefaultEmojiBtn"><img src="../css/images/add emoji (1).svg" /></button>
                             }*@
 
-                                    <button @onclick="ToggleKeyboard" id="emoji-trigger"><img style="vertical-align: middle;
+                                    <button @onclick="ToggleKeyboard" id="emoji-trigger">
+                                        <img style="vertical-align: middle;
     background-color: #F9F9F9;
-    border-radius: 26%;" src="../css/images/add emoji (1).svg" /></button>
+    border-radius: 26%;" src="../css/images/add emoji (1).svg" />
+                                    </button>
 
                                     @*else
                             {
@@ -105,7 +107,7 @@
                         <div class="outerTitleAndCounter">
                             <div class="input-container">
                                 <div>שם פרטי:</div>
-                                <input class="titleBox" type="text" maxlength="15" @oninput="firstNameLengthCheck" placeholder="@currentUser.firstName" />
+                                <input class="titleBox" type="text" maxlength="15" @oninput="firstNameLengthCheck" value="@currentUser.firstName" />
                                 <div class="counter">
                                     @if (newFirstNameLength > 0)
                                     {
@@ -123,7 +125,7 @@
                         <div class="outerTitleAndCounter">
                             <div class="input-container">
                                 <div>שם משפחה:</div>
-                                <input class="titleBox" type="text" maxlength="15" @oninput="lastNameLengthCheck" placeholder="@currentUser.lastName" />
+                                <input class="titleBox" value="@currentUser.lastName" type="text" maxlength="15" @oninput="lastNameLengthCheck">
                                 <div class="counter">
                                     @if (newLastNameLength > 0)
                                     {
@@ -171,50 +173,90 @@
 
         <div class="outerTitleAndStartDay">
             <div class="outerText">
+
                 <span class="titleName">יום תחילת תזרים:</span>
 
             </div>
         </div>
-        <div class="outerDay">
-            <div class="dayBox">
-                <div>
-                    @if (startMonthDate > 0)
-                    {
-                        <span> ה - @startMonthDate לחודש</span>
-                    }
-                    else
-                    {
-                        <span> ה - @currentUser.monthStartDate לחודש</span>
-                    }
+        <div class="outerDaysOptions">
+
+            <div class="outerDay">
+                <div class="dayBox">
+                    <div>
+                        @if (!editBtnClicked)
+                        {
+
+                            @if (startMonthDate > 0)
+                            {
+                                <span> ה - @startMonthDate לחודש</span>
+                            }
+                            else
+                            {
+                                <span> ה - @currentUser.monthStartDate לחודש</span>
+                            }
+                        }
+                        else
+                        {
+                            <div class="outerDropAndPoly" @onclick="()=> openStartOptions =!openStartOptions">
+                                <div>
+                                    @if (startMonthDate > 0)
+                                    {
+                                        <span> ה - @startMonthDate לחודש</span>
+                                    }
+                                    else
+                                    {
+                                        <span> ה - @currentUser.monthStartDate לחודש</span>
+                                    }
+                                </div>
+                                <img src="../css/images/arrow3.svg" />
+                            </div>
+                        }
+                    </div>
                 </div>
+
             </div>
 
-        </div>
+            <div class="outerDays">
 
-        <div>
-
-            @if (editBtnClicked)
-            {
-                <div>
-                    <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=1)">ה-1 לחודש</button>
-                    <div class="divider"></div>
-                    <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=2)">ה-2 לחודש</button>
-                    <div class="divider"></div>
-                    <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=10)">ה-10 לחודש</button>
-                    <div class="divider"></div>
-                    <button class="dropDownOptionBtn" @onclick="@(()=>startMonthDate=15)">ה-15 לחודש</button>
-                </div>
-            }
+                @if (editBtnClicked)
+                {
+                    @if (openStartOptions)
+                    {
+                        <div>
+                            <div class="startDays">
+                                <button class="dropDownOptionDaysBtn" @onclick="(()=>startDaysOptions(1))">ה-1 לחודש</button>
+                                <div class="divider"></div>
+                                <button class="dropDownOptionDaysBtn" @onclick="(()=>startDaysOptions(2))">ה-2 לחודש</button>
+                                <div class="divider"></div>
+                                <button class="dropDownOptionDaysBtn" @onclick="(()=>startDaysOptions(10))">ה-10 לחודש</button>
+                                <div class="divider"></div>
+                                <button class="dropDownOptionDaysBtn" @onclick="(()=>startDaysOptions(15))">ה-15 לחודש</button>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
         </div>
     </div>
 
     <div>
 
         <div class="outerTitleAndStartDay">
-            <div class="outerText">
-                <span class="titleName">תאריך הרשמה:</span>
+            @if (!editBtnClicked)
+            {
+                <div class="outerText">
+                    <span class="titleName">תאריך הרשמה:</span>
 
-            </div>
+                </div>
+            }
+            else
+            {
+                <div class="outerText">
+                    <span style="color:#727272;" class="titleName">תאריך הרשמה:</span>
+
+                </div>
+            }
+
         </div>
         <div class="outerDay">
             <div class="dayBox">
@@ -252,17 +294,36 @@
 
                                 foreach (TagsToShow tag in GetCurrentPageTags())
                                 {
-                                    var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
-                                    <button class="tag"
+                                    @if (!editBtnClicked)
+                                    {
+                                        var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
+                                        <button class="tag"
                             @onclick="(() => ChooseTagForTrans(tag))"
                             style="background-color:@tag.tagColor; @fontWeight">
-                                        @tag.tagTitle
-                                    </button>
-                                    @if (editBtnClicked)
-                                    {
-                                        <button class="options" @onclick="()=>OptionsBtnClicked=!OptionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+                                            @tag.tagTitle
+                                        </button>
                                     }
+                                    else
+                                    {
+                                        var fontWeight = (chosenTag == tag) ? "font-weight: 400;" : "";
+                                        <div class="outerEditTags" @onclick="()=>chosenTagFunc(tag)">
+                                            <button class="Editedtag"
+                                style="background-color:@tag.tagColor; @fontWeight">
+                                                @tag.tagTitle
 
+                                                <button class="options"><img style="height:1rem;" src="../css/images/option menu.svg" /></button>
+
+
+                                            </button>
+
+                                        </div>
+                                    }
+                                }
+                                @if (OptionsBtnClicked)
+                                {
+                                    <div class="outerOptions">
+                                    <OptionsMenuComponent editBtnClicked="openEditOrAddTagOverlay" deleteBtnClicked="callDeleteWarning" closeOverlay="()=>openDeleteTagWarning(true)"></OptionsMenuComponent>
+                                     </div>
                                 }
                             }
                             else
@@ -281,10 +342,7 @@
                                 }
                             }
 
-                            if (OptionsBtnClicked)
-                            {
-                                <OptionsMenuComponent editBtnClicked="openEditOrAddTagOverlay" deleteBtnClicked="callDeleteWarning" closeOverlay="()=>openDeleteTagWarning(true)"></OptionsMenuComponent>
-                            }
+
                         }
                     </div>
                     <div class="outerBtnAndDots">
@@ -469,6 +527,7 @@
     bool openOnbaordings = false;
     bool disNextBtn = false;
     bool isTagChosen = false;
+    bool openStartOptions = false;
     string disBtnStyle => disBtn ? "disBtn" : "";
     string disNextBtnStyle => disNextBtn ? "disBtn" : "";
     string chosenTagStyle => isTagChosen ? "chosenTag" : "";
@@ -698,7 +757,7 @@
         editTag = !editTag;
         if (chosenTag.id > 0)
         {
-            tagToEdit.id = chosenTag.id;
+            tagToEdit = chosenTag;
         }
         else
         {
@@ -797,4 +856,18 @@
     {
         Nav.NavigateTo("./StreakProgressPage/" + userID);
     }
+
+    public void startDaysOptions(int chosenDay)
+    {
+        startMonthDate = chosenDay;
+        openStartOptions = false;
+    }
+
+    public void chosenTagFunc(TagsToShow chosenTagToEdit)
+    {
+        OptionsBtnClicked = !OptionsBtnClicked;
+        chosenTag = chosenTagToEdit;
+    }
 }
+
+
