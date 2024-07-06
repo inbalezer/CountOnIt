@@ -277,9 +277,12 @@
 
         <div>
             @if (editBtnClicked)
-            {
-                <button @onclick="openEditOrAddTagOverlay">הוספת תגית</button>
-                <br />
+            {               
+                <button class="addTagBtn"  @onclick="openEditOrAddTagOverlay">
+                    הוספת תגית
+                    <img src="../css/images/addtag.svg" />
+                </button>
+                
             }
         </div>
         <div class="outerDay">
@@ -322,8 +325,8 @@
                                 @if (OptionsBtnClicked)
                                 {
                                     <div class="outerOptions">
-                                    <OptionsMenuComponent editBtnClicked="openEditOrAddTagOverlay" deleteBtnClicked="callDeleteWarning" closeOverlay="()=>openDeleteTagWarning(true)"></OptionsMenuComponent>
-                                     </div>
+                                        <OptionsMenuComponent editBtnClicked="openEditOrAddTagOverlay" deleteBtnClicked="callDeleteWarning" closeOverlay="()=>openDeleteTagWarning(true)"></OptionsMenuComponent>
+                                    </div>
                                 }
                             }
                             else
@@ -401,93 +404,146 @@
 
 @if (editTag)
 {
+    OptionsBtnClicked = false;
+    ogTagColor = chosenTag.tagColor;
+    if(isTagColor)
+    {
+        convertTagColors(chosenTag.tagColor);
+    }
+    
     <div>
-        @if (tagToEdit.id > 0)
-        {
-            <h3>עריכת תגית</h3>
-            <div>שם התגית:</div>
-            <input type="text" placeholder="@chosenTag.tagTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
-            @if (tagTitleInputLength == 0)
-            {
-                <span>@chosenTag.tagTitle.Length/8</span>
-            }
-            else
-            {
-                <span>@tagTitleInputLength/8</span>
-            }
-
-        }
-        else
-        {
-            <h3>הוספת תגית</h3>
-            <div>שם התגית:</div>
-            <input type="text" @oninput="tagTitleLengthCheck" maxlength="8" />
-            @if (tagToEdit.tagTitle.Length <= 0)
-            {
-                <span style="color:red">@tagTitleInputLength/8</span>
-            }
-            else
-            {
-                <span>@tagTitleInputLength/8</span>
-            }
-
-        }
-        <div>
-            <div>צבע התגית:</div>
-            <div class="outerColors">
-
-                <div class="colorsContainer">
-                    <div class="colorsRow">
-                        @foreach (var color in new[] { "#F4B367", "#AEA2F9", "#F467AB", "#F47867", "#6775F4", "#8DE4BF" })
+        <div class="megaOuterLay">
+            <div class="outerLay">
+                <div class="BgOverlay"> </div>
+                <div class="overlay">
+                    <div class="paddingDiv">
+                        @if (tagToEdit.id > 0)
                         {
-                            <div id="@(color)" class="@(selectedClass == color ? "color-selected" : "")">
-                                <input style="opacity:0;" type="radio" name="categoryColors" value="@color"
-                               @onclick="() => UpdateColor(color)" />
-
+                            <div class="outerTitleAndIcon">
+                                <button class="closeOverlay" @onclick="closeTagsOverlay"><img src="../css/images/close x.svg" /></button>
+                                <h3 class="titleName" style="font-size: 1.2rem;">עריכת תגית</h3>
                             </div>
+
+                            <div class="outerTitleAndCounter">
+                                <div class="input-container">
+                                    <div>שם התגית:</div>
+                                    <input type="text" class="catTitle" value="@chosenTag.tagTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
+                                    <div class="counter">
+
+                                        @if (tagTitleInputLength == 0)
+                                        {
+                                            <span>@chosenTag.tagTitle.Length/8</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@tagTitleInputLength/8</span>
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+
                         }
-                    </div>
-                    <div class="colorsRow">
-                        @foreach (var color in new[] { "#67CAF4", "#FCE884", "#F9D3C2", "#16A78D", "#696969", "#DADADA" })
+                        else
                         {
-                            <div id="@(color)" class="@(selectedClass == color ? "color-selected" : "")">
-                                <input style="opacity:0;" type="radio" name="categoryColors" value="@color"
-                               @onclick="() => UpdateColor(color)" />
 
+                              <div class="outerTitleAndIcon">
+                                <button class="closeOverlay" @onclick="closeTagsOverlay"><img src="../css/images/close x.svg" /></button>
+                                <h3 class="titleName" style="font-size: 1.2rem;">הוספת תגית</h3>
                             </div>
+
+
+                            <div class="outerTitleAndCounter">
+                                <div class="input-container">
+                                    <div>שם התגית:</div>
+                                     <input type="text" class="catTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
+                                    <div class="counter">
+
+                                        @if (tagTitleInputLength == 0)
+                                        {
+                                            <span>@chosenTag.tagTitle.Length/8</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@tagTitleInputLength/8</span>
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>                     
+                        }
+                        <div class="outerNameAndColor">
+                            <div>צבע התגית:</div>
+                            <div class="outerColors">
+
+                                <div class="colorsContainer">
+                                    <div class="colorsRow">
+                                        
+                                        @foreach (var color in new[] { "#F4B367", "#AEA2F9", "#F467AB", "#F47867", "#6775F4", "#8DE4BF" })
+                                        {
+                                            
+                                            <div id="@(color)" class="@(selectedClass == color ? "color-selected" : "")">
+                                                <input style="opacity:0;" type="radio" name="categoryColors" value="@color"
+                                               @onclick="() => UpdateColor(color)" />
+
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="colorsRow">
+                                        @foreach (var color in new[] { "#67CAF4", "#FCE884", "#F9D3C2", "#16A78D", "#696969", "#DADADA" })
+                                        {
+                                            <div id="@(color)" class="@(selectedClass == color ? "color-selected" : "")">
+                                                <input style="opacity:0;" type="radio" name="categoryColors" value="@color"
+                                               @onclick="() => UpdateColor(color)" />
+
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                        </div>
+
+                        @if (tagToEdit.id > 0)
+                        {
+                            <div class="outerSaveBtns">
+                            @if (tagToEdit.tagTitle.Length > 0 && tagToEdit.tagColor.Length > 0)
+                            {
+                                <button class="primery-button" @onclick="updateTag">שמירה וסיום</button>
+                            }
+                            else
+                            {
+                                <button class="primery-button" @onclick="updateTag" disabled>שמירה וסיום</button>
+                            }
+                        </div>
+                            
+
+                        }
+                        else
+                        {
+
+                            <div class="outerSaveBtns">
+                            @if (tagToEdit.tagTitle.Length > 0 && tagToEdit.tagColor.Length > 0)
+                            {
+                                <button class="primery-button" @onclick="addTag">שמירה וסיום</button>
+                            }
+                            else
+                            {
+                                <button class="primery-button" @onclick="addTag" disabled>שמירה וסיום</button>
+                            }
+                        </div>
+
+                           
+
                         }
                     </div>
                 </div>
             </div>
-            <br />
         </div>
 
-        @if (tagToEdit.id > 0)
-        {
-            if (tagToEdit.tagTitle.Length > 0 && tagToEdit.tagColor.Length > 0)
-            {
-                <button @onclick="updateTag">שמירה וסיום</button>
-            }
-            else
-            {
-                <button @onclick="updateTag" disabled>שמירה וסיום</button>
-            }
-
-        }
-        else
-        {
-            if (tagToEdit.tagTitle.Length > 0 && tagToEdit.tagColor.Length > 0)
-            {
-                <button @onclick="addTag">שמירה וסיום</button>
-            }
-            else
-            {
-                <button @onclick="addTag" disabled>שמירה וסיום</button>
-            }
-
-        }
-
     </div>
+
+
 }
 
 
@@ -516,6 +572,7 @@
     string newFirstName = "";
     string newLastName = "";
     string chosenOnboarding = "";
+    string ogTagColor = "";
     string firstOn = "סביבת מבט אל העבר";
     string secondOn = "סביבת מבט אל ההווה";
     string thirdOn = "סביבת מבט אל העתיד";
@@ -528,6 +585,7 @@
     bool disNextBtn = false;
     bool isTagChosen = false;
     bool openStartOptions = false;
+    bool isTagColor = true;
     string disBtnStyle => disBtn ? "disBtn" : "";
     string disNextBtnStyle => disNextBtn ? "disBtn" : "";
     string chosenTagStyle => isTagChosen ? "chosenTag" : "";
@@ -614,6 +672,7 @@
             }
             newFirstNameLength = currentUser.firstName.Length;
             newLastNameLength = currentUser.lastName.Length;
+
 
             onInitializedOver = true;
         }
@@ -868,6 +927,96 @@
         OptionsBtnClicked = !OptionsBtnClicked;
         chosenTag = chosenTagToEdit;
     }
+
+    public void convertTagColors(string tagColor)
+    {
+        Console.WriteLine(tagColor);
+        string convertedColor = "";
+        string outlineColor = "";
+        switch (tagColor)
+        {
+            case "rgba(244, 179, 103, 0.4)": //mustard
+                convertedColor = "rgba(244, 179, 103, 0.13)";
+                outlineColor = "#F4B367";
+                Console.WriteLine("cat color is mustard");
+                break;
+            case "rgba(174, 162, 249, 0.4)": //purple
+                convertedColor = "rgba(174, 162, 249, 0.13)";
+                outlineColor = "#AEA2F9";
+                Console.WriteLine("cat color is dark purple");
+                break;
+            case "rgba(244, 103, 171, 0.4)": //dark pink
+                convertedColor = "rgba(244, 103, 171, 0.13)";
+                outlineColor = "#F467AB";
+                Console.WriteLine("cat color is dark pink");
+                break;
+            case "rgba(244, 120, 103, 0.4)": //salmon pink
+                convertedColor = "rgba(244, 120, 103, 0.13)";
+                outlineColor = "#F47867";
+                Console.WriteLine("cat color is salmon pink");
+                break;
+            case "rgba(103, 142, 244, 0.4)": //defualt
+                convertedColor = "rgba(103, 142, 244, 0.13)";
+                outlineColor = "#678EF4";
+                Console.WriteLine("cat color is default");
+                break;
+            case "rgba(141, 228, 191, 0.4)": //light green
+                convertedColor = "rgba(141, 228, 191, 0.13)";
+                outlineColor = "#8DE4BF";
+                Console.WriteLine("cat color is light green");
+                break;
+            case "rgba(103, 202, 244, 0.4)": //light blue
+                convertedColor = "rgba(103, 202, 244, 0.13)";
+                outlineColor = "#67CAF4";
+                Console.WriteLine("cat color is light blue");
+                break;
+            case "rgba(255, 239, 157, 0.4)": //banana
+                convertedColor = "rgba(255, 239, 157, 0.13)";
+                outlineColor = "#FCE884";
+                Console.WriteLine("cat color is banana");
+                break;
+            case "rgba(249, 211, 194, 0.4)": //cream
+                convertedColor = "rgba(249, 211, 194, 0.13)";
+                outlineColor = "#F9D3C2";
+                Console.WriteLine("cat color is cream");
+                break;
+            case "rgba(9, 174, 115, 0.4)": //dark green
+                convertedColor = "rgba(9, 174, 115, 0.13)";
+                outlineColor = "#09AE73";
+                Console.WriteLine("cat color is dark green");
+                break;
+            case "rgba(140, 139, 139, 0.4)": //dark gray
+                convertedColor = "rgba(140, 139, 139, 0.25)";
+                outlineColor = "#8C8B8B";
+                Console.WriteLine("cat color is dark gray");
+                break;
+            case "rgba(218, 218, 218, 0.4)": //gray
+                convertedColor = "rgba(218, 218, 218, 0.13)";
+                outlineColor = "#DADADA";
+                Console.WriteLine("cat color is light gray");
+                break;
+            default:
+                convertedColor = "rgba(103, 142, 244, 0.13)";
+                outlineColor = "rgba(103, 142, 244, 1)";
+                Console.WriteLine("cat color is default");
+                break;
+        };
+
+        selectedClass = outlineColor;
+        isTagColor = false;
+    }
+
+    void closeTagsOverlay()
+    {
+        editTag = !editTag;
+        isTagColor = false;
+        if(selectedClass == null || selectedClass == "")
+        {
+            selectedClass = ogTagColor;
+        }
+
+    }
+
 }
 
 
