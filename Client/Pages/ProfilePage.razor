@@ -24,95 +24,121 @@
                 </div>
 
                 <h3 class="myProfileText">הפרופיל של @currentUser.firstName @currentUser.lastName</h3>
-                <div>
-                    <button class="options" @onclick="()=>OptionsBtnProfileClicked=!OptionsBtnProfileClicked"><img src="../css/images/option menu.svg" /></button>
-                </div>
-                @if (OptionsBtnProfileClicked)
-                {
-                    <div class="outerOptions">
-                        <button class="optionButton editButton" @onclick="editProfile">
-                            <img src="../css/images/edit_pencil.svg" class="icon" />
-                            עריכה
-                        </button>
+                <div class="outerDotsAndOptions">
+                    <div>
+                        <button class="options" @onclick="()=>OptionsBtnProfileClicked=!OptionsBtnProfileClicked"><img src="../css/images/option menu.svg" /></button>
                     </div>
-                }
 
+                </div>
             </div>
         </div>
+        @if (OptionsBtnProfileClicked)
+        {
+            <div class="outerOptions">
+                <button class="optionButton editButton" @onclick="editProfile">
+                    <img src="../css/images/edit_pencil.svg" class="icon" />
+                    עריכה
+                </button>
+            </div>
+        }
 
 
 
         <div id="mainUserInfo">
             @if (editBtnClicked)
             {
-                <div>
-                    <div>שם פרטי:</div><br />
-                    <input type="text" maxlength="15" @oninput="firstNameLengthCheck" placeholder="@currentUser.firstName" />
-                    @if (newFirstNameLength > 0)
-                    {
-                        <span>@newFirstNameLength/15</span>
-                    }
-                    else
-                    {
-                        <span style="color:red">@newFirstNameLength/15</span>
-                    }
-                    <div>שם משפחה:</div>
-                    <input type="text" maxlength="15" @oninput="lastNameLengthCheck" placeholder="@currentUser.lastName" />
-                    @if (newLastNameLength > 0)
-                    {
-                        <span>@newLastNameLength/15</span>
-                    }
-                    else
-                    {
-                        <span style="color:red">@newLastNameLength/15</span>
-                    }
-                </div>
-                <div class="keyBoardAndBtn">
-                    <div class="outerCancleAndEmoji">
-                        @if (currentUser.profilePicOrIcon.Length > 0)
-                        {
-                            <button @onclick="ToggleKeyboard" id="emoji-trigger" class="hideDefaultEmojiBtn"><img src="../css/images/add emoji (1).svg" /></button>
-                        }
-                        else if (isCancleBtnClicked)
-                        {
-                            <button @onclick="ToggleKeyboard" id="emoji-trigger"><img src="../css/images/add emoji (1).svg" /></button>
-                        }
-                        else
-                        {
-                            <button @onclick="ToggleKeyboard" id="emoji-trigger" class="@hideBtn"><img src="../css/images/add emoji (1).svg" /></button>
-                        }
-                        @if (noEmojiBtn || currentUser.profilePicOrIcon.Length > 0)
-                        {
+                <div class="outerSecondSection">
 
-                            <div class="outerCancleAndEmoji">
-                                <button @onclick="deleteSelectedEmoji" class="cancleEmoji">ביטול בחירה</button>
-                                <button @onclick="ToggleKeyboard" class="selectedEmoji">
-                                    <span class="emoji">@currentUser.profilePicOrIcon</span>
-                                    <img src="../css/images/+ icon.svg" class="plusIcon" />
-                                </button>
-                            </div>
+                    <div class="profileAndStreak">
+                        <div class="outerEmojiAndBtn">
 
-                        }
-                    </div>
-
-
-                    <div class="emoji-keyboard @visibilityClass">
-                        <div class="emoji-categories">
-                            @foreach (var category in emojiCategories.Keys)
+                            <button class="profilePic">@currentUser.profilePicOrIcon</button>
+                            <div class="keyBoardAndBtn">
+                                <div class="outerCancleAndEmoji">
+                                    @*  @if (currentUser.profilePicOrIcon.Length > 0)
                             {
-                                <button class="category-button @(selectedCategory == category ? "active" : "")"
-                            @onclick="() => SelectCategory(category)">
-                                    @category
-                                </button>
-                            }
-                        </div>
-                        <div class="emoji-section">
+                            <button @onclick="ToggleKeyboard" id="emoji-trigger" class="hideDefaultEmojiBtn"><img src="../css/images/add emoji (1).svg" /></button>
+                            }*@
 
-                            <div @onclick="() => SelectEmoji(currentUser.profilePicOrIcon)" class="emoji">@currentUser.profilePicOrIcon</div>
+                                    <button @onclick="ToggleKeyboard" id="emoji-trigger"><img style="vertical-align: middle;
+    background-color: #F9F9F9;
+    border-radius: 26%;" src="../css/images/add emoji (1).svg" /></button>
 
+                                    @*else
+                            {
+                            <button @onclick="ToggleKeyboard" id="emoji-trigger" class="@hideBtn"><img src="../css/images/add emoji (1).svg" /></button>
+                            }*@
+                                    @if (noEmojiBtn || currentUser.profilePicOrIcon.Length > 0)
+                                    {
+
+                                        <div class="outerCancleAndEmoji">
+                                            <button @onclick="deleteSelectedEmoji" class="cancleEmoji">ביטול בחירה</button>
+                                            @*<button @onclick="ToggleKeyboard" class="selectedEmoji">
+                                <span class="emoji">@currentUser.profilePicOrIcon</span>
+                                <img src="../css/images/+ icon.svg" class="plusIcon" />
+                                </button>*@
+                                        </div>
+
+                                    }
+                                    <div class="emoji-keyboard @visibilityClass">
+                                        <div class="emoji-categories">
+                                            @foreach (var category in emojiCategories.Keys)
+                                            {
+                                                <button class="category-button @(selectedCategory == category ? "active" : "")"
+                                            @onclick="() => SelectCategory(category)">
+                                                    @category
+                                                </button>
+                                            }
+                                        </div>
+                                        <div class="emoji-section">
+
+                                            @foreach (var emoji in emojiCategories[selectedCategory])
+                                            {
+                                                <span @onclick="() => SelectEmoji(emoji)" class="emoji">@emoji</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="outerTitleAndCounter">
+                            <div class="input-container">
+                                <div>שם פרטי:</div>
+                                <input class="titleBox" type="text" maxlength="15" @oninput="firstNameLengthCheck" placeholder="@currentUser.firstName" />
+                                <div class="counter">
+                                    @if (newFirstNameLength > 0)
+                                    {
+                                        <span>@newFirstNameLength/15</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:red">@newFirstNameLength/15</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="outerTitleAndCounter">
+                            <div class="input-container">
+                                <div>שם משפחה:</div>
+                                <input class="titleBox" type="text" maxlength="15" @oninput="lastNameLengthCheck" placeholder="@currentUser.lastName" />
+                                <div class="counter">
+                                    @if (newLastNameLength > 0)
+                                    {
+                                        <span>@newLastNameLength/15</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:red">@newLastNameLength/15</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
-
                 </div>
             }
             else
@@ -221,19 +247,38 @@
 
                         @if (currentUser.userTags.Count > 0)
                         {
-                            foreach (TagsToShow tag in GetCurrentPageTags())
+                            @if (editBtnClicked)
                             {
-                                var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
-                                <button class="tag"
+
+                                foreach (TagsToShow tag in GetCurrentPageTags())
+                                {
+                                    var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
+                                    <button class="tag"
                             @onclick="(() => ChooseTagForTrans(tag))"
                             style="background-color:@tag.tagColor; @fontWeight">
-                                    @tag.tagTitle
-                                </button>
-                                @if (editBtnClicked)
-                                {
-                                    <button class="options" @onclick="()=>OptionsBtnClicked=!OptionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
-                                }
+                                        @tag.tagTitle
+                                    </button>
+                                    @if (editBtnClicked)
+                                    {
+                                        <button class="options" @onclick="()=>OptionsBtnClicked=!OptionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+                                    }
 
+                                }
+                            }
+                            else
+                            {
+                                foreach (TagsToShow tag in GetCurrentPageTags())
+                                {
+                                    var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
+                                    <button class="tag" style="background-color:@tag.tagColor; @fontWeight">
+                                        @tag.tagTitle
+                                    </button>
+                                    @if (editBtnClicked)
+                                    {
+                                        <button class="options" @onclick="()=>OptionsBtnClicked=!OptionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+                                    }
+
+                                }
                             }
 
                             if (OptionsBtnClicked)
@@ -286,12 +331,14 @@
                     <button class="dropDownOptionBtn" @onclick="(() => chosenOnboarding = thirdOn)">סביבת ‘מבט אל העתיד’</button>
                 </div>
             }
-            <br />
-            <button @onclick="BeginSignOut">התנתקות מהמערכת</button>
+
 
         </div>
     }
 
+</div>
+<div class="outerBtn">
+    <button class="secondery-button" @onclick="BeginSignOut">התנתקות מהמערכת</button>
 </div>
 
 @if (editTag)
@@ -437,24 +484,24 @@
     bool noEmojiBtn = false;
     private Dictionary<string, List<string>> emojiCategories = new Dictionary<string, List<string>>
     {
-        {"כללי", new List<string> {
-                "🏠", "🛏️", "🚿", "💡", "📞", "🖥️", "🚗", "🚌", "🛒", "🍲",
-                "🏥", "💊", "👕", "🧹", "🧺", "🍼", "🐶", "🧑‍🔧", "📚", "🧾",
-                "🕶️", "🌂", "🔑", "📦"
-            }},
-        {"כיף", new List<string> {
-                "🎭", "🎟️", "🎮", "🎨", "📸", "🍽️", "🏋️‍♂️", "🧘", "🎸", "✈️",
-                "🏕️", "🛍️", "🍷", "🎁", "🎈", "📖", "🍰", "🌐", "🕹️", "🚤",
-                "🚵", "🛀", "🎷", "🎙️"
-            }},
-        {"פיננסי", new List<string> {
-             "💳",
-        "🏦", "💰", "🪙", "💸", "💹",
-        "📈", "📉", "📊", "💲", "🏧",
-        "🧾", "💱", "💲", "💹", "🏦",
-        "🖋️", "💎", "📜", "🏧",
-        "📅", "🖥️", "🖨️", "🔍"
-            }}
+    {"כללי", new List<string> {
+    "🏠", "🛏️", "🚿", "💡", "📞", "🖥️", "🚗", "🚌", "🛒", "🍲",
+    "🏥", "💊", "👕", "🧹", "🧺", "🍼", "🐶", "🧑‍🔧", "📚", "🧾",
+    "🕶️", "🌂", "🔑", "📦"
+    }},
+    {"כיף", new List<string> {
+    "🎭", "🎟️", "🎮", "🎨", "📸", "🍽️", "🏋️‍♂️", "🧘", "🎸", "✈️",
+    "🏕️", "🛍️", "🍷", "🎁", "🎈", "📖", "🍰", "🌐", "🕹️", "🚤",
+    "🚵", "🛀", "🎷", "🎙️"
+    }},
+    {"פיננסי", new List<string> {
+    "💳",
+    "🏦", "💰", "🪙", "💸", "💹",
+    "📈", "📉", "📊", "💲", "🏧",
+    "🧾", "💱", "💲", "💹", "🏦",
+    "🖋️", "💎", "📜", "🏧",
+    "📅", "🖥️", "🖨️", "🔍"
+    }}
     };
 
     private string visibilityClass => isVisible ? "visible" : "";
@@ -465,11 +512,11 @@
     {
         // Fetch or generate your list of tags
         return new List<TagsToShow>
-        {
-            new TagsToShow { id = 1, tagTitle = "Tag1", tagColor = "#ff0000" },
-            new TagsToShow { id = 2, tagTitle = "Tag2", tagColor = "#00ff00" },
-            // Add more tags as needed
-        };
+    {
+    new TagsToShow { id = 1, tagTitle = "Tag1", tagColor = "#ff0000" },
+    new TagsToShow { id = 2, tagTitle = "Tag2", tagColor = "#00ff00" },
+    // Add more tags as needed
+    };
     }
 
     public bool editTag = false;
@@ -569,13 +616,14 @@
     private IEnumerable<TagsToShow> GetCurrentPageTags()
     {
         return currentUser.userTags
-            .Skip(currentPage * pageSize)
-            .Take(pageSize);
+        .Skip(currentPage * pageSize)
+        .Take(pageSize);
     }
 
     public void editProfile()
     {
         editBtnClicked = !editBtnClicked;
+        OptionsBtnProfileClicked = !OptionsBtnProfileClicked;
 
     }
     private void ToggleKeyboard()
@@ -587,9 +635,9 @@
     {
         isCancleBtnClicked = true;
         noEmojiBtn = false;
-
-        currentUser.profilePicOrIcon = "";
+        currentUser.profilePicOrIcon = "🌟";
         hideBtn = "";
+        isVisible = false;
     }
 
     private void SelectEmoji(string emoji)
