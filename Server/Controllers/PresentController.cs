@@ -144,14 +144,14 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("invalid user id");
         }
 
-        [HttpPost("getUserIcon")] //gets the user's icon or profile pic
-        public async Task<IActionResult> getUserIcon(UserID userID)
+        [HttpGet("getUserIcon/{userID}")] //gets the user's icon or profile pic
+        public async Task<IActionResult> getUserIcon(int userID)
         {
-            if (userID.userID > 0)
+            if (userID > 0)
             {
                 object param = new
                 {
-                    ID = userID.userID
+                    ID = userID
                 };
                 string getIconQuery = "SELECT profilePicOrIcon FROM users where id=@ID;";
                 var getIcon = await _db.GetRecordsAsync<string?>(getIconQuery, param);
@@ -162,7 +162,7 @@ namespace CountOnIt.Server.Controllers
 
                     object updateParam = new
                     {
-                        ID = userID.userID,
+                        ID = userID,
                         profilePicOrIcon = "🌟"
 
                     };
@@ -263,7 +263,6 @@ namespace CountOnIt.Server.Controllers
                 ID = categoryID
             };
 
-            // צריך להוסיף שאילתה שמושכת את הצבע מהקטגוריה בשביל להציג גם בתתי קטגוריות אם בחר צבע.
 
             string GetSubCategoriesQuery = "SELECT id, subCategoryTitle, monthlyPlannedBudget FROM subcategories WHERE categoryID = @ID";
             var recordsubCategories = await _db.GetRecordsAsync<SubCategoryToShow>(GetSubCategoriesQuery, param);

@@ -36,7 +36,7 @@
             }
         }
 
-        <div class="closedAndOpenMenu" @onfocusout="@(()=>isOpetionsBtnClicked=false)">
+        <div class="closedAndOpenMenu">
             <button class="options" @onclick="OpetionsBtnClicked" ><img src="../css/images/option menu.svg" /></button>
             @if (isOpetionsBtnClicked)
             {
@@ -109,13 +109,13 @@
                             @if(subcategory.id== overDraftSubCategory.id)
                             {
                                 <div class="budget-card @(isFirstItem ? "first" : "")">
-                                    <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="categoryColor" overdraftNotTreated="@overdraftNotTreated" openOverdraftOverlay="@(()=> checkOverdraft(subcategory.id))"></SubCategoryComponent>
+                                    <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="@categoryColor" overdraftNotTreated="@overdraftNotTreated" openOverdraftOverlay="@(()=> checkOverdraft(subcategory.id))" updateTransactionSum="updateTransSumInStatTable"></SubCategoryComponent>
                                 </div>
                             }
                             else
                             {
                                 <div class="budget-card @(isFirstItem ? "first" : "")">
-                                    <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="@categoryColor" openOverdraftOverlay="@(()=> checkOverdraft(subcategory.id))"></SubCategoryComponent>
+                                    <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="@categoryColor" openOverdraftOverlay="@(()=> checkOverdraft(subcategory.id))" updateTransactionSum="updateTransSumInStatTable"></SubCategoryComponent>
                                 </div>
                             }
 
@@ -470,6 +470,12 @@
     [Parameter]
     public EventCallback<string?> updatedStreakStat { get; set; }
 
+    [Parameter]
+    public EventCallback<double?> updateBudget { get; set; }
+
+    [Parameter]
+    public EventCallback<double> updateTransSum { get; set; } //updates transaction sums in main status table
+
     public bool isAccordionClick = false;
 
     string selectedCategoryForNewSubCat = "";
@@ -521,80 +527,6 @@
         }
     }
 
-    //public string convertCatColors(string? catColor)
-    //{
-    //    string convertedColor = "";
-    //    switch (catColor)
-    //    {
-    //        case "#F4B367": //mustard
-    //            convertedColor = "rgba(244, 179, 103, 1)";
-
-    //            Console.WriteLine("cat color is mustard");
-    //            break;
-    //        case "#AEA2F9": //purple
-    //            convertedColor = "rgba(174, 162, 249, 1)";
-
-    //            Console.WriteLine("cat color is dark purple");
-    //            break;
-    //        case "#F467AB": //dark pink
-    //            convertedColor = "rgba(244, 103, 171, 1)";
-
-    //            Console.WriteLine("cat color is dark pink");
-    //            break;
-    //        case "#F47867": //salmon pink
-    //            convertedColor = "rgba(244, 120, 103, 1)";
-
-    //            Console.WriteLine("cat color is salmon pink");
-    //            break;
-    //        case "#678EF4": //defualt
-    //            convertedColor = "rgba(103, 142, 244, 1)";
-
-    //            Console.WriteLine("cat color is default");
-    //            break;
-    //        case "#8DE4BF": //light green
-    //            convertedColor = "rgba(141, 228, 191, 1)";
-
-    //            Console.WriteLine("cat color is light green");
-    //            break;
-    //        case "#67CAF4": //light blue
-    //            convertedColor = "rgba(103, 202, 244, 1)";
-
-    //            Console.WriteLine("cat color is light blue");
-    //            break;
-    //        case "#FCE884": //banana
-    //            convertedColor = "rgba(255, 239, 157, 1)";
-
-    //            Console.WriteLine("cat color is banana");
-    //            break;
-    //        case "#F9D3C2": //cream
-    //            convertedColor = "rgba(249, 211, 194, 1)";
-
-    //            Console.WriteLine("cat color is cream");
-    //            break;
-    //        case "#09AE73": //dark green
-    //            convertedColor = "rgba(9, 174, 115, 1)";
-
-    //            Console.WriteLine("cat color is dark green");
-    //            break;
-    //        case "#8C8B8B": //dark gray
-    //            convertedColor = "rgba(140, 139, 139, 1)";
-
-    //            Console.WriteLine("cat color is dark gray");
-    //            break;
-    //        case "#DADADA": //gray
-    //            convertedColor = "rgba(218, 218, 218, 1)";
-
-    //            Console.WriteLine("cat color is light gray");
-    //            break;
-    //        case null: //defualt
-    //            convertedColor = "rgba(103, 142, 244, 1)";
-
-    //            Console.WriteLine("cat color is default");
-    //            break;
-    //    };
-
-    //    return convertedColor;
-    //}
 
     public async Task getSubCategories()
     {
@@ -829,7 +761,22 @@
 
                 if (!categoryTypeIndicator)
                 {
+                    double? tempBudget=0;
+                    if (subcategory.monthlyPlannedBudget > editedSubCat.monthlyPlannedBudget)
+                    {
+                        tempBudget = (subcategory.monthlyPlannedBudget - editedSubCat.monthlyPlannedBudget)*-1;
+                    }
+                    else if (subcategory.monthlyPlannedBudget < editedSubCat.monthlyPlannedBudget)
+                    {
+                        tempBudget = (editedSubCat.monthlyPlannedBudget- subcategory.monthlyPlannedBudget);
+                    }
+
                     subcategory.monthlyPlannedBudget = editedSubCat.monthlyPlannedBudget;
+                    if (tempBudget!=null)
+                    {
+                        updateBudget.InvokeAsync(tempBudget);
+                    }
+
                     //checking overdraft:
                     for (int i = 0; i < subCategories.Count; i++)
                     {
@@ -930,8 +877,6 @@
 
     public async Task checkOverdraft(int subCatID)
     {
-        //if (overDraftSubCategory==null)
-        //{
         var getOverdraftDetails= await Http.GetAsync("api/Present/GetSubCategory/"+subCatID);
         if (getOverdraftDetails.IsSuccessStatusCode)
         {
@@ -948,7 +893,7 @@
                 }
             }
         }
-        //}
+        
         var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
         if (overdraftRes.IsSuccessStatusCode)
         {
@@ -1036,7 +981,10 @@
     {
         overdraftDetected=false;
         overdraftNotTreated=true;
-        //overdraftOverlayOpen = false;
+    }
 
+    public void updateTransSumInStatTable(double trans)
+    {
+        updateTransSum.InvokeAsync(trans);
     }
 }

@@ -224,13 +224,12 @@ else
                                 </div>
 
                             }
-                            else if(storyNav == 2 && tagsSpendingsList.Count == 0)
+                            else if (storyNav == 2 && tagsSpendingsList.Count == 0)
                             {
                                 <div class="outerSecondStory" @onclick="NextStory">
 
                                     <h3 class="storyTitle">לא נמצאו הזנות עם תגיות החודש</h3>
                                     <div class="noTagsDiv">
-                                        
                                     </div>
                                     <div class="imgWrapper">
                                         <img class="storyImg" src="../css/images/tags-story.svg" />
@@ -318,7 +317,7 @@ else
 
         @if (userIncomeCat != null && isChecked)
         {
-            <CategoryComponent Category="@userIncomeCat" categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryTypeIndicator="true"></CategoryComponent>
+            <CategoryComponent Category="@userIncomeCat" categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryTypeIndicator="true" updateBudget="refreshBudgetsOfSubCats"updateTransSum="refreshTransSumTotals"></CategoryComponent>
         }
         @if (!isChecked) // עובר להוצאות
         {
@@ -352,14 +351,14 @@ else
                         if (category.id == givingsubCatCategoryID)
                         {
                             <div class="fullCategory">
-                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" updateBudget="refreshBudgetsOfSubCats" updateTransSum="refreshTransSumTotals"></CategoryComponent>
                             </div>
 
                         }
                         else
                         {
                             <div class="fullCategory">
-                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak"></CategoryComponent>
+                                <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" categoryColor="category.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" updateBudget="refreshBudgetsOfSubCats" updateTransSum="refreshTransSumTotals"></CategoryComponent>
                             </div>
 
                         }
@@ -379,13 +378,13 @@ else
                 {
                     foreach (CategoryOverDraftCheckToShow c in checkOverdraftingCats)
                     {
-                        if (c.id==category.id && c.monthlyPlannedBudget<c.totalTransSum)
+                        if (c.id == category.id && c.monthlyPlannedBudget < c.totalTransSum)
                         {
-                            <button>חריגה⚠️</button>
+                           <button @onclick="async ()=> await getSubCategories(c.id)">חריגה⚠️</button>
                         }
                     }
                     <div class="fullCategory">
-                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryColor="@category.color"></CategoryComponent>
+                        <CategoryComponent Category=category categoryTitle="category.categroyTitle" icon="category.icon" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryColor="@category.color" updateBudget="refreshBudgetsOfSubCats" updateTransSum="refreshTransSumTotals"></CategoryComponent>
 
                     </div>
 
@@ -461,7 +460,9 @@ else
                            closeOverlay="openEditCategoryOverlay"
                            closeEdit="closeEdit"
                            closeDelete="closeDelete"
-                           updatedStreakStat="updateStreak">
+                           updatedStreakStat="updateStreak"
+                           updateBudget="refreshBudgetsOfSubCats"
+                           updateTransSum="refreshTransSumTotals">
                             </CategoryComponent>
                         </div>
 
@@ -469,10 +470,6 @@ else
                 }
             }
 
-            @if (doRefresh)
-            {
-                refreshBudgetsOfSubCats(true);
-            }
         }
     }
 
@@ -604,7 +601,154 @@ else
     }
 
 </div>
+@if (overdraftDetected)
+{
+        <div class="overlay">
+            <div class="outerOverdraft">
+                <div class="overdraftWindow">
 
+                    <div class="outerText">
+                        <h3 class="titleText">חרגת...</h3>
+
+                        <div>נראה שהוצאת ב @overDraftSubCategory.subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </div>
+                        <div>שזה <span><b>@currentGap ₪</b></span> יותר </div>
+                        <div>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </div>
+                        <div>כדאי להגדיל את התקציב.</div>
+                        <div><b>הסכום שאני רוצה להעביר:</b></div>
+                        <div class="outerCurrentGap">
+                            <input class="currentGap" type="number" @bind="currentGap" min="@currentGap" />
+                            <span class="currency-symbolOverDraft">₪</span>
+                            <div class="lineBetweenOverdraft"></div>
+                        </div>
+
+                        <div>מאיזו תת קטגוריה יועבר הסכום?</div>
+                    </div>
+                    <div class="outerTranferTable">
+
+                        <div class="outerFromSubCats">
+                            <span style="font-weight:700;">העברה מ:</span>
+                            <div class="outerDropAndOptions">
+                                <div class="outerDropAndPoly" @onclick="()=>openSubCatsOptions =! openSubCatsOptions">
+                                    <div class="subCatsDrop">
+                                        <span>@chosenSubCategory.subCategoryTitle</span>
+                                        <span class="accordionPoly"><img style="width:7vw;" src="../css/images/arrow3.svg" /></span>
+                                    </div>
+
+                                </div>
+                            @if (openSubCatsOptions)
+                            {
+                                        <div class="subCatsDropDown">
+                                    @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
+                                    {
+                                        @if (subcategoryOpt.id != overDraftSubCategory.id)
+                                        {
+                                                            <div @onclick="()=>HandleChange(subcategoryOpt)">
+                                                @subcategoryOpt.subCategoryTitle
+                                                            </div>
+                                        }
+                                    }
+                                        </div>
+
+                            }
+                            </div>
+                            <div class="outerBudgets">
+                                <div class="outerBudgetTitle">
+                                    <div style="font-weight: 600;">תקציב:</div>
+                                    <div class="titleDivder"></div>
+                                </div>
+                            @if (string.IsNullOrEmpty(chosenSubCategory.subCategoryTitle))
+                            {
+                                        <div>
+                                            נוכחי: 0 <span>₪</span>
+
+                                        </div>
+                                        <div>
+                                            עתידי: 0 <span>₪</span>
+                                        </div>
+                            }
+                            else
+                            {
+                                        <div>
+                                            נוכחי: @chosenSubCategory.monthlyPlannedBudget
+                                            <span>₪</span>
+                                        </div>
+                                        <div>
+                                            עתידי: @(
+                              chosenSubCategory.monthlyPlannedBudget - currentGap
+                              )
+                                            <span>₪</span>
+                                        </div>
+                            }
+                            </div>
+
+                        </div>
+                        <div class="outerToSubCat">
+
+                            <span style="font-weight:700;">העברה ל:</span>
+                            <div class="outerDropAndOptions">
+                                <div class="outerDropAndPoly">
+                                    <div class="subCatsDrop" style="justify-content: center;">
+                                    @(
+                                            overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
+                                            )
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="outerBudgets">
+                                <div class="outerBudgetTitle">
+                                    <div style="font-weight: 600;">תקציב:</div>
+                                    <div class="titleDivder"></div>
+                                </div>
+                            @if (string.IsNullOrEmpty(chosenSubCategory.subCategoryTitle))
+                            {
+                                        <div>
+                                            נוכחי: @(
+                              closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)
+                                            <span>₪</span>
+                                        </div>
+                                        <div>
+                                            עתידי: 0 <span>₪</span>
+                                        </div>
+                            }
+                            else
+                            {
+                                        <div>
+                                            נוכחי: @(
+                              closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)
+                                            <span>₪</span>
+                                        </div>
+                                        <div>
+                                            עתידי: @(
+                              closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap)
+                                            <span>₪</span>
+                                        </div>
+
+                            }
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="outerBtns">
+
+                    @if (chosenSubCategory == null)
+                    {
+                                <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer" disabled>העברה</button>
+                    }
+                    else
+                    {
+                                <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
+                    }
+                        <button class="thirdBtn" @onclick="NotTreatedOverdraft">אטפל בהמשך</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+}
 
 @code {
 
@@ -718,6 +862,15 @@ else
     }}
     };
 
+    bool overdraftDetected = false;
+    bool overdraftOverlayOpen = false;
+    bool overdraftNotTreated = false;
+    bool openSubCatsOptions = false;
+    OverBudgetToShow chosenSubCategory = new OverBudgetToShow();
+    OverBudgetToShow overDraftSubCategory = new OverBudgetToShow();
+    List<OverBudgetToShow> closeOverdraftOpts = new List<OverBudgetToShow>();
+    double currentGap = 0;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -810,6 +963,17 @@ else
         }
     }
 
+    //private async Task refreshUser()
+    //{
+    //     var userRes = await Http.GetAsync("api/Present/userToShow/" + userGoogleId);
+    //     if(userRes.IsSuccessStatusCode)
+    //     {
+
+    //     }
+    //}
+
+
+
     private async Task getCurrentStreak()
     {
         var getCurrentStatRes = await Http.GetAsync("api/Present/getUserStreakStatus/" + userID);
@@ -898,15 +1062,44 @@ else
     }
 
 
-    public void refreshBudgetsOfSubCats(bool refreshBudget)
+    public void refreshBudgetsOfSubCats(double? refreshBudget)
     {
-        if (refreshBudget)
+        if (refreshBudget.HasValue)
         {
-            doRefresh = refreshBudget;
-            Nav.NavigateTo("./", true);
+            double budgetPercentage = 0;
+            budgetPercentage = currentUser.budgetFullValue;
+
+            double? ogBudget = currentUser.spendingValueFullList / (budgetPercentage / 100);
+
+            ogBudget += refreshBudget.Value;
+
+            currentUser.budgetFullValue = (currentUser.spendingValueFullList / ogBudget.Value) * 100;
         }
     }
 
+    public void refreshTransSumTotals(double transValue)
+    {
+
+        if (!isChecked)
+        {
+            currentUser.spendingValueFullList += transValue;
+            Console.WriteLine("isChecked- " + isChecked + ", transValue- " + transValue);
+
+            //refreshing the budget accordingly:
+            double budgetPercentage = 0;
+            budgetPercentage = currentUser.budgetFullValue;
+
+            double? ogBudget = currentUser.spendingValueFullList / (budgetPercentage / 100);
+
+            currentUser.budgetFullValue = (currentUser.spendingValueFullList / ogBudget.Value) * 100;
+        }
+        else
+        {
+            currentUser.incomeValueFullList += transValue;
+        }
+
+
+    }
 
 
 
@@ -1351,7 +1544,8 @@ else
 
                         streakOverlay = true;
                     }
-                }else if (!currentStreak.current_streak_group)
+                }
+                else if (!currentStreak.current_streak_group)
                 {
                     streakImgSrc = "";
                     streakImgIcon = "";
@@ -1423,6 +1617,126 @@ else
     private void SelectCategory(string category)
     {
         selectedCategory = category;
+    }
+
+    private void HandleChange(OverBudgetToShow chosenSubCat)
+    {
+        /*var selectedTitle = e.Value.ToString()*/
+
+        chosenSubCategory = chosenSubCat;
+        openSubCatsOptions = !openSubCatsOptions;
+    }
+
+
+    List<OverDraftBudgetToEdit> budgetToUpdate = new List<OverDraftBudgetToEdit>();
+
+    public async Task manageBudgetsToTranfer()
+    {
+        budgetToUpdate = new List<OverDraftBudgetToEdit>();
+
+        budgetToUpdate.Add(new OverDraftBudgetToEdit
+            {
+                id = chosenSubCategory.id,  // ID of chosen subcategory
+                monthlyPlannedBudget = chosenSubCategory.monthlyPlannedBudget - currentGap // Updated budget
+
+            });
+
+
+        budgetToUpdate.Add(new OverDraftBudgetToEdit
+            {
+                id = overDraftSubCategory.id, // ID of the overdraft subcategory
+                monthlyPlannedBudget = overDraftSubCategory.monthlyPlannedBudget + currentGap // Updated budget
+            });
+
+        await updateSubCategoryBudget(budgetToUpdate);
+
+    }
+
+
+    public async Task updateSubCategoryBudget(List<OverDraftBudgetToEdit> budgetsToUpdate)
+    {
+
+        var budgetToSaveRes = await Http.PostAsJsonAsync("api/Transactions/EditSubCategoriesNewBudgets", budgetsToUpdate);
+        if (budgetToSaveRes.IsSuccessStatusCode)
+        {
+            Console.WriteLine("התקציבים עודכנו בהצלחה :)");
+
+            overdraftDetected = false;
+            overdraftNotTreated = false;
+
+            foreach (SubCategoryToShow sub in subCategories)
+            {
+                if (sub.id == budgetsToUpdate[1].id)
+                {
+                    sub.monthlyPlannedBudget = budgetsToUpdate[1].monthlyPlannedBudget;
+                }
+                if (sub.id == budgetsToUpdate[0].id)
+                {
+                    sub.monthlyPlannedBudget = budgetsToUpdate[0].monthlyPlannedBudget;
+
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine("עדכון התקציבים נכשל");
+        }
+    }
+
+    public void NotTreatedOverdraft()
+    {
+        overdraftDetected = false;
+        overdraftNotTreated = true;
+    }
+
+    bool isAccordionClick = false;
+    List<SubCategoryToShow> subCategories = new List<SubCategoryToShow>();
+    public async Task getSubCategories(int catID)
+    {
+        //isAccordionClick = true;
+        if (!isChecked)
+        {
+
+            var subCatRes = await Http.GetAsync("api/Present/subCategoryToShow/" + catID);
+            if (subCatRes.IsSuccessStatusCode)
+            {
+                subCategories = new List<SubCategoryToShow>();
+                subCategories = subCatRes.Content.ReadFromJsonAsync<List<SubCategoryToShow>>().Result;
+                int subCatID = 0;
+                foreach(SubCategoryToShow subCat in subCategories){
+                    if (subCat.monthlyPlannedBudget<subCat.transactionsValue)
+                    {
+                        subCatID = subCat.id;
+                    }
+                }
+
+                if(subCatID>0){
+                    var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
+                    if (overdraftRes.IsSuccessStatusCode)
+                    {
+                        overdraftDetected = true;
+                        overdraftOverlayOpen = true;
+                        closeOverdraftOpts = new List<OverBudgetToShow>();
+                        closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
+                        currentGap = (closeOverdraftOpts[closeOverdraftOpts.Count - 1].remainingBudget) - (closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget);
+
+                        overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
+                        overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
+                        chosenSubCategory = new OverBudgetToShow();
+                    }
+                    else
+                    {
+                        Console.WriteLine("No overdraft detected");
+
+                    }
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("no subcategories found");
+            }
+        }
     }
 }
 

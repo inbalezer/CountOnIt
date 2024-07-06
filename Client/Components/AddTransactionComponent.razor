@@ -595,23 +595,6 @@ resetMonthValues = !resetMonthValues">
                     <div class="outerSaveBtns">
                         <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
                     </div>
-                   @* @if (returningTrans)
-                    {
-                        <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
-                        <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
-                        @if (resetMonthValues == false)
-                        {
-                            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-                            {
-                                if (!isValueTypedAfterReset)
-                                {
-                                    tToCheck.transValue = newTransaction.transValue;
-                                }
-
-                            }
-
-                        }
-                    }*@
                 }
             </div>
         </div>
@@ -1152,7 +1135,6 @@ resetMonthValues = !resetMonthValues">
 
     private void HandleChange(OverBudgetToShow chosenSubCat)
     {
-        /*var selectedTitle = e.Value.ToString()*/
 
         chosenSubCategory = chosenSubCat;
         openSubCatsOptions = !openSubCatsOptions;
@@ -1163,7 +1145,6 @@ resetMonthValues = !resetMonthValues">
     public async Task saveAndEndTransactions()
     {
         newTransaction.subCategoryID = subCategoryIDTOGet;
-        //newTransaction.transType = 1;
         newTransaction.tagID = null;
         if (!categoryTypeIndicator)
         {
@@ -1266,7 +1247,7 @@ resetMonthValues = !resetMonthValues">
                 transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
                 if (tempChildrenList.Count > 0)
                 {
-                    //transactionsToAdd = tempChildrenList;
+                  
                     transactionsToAdd.Clear();
                     foreach (TransactionToAdd t in tempChildrenList)
                     {

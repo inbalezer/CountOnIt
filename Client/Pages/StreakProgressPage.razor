@@ -14,7 +14,7 @@
 <div class="TopProfileAndBack">
     <div class="profileAndBack">
         <button class="backbtn" @onclick="goBack"><img src="../css/images/back-repeated.svg"></button>
-        <button class="profilePic"></button>
+        <button class="profilePic" @onclick="goToSProfilePage">@userIcon</button>
     </div>
 </div>
 <div class="wrapperContent">
@@ -98,6 +98,7 @@
     bool isScrollingDown = false;
     string hideNav => isScrollingDown ? "nav-hidden" : "bottomNav";
 
+    string userIcon = "";
 
 
     List<string> streakStatusOpt = new List<string>()
@@ -121,6 +122,15 @@
     {
         if (userID > 0)
         {
+            var getUserIconRes = await Http.GetAsync("api/Present/getUserIcon/" + userID);
+            if (getUserIconRes.IsSuccessStatusCode)
+            {
+                userIcon = await getUserIconRes.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                userIcon = "🌟";
+            }
 
             var streakDataRes = await Http.GetAsync("api/Present/checkStreak/" + userID);
             if (streakDataRes.IsSuccessStatusCode)
@@ -270,4 +280,8 @@
         JSRuntime.InvokeVoidAsync("navScroll.dispose");
     }
 
+    public void goToSProfilePage()
+    {
+        Nav.NavigateTo("./ProfilePage/" + userID);
+    }
 }
