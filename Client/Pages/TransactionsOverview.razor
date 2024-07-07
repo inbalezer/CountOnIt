@@ -73,7 +73,7 @@
                     <div class="outerSubCatOverlay">
 
                         <div class="innerSubCatOverlay">
-                            <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked"><img src="../css/images/close x.svg" /></button>
+                            <button class="modal-close-btn" @onclick="closeOptionsMenu"><img src="../css/images/close x.svg" /></button>
                             <h2>עריכת תת קטגוריה</h2>
                             <div class="editAndAddSubCat">
 
@@ -1009,6 +1009,7 @@
     public async Task getUserCategories()
     {
         //editSubCatBtnClicked = true;
+        isOpetionsBtnClicked = !isOpetionsBtnClicked;
         subCatToEdit.categroyTitle = categoryTitle;
         subCatToEdit.monthlyPlannedBudget = budget;
         subCatToEdit.subCategoryTitle = subCategoryTitle;
@@ -1056,6 +1057,7 @@
     {
         popupBodyText = "תת הקטגוריה: '" + subCategoryTitle + "' תמחק";
         deleteBtnClicked = !deleteBtnClicked;
+        isOpetionsBtnClicked = false;
     }
     public async Task deleteSubCat()
     {
@@ -1504,5 +1506,12 @@
     {
         overdraftStatus = false;
         overdraftNotTreated = true;
+    }
+
+
+    void closeOptionsMenu()
+    {
+        editSubCatBtnClicked = false;
+        isOpetionsBtnClicked = false;
     }
 }
