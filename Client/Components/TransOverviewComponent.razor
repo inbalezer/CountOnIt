@@ -48,7 +48,7 @@
                 <div class="outerDotsAndAmount">
 
                     <span class="tagsValue">@Math.Round(transaction.transValue,2) ₪</span>
-                    <div class="outerDotsAndOptionsTrans" @onfocusout="@(()=>isOpetionsBtnClicked=false)">
+                    <div class="outerDotsAndOptionsTrans">
                         <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
                        
                         @if (isOpetionsBtnClicked)
