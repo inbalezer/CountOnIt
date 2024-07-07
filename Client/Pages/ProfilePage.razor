@@ -252,14 +252,14 @@
             else
             {
                 <div class="outerText">
-                    <span style="color:#727272;" class="titleName">תאריך הרשמה:</span>
+                    <span class="titleName">תאריך הרשמה:</span>
 
                 </div>
             }
 
         </div>
         <div class="outerDay">
-            <div class="dayBox">
+            <div class="dayBox" style="color:#727272;">
                 <div>
                     <span>@currentUser.signUpDate.ToString("dd/MM/yyyy")</span>
                 </div>
@@ -275,18 +275,21 @@
             </div>
         </div>
 
-        <div>
-            @if (editBtnClicked)
-            {               
-                <button class="addTagBtn"  @onclick="openEditOrAddTagOverlay">
-                    הוספת תגית
-                    <img src="../css/images/addtag.svg" />
-                </button>
-                
-            }
-        </div>
+
         <div class="outerDay">
             <div class="outerTagsProfile">
+                <div>
+                    @if (editBtnClicked)
+                    {
+                        <button class="addTagBtn" @onclick="addNewTag">
+                            <div class="addTagText">
+                                הוספת תגית
+                            </div>
+                            <img class="addTagImg" src="../css/images/add-new-tag (1).svg" />
+                        </button>
+
+                    }
+                </div>
                 <div class="outerGalleryAndNav">
                     <div class="outerGallery">
 
@@ -370,8 +373,10 @@
 <div class="megaOuterOn">
     @if (editBtnClicked)
     {
+        <div class="outerSaveBtns">
+            <button class="primery-button" @onclick="(()=>saveEditedProfile(currentUser))">שמירה וחזרה</button>
+        </div>
 
-        <button @onclick="(()=>saveEditedProfile(currentUser))">שמירה וחזרה</button>
     }
     else
     {
@@ -398,19 +403,17 @@
     }
 
 </div>
-<div class="outerBtn">
-    <button class="secondery-button" @onclick="BeginSignOut">התנתקות מהמערכת</button>
-</div>
+@if (!editBtnClicked)
+{
+
+    <div class="outerBtn">
+        <button class="secondery-button" @onclick="BeginSignOut">התנתקות מהמערכת</button>
+    </div>
+}
 
 @if (editTag)
 {
     OptionsBtnClicked = false;
-    ogTagColor = chosenTag.tagColor;
-    if(isTagColor)
-    {
-        convertTagColors(chosenTag.tagColor);
-    }
-    
     <div>
         <div class="megaOuterLay">
             <div class="outerLay">
@@ -419,6 +422,12 @@
                     <div class="paddingDiv">
                         @if (tagToEdit.id > 0)
                         {
+                            ogTagColor = chosenTag.tagColor;
+                            if (isTagColor)
+                            {
+                                convertTagColors(chosenTag.tagColor);
+                            }
+
                             <div class="outerTitleAndIcon">
                                 <button class="closeOverlay" @onclick="closeTagsOverlay"><img src="../css/images/close x.svg" /></button>
                                 <h3 class="titleName" style="font-size: 1.2rem;">עריכת תגית</h3>
@@ -447,7 +456,7 @@
                         else
                         {
 
-                              <div class="outerTitleAndIcon">
+                            <div class="outerTitleAndIcon">
                                 <button class="closeOverlay" @onclick="closeTagsOverlay"><img src="../css/images/close x.svg" /></button>
                                 <h3 class="titleName" style="font-size: 1.2rem;">הוספת תגית</h3>
                             </div>
@@ -456,21 +465,16 @@
                             <div class="outerTitleAndCounter">
                                 <div class="input-container">
                                     <div>שם התגית:</div>
-                                     <input type="text" class="catTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
+                                    <input type="text" class="catTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
                                     <div class="counter">
 
-                                        @if (tagTitleInputLength == 0)
-                                        {
-                                            <span>@chosenTag.tagTitle.Length/8</span>
-                                        }
-                                        else
-                                        {
+ 
                                             <span>@tagTitleInputLength/8</span>
-                                        }
+                                        
 
                                     </div>
                                 </div>
-                            </div>                     
+                            </div>
                         }
                         <div class="outerNameAndColor">
                             <div>צבע התגית:</div>
@@ -478,10 +482,10 @@
 
                                 <div class="colorsContainer">
                                     <div class="colorsRow">
-                                        
+
                                         @foreach (var color in new[] { "#F4B367", "#AEA2F9", "#F467AB", "#F47867", "#6775F4", "#8DE4BF" })
                                         {
-                                            
+
                                             <div id="@(color)" class="@(selectedClass == color ? "color-selected" : "")">
                                                 <input style="opacity:0;" type="radio" name="categoryColors" value="@color"
                                                @onclick="() => UpdateColor(color)" />
@@ -490,7 +494,7 @@
                                         }
                                     </div>
                                     <div class="colorsRow">
-                                        @foreach (var color in new[] { "#67CAF4", "#FCE884", "#F9D3C2", "#16A78D", "#696969", "#DADADA" })
+                                        @foreach (var color in new[] { "#67CAF4", "#FCE884", "#F9D3C2", "#09AE73", "#8C8B8B", "#DADADA" })
                                         {
                                             <div id="@(color)" class="@(selectedClass == color ? "color-selected" : "")">
                                                 <input style="opacity:0;" type="radio" name="categoryColors" value="@color"
@@ -507,33 +511,33 @@
                         @if (tagToEdit.id > 0)
                         {
                             <div class="outerSaveBtns">
-                            @if (tagToEdit.tagTitle.Length > 0 && tagToEdit.tagColor.Length > 0)
-                            {
-                                <button class="primery-button" @onclick="updateTag">שמירה וסיום</button>
-                            }
-                            else
-                            {
-                                <button class="primery-button" @onclick="updateTag" disabled>שמירה וסיום</button>
-                            }
-                        </div>
-                            
+                                @if (tagToEdit.tagTitle != "" && tagToEdit.tagColor != "")
+                                {
+                                    <button class="primery-button" @onclick="updateTag">שמירה וסיום</button>
+                                }
+                                else
+                                {
+                                    <button class="primery-button" @onclick="updateTag" disabled>שמירה וסיום</button>
+                                }
+                            </div>
+
 
                         }
                         else
                         {
 
                             <div class="outerSaveBtns">
-                            @if (tagToEdit.tagTitle.Length > 0 && tagToEdit.tagColor.Length > 0)
-                            {
-                                <button class="primery-button" @onclick="addTag">שמירה וסיום</button>
-                            }
-                            else
-                            {
-                                <button class="primery-button" @onclick="addTag" disabled>שמירה וסיום</button>
-                            }
-                        </div>
+                                @if ((tagToEdit.tagTitle != "" || tagToEdit.tagTitle != null) && (tagToEdit.tagColor != "" || tagToEdit.tagTitle != null))
+                                {
+                                    <button class="primery-button" @onclick="addTag">שמירה וסיום</button>
+                                }
+                                else
+                                {
+                                    <button class="primery-button" @onclick="addTag" disabled>שמירה וסיום</button>
+                                }
+                            </div>
 
-                           
+
 
                         }
                     </div>
@@ -686,6 +690,11 @@
         {
             await JSRuntime.InvokeVoidAsync("navigateBack");
         }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("navigateBack");
+            Console.WriteLine("הוספת פופאפ ולידציה של חזרה ללא שמירה");
+        }
     }
 
 
@@ -814,16 +823,19 @@
     public void openEditOrAddTagOverlay()
     {
         editTag = !editTag;
-        if (chosenTag.id > 0)
-        {
-            tagToEdit = chosenTag;
-        }
-        else
-        {
-            tagToEdit = new TagsToShow();
-            tagToEdit.id = 0;
-        }
-        Console.WriteLine("Tag to edit data- " + tagToEdit.id + ", " + tagToEdit.tagTitle);
+        tagToEdit = chosenTag;
+        Console.WriteLine(chosenTag.tagColor + "!!!!!!!!!!!");
+    }
+
+
+    void addNewTag()
+    {
+        editTag = !editTag;
+        tagToEdit = new TagsToShow();
+        chosenTag = new TagsToShow();
+        tagToEdit.id = 0;
+        tagTitleInputLength = 0;
+        ogTagColor = "";
     }
 
     private void UpdateColor(string color)
@@ -850,7 +862,9 @@
         currentUser.userTags[editedTag].tagTitle = tagToEdit.tagTitle;
         currentUser.userTags[editedTag].tagColor = tagToEdit.tagColor;
         tagToEdit = new TagsToShow();
-        OptionsBtnClicked = !OptionsBtnClicked;
+        chosenTag = new TagsToShow();
+        selectedClass = "";
+        editTag = false;
 
     }
 
@@ -858,7 +872,11 @@
     {
         currentUser.userTags.Add(tagToEdit);
         tagToEdit = new TagsToShow();
-        OptionsBtnClicked = !OptionsBtnClicked;
+        tagToEdit.tagTitle = "";
+        tagToEdit.tagColor = "";
+        tagTitleInputLength = 0;
+
+        editTag = false;
     }
 
     public void openDeleteTagWarning(bool optStatus)
@@ -997,7 +1015,7 @@
                 break;
             default:
                 convertedColor = "rgba(103, 142, 244, 0.13)";
-                outlineColor = "rgba(103, 142, 244, 1)";
+                outlineColor = "#AEA2F9";
                 Console.WriteLine("cat color is default");
                 break;
         };
@@ -1009,10 +1027,20 @@
     void closeTagsOverlay()
     {
         editTag = !editTag;
-        isTagColor = false;
-        if(selectedClass == null || selectedClass == "")
+        
+        if (selectedClass == null || selectedClass == "")
         {
             selectedClass = ogTagColor;
+        }
+        else
+        {
+            isTagColor = true;
+        }
+
+        if (tagToEdit.id == 0)
+        {
+            tagToEdit.tagTitle = "";
+            tagToEdit.tagColor = "";
         }
 
     }

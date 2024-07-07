@@ -226,14 +226,14 @@
     background-color: #F9D3C2;
 }
 
-#\#16A78D {
+#\#09AE73 {
     width: 25px;
     height: 25px;
     border-radius: 50%;
     background-color: #16A78D;
 }
 
-#\#696969 {
+#\#8C8B8B {
     width: 25px;
     height: 25px;
     border-radius: 50%;
@@ -397,6 +397,9 @@
     padding: 1vh 1vh;
     font-size: 1.1rem;
     width: 97%;
+    row-gap: 2vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .outerOnbaordings {
@@ -838,6 +841,22 @@
     align-items: center; /* Align items vertically in the center */
     justify-content: center; /* Align items horizontally in the center */
     overflow: hidden; /* Prevents content from spilling out */
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.addTagText {
+    position: absolute;
+    width: 62%;
+    font-weight: 600;
+    color: #6775F4;
+    font-size: 1.1rem;
+}
+
+.addTagImg {
+    display: block;
 }
 
 .paddingDiv {
