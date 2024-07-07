@@ -447,3 +447,14 @@
         color: inherit; /* Inherit color from parent */
         color: #636363
     }
+
+.overdraftBtn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}

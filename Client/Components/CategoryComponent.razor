@@ -33,7 +33,10 @@
 
             if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget)
             {
-                <button @onclick="@(()=>checkOverdraft(overDraftsubcategory.id))">חריגה⚠️</button>
+                <button class="overdraftBtn" @onclick="@(()=>checkOverdraft(overDraftsubcategory.id))">
+                    <span>חריגה</span>
+                    <img src="../css/images/overdtaft.svg" />
+                </button>
                 break;
             }
         }

@@ -32,7 +32,7 @@
                 @if (totalSpendings > budget && categoryTypeIndicator == false || overdraftNotTreated == true)
                 {
                     isOverdraft = true;
-                    <button @onclick="triggerOverdraftOverlay">⚠️</button>
+                    <button class="overdraftBtn" @onclick="triggerOverdraftOverlay"><img src="../css/images/overdtaft.svg" /></button>
                 }
             </div>
 
