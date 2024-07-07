@@ -165,7 +165,7 @@
                 </div>
             }
 
-            <div class="options" >
+            <div class="options">
                 @if (isOpetionsBtnClicked)
                 {
                     <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
@@ -183,7 +183,7 @@
             <div class="searchWrapper">
                 <div class="search__container">
                     <img src="../css/images/search btn.svg" />
-                    <input class="searchInput" type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו תגית או הוצאה..." />
+                    <input class="searchInput" type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו הוצאה..." />
 
                 </div>
             </div>
@@ -365,8 +365,8 @@
                 </div>
             </div>
 
-            <div id="transactions">
-                @if (allTransactions != null && allTransactions.Count > 0)
+            <div class="transactions">
+                @if (allTransactions != null && allTransactions.Count > 0 && string.IsNullOrEmpty(searchQuery))
                 {
                     foreach (TransactionOverviewToShow transaction in allTransactions)
                     {
@@ -392,6 +392,33 @@
                             isOverdraft = false;
                         }
 
+                    }
+                }
+                else
+                {
+                    @if (!string.IsNullOrEmpty(searchQuery))
+                    {
+                        @if (toSearch && (allTransactions.Any(t => string.IsNullOrEmpty(searchQuery) || t.transTitle.ToLower().Contains(searchQuery.ToLower()))))
+                        {
+                            @foreach (TransactionOverviewToShow transaction in allTransactions.Where(t => string.IsNullOrEmpty(searchQuery) || t.transTitle.ToLower().Contains(searchQuery.ToLower())))
+                            {
+
+                                <div class="transactions">
+                                    <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus" typeByCat="@typeByCat"></TransOverviewComponent>
+                                </div>
+                                
+                            }
+
+                            toSearch = false;
+                        }
+                        else
+                        {
+                            if(toSearch)
+                            {
+                                <p>אופס, לא נמצא תוצאה שמתאימה לחיפוש</p>
+                            }
+                            
+                        }
                     }
                 }
             </div>
@@ -571,7 +598,9 @@
 
     public string subCategoryTitle = "";
     List<TransactionOverviewToShow> allTransactions = new List<TransactionOverviewToShow>();
+    List<TransactionOverviewToShow> searchTrans = new List<TransactionOverviewToShow>();
     List<TransactionOverviewToShow> prefilteredTransactions = new List<TransactionOverviewToShow>();
+
 
     bool deleteBtnClicked = false;
 
@@ -691,6 +720,7 @@
                                         allTransactions = checkTransList;
                                         foreach (TransactionOverviewToShow trans in allTransactions)
                                         {
+
                                             totalSpendings += trans.transValue;
                                         }
                                         prefilteredTransactions = checkTransList;
@@ -1228,7 +1258,7 @@
             {
 
             }
-            FilterCatsOrSubCats();
+            FilterTagsOrTrans();
         }
 
     }
@@ -1291,19 +1321,21 @@
         Nav.NavigateTo("./ProfilePage/" + userID);
     }
 
-    void FilterCatsOrSubCats()
+    void FilterTagsOrTrans()
     {
-        //if (!string.IsNullOrEmpty(searchQuery))
-        //{
-        //    searchCats = currentUser.categoriesFullList.Where(category => category.categroyTitle.Contains(searchQuery)).ToList();
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+
+            searchTrans = allTransactions.Where(trans => trans.transTitle.Contains(searchQuery)).ToList();
+            Console.WriteLine(searchTrans);
 
 
-        //}
-        //else
-        //{
-        //    searchCats = null; // Show all categories if the search query is empty
+        }
+        else
+        {
+            searchTrans = null; // Show all categories if the search query is empty
 
-        //}
+        }
     }
 
     void filterBtnClickedFunc()

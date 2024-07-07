@@ -118,7 +118,7 @@
     outline: inherit;
 }
 
-#transactions {
+.transactions {
     display: flex;
     flex-direction: column;
     row-gap: 2vh;
