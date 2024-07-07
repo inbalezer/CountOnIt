@@ -406,18 +406,18 @@
                                 <div class="transactions">
                                     <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus" typeByCat="@typeByCat"></TransOverviewComponent>
                                 </div>
-                                
+
                             }
 
                             toSearch = false;
                         }
                         else
                         {
-                            if(toSearch)
+                            if (toSearch)
                             {
                                 <p>אופס, לא נמצא תוצאה שמתאימה לחיפוש</p>
                             }
-                            
+
                         }
                     }
                 }
@@ -425,7 +425,7 @@
         </div>
     </div>
 </div>
-@if (overdraftStatus && overdraftOverlayOpen)
+@if (overdraftStatus && overdraftOverlayOpen && !noOverdraftOptions)
 {
     <div class="overlay">
         <div class="outerOverdraft">
@@ -464,6 +464,7 @@
                                 <div class="subCatsDropDown">
                                     @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
                                     {
+                                        
                                         @if (subcategoryOpt.id != overDraftSubCategory.id)
                                         {
                                             <div @onclick="()=>HandleChange(subcategoryOpt)">
@@ -573,6 +574,42 @@
         </div>
     </div>
 }
+@*
+@if (noOverdraftOptions)
+{*@
+    <div class="overlay">
+        <div class="outerOverdraft">
+            <div class="overdraftWindow">
+
+                <div class="outerText">
+                    <div class="outerCloseBtn">
+                        <button class="modal-close-btn" @onclick="()=>noOverdraftOptions = false"><img src="../css/images/close x.svg" /></button>
+                    </div>
+                    
+                    <h3 class="titleText">חרגת...</h3>
+
+                    <div>
+                        אין תתי קטגוריות בעלות תקציב
+                        פנוי להעברה.
+
+                    </div>
+                    <div>
+                        <span><b>טיפ מאיתנו-</b></span> 
+                        לקראת החודש הבא,
+                        כדאי להעריך מחדש את התקציב של
+                        תתי הקטגוריות השונות.
+                    </div>
+
+
+                    <div class="outerBtns">
+                        <img style="height: 31vh;" src="../css/images/no-overdraft-options.svg" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+@*}*@
 
 @code {
     [Parameter]
@@ -615,6 +652,7 @@
     public double totalSpendings = 0;
 
     bool filterBtnClicked = false;
+    bool noOverdraftOptions = false;
     bool filterByTransTypeOverlay = false;
     bool toSearch = false;
     string filterByType = "";
@@ -760,13 +798,22 @@
 
                             if (totalSpendings > budget)
                             {
+                                Console.WriteLine("איןןןןןןן תתיייייי קטגוריותתתתתתת");
                                 overdraftStatus = true;
                                 isOverdraft = true;
                                 var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
                                 if (overdraftRes.IsSuccessStatusCode)
                                 {
+                                    Console.WriteLine("איןןןןןןן תתיייייי קטגוריותתתתתתת");
                                     closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
+
+                                    if (closeOverdraftOpts.Count == null)
+                                    {
+                                        noOverdraftOptions = true;
+                                    }
                                 }
+
+
                             }
                             else
                             {
@@ -1433,6 +1480,11 @@
             overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
             overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
             chosenSubCategory = new OverBudgetToShow();
+
+            if (closeOverdraftOpts.Count == null || closeOverdraftOpts.Count == 0)
+            {
+                noOverdraftOptions = true;
+            }
         }
         else
         {

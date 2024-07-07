@@ -29,7 +29,7 @@
                     @subCategoryTitle
 
                 </h3>
-                @if (totalSpendings > budget && categoryTypeIndicator == false || overdraftNotTreated==true)
+                @if (totalSpendings > budget && categoryTypeIndicator == false || overdraftNotTreated == true)
                 {
                     isOverdraft = true;
                     <button @onclick="triggerOverdraftOverlay">⚠️</button>
@@ -114,19 +114,47 @@
                         }
                     </div>
 
-                    <div class="outerTitleName">
-                        <label class="titleName" for="amount">שם תת קטגוריה</label>
-                        <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
+                    <div class="outerTitleAndCounter">
+                        <div class="input-container">
+                            <label class="titleName" for="amount">שם תת קטגוריה</label>
+                            <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" @oninput="SubCatTitleLengthCounter" />
+                            <div class="counter">
+                                <div class="outerTitleName">
+                                    
+
+                                    @if (titleInputLength > 0)
+                                    {
+                                        titleInput = titleInputLength.ToString();
+                                        <span>@titleInput/18</span>
+                                    }
+                                    else
+                                    {
+                                        <span>0/18</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+
+
+
+
+
+
+
+
+
+
 
                     <label class="titleName" for="description">מה התקציב החודשי שלך עבור "@subCatToEdit.subCategoryTitle"?</label>
                     <div class="outerBudget">
-                        <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget"/>
+                        <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
                         <span class="currency-symbol">₪</span>
                         <br />
                         @if (ogBudget < 0)
                         {
-                            <span>הקטנת את התקציב ב- @(Math.Round((ogBudget * -1),2))%.</span>
+                            <span>הקטנת את התקציב ב- @(Math.Round((ogBudget * -1), 2))%.</span>
                             <br />
                         }
                         else if (ogBudget > 0)
@@ -268,7 +296,8 @@
     bool deleteBtnClicked = false;
     bool isOverdraft = false;
     string popupBodyText = "";
-
+    string titleInput = "";
+    int titleInputLength = 0;
     public bool openTransOverlay = false;
     string? catOutlineColor = "";
 
@@ -288,7 +317,7 @@
             }
         }
 
-        if (subCatColor==null || subCatColor=="")
+        if (subCatColor == null || subCatColor == "")
         {
             subCatColor = convertCatColors("#678EF4");
         }
@@ -296,6 +325,11 @@
         {
             subCatColor = convertCatColors(subCatColor);
         }
+
+        //if(subCatToEdit.subCategoryTitle != null || subCatToEdit.subCategoryTitle != "")
+        //{
+        //    titleInputLength = subCatToEdit.subCategoryTitle.Length;
+        //}
 
     }
 
@@ -395,7 +429,7 @@
     public async Task getUserCategories()
     {
         //editSubCatBtnClicked = true;
-        
+
         subCatToEdit.categroyTitle = categoryTitle;
         subCatToEdit.monthlyPlannedBudget = budget;
         subCatToEdit.subCategoryTitle = subCategoryTitle;
@@ -453,6 +487,7 @@
                 userCategories.Add(incomeCat);
             }
         }
+        titleInputLength = subCatToEdit.subCategoryTitle.Length;
         editSubCatBtnClicked = !editSubCatBtnClicked;
 
         toggleOptionsMenu();
@@ -484,7 +519,7 @@
             updateEditedSubCat.InvokeAsync(subCatToEdit);
 
             editSubCatBtnClicked = false; //closeing the edit overlay
-           
+
 
             Console.WriteLine("sub category updated");
 
@@ -498,7 +533,7 @@
 
     public void deleteSubCatPopUp()
     {
-        deleteBtnClicked = !deleteBtnClicked;       
+        deleteBtnClicked = !deleteBtnClicked;
         popupBodyText = "תת הקטגוריה '" + subCategoryTitle + "' עומדת להמחק";
         toggleOptionsMenu();
         isOptBtnClicked = false;
@@ -572,8 +607,15 @@
         }
     }
 
-   void toggleOptionsMenu()
+    void toggleOptionsMenu()
     {
         isOptBtnClicked = !isOptBtnClicked;
+    }
+
+    private void SubCatTitleLengthCounter(ChangeEventArgs e)
+    {
+        titleInput = e.Value.ToString();
+        
+        titleInputLength = titleInput.Length;
     }
 }
