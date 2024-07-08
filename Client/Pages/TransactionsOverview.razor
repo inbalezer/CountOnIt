@@ -689,7 +689,7 @@
             {
                 userID = userID
             };
-        var getUserIcon = await Http.PostAsJsonAsync("api/Present/getUserIcon", userIndex);
+        var getUserIcon = await Http.GetAsync("api/Present/getUserIcon/"+userID);
         if (getUserIcon.IsSuccessStatusCode)
         {
             string iconCheck = await getUserIcon.Content.ReadAsStringAsync();
