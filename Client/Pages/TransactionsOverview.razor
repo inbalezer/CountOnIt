@@ -373,7 +373,7 @@
                         if (!filterByReturnTrans)
                         {
 
-                            <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus" typeByCat="@typeByCat"></TransOverviewComponent>
+                            <TransOverviewComponent transaction="transaction" removeTransaction="@(()=>transactionDeleted(transaction.id))" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus" typeByCat="@typeByCat"></TransOverviewComponent>
 
                         }
                         else
@@ -381,7 +381,7 @@
                             filterStatus = "הוצאה חוזרת";
                             if (transaction.fixedMonthly == true)
                             {
-                                <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus" typeByCat="@typeByCat"></TransOverviewComponent>
+                                <TransOverviewComponent transaction="transaction" removeTransaction="@(()=>transactionDeleted(transaction.id))" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus" typeByCat="@typeByCat"></TransOverviewComponent>
                                 <hr />
                             }
 
@@ -404,7 +404,7 @@
                             {
 
                                 <div class="transactions">
-                                    <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus" typeByCat="@typeByCat"></TransOverviewComponent>
+                                    <TransOverviewComponent transaction="transaction" removeTransaction="@(()=>transactionDeleted(transaction.id))" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus" typeByCat="@typeByCat"></TransOverviewComponent>
                                 </div>
 
                             }
@@ -464,7 +464,7 @@
                                 <div class="subCatsDropDown">
                                     @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
                                     {
-                                        
+
                                         @if (subcategoryOpt.id != overDraftSubCategory.id)
                                         {
                                             <div @onclick="()=>HandleChange(subcategoryOpt)">
@@ -574,9 +574,9 @@
         </div>
     </div>
 }
-@*
+
 @if (noOverdraftOptions)
-{*@
+{
     <div class="overlay">
         <div class="outerOverdraft">
             <div class="overdraftWindow">
@@ -585,7 +585,7 @@
                     <div class="outerCloseBtn">
                         <button class="modal-close-btn" @onclick="()=>noOverdraftOptions = false"><img src="../css/images/close x.svg" /></button>
                     </div>
-                    
+
                     <h3 class="titleText">חרגת...</h3>
 
                     <div>
@@ -594,7 +594,7 @@
 
                     </div>
                     <div>
-                        <span><b>טיפ מאיתנו-</b></span> 
+                        <span><b>טיפ מאיתנו-</b></span>
                         לקראת החודש הבא,
                         כדאי להעריך מחדש את התקציב של
                         תתי הקטגוריות השונות.
@@ -609,7 +609,7 @@
             </div>
         </div>
     </div>
-@*}*@
+}
 
 @code {
     [Parameter]
@@ -807,7 +807,7 @@
                                     Console.WriteLine("איןןןןןןן תתיייייי קטגוריותתתתתתת");
                                     closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
 
-                                    if (closeOverdraftOpts.Count == null)
+                                    if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[0].id == subCatID)
                                     {
                                         noOverdraftOptions = true;
                                     }
@@ -935,15 +935,16 @@
 
     public async void transactionDeleted(int transIdToRemove)
     {
+        Console.WriteLine("transaction id- " + transIdToRemove + " needs to be deleted");
         double checkOverdraft = 0;
-        foreach (TransactionOverviewToShow transaction in allTransactions)
+        for (int i = allTransactions.Count - 1; i >= 0; i--)
         {
-            checkOverdraft += transaction.transValue;
-            if (transaction.id == transIdToRemove)
+            checkOverdraft += allTransactions[i].transValue;
+            if (allTransactions[i].id == transIdToRemove)
             {
-                checkOverdraft -= transaction.transValue;
-                allTransactions.Remove(transaction);
-                Console.WriteLine("transaction id- " + transaction.id + " deleted");
+                checkOverdraft -= allTransactions[i].transValue;
+                allTransactions.Remove(allTransactions[i]);
+                Console.WriteLine("transaction id- " + allTransactions[i].id + " deleted");
             }
         }
 
@@ -1481,7 +1482,7 @@
             overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
             chosenSubCategory = new OverBudgetToShow();
 
-            if (closeOverdraftOpts.Count == null || closeOverdraftOpts.Count == 0)
+            if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[0].id == subCatID)
             {
                 noOverdraftOptions = true;
             }

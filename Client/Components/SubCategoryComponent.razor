@@ -117,10 +117,10 @@
                     <div class="outerTitleAndCounter">
                         <div class="input-container">
                             <label class="titleName" for="amount">שם תת קטגוריה</label>
-                            <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" @oninput="SubCatTitleLengthCounter" maxlength="18" minlength="2"/>
+                            <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" @oninput="SubCatTitleLengthCounter" maxlength="18" minlength="2" />
                             <div class="counter">
                                 <div class="outerTitleName">
-                                    
+
 
                                     @if (titleInputLength > 0)
                                     {
@@ -135,22 +135,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="counter">
-                        @if (titleInput == null || titleInput == "")
-                        {
-                            <span style="color:red">0/18</span>
-                        }
-
-
-
-
-
-
-
-
-
-
-
 
                     <label class="titleName" for="description">מה התקציב החודשי שלך עבור "@subCatToEdit.subCategoryTitle"?</label>
                     <div class="outerBudget">
@@ -221,7 +205,7 @@
                 {
                     <div class="outerTitleName">
                         <label class="titleName" for="amount">שם תת קטגוריה</label>
-                        <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" maxlength="18" minlength="2" @oninput="titleLengthCounter" @bind="@titleInput" />
+                        <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" maxlength="18" minlength="2" @oninput="SubCatTitleLengthCounter" @bind="@titleInput" />
                         <div class="counter">
                             @if (titleInput == null || titleInput == "")
                             {
@@ -273,6 +257,7 @@
             </div>
         </div>
     </div>
+
 }
 
 
@@ -684,7 +669,7 @@
     private void SubCatTitleLengthCounter(ChangeEventArgs e)
     {
         titleInput = e.Value.ToString();
-        
+
         titleInputLength = titleInput.Length;
     }
-}
+            }
