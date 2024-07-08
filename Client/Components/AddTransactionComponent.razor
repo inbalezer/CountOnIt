@@ -625,7 +625,7 @@ resetMonthValues = !resetMonthValues">
     </div>
 
 
-    @if (overdraftDetected)
+    @if (overdraftDetected && closeOverdraftOpts.Count>1 && closeOverdraftOpts[closeOverdraftOpts.Count-1].id!=subCategoryIDTOGet )
     {
         <div class="overlay">
             <div class="outerOverdraft">
@@ -773,6 +773,41 @@ resetMonthValues = !resetMonthValues">
             </div>
         </div>
     }
+    else if (overdraftDetected && closeOverdraftOpts.Count == 1 && closeOverdraftOpts[closeOverdraftOpts.Count - 1].id == subCategoryIDTOGet)
+    {
+        <div class="overlay">
+            <div class="outerOverdraft">
+                <div class="overdraftWindow">
+
+                    <div class="outerText">
+                        <div class="outerCloseBtn">
+                            <button class="modal-close-btn" @onclick="@(async () => await closeOverdraftWindow())"><img src="../css/images/close x.svg" /></button>
+                        </div>
+
+                        <h3 class="titleText">חרגת...</h3>
+
+                        <div>
+                            אין תתי קטגוריות בעלות תקציב
+                            פנוי להעברה.
+
+                        </div>
+                        <div>
+                            <span><b>טיפ מאיתנו-</b></span>
+                            לקראת החודש הבא,
+                            כדאי להעריך מחדש את התקציב של
+                            תתי הקטגוריות השונות.
+                        </div>
+
+
+                        <div class="outerBtns">
+                            <img style="height: 31vh;" src="../css/images/no-overdraft-options.svg" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    }
 
 }
 
@@ -844,6 +879,7 @@ resetMonthValues = !resetMonthValues">
     private bool isItAnewTrans = false;
     //public bool isTagClicked = false;
     public bool overdraftDetected;
+
     bool splitPayment = false;
     bool isTopDropDownOpen = true;
     bool isButtomDropDownOpen = false;

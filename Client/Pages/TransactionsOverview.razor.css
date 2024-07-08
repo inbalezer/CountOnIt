@@ -572,14 +572,14 @@
     height: 63vh;
 }
 
-.overdraftWindow {
+/*.overdraftWindow {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center;*/
     /* text-align: right; */
-    justify-content: space-around;
+    /*justify-content: space-around;
     height: 100%;
-}
+}*/
 
 .outerText {
     display: flex;
@@ -1064,11 +1064,11 @@
     height: 100%;
 }
 
-.outerText {
+/*.outerText {
     display: flex;
     flex-direction: column;
     align-items: center;
-}
+}*/
 
 .titleText {
     color: red;
