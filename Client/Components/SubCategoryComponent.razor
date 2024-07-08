@@ -14,6 +14,7 @@
 
 
 
+
 <div class="budget-card" style="background-color:@subCatColor;border:1px solid @catOutlineColor">
     <div class="optionsMenu">
         @if (isOptBtnClicked)
@@ -25,10 +26,13 @@
     <div class="budget-header">
         <div class="textAndLine">
             <div class="outerTitleAndOverdraft">
-                <h3 class="subCatTitle">
+                <div class="subCatTitle">
+
+
                     @subCategoryTitle
 
-                </h3>
+
+                </div>
                 @if (totalSpendings > budget && categoryTypeIndicator == false || overdraftNotTreated == true)
                 {
                     isOverdraft = true;
@@ -49,27 +53,33 @@
 
 
     </div>
+    <div class="outerBudgetInfo">
+        <div class="budget-info">
+            @if (!categoryTypeIndicator)
+            {
 
-    <div class="budget-info">
-        @if (!categoryTypeIndicator)
-        {
+                <button class="budget-progress" @onclick="goToTransactionsPage">
+                    @budget /  @Math.Round(totalSpendings,2) ₪
+                </button>
 
-            <button class="budget-progress" @onclick="goToTransactionsPage">
-                @budget /  @Math.Round(totalSpendings,2) ₪
-            </button>
 
-            <button class="add-transaction-button" @onclick="openAddTransOverlay"><img src="../css/images/+2.svg" /></button>
-        }
-        else
-        {
-            <button class="budget-progress" @onclick="goToTransactionsPage">
-                @Math.Round(totalSpendings,2) ₪
-            </button>
+            }
+            else
+            {
+                <button class="budget-progress" @onclick="goToTransactionsPage">
+                    @Math.Round(totalSpendings,2) ₪
+                </button>
 
-            <button class="add-transaction-button" @onclick="openAddTransOverlay"><img src="../css/images/+2.svg" /></button>
-        }
+
+            }
+        </div>
     </div>
+
+    <button class="add-transaction-button" @onclick="openAddTransOverlay"><img src="../css/images/+2.svg" /></button>
 </div>
+
+
+
 
 
 
@@ -118,21 +128,21 @@
                         <div class="input-container">
                             <label class="titleName" for="amount">שם תת קטגוריה</label>
                             <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" @oninput="SubCatTitleLengthCounter" maxlength="18" minlength="2" />
-                            <div class="counter">
-                                <div class="outerTitleName">
+                            @*<div class="counter">
+                    <div class="outerTitleName">
 
 
-                                    @if (titleInputLength > 0)
-                                    {
-                                        titleInput = titleInputLength.ToString();
-                                        <span>@titleInput/18</span>
-                                    }
-                                    else
-                                    {
-                                        <span>0/18</span>
-                                    }
-                                </div>
-                            </div>
+                    @if (titleInputLength > 0)
+                    {
+                    titleInput = titleInputLength.ToString();
+                    <span>@titleInput/18</span>
+                    }
+                    else
+                    {
+                    <span>0/18</span>
+                    }
+                    </div>
+                    </div>*@
                         </div>
                     </div>
 
@@ -669,7 +679,6 @@
     private void SubCatTitleLengthCounter(ChangeEventArgs e)
     {
         titleInput = e.Value.ToString();
-
         titleInputLength = titleInput.Length;
     }
-            }
+}

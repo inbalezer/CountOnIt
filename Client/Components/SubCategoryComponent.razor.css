@@ -1,6 +1,46 @@
 ﻿.budget-card {
     /* width: 300px; */
-/*    background-color: #EDEFF7;*/
+    /*    background-color: #EDEFF7;*/
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+    /* padding: 20px; */
+    padding: 1vh 1.3vh;
+    box-sizing: border-box;
+    width: 9rem;
+    height: 10rem;
+    border-radius: 0.375rem;
+    /* font-family: 'Arial', sans-serif; */
+    border: 1.5px solid #D6D9F1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+@media (max-width: 340px) {
+    .budget-card {
+        /* width: 300px; */
+        /background-color: #EDEFF7;
+        /
+        /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+        /* padding: 20px; */
+        padding: 1vh 1.3vh;
+        box-sizing: border-box;
+        width: 8rem;
+        height: 10rem;
+        border-radius: 0.375rem;
+        /* font-family: 'Arial', sans-serif; */
+        border: 1.5px solid #D6D9F1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+
+
+.budget-card first {
+    /* width: 300px; */
+    background-color: #EDEFF7;
     /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
     /* padding: 20px; */
     padding: 1vh 1.3vh;
@@ -15,46 +55,6 @@
     align-items: center;
 }
 
-@media (max-width: 340px) {
-    .budget-card
-
-{
-    /* width: 300px; */
-    /*background-color: #EDEFF7;*/
-    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
-    /* padding: 20px; */
-    padding: 1vh 1.3vh;
-    box-sizing: border-box;
-    width: 8rem;
-    height: 10rem;
-    border-radius: 0.375rem;
-    /* font-family: 'Arial', sans-serif; */
-    border: 1.5px solid #D6D9F1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-}
-
-
-
-    .budget-card first {
-        /* width: 300px; */
-        background-color: #EDEFF7;
-        /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
-        /* padding: 20px; */
-        padding: 1vh 1.3vh;
-        box-sizing: border-box;
-        width: 9rem;
-        height: 10rem;
-        border-radius: 0.375rem;
-        /* font-family: 'Arial', sans-serif; */
-        border: 1.5px solid #D6D9F1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
 
 .budget-header {
     display: flex;
@@ -68,7 +68,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding:0;
+    padding: 0;
 }
 
     .options-button img {
@@ -93,6 +93,17 @@
     width: 3.3125rem;
     height: 3.3125rem;
     background: linear-gradient(180deg, #6775F4 3%, #5B69E6 97%);
+    position: absolute;
+    /* bottom: -68%; */
+    left: 50%;
+    top: 82%;
+    transform: translateX(-50%);
+    width: 3.3125rem;
+    height: 3.3125rem;
+    border-radius: 50%;
+    box-sizing: border-box;
+}
+
 }
 
 
@@ -108,7 +119,6 @@
     width: 7rem;
     height: 0.1vh;
     background-color: #D6D9F1;
-    margin-bottom: 3vh;
 }
 
 .textAndLine {
@@ -122,7 +132,7 @@
 .fakeDiv {
     width: 12rem;
     height: 12rem;
-    display:flex;
+    display: flex;
 }
 
 .budget-progress {
@@ -134,7 +144,7 @@
     /* font-size: 16px; */
     color: #030942;
     font-weight: 400;
-    width: 7.50688rem;
+    width: 8.47rem;
     font-size: 1rem;
     height: 2.30375rem;
     border-radius: 0.25rem;
@@ -161,11 +171,10 @@
 }
 
 .editAndAddSubCat {
-    
 }
 
 
-.closedAndOpenMenu{
+.closedAndOpenMenu {
     display: flex;
     flex-direction: row-reverse;
     align-items: flex-start;
@@ -192,8 +201,8 @@
     outline: inherit;
 }
 
-.subCatTitle{
-    font-size:1.3rem;
+.subCatTitle {
+    font-size: 1.3rem;
 }
 
 .catsDropDown {
@@ -214,9 +223,9 @@
     border-radius: 0.02rem;
 }
 
-.catsOptions:checked {
-    background-color: #D6D9F1;
-}
+    .catsOptions:checked {
+        background-color: #D6D9F1;
+    }
 
 .titleName {
     font-weight: 500;
@@ -350,8 +359,8 @@
     margin-top: 0.7vh;
 }
 
-.example{
-    font-weight:700;
+.example {
+    font-weight: 700;
 }
 
 .outerSaveBtns {
@@ -416,8 +425,8 @@
     margin-left: 5vw;
 }
 
-.outerTitleAndOverdraft{
-    display:flex;
+.outerTitleAndOverdraft {
+    display: flex;
 }
 
 .outerTitleAndCounter {
@@ -457,4 +466,11 @@
     font: inherit;
     cursor: pointer;
     outline: inherit;
+}
+
+.outerBudgetInfo {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
 }
