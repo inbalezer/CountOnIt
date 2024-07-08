@@ -419,3 +419,42 @@
 .outerTitleAndOverdraft{
     display:flex;
 }
+
+.outerTitleAndCounter {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.input-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1vh;
+}
+
+.counter {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    color: #666;
+    font-size: 12px;
+    padding: 2px 6px;
+}
+
+    .counter span {
+        color: inherit; /* Inherit color from parent */
+        color: #636363
+    }
+
+.overdraftBtn {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}

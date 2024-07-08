@@ -8,6 +8,7 @@
 
 @if (deleteBtnClicked)
 {
+    isOptBtnClicked = false;
     <GeneralPopUpComponent popupTypeTitle="מחיקת תת קטגוריה" middleText="@popupBodyText" action="מחיקה" makeAction="deleteSubCat" closePopUp="deleteSubCatPopUp"></GeneralPopUpComponent>
 }
 
@@ -31,7 +32,7 @@
                 @if (totalSpendings > budget && categoryTypeIndicator == false || overdraftNotTreated == true)
                 {
                     isOverdraft = true;
-                    <button @onclick="triggerOverdraftOverlay">⚠️</button>
+                    <button class="overdraftBtn" @onclick="triggerOverdraftOverlay"><img src="../css/images/overdtaft.svg" /></button>
                 }
             </div>
 
@@ -82,6 +83,7 @@
 
 @if (editSubCatBtnClicked)
 {
+    isOptBtnClicked = false;
     <div class="overlay">
         <div class="outerSubCatOverlay">
 
@@ -112,24 +114,47 @@
                         }
                     </div>
 
-                    <div class="outerTitleName">
-                        <label class="titleName" for="amount">שם תת קטגוריה</label>
-                        <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" maxlength="18" minlength="2" @oninput="titleLengthCounter" @bind="@titleInput" />
+                    <div class="outerTitleAndCounter">
+                        <div class="input-container">
+                            <label class="titleName" for="amount">שם תת קטגוריה</label>
+                            <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" @oninput="SubCatTitleLengthCounter" maxlength="18" minlength="2"/>
+                            <div class="counter">
+                                <div class="outerTitleName">
+                                    
+
+                                    @if (titleInputLength > 0)
+                                    {
+                                        titleInput = titleInputLength.ToString();
+                                        <span>@titleInput/18</span>
+                                    }
+                                    else
+                                    {
+                                        <span>0/18</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="counter">
                         @if (titleInput == null || titleInput == "")
                         {
                             <span style="color:red">0/18</span>
                         }
-                        else
-                        {
 
-                            <span>@titleInputLength/18</span>
-                        }
-                    </div>
+
+
+
+
+
+
+
+
+
+
+
                     <label class="titleName" for="description">מה התקציב החודשי שלך עבור "@subCatToEdit.subCategoryTitle"?</label>
                     <div class="outerBudget">
-                        <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" @onfocusout="calculateBudgetChange" />
+                        <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
                         <span class="currency-symbol">₪</span>
                         <br />
                         @if (ogBudget < 0)
@@ -319,7 +344,8 @@
     bool deleteBtnClicked = false;
     bool isOverdraft = false;
     string popupBodyText = "";
-
+    string titleInput = "";
+    int titleInputLength = 0;
     public bool openTransOverlay = false;
     string? catOutlineColor = "";
 
@@ -464,6 +490,7 @@
     public async Task getUserCategories()
     {
         //editSubCatBtnClicked = true;
+
         subCatToEdit.categroyTitle = categoryTitle;
         subCatToEdit.monthlyPlannedBudget = budget;
         subCatToEdit.subCategoryTitle = titleInput;
@@ -521,7 +548,9 @@
                 userCategories.Add(incomeCat);
             }
         }
+        titleInputLength = subCatToEdit.subCategoryTitle.Length;
         editSubCatBtnClicked = !editSubCatBtnClicked;
+
         toggleOptionsMenu();
     }
 
@@ -569,6 +598,7 @@
         deleteBtnClicked = !deleteBtnClicked;
         popupBodyText = "תת הקטגוריה '" + subCategoryTitle + "' עומדת להמחק";
         toggleOptionsMenu();
+        isOptBtnClicked = false;
     }
     public async Task deleteSubCat()
     {
@@ -651,11 +681,10 @@
         isOptBtnClicked = !isOptBtnClicked;
     }
 
-    string titleInput = "";
-    int titleInputLength = 0;
-    private void titleLengthCounter(ChangeEventArgs e)
+    private void SubCatTitleLengthCounter(ChangeEventArgs e)
     {
         titleInput = e.Value.ToString();
+        
         titleInputLength = titleInput.Length;
     }
 }

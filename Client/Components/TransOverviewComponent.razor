@@ -269,7 +269,7 @@
             }
         }
 
- 
+
     }
     public void OpetionsBtnClicked()
     {
@@ -281,6 +281,7 @@
     public void deleteTransPopUp()
     {
         deleteBtnClicked = !deleteBtnClicked;
+        isOpetionsBtnClicked = !isOpetionsBtnClicked;
         popupTitle = "מחיקת הוצאה";
         popupBodyText = "ההוצאה '" + transaction.transTitle + "' עומדת להמחק";
     }
@@ -349,6 +350,7 @@
     public void editTransPopUp()
     {
         editBtnClicked = !editBtnClicked;
+        isOpetionsBtnClicked = !isOpetionsBtnClicked;
         Console.WriteLine("transIDtoEdit- " + transIDtoEdit);
     }
 

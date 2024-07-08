@@ -213,7 +213,7 @@
                                                                     // Attempt to find a matching transaction for the month
                                                                     var matchingTrans = reapeatedTransValuesList.FirstOrDefault(trans => trans.transDate.ToString("MMMM") == month);
 
-                                                                        <div class="monthDivider"></div>
+                                                                    <div class="monthDivider"></div>
                                                                     // Determine the value to display in the input
                                                                     string inputValue = matchingTrans != null ? matchingTrans.transValue.ToString() : "0";
                                                                 }
@@ -432,7 +432,6 @@ resetMonthValues = !resetMonthValues">
 
                     @if (isButtomDropDownOpen)
                     {
-
                         <div class="outerDetails">
                             <div class="innerPaddingDiv">
                                 <div class="outerTitleAndDateAndName">
@@ -457,24 +456,30 @@ resetMonthValues = !resetMonthValues">
                                     }
                                     else
                                     {
-                                        <button class="addTagBtn" @onclick="() => openTagsMenu = !openTagsMenu">
-                                            @if (chosenTag.id > 0)
-                                            {
+                                        if (chosenTag.id > 0)
+                                        {
+                                            <button class="addTagBtn" @onclick="() => openTagsMenu = !openTagsMenu">
+
                                                 <img src="../css/images/after-tag.svg" />
                                                 <span class="tag tagLabel" style="background-color:@chosenTag.tagColor">@chosenTag.tagTitle</span>
-                                            }
-                                            else
-                                            {
+
+                                            </button>
+                                        }
+                                        else
+                                        {
+
+                                            <button class="addTagBtn" @onclick="() => openTagsMenu = !openTagsMenu">
+
                                                 <img src="../css/images/addtag.svg" />
-                                            }
 
-
-                                        </button>
-                                        <div class="outerGalleryAndNav">
+                                            </button>
+                                        }
+                                        @*<div class="outerGalleryAndNav">
                                             <div class="outerGallery">
 
                                                 @foreach (TagsToShow tag in GetCurrentPageTags())
                                                 {
+                                                    Console.WriteLine(tag +"לפני");
                                                     string buttonStyle = "background-color:" + tag.tagColor + ";";
 
                                                     var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
@@ -501,15 +506,17 @@ resetMonthValues = !resetMonthValues">
                                                 <button class="galleryArrow @disNextBtnStyle" @onclick="NextPage"><img src="../css/images/arrow-next.svg" /></button>
 
                                             </div>
-                                        </div>
+                                        </div>*@
                                     }
 
                                     @if (openTagsMenu)
                                     {
+                                        
                                         <div class="outerGalleryAndNav">
                                             <div class="outerGallery">
                                                 @foreach (var tag in GetCurrentPageTags())
                                                 {
+                                                    Console.WriteLine(tag);
                                                     var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
                                                     <button class="tag"
                                             @onclick="(() => ChooseTagForTrans(tag))"
@@ -595,6 +602,23 @@ resetMonthValues = !resetMonthValues">
                     <div class="outerSaveBtns">
                         <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
                     </div>
+                    @* @if (returningTrans)
+            {
+            <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
+            <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
+            @if (resetMonthValues == false)
+            {
+            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+            {
+            if (!isValueTypedAfterReset)
+            {
+            tToCheck.transValue = newTransaction.transValue;
+            }
+
+            }
+
+            }
+            }*@
                 }
             </div>
         </div>
@@ -1064,6 +1088,15 @@ resetMonthValues = !resetMonthValues">
                             description = ogTransaction.description,
                             splitPayment = ogTransaction.splitPayment
                         };
+
+                    if(newTransaction.tagID >0)
+                    {
+                        //chosenTag.id = newTransaction.tagID;
+                        chosenTag.tagTitle =newTransaction.tagTitle;
+                        chosenTag.tagColor =newTransaction.tagColor;
+                    }
+
+                    Console.WriteLine(newTransaction.tagID + "התגית שלי היא");
 
                     Console.WriteLine(newTransaction.transTitle);
                     titleInput = newTransaction.transTitle;
@@ -1822,6 +1855,17 @@ resetMonthValues = !resetMonthValues">
             if (allTagsRes.IsSuccessStatusCode)
             {
                 allUserTags = await allTagsRes.Content.ReadFromJsonAsync<List<TagsToShow>>();
+
+                if(allUserTags.Count > 0)
+                {
+                    foreach(TagsToShow tag in allUserTags)
+                    {
+                        if(newTransaction.tagID == tag.id)
+                        {
+                            chosenTag = tag;
+                        }                      
+                    }
+                }
             }
             else
             {

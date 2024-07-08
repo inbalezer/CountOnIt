@@ -73,7 +73,7 @@
                     <div class="outerSubCatOverlay">
 
                         <div class="innerSubCatOverlay">
-                            <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked"><img src="../css/images/close x.svg" /></button>
+                            <button class="modal-close-btn" @onclick="closeOptionsMenu"><img src="../css/images/close x.svg" /></button>
                             <h2>עריכת תת קטגוריה</h2>
                             <div class="editAndAddSubCat">
 
@@ -165,7 +165,7 @@
                 </div>
             }
 
-            <div class="options" >
+            <div class="options">
                 @if (isOpetionsBtnClicked)
                 {
                     <OptionsMenuComponent editBtnClicked="getUserCategories" deleteBtnClicked="deleteSubCatPopUp"></OptionsMenuComponent>
@@ -183,7 +183,7 @@
             <div class="searchWrapper">
                 <div class="search__container">
                     <img src="../css/images/search btn.svg" />
-                    <input class="searchInput" type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו תגית או הוצאה..." />
+                    <input class="searchInput" type="text" value="@searchQuery" @oninput="UpdateSearchQuery" @onkeyup="HandleKeyUp" placeholder="חפשו הוצאה..." />
 
                 </div>
             </div>
@@ -365,8 +365,8 @@
                 </div>
             </div>
 
-            <div id="transactions">
-                @if (allTransactions != null && allTransactions.Count > 0)
+            <div class="transactions">
+                @if (allTransactions != null && allTransactions.Count > 0 && string.IsNullOrEmpty(searchQuery))
                 {
                     foreach (TransactionOverviewToShow transaction in allTransactions)
                     {
@@ -394,11 +394,38 @@
 
                     }
                 }
+                else
+                {
+                    @if (!string.IsNullOrEmpty(searchQuery))
+                    {
+                        @if (toSearch && (allTransactions.Any(t => string.IsNullOrEmpty(searchQuery) || t.transTitle.ToLower().Contains(searchQuery.ToLower()))))
+                        {
+                            @foreach (TransactionOverviewToShow transaction in allTransactions.Where(t => string.IsNullOrEmpty(searchQuery) || t.transTitle.ToLower().Contains(searchQuery.ToLower())))
+                            {
+
+                                <div class="transactions">
+                                    <TransOverviewComponent transaction="transaction" removeTransaction="transactionDeleted" subCatID="@subCatID" userID="@userID" subCatTakenBudget="updateSubCatBudgetPostOverdraft" overdraftStatus="@overdraftStatus" typeByCat="@typeByCat"></TransOverviewComponent>
+                                </div>
+
+                            }
+
+                            toSearch = false;
+                        }
+                        else
+                        {
+                            if (toSearch)
+                            {
+                                <p>אופס, לא נמצא תוצאה שמתאימה לחיפוש</p>
+                            }
+
+                        }
+                    }
+                }
             </div>
         </div>
     </div>
 </div>
-@if (overdraftStatus && overdraftOverlayOpen)
+@if (overdraftStatus && overdraftOverlayOpen && !noOverdraftOptions)
 {
     <div class="overlay">
         <div class="outerOverdraft">
@@ -437,6 +464,7 @@
                                 <div class="subCatsDropDown">
                                     @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
                                     {
+                                        
                                         @if (subcategoryOpt.id != overDraftSubCategory.id)
                                         {
                                             <div @onclick="()=>HandleChange(subcategoryOpt)">
@@ -546,6 +574,42 @@
         </div>
     </div>
 }
+@*
+@if (noOverdraftOptions)
+{*@
+    <div class="overlay">
+        <div class="outerOverdraft">
+            <div class="overdraftWindow">
+
+                <div class="outerText">
+                    <div class="outerCloseBtn">
+                        <button class="modal-close-btn" @onclick="()=>noOverdraftOptions = false"><img src="../css/images/close x.svg" /></button>
+                    </div>
+                    
+                    <h3 class="titleText">חרגת...</h3>
+
+                    <div>
+                        אין תתי קטגוריות בעלות תקציב
+                        פנוי להעברה.
+
+                    </div>
+                    <div>
+                        <span><b>טיפ מאיתנו-</b></span> 
+                        לקראת החודש הבא,
+                        כדאי להעריך מחדש את התקציב של
+                        תתי הקטגוריות השונות.
+                    </div>
+
+
+                    <div class="outerBtns">
+                        <img style="height: 31vh;" src="../css/images/no-overdraft-options.svg" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+@*}*@
 
 @code {
     [Parameter]
@@ -571,7 +635,9 @@
 
     public string subCategoryTitle = "";
     List<TransactionOverviewToShow> allTransactions = new List<TransactionOverviewToShow>();
+    List<TransactionOverviewToShow> searchTrans = new List<TransactionOverviewToShow>();
     List<TransactionOverviewToShow> prefilteredTransactions = new List<TransactionOverviewToShow>();
+
 
     bool deleteBtnClicked = false;
 
@@ -586,6 +652,7 @@
     public double totalSpendings = 0;
 
     bool filterBtnClicked = false;
+    bool noOverdraftOptions = false;
     bool filterByTransTypeOverlay = false;
     bool toSearch = false;
     string filterByType = "";
@@ -691,6 +758,7 @@
                                         allTransactions = checkTransList;
                                         foreach (TransactionOverviewToShow trans in allTransactions)
                                         {
+
                                             totalSpendings += trans.transValue;
                                         }
                                         prefilteredTransactions = checkTransList;
@@ -730,13 +798,22 @@
 
                             if (totalSpendings > budget)
                             {
+                                Console.WriteLine("איןןןןןןן תתיייייי קטגוריותתתתתתת");
                                 overdraftStatus = true;
                                 isOverdraft = true;
                                 var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
                                 if (overdraftRes.IsSuccessStatusCode)
                                 {
+                                    Console.WriteLine("איןןןןןןן תתיייייי קטגוריותתתתתתת");
                                     closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
+
+                                    if (closeOverdraftOpts.Count == null)
+                                    {
+                                        noOverdraftOptions = true;
+                                    }
                                 }
+
+
                             }
                             else
                             {
@@ -979,6 +1056,7 @@
     public async Task getUserCategories()
     {
         //editSubCatBtnClicked = true;
+        isOpetionsBtnClicked = !isOpetionsBtnClicked;
         subCatToEdit.categroyTitle = categoryTitle;
         subCatToEdit.monthlyPlannedBudget = budget;
         subCatToEdit.subCategoryTitle = subCategoryTitle;
@@ -1026,6 +1104,7 @@
     {
         popupBodyText = "תת הקטגוריה: '" + subCategoryTitle + "' תמחק";
         deleteBtnClicked = !deleteBtnClicked;
+        isOpetionsBtnClicked = false;
     }
     public async Task deleteSubCat()
     {
@@ -1228,7 +1307,7 @@
             {
 
             }
-            FilterCatsOrSubCats();
+            FilterTagsOrTrans();
         }
 
     }
@@ -1291,19 +1370,21 @@
         Nav.NavigateTo("./ProfilePage/" + userID);
     }
 
-    void FilterCatsOrSubCats()
+    void FilterTagsOrTrans()
     {
-        //if (!string.IsNullOrEmpty(searchQuery))
-        //{
-        //    searchCats = currentUser.categoriesFullList.Where(category => category.categroyTitle.Contains(searchQuery)).ToList();
+        if (!string.IsNullOrEmpty(searchQuery))
+        {
+
+            searchTrans = allTransactions.Where(trans => trans.transTitle.Contains(searchQuery)).ToList();
+            Console.WriteLine(searchTrans);
 
 
-        //}
-        //else
-        //{
-        //    searchCats = null; // Show all categories if the search query is empty
+        }
+        else
+        {
+            searchTrans = null; // Show all categories if the search query is empty
 
-        //}
+        }
     }
 
     void filterBtnClickedFunc()
@@ -1399,6 +1480,11 @@
             overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
             overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
             chosenSubCategory = new OverBudgetToShow();
+
+            if (closeOverdraftOpts.Count == null || closeOverdraftOpts.Count == 0)
+            {
+                noOverdraftOptions = true;
+            }
         }
         else
         {
@@ -1472,5 +1558,12 @@
     {
         overdraftStatus = false;
         overdraftNotTreated = true;
+    }
+
+
+    void closeOptionsMenu()
+    {
+        editSubCatBtnClicked = false;
+        isOpetionsBtnClicked = false;
     }
 }

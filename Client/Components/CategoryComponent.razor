@@ -7,6 +7,7 @@
 
 @if (deleteBtnClicked)
 {
+    isOpetionsBtnClicked = false;
     <GeneralPopUpComponent popupTypeTitle="מחיקת קטגוריה" middleText="@popupBodyText" name="@Category.categroyTitle" action="מחיקה" makeAction=@deleteCategory closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
 }
 <div>
@@ -15,6 +16,7 @@
         {
 
             popupTitle = "עריכת קטגוריה";
+            isOpetionsBtnClicked = false;
             <EditCategoryComponent categoryToEdit="@Category" isCategoryOverlayOpen="showEditCategory" popupTitle="@popupTitle" closeOverlay="closeEditOverlay" isEmojiExsist=true></EditCategoryComponent>
         }
     </div>
@@ -31,15 +33,19 @@
 
             if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget)
             {
-                <button @onclick="@(()=>checkOverdraft(overDraftsubcategory.id))">חריגה⚠️</button>
+                <button class="overdraftBtn" @onclick="@(()=>checkOverdraft(overDraftsubcategory.id))">
+                    <span>חריגה</span>
+                    <img src="../css/images/overdtaft.svg" />
+                </button>
                 break;
             }
         }
 
         <div class="closedAndOpenMenu">
-            <button class="options" @onclick="OpetionsBtnClicked" ><img src="../css/images/option menu.svg" /></button>
+            <button class="options" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
             @if (isOpetionsBtnClicked)
             {
+
                 <OptionsMenuComponent editBtnClicked="@showEditCategory" deleteBtnClicked="@deleteCategoryBtnClciked" closeOverlay="closeDeleteOverlay"></OptionsMenuComponent>
             }
         </div>
@@ -49,7 +55,7 @@
 
 
         <div class="categoryAccordion" style="background: @categoryColor">
-            <button class="options" @onclick="accordionControl" >
+            <button class="options" @onclick="accordionControl">
                 <svg width="33" height="12" viewBox="0 0 33 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1.75 2L16.75 10L30.75 2" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
@@ -106,7 +112,7 @@
                             subcategory.monthlyPlannedBudget = 0;
                         }
                         <div>
-                            @if(subcategory.id== overDraftSubCategory.id)
+                            @if (subcategory.id == overDraftSubCategory.id)
                             {
                                 <div class="budget-card @(isFirstItem ? "first" : "")">
                                     <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="@categoryColor" overdraftNotTreated="@overdraftNotTreated" openOverdraftOverlay="@(()=> checkOverdraft(subcategory.id))" updateTransactionSum="updateTransSumInStatTable"></SubCategoryComponent>
@@ -160,19 +166,33 @@
                         }
                     </div>
 
-                    <div class="outerTitleName">
-                        <label class="titleName" for="amount">שם תת קטגוריה</label>
-                        <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" maxlength="18" minlength="2" @bind="titleInput" @oninput="SubCatTitleLengthCounter" />
-                        @if (titleInputLength > 0)
-                        {
+                    <div class="outerTitleAndCounter">
+                        <div class="input-container">
+                            <label class="titleName" for="amount">שם תת קטגוריה</label>
+                            <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" maxlength="18" minlength="2" @bind="titleInput" @oninput="SubCatTitleLengthCounter" />
+                            <div class="counter">
+                                <div class="outerTitleName">
 
-                            <span>@titleInput.Length/18</span>
-                        }
-                        else
-                        {
-                            <span style="color:red">0/18</span>
-                        }
+                                    @if (titleInputLength > 0)
+                                    {
+
+                                        <span>@titleInput.Length/18</span>
+                                    }
+                                    else
+                                    {
+                                        <span>0/18</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+
+
+
+
+
+
 
                     <label class="titleName" for="description">מה התקציב החודשי שלך עבור @newSubCategory.subCategoryTitle? </label>
 
@@ -512,9 +532,9 @@
 
     protected override void OnInitialized()
     {
-        if (categoryColor==null || categoryColor=="")
+        if (categoryColor == null || categoryColor == "")
         {
-            categoryColor="#678EF4"; //default color
+            categoryColor = "#678EF4"; //default color
         }
     }
 
@@ -687,8 +707,8 @@
     public void showEditCategory()
     {
         editBtnClicked = !editBtnClicked;
-        deleteBtnClicked = false;
         isOpetionsBtnClicked = false;
+        deleteBtnClicked = false;
         closeOverlay.InvokeAsync(true);
         OpetionsBtnClicked();
     }
@@ -702,6 +722,7 @@
     public void deleteCategoryBtnClciked()
     {
         deleteBtnClicked = !deleteBtnClicked;
+        isOpetionsBtnClicked = false;
         editBtnClicked = false;
         isOpetionsBtnClicked = false;
         OpetionsBtnClicked();
@@ -881,10 +902,10 @@
         if (getOverdraftDetails.IsSuccessStatusCode)
         {
             SubCategoryToShow tempSub = await getOverdraftDetails.Content.ReadFromJsonAsync<SubCategoryToShow>();
-            if (tempSub!=null)
+            if (tempSub != null)
             {
-                overDraftSubCategory.id=subCatID;
-                overDraftSubCategory.subCategoryTitle=tempSub.subCategoryTitle;
+                overDraftSubCategory.id = subCatID;
+                overDraftSubCategory.subCategoryTitle = tempSub.subCategoryTitle;
 
                 overDraftSubCategory.remainingBudget = tempSub.transactionsValue;
                 if (tempSub.monthlyPlannedBudget.HasValue)

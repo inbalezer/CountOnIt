@@ -11,9 +11,6 @@
 		<Optimize>False</Optimize>
 	</PropertyGroup>
 	
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Optimize>True</Optimize>
-  </PropertyGroup>
 
 	<PropertyGroup>
 		<SatelliteResourceLanguages>he</SatelliteResourceLanguages>
