@@ -3,67 +3,148 @@
 @using CountOnIt.Shared.Models.present.toEdit
 @using Microsoft.AspNetCore.Components.Web
 @inject HttpClient Http
+@inject DateService DateService
 
 
-<h4>@transaction.transTitle</h4>
-<span>@Math.Round(transaction.transValue,2) ₪</span>
-<OptionsMenuComponent deleteBtnClicked="deleteTransPopUp" editBtnClicked="editTransPopUp"></OptionsMenuComponent>
-@if (deleteBtnClicked)
-{
-    <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" action="🗑️מחיקה" makeAction="deleteTrans" closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
-}
-@if (editBtnClicked)
-{
-    if (transaction.splitPayment == true || childOfSplit == true)
-    {
-        if (transaction.splitPayment)
+<div class="outerMegaTrans">
+
+    <div class="outerTrans">
+        <div class="outerTransDeatils">
+
+            <div class="outerTitleDateAndTag">
+                <div class="outerTextAndDes">
+
+                    <h4 class="transTitle">@transaction.transTitle</h4>
+                    @if (transaction.description != null)
+                    {
+
+                        <button class="desBtn" @onclick="()=> openDes = !openDes"><img src="../css/images/info.svg" /></button>
+
+                    }
+                </div>
+
+                <div class="outerDes">
+                    @if (openDes)
+                    {
+
+                        <span class="transDes">@transaction.description</span>
+                    }
+                </div>
+                <div class="outerDateAndTag">
+
+                    <span style="color:#727272">@transaction.transDate</span>
+                    @if (transaction.tagID != null)
+                    {
+                        <span class="tag" style="background-color:@transaction.tagColor">@transaction.tagTitle</span>
+                    }
+                    else
+                    {
+                        <span class="fakeTag"></span>
+                    }
+                </div>
+            </div>
+
+            <div class="outerDotsAmountAndProp">
+                <div class="outerDotsAndAmount">
+
+                    <span class="tagsValue">@Math.Round(transaction.transValue,2) ₪</span>
+                    <div class="outerDotsAndOptionsTrans">
+                        <button class="optionsMenu" @onclick="OpetionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
+                       
+                        @if (isOpetionsBtnClicked)
+                        {
+                             <div id="options">
+
+                            <OptionsMenuComponent deleteBtnClicked="deleteTransPopUp" editBtnClicked="editTransPopUp"></OptionsMenuComponent>
+                        </div>
+                        }
+                    </div>
+
+                </div>
+                <div class="outerProp">
+
+                    @if (transaction.valueType == "מזומן")
+                    {
+                        <div class="paymentMethod">
+                            <span><img src="../css/images/cash icon.svg" /></span>
+
+                        </div>
+                    }
+                    else if (transaction.valueType == "אשראי")
+                    {
+                        <div class="paymentMethod">
+                            <span><img src="../css/images/credit card.svg" /></span>
+                        </div>
+                    }
+                    else if (transaction.valueType == "ביט/פייבוקס")
+                    {
+                        <div class="paymentMethod">
+                            <span><img src="../css/images/bit-and-paybox.svg" /></span>
+                        </div>
+                    }
+                    else if (transaction.valueType == "אחר")
+                    {
+                        <div class="paymentMethod">
+                            <span><img src="../css/images/wallet2.svg" /></span>
+                        </div>
+                    }
+
+                    @if (transaction.fixedMonthly == true)
+                    {
+                        <div class="paymentMethod">
+
+                            <span><img src="../css/images/repeat iconrestart.svg" /></span>
+                        </div>
+                    }
+                    @if (transaction.splitPayment == true || childOfSplit == true)
+                    {
+                        <div class="paymentMethod">
+                            <span><img src="../css/images/payments.svg" /></span>
+                        </div>
+                        <span>תשלום @transIndexInPayments/@totalPayments </span>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+
+        @if (deleteBtnClicked)
         {
-            <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
+            <GeneralPopUpComponent popupTypeTitle="@popupTitle" middleText="@popupBodyText" action="מחיקה" makeAction="deleteTrans" closePopUp="closeDeletePopUp"></GeneralPopUpComponent>
         }
-        else if (childOfSplit)
+
+        @if (editBtnClicked)
         {
-            if (transaction.parentTransID.HasValue)
+            if (transaction.splitPayment == true || childOfSplit == true)
             {
-                if (transaction.parentTransID.Value > 0)
+                if (transaction.splitPayment)
                 {
-                    Console.WriteLine("split parent was sent to edit");
                     <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
                 }
+                else if (childOfSplit)
+                {
+                    if (transaction.parentTransID.HasValue)
+                    {
+                        if (transaction.parentTransID.Value > 0)
+                        {
+                            Console.WriteLine("split parent was sent to edit");
+                            <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
+                        }
+                    }
+                }
+
+            }
+            else
+            {
+                <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
             }
         }
 
-    }
-    else
-    {
-        <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCatID" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionAfterEdit="updateTranPostEdit" transIDtoEdit="@transIDtoEdit" isTransactionOverlayOpen="closeEditTransWindow" overdraftNotTreated="showOverdraftingTrans" SplitPaymentWithIndex="paymentsDisplay" categoryTypeIndicator="@typeByCat"></AddTransactionComponent>
-    }
-}
-@if (overdraftDetected && transaction.transType == 3)
-{
-    <span>⚠️ הזנה חורגת</span>
-}
-<br />
-<span>@transaction.transDate</span>
-<br />
-@if (transaction.description != null)
-{
-    <br />
-    <span>@transaction.description</span>
-}
-@if (transaction.tagID != null)
-{
-    <span style="background-color:@transaction.tagColor">@transaction.tagTitle</span>
-}
-<span>@transaction.valueType</span>
-@if (transaction.fixedMonthly == true)
-{
-    <span>הוצאה חוזרת</span>
-}
-@if (transaction.splitPayment == true || childOfSplit == true)
-{
-    <span>תשלום @transIndexInPayments/@totalPayments  </span>
-}
 
+
+    </div>
+</div>
 
 
 @code {
@@ -94,6 +175,7 @@
 
     bool deleteBtnClicked = false;
     bool editBtnClicked = false;
+    bool isOpetionsBtnClicked = false;
     string popupTitle;
     string popupBodyText;
 
@@ -106,6 +188,7 @@
     OverDraftBudgetToEdit subCategoryBudgetToUpdate = new OverDraftBudgetToEdit();
 
     bool overdraftDetected = false;
+    bool openDes = false;
 
     int transIndexInPayments = 0;
     int totalPayments = 0;
@@ -113,6 +196,7 @@
     bool childOfSplit = false;
     TransactionToEdit splitParentTrans = new TransactionToEdit();
     int transIDtoEdit = 0;
+    DateTime date;
 
     protected override async Task OnInitializedAsync()
     {
@@ -172,28 +256,37 @@
             }
         }
 
-        //var checkCatType = await Http.GetAsync("api/Transactions/getCatType/" + userID);
-        //if (checkCatType.IsSuccessStatusCode)
-        //{
-        //    List<int> incomeSubCats = new List<int>();
-        //    incomeSubCats = checkCatType.Content.ReadFromJsonAsync<List<int>>().Result;
-        //    if (incomeSubCats.Count > 0)
-        //    {
-        //        if (incomeSubCats.Contains(subCatID))
-        //        {
-        //            typeByCat = true;
-        //        }
-        //    }
-        //}
+        if (typeByCat)
+        {
+            Console.WriteLine("trans date pre switch- " + transaction.transDate);
+            bool convertingDate = DateTime.TryParse(transaction.transDate, out date);
+            string convertedDate = "";
+            if (convertingDate)
+            {
+                convertedDate = date.ToString("dd/MM/yyyy");
+                transaction.transDate = convertedDate;
+                Console.WriteLine("trans date format- " + date + " , trans date as string- " + convertedDate);
+            }
+        }
+
+
     }
+    public void OpetionsBtnClicked()
+    {
+        isOpetionsBtnClicked = !isOpetionsBtnClicked;
+
+    }
+
+
     public void deleteTransPopUp()
     {
         deleteBtnClicked = !deleteBtnClicked;
+        isOpetionsBtnClicked = !isOpetionsBtnClicked;
         popupTitle = "מחיקת הוצאה";
         popupBodyText = "ההוצאה '" + transaction.transTitle + "' עומדת להמחק";
     }
 
-    protected async Task deleteTrans()
+    public async Task deleteTrans()
     {
         if (transaction.splitPayment == true) //deleting a split payment parent
         {
@@ -257,6 +350,7 @@
     public void editTransPopUp()
     {
         editBtnClicked = !editBtnClicked;
+        isOpetionsBtnClicked = !isOpetionsBtnClicked;
         Console.WriteLine("transIDtoEdit- " + transIDtoEdit);
     }
 

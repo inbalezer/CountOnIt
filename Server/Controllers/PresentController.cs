@@ -1,8 +1,10 @@
 ﻿using CountOnIt.Shared.Models.present.toAdd;
 using CountOnIt.Shared.Models.present.toEdit;
 using CountOnIt.Shared.Models.present.toShow;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using TriangleDbRepository;
 
 namespace CountOnIt.Server.Controllers
@@ -96,7 +98,7 @@ namespace CountOnIt.Server.Controllers
             return Math.Round((spending / budget) * 100, 2);
         }
 
-        [HttpGet("checkStreak/{userID}")]
+        [HttpGet("checkStreak/{userID}")] //checks if the user has a current streak
         public async Task<IActionResult> CheckUserStreak(int userID)
         {
             if (userID > 0)
@@ -105,7 +107,9 @@ namespace CountOnIt.Server.Controllers
                 {
                     ID = userID
                 };
-                string getStreakQuery = "SELECT CASE WHEN COUNT(weekly_transactions.week_number) = MAX(total_weeks_data.total_weeks) THEN TRUE ELSE FALSE END AS AllWeeksValid, COUNT(weekly_transactions.week_number) AS WeeksWithThreeOrMoreTransactions FROM ( SELECT WEEK(t.transInputDate) AS week_number FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE() and u.id=4 GROUP BY WEEK(t.transInputDate) HAVING COUNT(*) >= 3) AS weekly_transactions CROSS JOIN (SELECT COUNT(DISTINCT WEEK(t.transInputDate)) AS total_weeks FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE()) AS total_weeks_data;"; //gets the amount of weeks where there was a minimum of 3 transactions
+                string getStreakQuery = "WITH valid_weeks AS (SELECT WEEK(t.transInputDate) AS week_number,YEAR(t.transInputDate) AS year_number,ROW_NUMBER() OVER (ORDER BY YEAR(t.transInputDate), WEEK(t.transInputDate)) AS rn FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transInputDate BETWEEN u.signUpDate AND CURRENT_DATE() AND u.id =@ID GROUP BY YEAR(t.transInputDate), WEEK(t.transInputDate) HAVING COUNT(*) >= 3),streaks AS (SELECT vw.*,(ROW_NUMBER() OVER (ORDER BY vw.year_number, vw.week_number) - vw.rn) AS streak_group FROM valid_weeks vw),current_streak AS (SELECT s.streak_group,COUNT(*) AS streak_length,MAX(CASE WHEN vw2.year_number = YEAR(CURRENT_DATE()) AND vw2.week_number = WEEK(CURRENT_DATE()) THEN 1 ELSE 0 END) AS is_current_streak FROM streaks s JOIN valid_weeks vw2 ON s.year_number = vw2.year_number AND s.week_number = vw2.week_number GROUP BY s.streak_group) SELECT CASE WHEN MAX(is_current_streak) = 1 THEN TRUE ELSE FALSE END AS current_streak_group,MAX(streak_length) AS streak_length FROM current_streak ORDER BY streak_length DESC LIMIT 1;";
+                //gets the amount of weeks where there was a minimum of 3 transactions (in the current streak) and the streak's length
+
                 var getStreaks = await _db.GetRecordsAsync<UserStreakData>(getStreakQuery, param);
                 UserStreakData weekAmountInStreak = getStreaks.FirstOrDefault();
                 if (weekAmountInStreak != null)
@@ -118,7 +122,7 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("invalid user id");
         }
 
-        [HttpGet("getUserStreakStatus/{userID}")]
+        [HttpGet("getUserStreakStatus/{userID}")] //gets the user's streak
         public async Task<IActionResult> getUserStreakStatus(int userID)
         {
             if (userID > 0)
@@ -140,7 +144,51 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("invalid user id");
         }
 
-        [HttpGet("updateStreakStat/{userID}/{newStatus}")]
+        [HttpGet("getUserIcon/{userID}")] //gets the user's icon or profile pic
+        public async Task<IActionResult> getUserIcon(int userID)
+        {
+            if (userID > 0)
+            {
+                object param = new
+                {
+                    ID = userID
+                };
+                string getIconQuery = "SELECT profilePicOrIcon FROM users where id=@ID;";
+                var getIcon = await _db.GetRecordsAsync<string?>(getIconQuery, param);
+                string? userIcon = getIcon.FirstOrDefault();
+
+                if (userIcon == null || userIcon == "" || userIcon.Length <= 0)
+                {
+
+                    object updateParam = new
+                    {
+                        ID = userID,
+                        profilePicOrIcon = "🌟"
+
+                    };
+
+                    string updateUserIconQuery = "update users set profilePicOrIcon=@profilePicOrIcon where id=@ID;";
+                    bool iconUpdate = await _db.SaveDataAsync(updateUserIconQuery, updateParam);
+                    if (iconUpdate)
+                    {
+                        string defaultIcon = "🌟";
+                        return Ok(defaultIcon);
+                    }
+
+                    return BadRequest("failed to update user's icon to default");
+                }
+                else if (userIcon != null)
+                {
+                    return Ok(userIcon);
+                }
+
+                return BadRequest("couldn't find profile pic or icon for this user");
+            }
+
+            return BadRequest("invalid user id");
+        }
+
+        [HttpGet("updateStreakStat/{userID}/{newStatus}")] //updates the user's streak
         public async Task<IActionResult> updateStreakStat(int userID, string newStatus)
         {
             if (userID > 0)
@@ -158,6 +206,29 @@ namespace CountOnIt.Server.Controllers
                     return Ok(StreaksUpdate);
                 }
                 return BadRequest("couldn't update streak status for this user");
+            }
+
+            return BadRequest("invalid user id");
+
+        }
+
+        [HttpGet("getTotalWeekTrans/{userID}")] //gets the total transactions done this week by the user
+        public async Task<IActionResult> getTotalWeekTrans(int userID)
+        {
+            if (userID > 0)
+            {
+                object param = new
+                {
+                    ID = userID
+                };
+                string getStreakQuery = "SELECT COUNT(*) AS totalWeekTransactions FROM users u JOIN categories c ON u.id = c.userID JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE u.id=@ID and WEEK(t.transInputDate, 0) = WEEK(CURRENT_DATE(), 0) AND YEAR(t.transInputDate) = YEAR(CURRENT_DATE()) AND t.transDate <= CURRENT_DATE();";
+                var StreaksUpdate = await _db.GetRecordsAsync<int>(getStreakQuery, param);
+
+                if (StreaksUpdate != null)
+                {
+                    return Ok(StreaksUpdate);
+                }
+                return BadRequest("couldn't get total amount of transactions done this week by this user");
             }
 
             return BadRequest("invalid user id");
@@ -192,7 +263,6 @@ namespace CountOnIt.Server.Controllers
                 ID = categoryID
             };
 
-            // צריך להוסיף שאילתה שמושכת את הצבע מהקטגוריה בשביל להציג גם בתתי קטגוריות אם בחר צבע.
 
             string GetSubCategoriesQuery = "SELECT id, subCategoryTitle, monthlyPlannedBudget FROM subcategories WHERE categoryID = @ID";
             var recordsubCategories = await _db.GetRecordsAsync<SubCategoryToShow>(GetSubCategoriesQuery, param);
@@ -820,7 +890,279 @@ namespace CountOnIt.Server.Controllers
             }
         }
 
+        [HttpGet("getCatColor/{catID}")]
+        public async Task<IActionResult> getCatColor(int catID)
+        {
+            if (catID > 0)
+            {
+                object param = new
+                {
+                    ID = catID
+                };
+                string getColorQuery = "SELECT color FROM categories where id=@ID;";
+                var catColorRec = await _db.GetRecordsAsync<string>(getColorQuery, param);
+                string catColorRes = catColorRec.FirstOrDefault();
+                if (catColorRes != null)
+                {
+                    return Ok(catColorRes);
+                }
+                return BadRequest("couldn't get category's color");
+            }
 
+            return BadRequest("invalid user id");
+
+        }
+
+        [HttpGet("checkOverdraftCats/{userID}")]
+        public async Task<IActionResult> checkOverdraftCats(int userID)
+        {
+            object param = new { ID = userID };
+
+            string GetCategoryOverviewIDQuery = "SELECT id FROM categories WHERE userID = @ID";
+            var recordCategoryOverviewID = await _db.GetRecordsAsync<int>(GetCategoryOverviewIDQuery, param);
+            List<int> catRecsList = recordCategoryOverviewID.ToList();
+            if (catRecsList == null || catRecsList.Count <= 0)
+            {
+                return Ok(new List<CategoryOverDraftCheckToShow>());  // Return an empty list if no categories found
+            }
+            var usercategoriesQuery = "SELECT DISTINCT c.id FROM categories c JOIN subcategories sc ON c.id = sc.categoryID JOIN transactions t ON sc.id = t.subCategoryID WHERE t.transType = 2 and c.userID=@ID;";
+            var incomeCatRec = await _db.GetRecordsAsync<int>(usercategoriesQuery, param);
+            int incomeCatID = incomeCatRec.FirstOrDefault();
+            if (catRecsList.Contains(incomeCatID))
+            {
+                int incomeIndex = catRecsList.IndexOf(incomeCatID);
+                catRecsList.RemoveAt(incomeIndex);
+
+            }
+            List<CategoryOverDraftCheckToShow> checkingOverdraftingCats = new List<CategoryOverDraftCheckToShow>();
+
+            foreach (int catID in catRecsList)
+            {
+                CategoryOverDraftCheckToShow currentCat = new CategoryOverDraftCheckToShow();
+                double subCatSum = 0;  // Reset sum for each category
+                currentCat.id = catID;
+                object categoryParam = new { ID = catID };
+
+                string GetSubCategoryIDbudget = "SELECT COALESCE(SUM(monthlyPlannedBudget), 0) FROM subcategories sc JOIN transactions t ON t.subCategoryID = sc.id JOIN categories c ON sc.categoryID = c.id WHERE c.id = @ID AND MONTH(t.transDate) = MONTH(CURRENT_DATE()) AND YEAR(t.transDate) = YEAR(CURRENT_DATE()) AND (t.transType = 1 OR t.transType = 3);";
+                var recordSubCategoryID = await _db.GetRecordsAsync<double>(GetSubCategoryIDbudget, categoryParam);
+                var subCatBudgetsRec = recordSubCategoryID.FirstOrDefault();
+
+                if (subCatBudgetsRec >= 0)
+                {
+
+                    currentCat.monthlyPlannedBudget = subCatBudgetsRec;
+
+                    // Expenses:
+                    string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(t.transValue),0) FROM transactions t JOIN subcategories sc ON t.subCategoryID = sc.id JOIN categories c ON sc.categoryID = c.id WHERE c.id = @ID AND MONTH(t.transDate) = MONTH(CURRENT_DATE()) AND YEAR(t.transDate) = YEAR(CURRENT_DATE()) AND (t.transType = 1 or t.transType=3)";
+                    var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetCategoryCurrentSumQuery, categoryParam);
+                    subCatSum = recordSubCatCurrentSum.FirstOrDefault();
+
+                    currentCat.totalTransSum = subCatSum;
+                    checkingOverdraftingCats.Add(currentCat);
+                }
+                return BadRequest("couldn't sum/find subcategories' budgets to a category with the id- " + catID);
+            }
+            return Ok(checkingOverdraftingCats);
+        }
+
+
+        [HttpGet("userProfileData/{userID}")]
+        public async Task<IActionResult> getuserProfileData(int userID)
+        {
+            object param = new { ID = userID };
+            string getProfileDataQuery = "SELECT * FROM users where id=@ID;";
+
+            var userDataRes = await _db.GetRecordsAsync<userProfileDataToShow>(getProfileDataQuery, param);
+
+
+            userProfileDataToShow userData = userDataRes.FirstOrDefault();
+            if (userData != null)
+            {
+                string getUserTagsQuery = "SELECT id, tagTitle, tagColor FROM tags where userID=@ID;";
+                var userTagsRes = await _db.GetRecordsAsync<TagsToShow>(getUserTagsQuery, param);
+                List<TagsToShow> userTagList = userTagsRes.ToList();
+                userData.userTags = userTagList;
+                return Ok(userData);
+            }
+            return BadRequest("user is null");
+        }
+
+
+
+        [HttpPost("updateUser")]
+        public async Task<IActionResult> UpdateUserData(userProfileDataToShow editedUser)
+        {
+            try
+            {
+                bool userUpdateRes = await UpdateUserDetails(editedUser);
+                if (!userUpdateRes)
+                {
+                    return BadRequest("Failed to update user details.");
+                }
+
+                var updateResult = await UpdateUserTags(editedUser);
+                if (!updateResult.IsSuccess)
+                {
+                    return BadRequest(updateResult.ErrorMessage);
+                }
+
+                return Ok(updateResult.Data); // Assuming you want to return the list of deleted tag IDs.
+            }
+            catch (Exception ex)
+            {
+                //_logger.LogError($"An error occurred: {ex.Message}");
+                return StatusCode(500, "An internal error occurred.");
+            }
+        }
+
+        private async Task<bool> UpdateUserDetails(userProfileDataToShow editedUser)
+        {
+            object newUser = new
+            {
+                ID = editedUser.id,
+                firstName = editedUser.firstName,
+                lastName = editedUser.lastName,
+                profilePicOrIcon = editedUser.profilePicOrIcon,
+                monthStartDate = editedUser.monthStartDate
+            };
+
+            string updateUserQuery = @"update users set firstName=@firstName, lastName=@lastName, 
+                               profilePicOrIcon=@profilePicOrIcon, monthStartDate=@monthStartDate 
+                               where id=@ID";
+            return await _db.SaveDataAsync(updateUserQuery, newUser);
+        }
+
+        private async Task<(bool IsSuccess, string ErrorMessage, List<int> Data)> UpdateUserTags(userProfileDataToShow editedUser)
+        {
+            string getUserTagsQuery = "select * from tags where userID=@ID";
+            var userTagsRes = await _db.GetRecordsAsync<TagsToShow>(getUserTagsQuery, new { ID = editedUser.id });
+            List<TagsToShow> userTagList = userTagsRes.ToList();
+
+            // Lists to handle tags
+            List<int> tagsToDelete = new List<int>();
+            List<TagsToShow> tagsToUpdate = new List<TagsToShow>();
+            List<TagsToShow> tagsToInsert = new List<TagsToShow>();
+
+            foreach (var existingTag in userTagList)
+            {
+                var matchingTag = editedUser.userTags.FirstOrDefault(t => t.id == existingTag.id);
+                if (matchingTag != null)
+                {
+                    if (existingTag.tagTitle != matchingTag.tagTitle || existingTag.tagColor != matchingTag.tagColor)
+                    {
+                        tagsToUpdate.Add(matchingTag);
+                    }
+                }
+                else
+                {
+                    tagsToDelete.Add(existingTag.id);
+                }
+            }
+
+            foreach (var newTag in editedUser.userTags.Where(t => t.id == 0))
+            {
+                tagsToInsert.Add(newTag);
+            }
+
+            // Execute tag updates
+            foreach (var tag in tagsToUpdate)
+            {
+                if (!await UpdateTag(tag))
+                {
+                    return (false, $"Failed to update tag with ID {tag.id}.", null);
+                }
+            }
+
+            // Insert new tags and handle errors
+            foreach (var tag in tagsToInsert)
+            {
+                int insertedId = await InsertTag(tag, editedUser.id);
+                if (insertedId <= 0)
+                {
+                    return (false, "Failed to insert new tag.", null);
+                }
+            }
+
+            return (true, null, tagsToDelete);
+        }
+
+        private async Task<bool> UpdateTag(TagsToShow tag)
+        {
+            string updateTagQuery = "update tags set tagTitle=@tagTitle, tagColor=@tagColor where id=@ID";
+            return await _db.SaveDataAsync(updateTagQuery, tag);
+        }
+
+        private async Task<int> InsertTag(TagsToShow tag, int userId)
+        {
+            string insertTagQuery = "insert into tags(tagTitle, tagColor, userID) values (@tagTitle, @tagColor, @userID)";
+            return await _db.InsertReturnId(insertTagQuery, new { tagTitle = tag.tagTitle, tagColor = tag.tagColor, userID = userId });
+        }
+
+        [HttpDelete("deleteTags/tagToDelete")]
+        public async Task<IActionResult> deleteTags(int tagToDelete)
+        {
+
+            object tagParam = new
+            {
+                tagID = tagToDelete
+            };
+            string updateTransTagQuery = "update transactions set tagID=null where tagID=@tagID";
+            bool didTransUpdate = await _db.SaveDataAsync(updateTransTagQuery, tagParam);
+            if (!didTransUpdate)
+            {
+                return BadRequest("failed to update tagID to null of transactions with the tagID- " + tagToDelete);
+            }
+
+            string deleteTagQuery = "delete from tags where id=@tagID";
+            var deleteTag = await _db.SaveDataAsync(deleteTagQuery, tagParam);
+            if (deleteTag)
+            {
+                return Ok("tag deleted successfully");
+            }
+            return BadRequest("tag wasn't deleted successfully");
+        }
+
+
+        [HttpPost("updateTag")]
+        public async Task<IActionResult> updateTag(TagsToShow tagToUpdate)
+        {
+            object editedTagParam = new
+            {
+                id=tagToUpdate.id,
+                tagTitle=tagToUpdate.tagTitle,
+                tagColor=tagToUpdate.tagColor
+            };
+            string updateTagQuery = "update tags set tagTitle=@tagTitle, tagColor=@tagColor where id=@ID";
+
+            bool didTagUpdate = await _db.SaveDataAsync(updateTagQuery, editedTagParam);
+            if (didTagUpdate)
+            {
+                return Ok();
+            }
+            return BadRequest("failed to update tag");
+        }
+
+        [HttpPost("addTag/{userID}")]
+        public async Task<IActionResult> addTag(int userID,TagsToShow tagToUpdate)
+        {
+            object newTagParam = new
+            {
+                tagTitle = tagToUpdate.tagTitle,
+                tagColor = tagToUpdate.tagColor,
+                userID= userID
+            };
+            string insertTagQuery = "insert into tags(tagTitle, tagColor, userID) values (@tagTitle, @tagColor, @userID)";
+
+            int wasTagAdded = await _db.InsertReturnId(insertTagQuery, newTagParam);
+            if (wasTagAdded>0)
+            {
+                return Ok();
+            }
+            return BadRequest("failed to add tag");
+        }
     }
 
+
 }
+
+

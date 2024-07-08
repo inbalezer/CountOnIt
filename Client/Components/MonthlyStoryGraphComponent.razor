@@ -12,10 +12,40 @@
 @inject HttpClient Http
 
 
+<div class="chart-container">
 
-<BarChart @ref="barChart" TItem="double" Options="@options"></BarChart>
+    <div class="chart">
 
+        <BarChart @ref="barChart" TItem="int" Options="@options" Class="my-custom-chart"></BarChart>
+    </div>
+</div>
 
+<style>
+    .chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.chart {
+    width: 95%;
+    height: 100%;
+    
+}
+
+    .my-custom-chart canvas {
+        color: transparent !important;
+        background-color: transparent !important;
+    }
+
+    /* Alternatively, if the above does not work, try more specific targeting */
+    .my-custom-chart .chartjs-render-monitor {
+        color: transparent !important;
+        background-color: transparent !important;
+    }
+</style>
 
 
 @code {
@@ -32,20 +62,34 @@
 
     List<CategoriesOverviewToShow> allCatDetails = new List<CategoriesOverviewToShow>();
 
-    List<double> catSums = new List<double>();
+    List<int> catSums = new List<int>();
 
-    BarChart<double> barChart;
+    BarChart<int> barChart;
     BarChartOptions options = new BarChartOptions()
         {
             IndexAxis = "y",
             Elements = new ChartElements
             {
-                            Bar = new()
-                            {
-                                BorderWidth = 2,
-                            }
+                Bar = new()
+                {
+                    BorderWidth = 1.5,
+                }
             },
             Responsive = true,
+            MaintainAspectRatio = false, // Allow resizing without maintaining aspect ratio
+            Layout = new()
+            {
+                Padding = new()
+                {
+                    Left = 1,
+                    Right = 1,
+                    Top = 1,
+                    Bottom = 1
+                },
+
+
+            },
+
             Scales = new ChartScales
             {
                 X = new ChartAxis
@@ -101,7 +145,7 @@
                     else
                     {
                         Labels.Add(allCatDetails[i].categroyTitle);
-                        catSums.Add(allCatDetails[i].currentCategorySum);
+                        catSums.Add(Convert.ToInt32(allCatDetails[i].currentCategorySum));
                     }
 
                     foreach (CategoryToShow cat in allUserCategories)
@@ -111,7 +155,7 @@
                             string catColor = "";
                             if (cat.color == null || cat.color == "")
                             {
-                                catColor = convertCatColors("#6874f4"); //cornflower blue
+                                catColor = convertCatColors("#6775F4"); //cornflower blue
                             }
                             else
                             {
@@ -131,44 +175,41 @@
         string convertedColor = "";
         switch (catColor)
         {
-            case "#f4b367": //mustard
-                convertedColor = ChartColor.FromRgba(244, 179, 103, 255);
+            case "#F4B367": //mustard
+                convertedColor = ChartColor.FromRgba(244, 179, 103, 1);
                 break;
-            case "#7b67f4": //dark purple
-                convertedColor = ChartColor.FromRgba(123, 103, 244, 255);
+            case "#AEA2F9": //purple
+                convertedColor = ChartColor.FromRgba(174, 162, 249, 1);
                 break;
-            case "#f467ab": //dark pink
-                convertedColor = ChartColor.FromRgba(244, 103, 171, 255);
+            case "#F467AB": //dark pink
+                convertedColor = ChartColor.FromRgba(244, 103, 171, 1);
                 break;
-            case "#f47867": //salmon pink
-                convertedColor = ChartColor.FromRgba(244, 120, 103, 255);
+            case "#F47867": //salmon pink
+                convertedColor = ChartColor.FromRgba(244, 120, 103, 1);
                 break;
-            case "#85e7a0": //light green
-                convertedColor = ChartColor.FromRgba(133, 231, 160, 255);
+            case "#6775F4": //defualt
+                convertedColor = ChartColor.FromRgba(103, 117, 244, 1);
                 break;
-            case "#ffef9d": //banana
-                convertedColor = ChartColor.FromRgba(255, 239, 157, 255);
+            case "#8DE4BF": //light green
+                convertedColor = ChartColor.FromRgba(141, 228, 191, 1);
                 break;
-            case "#678ef4": //banana
-                convertedColor = ChartColor.FromRgba(103, 142, 244, 255);
+            case "#67CAF4": //light blue
+                convertedColor = ChartColor.FromRgba(103, 202, 244, 1);
                 break;
-            case "#67caf4": //light-blue
-                convertedColor = ChartColor.FromRgba(103, 202, 244, 255);
+            case "#FCE884": //banana
+                convertedColor = ChartColor.FromRgba(252, 232, 132, 1);
                 break;
-            case "#fbebd7": //cream
-                convertedColor = ChartColor.FromRgba(251, 235, 215, 255);
+            case "#F9D3C2": //cream
+                convertedColor = ChartColor.FromRgba(249, 211, 194, 1);
                 break;
-            case "#04905e": //dark green
-                convertedColor = ChartColor.FromRgba(4, 144, 94, 255);
+            case "#16A78D": //dark green
+                convertedColor = ChartColor.FromRgba(22, 167, 141, 1);
                 break;
-            case "#f95050": //red
-                convertedColor = ChartColor.FromRgba(249, 80, 80, 255);
+            case "#696969": //dark gray
+                convertedColor = ChartColor.FromRgba(105, 105, 105, 1);
                 break;
-            case "#dadada": //gray
-                convertedColor = ChartColor.FromRgba(218, 218, 218, 255);
-                break;
-            case "#6874f4":
-                convertedColor = ChartColor.FromRgba(104, 116, 244, 255);
+            case "#DADADA": //gray
+                convertedColor = ChartColor.FromRgba(218, 218, 218, 1);
                 break;
         };
         return convertedColor;
@@ -191,9 +232,9 @@
             GetBarChartDataset(""));
     }
 
-    BarChartDataset<double> GetBarChartDataset(string label)
+    BarChartDataset<int> GetBarChartDataset(string label)
     {
-        return new BarChartDataset<double>
+        return new BarChartDataset<int>
             {
                 Label = label,
                 Data = catSums,

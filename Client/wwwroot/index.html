@@ -24,8 +24,14 @@
     <!--<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
     <!--<script src="_framework/blazor.webassembly.js"></script>-->
     <!--<script src="_content/Blazorise.Charts/charts.js?v=1.5.2.0"></script>-->
+    <!--<script src="backPageIdentifier.js"></script>-->
+    <script>
+        function navigateBack() {
+            window.history.back();
+        }
 
 
+    </script>
 </head>
 
 <body style="font-family: 'Heebo', sans-serif; font-weight: 400; color: #030942; height: 100%; background-color: #EDEFF7; width:100%;">
@@ -37,6 +43,7 @@
         <a class="dismiss">🗙</a>
     </div>
     <script src="_framework/blazor.webassembly.js"></script>
+    <script src="navScroll.js"></script>
     <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js">
     </script>
     <script>
@@ -58,11 +65,15 @@
         });
 
         button.addEventListener('click', () => picker.togglePicker(button));
+
+
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script src="_content/Blazorise.Charts/charts.js?v=1.6.0"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+
 
 </body>
 

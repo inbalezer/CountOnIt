@@ -8,7 +8,7 @@ namespace CountOnIt.Shared.Models.present.toShow
 {
     public class UserStreakData
     {
-        public bool AllWeeksValid { get; set; }
-        public int WeeksWithThreeOrMoreTransactions { get; set; }
+        public bool current_streak_group { get; set; }
+        public int streak_length { get; set; }
     }
 }

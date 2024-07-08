@@ -66,7 +66,7 @@ namespace CountOnIt.Server.Controllers
                 ID = subCatID
             };
 
-            string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID";
+            string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE());";
             var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetCategoryCurrentSumQuery, param);
             if (recordSubCatCurrentSum != null)
             {
@@ -115,7 +115,7 @@ namespace CountOnIt.Server.Controllers
                                         categoryID = category
                                     };
 
-                                    string getFittingSubCats = "SELECT subcategories.id, subcategories.subCategoryTitle, subcategories.monthlyPlannedBudget, (monthlyPlannedBudget - COALESCE(SUM(transValue), 0)) AS remainingBudget FROM subcategories LEFT JOIN transactions ON subcategories.id = transactions.subCategoryID WHERE importance = 0 AND categoryID = @categoryID GROUP BY subcategories.id HAVING remainingBudget > @gap";
+                                    string getFittingSubCats = "SELECT subcategories.id,subcategories.subCategoryTitle,    subcategories.monthlyPlannedBudget,(subcategories.monthlyPlannedBudget - COALESCE(SUM(transactions.transValue), 0)) AS remainingBudget FROM subcategories LEFT JOIN   transactions ON subcategories.id = transactions.subCategoryID AND MONTH(transactions.transDate) = MONTH(CURRENT_DATE()) AND YEAR(transactions.transDate) = YEAR(CURRENT_DATE()) WHERE subcategories.importance = 0 AND subcategories.categoryID = @categoryID GROUP BY subcategories.id, subcategories.subCategoryTitle, subcategories.monthlyPlannedBudget HAVING remainingBudget > @gap;";
 
                                     var optionalSubcategories = await _db.GetRecordsAsync<OverBudgetToShow>(getFittingSubCats, gapParam);
 
@@ -140,6 +140,8 @@ namespace CountOnIt.Server.Controllers
                 return BadRequest("no linked transactions found to this subcategory");
             }
             return BadRequest("couldnt find sum");
+
+           
         }
 
         [HttpPost("EditSubCategoriesNewBudgets")]  // עריכת תקציב חדש לאחר העברה בחריגה
@@ -207,13 +209,13 @@ namespace CountOnIt.Server.Controllers
     transactions.transType, 
     transactions.transValue, 
     transactions.valueType, 
-    transactions.transDate, 
+    DATE_FORMAT(transactions.transDate, '%d/%m/%Y') AS transDate, 
     transactions.description, 
     transactions.fixedMonthly, 
     transactions.tagID, 
     transactions.transTitle, 
     transactions.parentTransID,
-transactions.splitPayment,
+    transactions.splitPayment,
     tags.tagTitle,
     tags.tagColor
 FROM transactions 
@@ -348,7 +350,9 @@ ORDER BY transactions.transDate DESC;";
                 ID = userID
             };
 
-            string getTagsQuery = "SELECT DISTINCT tags.id, tags.tagTitle, tags.tagColor FROM users JOIN categories ON users.id = categories.userID JOIN subcategories ON categories.id = subcategories.categoryID JOIN transactions ON subcategories.id = transactions.subCategoryID JOIN tags ON transactions.tagID = tags.id WHERE users.id = @ID";
+            //string getTagsQuery = "SELECT DISTINCT tags.id, tags.tagTitle, tags.tagColor FROM users JOIN categories ON users.id = categories.userID JOIN subcategories ON categories.id = subcategories.categoryID JOIN transactions ON subcategories.id = transactions.subCategoryID JOIN tags ON transactions.tagID = tags.id WHERE users.id = @ID";
+
+            string getTagsQuery = "SELECT distinct tags.id, tags.tagTitle, tags.tagColor from tags where userID = @ID";
             var recordUserTags = await _db.GetRecordsAsync<TagsToShow>(getTagsQuery, allTagsParam);
             List<TagsToShow> userTagsList = recordUserTags.ToList();
 
@@ -368,19 +372,18 @@ ORDER BY transactions.transDate DESC;";
             };
 
             string GetSubCatTagsQuery = "select distinct tagID from transactions where subCategoryID=@ID";
-            var recordSubCatTags = await _db.GetRecordsAsync<int>(GetSubCatTagsQuery, param);
-            List<int> TagsIDList = recordSubCatTags.ToList();
-            if (TagsIDList != null)
+            var recordSubCatTags = await _db.GetRecordsAsync<int?>(GetSubCatTagsQuery, param);
+            List<int?> TagsIDList = recordSubCatTags.ToList();
+            if (TagsIDList.Count>0)
             {
                 List<TagsToShow> subCatTagList = new List<TagsToShow>();
-                foreach (int tagID in TagsIDList)
+                for (int i=0; i< TagsIDList.Count; i++)
                 {
-                    if (tagID > 0)
+                    if (TagsIDList[i]>0)
                     {
-
                         object tagIdParam = new
                         {
-                            ID = tagID
+                            ID = TagsIDList[i]
                         };
                         string getTagInfoQuery = "select * from tags where ID=@ID";
                         var getTagInfo = await _db.GetRecordsAsync<TagsToShow>(getTagInfoQuery, tagIdParam);
@@ -389,16 +392,7 @@ ORDER BY transactions.transDate DESC;";
                         {
                             subCatTagList.Add(subCatTag);
                         }
-                        else
-                        {
-                            return BadRequest("tag with ID- " + tagID + " is null");
-                        }
                     }
-                    else
-                    {
-                        return BadRequest("tag ID is null or smaller than 0");
-                    }
-
                 }
                 return Ok(subCatTagList);
             }

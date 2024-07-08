@@ -14,54 +14,82 @@
                     <button class="closeOverlay" @onclick="openCategoryOverlay"><img src="../css/images/close x.svg" /></button>
                     <h3 class="popupTitle">@popupTitle</h3>
                     <div class="titleAndIcon">
-                        <input class="catTitle" type="text" @bind="categoryToEdit.categroyTitle" placeholder="שם הקטגוריה" />
+                        <div class="outerTitleAndCounter">
+                            <div class="input-container">
+                                <input class="catTitle" type="text" placeholder="שם הקטגוריה" maxlength="18" minlength="2" @oninput="titleLengthCounter" @bind="@titleInput" />
+                                <div class="counter">
+                                    @if (titleInput == null || titleInput == "")
+                                    {
+                                        <span>0/17</span>
+                                    }
+                                    else
+                                    {
+                                        if (titleInput.Length < 2 || titleInput.Length > 18)
+                                        {
+
+                                            <span>@titleInputLength/18</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@titleInputLength/18</span>
+
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+
 
                         <div class="keyBoardAndBtn">
-                            <div class="outerCancleAndEmoji">
-                                @if (isEmojiExsist)
-                                {
-                                    <button @onclick="ToggleKeyboard" id="emoji-trigger" class="hideDefaultEmojiBtn"><img src="../css/images/add emoji (1).svg" /></button>
-                                }
-                                else if (isCancleBtnClicked)
-                                {
-                                    <button @onclick="ToggleKeyboard" id="emoji-trigger"><img src="../css/images/add emoji (1).svg" /></button>
-                                }
-                                else
-                                {
-                                    <button @onclick="ToggleKeyboard" id="emoji-trigger" class="@hideBtn"><img src="../css/images/add emoji (1).svg" /></button>
-                                }
-                                @if (noEmojiBtn || isEmojiExsist)
-                                {
+                            <div class="emojiBtnAndKeyboard">
+                                <div class="outerCancleAndEmoji">
+                                    @if (isEmojiExsist)
+                                    {
+                                        <button @onclick="ToggleKeyboard" id="emoji-trigger" class="hideDefaultEmojiBtn"><img src="../css/images/add emoji (1).svg" /></button>
+                                    }
+                                    else if (isCancleBtnClicked)
+                                    {
+                                        <button @onclick="ToggleKeyboard" id="emoji-trigger"><img src="../css/images/add emoji (1).svg" /></button>
+                                    }
+                                    else
+                                    {
+                                        <button @onclick="ToggleKeyboard" id="emoji-trigger" class="@hideBtn"><img src="../css/images/add emoji (1).svg" /></button>
+                                    }
+                                    @if (noEmojiBtn || isEmojiExsist)
+                                    {
 
-                                    <div class="outerCancleAndEmoji">
-                                        <button @onclick="deleteSelectedEmoji" class="cancleEmoji">ביטול בחירה</button>
-                                        <button @onclick="ToggleKeyboard" class="selectedEmoji">
-                                            <span class="emoji">@categoryToEdit.icon</span>
-                                            <img src="../css/images/+ icon.svg" class="plusIcon" />
-                                        </button>
+                                        <div class="outerCancleAndEmoji">
+                                            <button @onclick="deleteSelectedEmoji" class="cancleEmoji">ביטול בחירה</button>
+                                            <button @onclick="ToggleKeyboard" class="selectedEmoji">
+                                                <span class="emoji">@categoryToEdit.icon</span>
+                                                <img src="../css/images/+ icon.svg" class="plusIcon" />
+                                            </button>
+                                        </div>
+
+                                    }
+                                </div>
+
+
+                                <div class="emoji-keyboard @visibilityClass">
+                                    <div class="emoji-categories">
+                                        @foreach (var category in emojiCategories.Keys)
+                                        {
+                                            <button class="category-button @(selectedCategory == category ? "active" : "")"
+                                                @onclick="() => SelectCategory(category)">
+                                                @category
+                                            </button>
+                                        }
                                     </div>
-
-                                }
-                            </div>
-
-
-                            <div class="emoji-keyboard @visibilityClass">
-                                <div class="emoji-categories">
-                                    @foreach (var category in emojiCategories.Keys)
-                                    {
-                                        <button class="category-button @(selectedCategory == category ? "active" : "")"
-                                            @onclick="() => SelectCategory(category)">
-                                            @category
-                                        </button>
-                                    }
-                                </div>
-                                <div class="emoji-section">
-                                    @foreach (var emoji in emojiCategories[selectedCategory])
-                                    {
-                                        <span @onclick="() => SelectEmoji(emoji)" class="emoji">@emoji</span>
-                                    }
+                                    <div class="emoji-section">
+                                        @foreach (var emoji in emojiCategories[selectedCategory])
+                                        {
+                                            <span @onclick="() => SelectEmoji(emoji)" class="emoji">@emoji</span>
+                                        }
+                                    </div>
                                 </div>
                             </div>
+
 
                         </div>
                         @*<input type="text" id="emoji-input" @bind="categoryToEdit.icon">*@
@@ -73,7 +101,7 @@
                     <div class="outerColors">
                         <div class="colorsContainer">
                             <div class="colorsRow">
-                                @foreach (var color in new[] { "#F4B367", "#7B67F4", "#F467AB", "#F47867", "#678EF4", "#85E7A0" })
+                                @foreach (var color in new[] { "#F4B367", "#AEA2F9", "#F467AB", "#F47867", "#6775F4", "#8DE4BF" })
                                 {
                                     <div id="@(color)" class="@(selectedClass == color ? "color-selected" : "")">
                                         <input style="opacity:0;" type="radio" name="categoryColors" value="@color"
@@ -83,7 +111,7 @@
                                 }
                             </div>
                             <div class="colorsRow">
-                                @foreach (var color in new[] { "#67CAF4", "#FFEF9D", "#FBEBD7", "#04905E", "#F95050", "#DADADA" })
+                                @foreach (var color in new[] { "#67CAF4", "#FCE884", "#F9D3C2", "#16A78D", "#696969", "#DADADA" })
                                 {
                                     <div id="@(color)" class="@(selectedClass == color ? "color-selected" : "")">
                                         <input style="opacity:0;" type="radio" name="categoryColors" value="@color"
@@ -100,34 +128,38 @@
                         {
                             hideBtn = "hideDefaultEmojiBtn";
 
-                            if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
+                            if (ogCatName != "הכנסות" && titleInput == "הכנסות")
                             {
                                 <button class="saveBtn" @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
+                                <br />
                                 <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
                             }
-                            else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
+                            else if (titleInput == null || titleInput == "" || titleInput.Length > 18 || titleInput.Length < 2)
                             {
                                 <button class="saveBtn" @onclick="saveUpdatedCat" disabled>שמירה וסיום</button>
+                                <br />
                                 <span>לא ניתן לשמור קטגוריה ללא שם.</span>
                             }
                             else
                             {
-                                 <button class="saveBtn" @onclick="saveUpdatedCat">שמירה וסיום</button>
+                                <button class="saveBtn" @onclick="saveUpdatedCat">שמירה וסיום</button>
                             }
 
                         }
                         else if (popupTitle == "הוספת קטגוריה")
                         {
-                            
-                            if (ogCatName != "הכנסות" && categoryToEdit.categroyTitle == "הכנסות")
+
+                            if (ogCatName != "הכנסות" && titleInput == "הכנסות")
                             {
-                              
+
                                 <button class="saveBtn" @onclick="addNewCategory" disabled>שמירה וסיום</button>
+                                <br />
                                 <span>לא ניתן לשמור קטגוריה נוספת בשם 'הכנסות'.</span>
                             }
-                            else if (categoryToEdit.categroyTitle == null || categoryToEdit.categroyTitle == "")
+                            else if (titleInput == null || titleInput == "" || titleInput.Length > 18 || titleInput.Length < 2)
                             {
                                 <button class="saveBtn" @onclick="addNewCategory" disabled>שמירה וסיום</button>
+                                <br />
                                 <span>לא ניתן לשמור קטגוריה ללא שם.</span>
                             }
                             else
@@ -181,13 +213,26 @@
     bool disabledEditOfIncomeTitle = false;
     string ogCatName = "";
 
+    string titleInput = "";
+    int titleInputLength = 0;
+
+
     protected override async Task OnInitializedAsync()
     {
         ogCatName = categoryToEdit.categroyTitle;
+
+
         if (ogCatName == "הכנסות")
         {
             disabledEditOfIncomeTitle = true;
         }
+
+        if (categoryToEdit.categroyTitle != "" && categoryToEdit.categroyTitle != null)
+        {
+            titleInputLength = ogCatName.Length;
+            titleInput = categoryToEdit.categroyTitle;
+        }
+
     }
 
     string color1Selected = "#F4B367";
@@ -197,7 +242,8 @@
     bool isCancleBtnClicked = false;
     public async Task saveUpdatedCat()
     {
-        editedCategory.categroyTitle = categoryToEdit.categroyTitle;
+        //editedCategory.categroyTitle = categoryToEdit.categroyTitle;
+        editedCategory.categroyTitle = titleInput;
         editedCategory.color = categoryToEdit.color;
         editedCategory.icon = categoryToEdit.icon;
         editedCategory.id = categoryToEdit.id;
@@ -233,7 +279,8 @@
 
     public async Task addNewCategory()
     {
-        newCategory.categroyTitle = categoryToEdit.categroyTitle;
+        //newCategory.categroyTitle = categoryToEdit.categroyTitle;
+        newCategory.categroyTitle = titleInput;
         newCategory.color = categoryToEdit.color;
         newCategory.icon = categoryToEdit.icon;
         newCategory.userID = userID;
@@ -264,19 +311,7 @@
 
     }
 
-    //private ElementReference textInput;
 
-    //private async Task FocusInput()
-    //{
-    //    await JS.InvokeVoidAsync("focusInput", textInput);
-    //}
-
-    //private void UpdateColor(string color)
-    //{
-    //    categoryToEdit.color = color;
-    //    selectedClass = "selectedColor";
-
-    //}
 
     private void UpdateColor(string color)
     {
@@ -349,5 +384,11 @@
         isEmojiExsist = false;
         categoryToEdit.icon = "";
         hideBtn = "";
+    }
+
+    private void titleLengthCounter(ChangeEventArgs e)
+    {
+        titleInput = e.Value.ToString();
+        titleInputLength = titleInput.Length;
     }
 }
