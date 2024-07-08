@@ -625,7 +625,7 @@ resetMonthValues = !resetMonthValues">
     </div>
 
 
-    @if (overdraftDetected)
+    @if (overdraftDetected && !noOverdraftOptions)
     {
         <div class="overlay">
             <div class="outerOverdraft">
@@ -856,6 +856,7 @@ resetMonthValues = !resetMonthValues">
     bool disNextBtn = false;
     bool isTagChosen = false;
     bool isResetBtnClicked = false;
+    bool noOverdraftOptions = false;
     string disBtnStyle => disBtn ? "disBtn" : "";
     string disNextBtnStyle => disNextBtn ? "disBtn" : "";
     string chosenTagStyle => isTagChosen ? "chosenTag" : "";
@@ -1783,6 +1784,10 @@ resetMonthValues = !resetMonthValues">
             overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
             //chosenSubCategory = closeOverdraftOpts[0];
 
+            if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[0].id == newTransaction.subCategoryID)
+            {
+                noOverdraftOptions = true;
+            }
 
         }
         else
@@ -1957,6 +1962,42 @@ resetMonthValues = !resetMonthValues">
             }
             transactionsToAdd.Add(childTrans);
 
+        }
+
+        @if (noOverdraftOptions)
+        {
+            <div class="overlay">
+                <div class="outerOverdraft">
+                    <div class="overdraftWindow">
+
+                        <div class="outerText">
+                            <div class="outerCloseBtn">
+                                <button class="modal-close-btn" @onclick="()=>noOverdraftOptions = false"><img src="../css/images/close x.svg" /></button>
+                            </div>
+
+                            <h3 class="titleText">חרגת...</h3>
+
+                            <div>
+                                אין תתי קטגוריות בעלות תקציב
+                                פנוי להעברה.
+
+                            </div>
+                            <div>
+                                <span><b>טיפ מאיתנו-</b></span>
+                                לקראת החודש הבא,
+                                כדאי להעריך מחדש את התקציב של
+                                תתי הקטגוריות השונות.
+                            </div>
+
+
+                            <div class="outerBtns">
+                                <img style="height: 31vh;" src="../css/images/no-overdraft-options.svg" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         }
     }
 
