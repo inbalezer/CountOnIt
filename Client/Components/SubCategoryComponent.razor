@@ -33,10 +33,10 @@
 
 
                 </div>
-                @if (totalSpendings > budget && categoryTypeIndicator == false || overdraftNotTreated == true)
+                @if (totalSpendings > budget && categoryTypeIndicator == false)
                 {
                     isOverdraft = true;
-                    <button class="overdraftBtn" @onclick="triggerOverdraftOverlay"><img src="../css/images/overdtaft.svg" /></button>
+                    <span class="overdraftBtn"><img src="../css/images/overdtaft.svg" /></span>
                 }
             </div>
 
@@ -127,22 +127,7 @@
                     <div class="outerTitleAndCounter">
                         <div class="input-container">
                             <label class="titleName" for="amount">שם תת קטגוריה</label>
-                            <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" @oninput="SubCatTitleLengthCounter" maxlength="18" minlength="2" />
-                            @*<div class="counter">
-                    <div class="outerTitleName">
-
-
-                    @if (titleInputLength > 0)
-                    {
-                    titleInput = titleInputLength.ToString();
-                    <span>@titleInput/18</span>
-                    }
-                    else
-                    {
-                    <span>0/18</span>
-                    }
-                    </div>
-                    </div>*@
+                            <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="titleInput" @oninput="SubCatTitleLengthCounter" maxlength="18" minlength="2" />
                         </div>
                     </div>
 
@@ -234,33 +219,57 @@
 
 
                 <div class="outerSaveBtns">
-                    @if (titleInput == null || titleInput == "" || titleInput.Length <= 0)
+                    @if (!categoryTypeIndicator)
                     {
-                        <button class="primery-button" @onclick="EditSubCategoryAndTransaction" disabled>שמירה ויצירת הזנה</button>
-                        <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
-                        <br />
-                        <span>לא ניתן לשמור תת קטגוריה ללא שם.</span>
-                    }
-                    else if (subCatToEdit.monthlyPlannedBudget <= 0 || subCatToEdit.monthlyPlannedBudget == null)
-                    {
-                        <button class="primery-button" @onclick="EditSubCategoryAndTransaction" disabled>שמירה ויצירת הזנה</button>
-                        <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
-                        <br />
-                        <span>לא ניתן לשמור תת קטגוריה ללא תקציב .</span>
-                    }
-                    else if (subCatToEdit.importance > 2 || subCatToEdit.importance < 0)
-                    {
-                        <button class="primery-button" @onclick="EditSubCategoryAndTransaction" disabled>שמירה ויצירת הזנה</button>
-                        <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
-                        <br />
-                        <span>לא ניתן לשמור תת קטגוריה ללא הגדרת עדיפות .</span>
+                        if (titleInput == null || titleInput == "" || titleInput.Length <= 0)
+                        {
+                            <button class="primery-button" @onclick="EditSubCategoryAndTransaction" disabled>שמירה ויצירת הזנה</button>
+                            <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
+                            <br />
+                            <span>לא ניתן לשמור תת קטגוריה ללא שם.</span>
+                        }
+                        else if (subCatToEdit.monthlyPlannedBudget <= 0 || subCatToEdit.monthlyPlannedBudget == null)
+                        {
+                            <button class="primery-button" @onclick="EditSubCategoryAndTransaction" disabled>שמירה ויצירת הזנה</button>
+                            <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
+                            <br />
+                            <span>לא ניתן לשמור תת קטגוריה ללא תקציב .</span>
+                        }
+                        else if (subCatToEdit.importance > 2 || subCatToEdit.importance < 0)
+                        {
+                            <button class="primery-button" @onclick="EditSubCategoryAndTransaction" disabled>שמירה ויצירת הזנה</button>
+                            <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
+                            <br />
+                            <span>לא ניתן לשמור תת קטגוריה ללא הגדרת עדיפות .</span>
+                        }
+                        else
+                        {
+                            <button class="primery-button" @onclick="EditSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
+                            <button class="secondery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+
+                        }
                     }
                     else
                     {
-                        <button class="primery-button" @onclick="EditSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
-                        <button class="secondery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+                        if (titleInput == null || titleInput == "" || titleInput.Length <= 0)
+                        {
+                            <button class="primery-button" @onclick="EditSubCategoryAndTransaction" disabled>שמירה ויצירת הזנה</button>
+                            <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
+                            <br />
+                            <span>לא ניתן לשמור תת קטגוריה ללא שם.</span>
+                        }
+                        else
+                        {
+                            <button class="primery-button" @onclick="EditSubCategoryAndTransaction" >שמירה ויצירת הזנה</button>
+                            <button class="secondery-button" @onclick="saveUpdatedSubCat" >שמירה וסיום</button>
 
+
+                        }
+
+                            
+                        
                     }
+
 
                 </div>
 
@@ -462,8 +471,6 @@
         {
             catOutlineColor += outlineColor[i];
         }
-        //catOutlineColor = outlineColor;
-        //subCatColor = convertedColor;
     }
 
     public void openAddTransOverlay()
@@ -477,10 +484,10 @@
 
     }
 
-    public void triggerOverdraftOverlay()
-    {
-        openOverdraftOverlay.InvokeAsync(subCategoryIDToGet);
-    }
+    //public void triggerOverdraftOverlay()
+    //{
+    //    openOverdraftOverlay.InvokeAsync(subCategoryIDToGet);
+    //}
 
     public async Task getUserCategories()
     {
@@ -615,14 +622,6 @@
 
         Console.WriteLine(subCategoryTitle + ": " + totalSpendings);
         updateTransactionSum.InvokeAsync(totalSpendings);
-        //if (subCatColor == null || subCatColor == "")
-        //{
-        //    subCatColor = convertCatColors("#678EF4");
-        //}
-        //else
-        //{
-        //    subCatColor = convertCatColors(subCatColor);
-        //}
 
     }
 

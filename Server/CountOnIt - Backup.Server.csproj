@@ -7,8 +7,18 @@
     <UserSecretsId>CountOnIt.Server-5F033871-3FCD-45BC-8662-5E98BD9E026A</UserSecretsId>
 	<ServiceWorkerAssetsManifest>wwwroot\service-worker-assets.js</ServiceWorkerAssetsManifest>
 	<WasmServiceWorkerAssetsManifest>wwwroot\service-worker-wasm-assets.js</WasmServiceWorkerAssetsManifest>
+	<Configurations>Debug;Release;</Configurations>
   </PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<Optimize>False</Optimize>
+	</PropertyGroup>
+	
+
+
+	<PropertyGroup>
+		<SatelliteResourceLanguages>he</SatelliteResourceLanguages>
+	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazorise" Version="1.5.3" />
@@ -48,5 +58,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\images\google.svg" />
+  </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties wwwroot_4lib_4bootstrap_4dist_4css_4bootstrap_1css_1map__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

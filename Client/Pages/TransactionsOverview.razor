@@ -97,7 +97,7 @@
                             </div>
                             <div class="outerTitleName">
                                 <label class="titleName" for="amount">שם תת קטגוריה</label>
-                                <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" />
+                                <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="subCatToEdit.subCategoryTitle" maxlength="18" minlength="2" @oninput="SubCatTitleLengthCounter" />
                             </div>
                             @if (!typeByCat)
                             {
@@ -105,6 +105,17 @@
                                 <div class="outerBudget">
                                     <input class="budgetBox" type="number" id="description" placeholder="0" @bind="subCatToEdit.monthlyPlannedBudget" />
                                     <span class="currency-symbol">₪</span>
+                                    <br />
+                                    @if (ogBudget < 0)
+                                    {
+                                        <span>הקטנת את התקציב ב- @(Math.Round((ogBudget * -1), 2))%.</span>
+                                        <br />
+                                    }
+                                    else if (ogBudget > 0)
+                                    {
+                                        <span>הגדלת את התקציב ב- @(Math.Round(ogBudget, 2))%.</span>
+                                        <br />
+                                    }
                                     <div class="lineBetween"></div>
                                 </div>
                                 <div class="outerImportance">
@@ -155,8 +166,40 @@
                             }
 
                             <div class="outerSaveBtns">
-                                @* <button class="submit-btn" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>*@
-                                <button class="primery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+                                @if(typeByCat){
+                                    if (titleInput.Length>=2 && titleInput.Length<=18)
+                                    {
+                                         <button class="primery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+                                    }else{
+                                        <button class="primery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
+                                    }
+                                }
+                                else
+                                {
+                                    if (titleInput == null || titleInput == "" || titleInput.Length <= 0)
+                                    {
+                                        <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
+                                        <br />
+                                        <span>לא ניתן לשמור תת קטגוריה ללא שם.</span>
+                                    }
+                                    else if (subCatToEdit.monthlyPlannedBudget <= 0 || subCatToEdit.monthlyPlannedBudget == null)
+                                    {
+                                        <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
+                                        <br />
+                                        <span>לא ניתן לשמור תת קטגוריה ללא תקציב .</span>
+                                    }
+                                    else if (subCatToEdit.importance > 2 || subCatToEdit.importance < 0)
+                                    {
+                                        <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
+                                        <br />
+                                        <span>לא ניתן לשמור תת קטגוריה ללא הגדרת עדיפות .</span>
+                                    }
+                                    else
+                                    {
+                                         <button class="secondery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+                                    }
+                                }
+
                             </div>
                         </div>
 
@@ -574,8 +617,7 @@
         </div>
     </div>
 }
-
-@if (noOverdraftOptions)
+else if (noOverdraftOptions)
 {
     <div class="overlay">
         <div class="outerOverdraft">
@@ -624,11 +666,14 @@
     [Parameter]
     public double? budget { get; set; }
 
+    /// <summary>
+    /// triggers the overdraft symbol in the breadcrumbs
+    /// </summary>
     [Parameter]
     public bool isOverdraft { get; set; }
 
-    [Parameter]
-    public EventCallback<SubCategoryToEdit> updateEditedSubCat { get; set; }
+    //[Parameter]
+    //public EventCallback<SubCategoryToEdit> updateEditedSubCat { get; set; }
 
     public string categoryTitle = "";
 
@@ -647,11 +692,18 @@
     SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
     TagsToShow chosenTag = new TagsToShow();
     public string popupBodyText = "";
+
+    /// <summary>
+    /// means there is an overdraft
+    /// </summary>
     public bool overdraftStatus = false;
 
     public double totalSpendings = 0;
 
     bool filterBtnClicked = false;
+    /// <summary>
+    /// if there isn't any funds free to close the overdraft- this is true
+    /// </summary>
     bool noOverdraftOptions = false;
     bool filterByTransTypeOverlay = false;
     bool toSearch = false;
@@ -683,12 +735,13 @@
     string catColor = "";
     string catOutlineColor = "";
 
+    string titleInput = "";
+    int titleInputLength = 0;
+    double ogBudget = 0;
+
     protected override async Task OnInitializedAsync()
     {
-        UserID userIndex = new UserID
-            {
-                userID = userID
-            };
+
         var getUserIcon = await Http.GetAsync("api/Present/getUserIcon/"+userID);
         if (getUserIcon.IsSuccessStatusCode)
         {
@@ -758,7 +811,6 @@
                                         allTransactions = checkTransList;
                                         foreach (TransactionOverviewToShow trans in allTransactions)
                                         {
-
                                             totalSpendings += trans.transValue;
                                         }
                                         prefilteredTransactions = checkTransList;
@@ -800,15 +852,16 @@
                             {
                                 Console.WriteLine("איןןןןןןן תתיייייי קטגוריותתתתתתת");
                                 overdraftStatus = true;
-                                isOverdraft = true;
+                                isOverdraft = true; //triggers the warning button in the breadcrumbs
                                 var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
                                 if (overdraftRes.IsSuccessStatusCode)
                                 {
                                     Console.WriteLine("איןןןןןןן תתיייייי קטגוריותתתתתתת");
                                     closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
 
-                                    if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[0].id == subCatID)
+                                    if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[closeOverdraftOpts.Count-1].id == subCatID)
                                     {
+
                                         noOverdraftOptions = true;
                                     }
                                 }
@@ -922,12 +975,6 @@
         return convertedColor;
     }
 
-
-
-
-
-
-
     public async Task goBack()
     {
         await JSRuntime.InvokeVoidAsync("navigateBack");
@@ -951,6 +998,10 @@
         if (checkOverdraft > budget)
         {
             overdraftStatus = true;
+            if (!isOverdraft)
+            {
+                isOverdraft = true;
+            }
             await checkOverdraftFunc(subCatID);
         }
         else
@@ -985,6 +1036,7 @@
         if (checkOverdraft > budget)
         {
             overdraftStatus = true;
+            isOverdraft = true;
         }
         else
         {
@@ -1016,7 +1068,7 @@
             subCatToEdit.importance = updatedSubCat.importance;
             subCatToEdit.monthlyPlannedBudget = updatedSubCat.monthlyPlannedBudget;
 
-            updateEditedSubCat.InvokeAsync(subCatToEdit);
+            //updateEditedSubCat.InvokeAsync(subCatToEdit);
 
             subCategoryTitle = updatedSubCat.subCategoryTitle;
             budget = updatedSubCat.monthlyPlannedBudget;
@@ -1465,39 +1517,40 @@
                 {
                     overDraftSubCategory.monthlyPlannedBudget = tempSub.monthlyPlannedBudget.Value;
                 }
+
+                var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
+                if (overdraftRes.IsSuccessStatusCode)
+                {
+                    overdraftStatus = true;
+                    isOverdraft = true;
+                    overdraftOverlayOpen = true;
+
+                    closeOverdraftOpts = new List<OverBudgetToShow>();
+                    closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
+                    currentGap = (closeOverdraftOpts[closeOverdraftOpts.Count - 1].remainingBudget) - (closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget);
+
+                    overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
+                    overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
+                    chosenSubCategory = new OverBudgetToShow();
+
+                    if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[closeOverdraftOpts[closeOverdraftOpts.Count - 1]].id == subCatID)
+                    {
+                        noOverdraftOptions = true;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No overdraft detected");
+
+                }
             }
         }
-        //}
-        var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
-        if (overdraftRes.IsSuccessStatusCode)
-        {
-            overdraftStatus = true;
-            isOverdraft = true;
-            overdraftOverlayOpen = true;
-            closeOverdraftOpts = new List<OverBudgetToShow>();
-            closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
-            currentGap = (closeOverdraftOpts[closeOverdraftOpts.Count - 1].remainingBudget) - (closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget);
 
-            overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
-            overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
-            chosenSubCategory = new OverBudgetToShow();
 
-            if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[0].id == subCatID)
-            {
-                noOverdraftOptions = true;
-            }
-        }
-        else
-        {
-            Console.WriteLine("No overdraft detected");
-
-        }
     }
 
     private void HandleChange(OverBudgetToShow chosenSubCat)
     {
-        /*var selectedTitle = e.Value.ToString()*/
-
         chosenSubCategory = chosenSubCat;
         openSubCatsOptions = !openSubCatsOptions;
     }
@@ -1566,5 +1619,11 @@
     {
         editSubCatBtnClicked = false;
         isOpetionsBtnClicked = false;
+    }
+
+    private void SubCatTitleLengthCounter(ChangeEventArgs e)
+    {
+        titleInput = e.Value.ToString();
+        titleInputLength = titleInput.Length;
     }
 }

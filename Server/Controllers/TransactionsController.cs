@@ -140,8 +140,6 @@ namespace CountOnIt.Server.Controllers
                 return BadRequest("no linked transactions found to this subcategory");
             }
             return BadRequest("couldnt find sum");
-
-           
         }
 
         [HttpPost("EditSubCategoriesNewBudgets")]  // עריכת תקציב חדש לאחר העברה בחריגה
