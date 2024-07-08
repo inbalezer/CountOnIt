@@ -22,7 +22,10 @@
 
                     <button class="backArrow" @onclick="goToFormerPage"><img src="../css/images/back-repeated.svg" /></button>
                 </div>
-
+                @if (goingBackDisabled)
+                {
+                    <GeneralPopUpComponent popupTypeTitle="יציאה מהעמוד ללא שמירה" middleText="במידה והזנת פרטים חדשים, הם לא יישמרו." action="אישור" makeAction="LeavingWithoutSave" closePopUp="closingLeavingPopUp"></GeneralPopUpComponent>
+                }
                 <h3 class="myProfileText">הפרופיל של @currentUser.firstName @currentUser.lastName</h3>
                 <div class="outerDotsAndOptions">
                     <div>
@@ -40,6 +43,8 @@
                     עריכה
                 </button>
             </div>
+
+
         }
 
 
@@ -55,30 +60,17 @@
                             <button class="profilePic">@currentUser.profilePicOrIcon</button>
                             <div class="keyBoardAndBtn">
                                 <div class="outerCancleAndEmoji">
-                                    @*  @if (currentUser.profilePicOrIcon.Length > 0)
-                            {
-                            <button @onclick="ToggleKeyboard" id="emoji-trigger" class="hideDefaultEmojiBtn"><img src="../css/images/add emoji (1).svg" /></button>
-                            }*@
-
                                     <button @onclick="ToggleKeyboard" id="emoji-trigger">
                                         <img style="vertical-align: middle;
     background-color: #F9F9F9;
     border-radius: 26%;" src="../css/images/add emoji (1).svg" />
                                     </button>
 
-                                    @*else
-                            {
-                            <button @onclick="ToggleKeyboard" id="emoji-trigger" class="@hideBtn"><img src="../css/images/add emoji (1).svg" /></button>
-                            }*@
                                     @if (noEmojiBtn || currentUser.profilePicOrIcon.Length > 0)
                                     {
 
                                         <div class="outerCancleAndEmoji">
                                             <button @onclick="deleteSelectedEmoji" class="cancleEmoji">ביטול בחירה</button>
-                                            @*<button @onclick="ToggleKeyboard" class="selectedEmoji">
-                                <span class="emoji">@currentUser.profilePicOrIcon</span>
-                                <img src="../css/images/+ icon.svg" class="plusIcon" />
-                                </button>*@
                                         </div>
 
                                     }
@@ -242,20 +234,12 @@
     <div>
 
         <div class="outerTitleAndStartDay">
-            @if (!editBtnClicked)
-            {
-                <div class="outerText">
-                    <span class="titleName">תאריך הרשמה:</span>
 
-                </div>
-            }
-            else
-            {
-                <div class="outerText">
-                    <span class="titleName">תאריך הרשמה:</span>
+            <div class="outerText">
+                <span class="titleName">תאריך הרשמה:</span>
 
-                </div>
-            }
+            </div>
+
 
         </div>
         <div class="outerDay">
@@ -295,12 +279,12 @@
 
                         @if (currentUser.userTags.Count > 0)
                         {
-                            @if (editBtnClicked)
+                            if (editBtnClicked)
                             {
 
                                 foreach (TagsToShow tag in GetCurrentPageTags())
                                 {
-                                    @if (!editBtnClicked)
+                                    if (!editBtnClicked)
                                     {
                                         var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
                                         <button class="tag"
@@ -340,10 +324,6 @@
                                     <button class="tag" style="background-color:@tag.tagColor; @fontWeight">
                                         @tag.tagTitle
                                     </button>
-                                    @if (editBtnClicked)
-                                    {
-                                        <button class="options" @onclick="()=>OptionsBtnClicked=!OptionsBtnClicked"><img src="../css/images/option menu.svg" /></button>
-                                    }
 
                                 }
                             }
@@ -382,12 +362,12 @@
     {
         <div class="outerOn">
             <div class="outerOnbaordings">
-                <div class="outerDropAndPoly" @onclick="()=> openOnbaordings =! openOnbaordings">
+                <div class="outerDropAndPoly" @onclick="()=> openOnboardings =! openOnboardings">
                     <div>מעבר מחדש על ההדרכה</div>
                     <img src="../css/images/arrow3.svg" />
                 </div>
             </div>
-            @if (openOnbaordings)
+            @if (openOnboardings)
             {
                 <div class="onBoardings">
                     <button class="dropDownOptionBtn" @onclick="(() => chosenOnboarding = firstOn)">סביבת ‘מבט אל העבר’</button>
@@ -468,9 +448,9 @@
                                     <input type="text" class="catTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
                                     <div class="counter">
 
- 
-                                            <span>@tagTitleInputLength/8</span>
-                                        
+
+                                        <span>@tagTitleInputLength/8</span>
+
 
                                     </div>
                                 </div>
@@ -585,7 +565,7 @@
     //Tag gallery variables:
     TagsToShow chosenTag = new TagsToShow();
     bool disBtn = false;
-    bool openOnbaordings = false;
+    bool openOnboardings = false;
     bool disNextBtn = false;
     bool isTagChosen = false;
     bool openStartOptions = false;
@@ -649,6 +629,8 @@
 
     int tagTitleInputLength = 0;
 
+    bool goingBackDisabled = false;
+
 
     //------
 
@@ -658,22 +640,32 @@
         if (userRes.IsSuccessStatusCode)
         {
             currentUser = await userRes.Content.ReadFromJsonAsync<userProfileDataToShow>();
-
-            switch (currentUser.monthStartDate)
+            if (currentUser.monthStartDate.HasValue)
             {
-                case 1:
-                    startMonthDate = 1;
-                    break;
-                case 2:
-                    startMonthDate = 2;
-                    break;
-                case 10:
-                    startMonthDate = 10;
-                    break;
-                case 15:
-                    startMonthDate = 15;
-                    break;
+                switch (currentUser.monthStartDate)
+                {
+                    case 1:
+                        startMonthDate = 1;
+                        break;
+                    case 2:
+                        startMonthDate = 2;
+                        break;
+                    case 10:
+                        startMonthDate = 10;
+                        break;
+                    case 15:
+                        startMonthDate = 15;
+                        break;
+                    default:
+                        startMonthDate=1;
+                        break;
+                }
             }
+            else
+            {
+                startMonthDate = 1;
+            }
+
             newFirstNameLength = currentUser.firstName.Length;
             newLastNameLength = currentUser.lastName.Length;
 
@@ -688,18 +680,38 @@
 
         if (!editBtnClicked)
         {
+            goingBackDisabled = false;
             await JSRuntime.InvokeVoidAsync("navigateBack");
         }
         else
         {
-            await JSRuntime.InvokeVoidAsync("navigateBack");
+            goingBackDisabled = true;
             Console.WriteLine("הוספת פופאפ ולידציה של חזרה ללא שמירה");
         }
     }
 
+    public void LeavingWithoutSave()
+    {
+        goingBackDisabled = false;
 
+        if (currentUser.monthStartDate.HasValue && currentUser.monthStartDate.Value>0 )
+        {
+            startMonthDate = currentUser.monthStartDate.Value;
+        }
+        else
+        {
+            startMonthDate = 1;
+        }
 
-    public void ChooseTagForTrans(TagsToShow tag)
+        editBtnClicked = false;
+    }
+
+    public void closingLeavingPopUp()
+    {
+        goingBackDisabled = false;
+    }
+
+    public void ChooseTagForTrans(TagsToShow tag) //selection of a tag pre edit
     {
         isTagChosen = !isTagChosen;
 
@@ -833,6 +845,7 @@
         editTag = !editTag;
         tagToEdit = new TagsToShow();
         chosenTag = new TagsToShow();
+
         tagToEdit.id = 0;
         tagTitleInputLength = 0;
         ogTagColor = "";
@@ -870,12 +883,13 @@
 
     public void addTag()
     {
+
         currentUser.userTags.Add(tagToEdit);
         tagToEdit = new TagsToShow();
         tagToEdit.tagTitle = "";
         tagToEdit.tagColor = "";
         tagTitleInputLength = 0;
-
+        chosenTag = new TagsToShow();
         editTag = false;
     }
 
@@ -1027,7 +1041,7 @@
     void closeTagsOverlay()
     {
         editTag = !editTag;
-        
+
         if (selectedClass == null || selectedClass == "")
         {
             selectedClass = ogTagColor;

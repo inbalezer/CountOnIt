@@ -163,6 +163,9 @@
     display: inline-block;
     cursor: pointer;
 }
+    .dot.active {
+        background-color: #6775F4;
+    }
 #\#F4B367 {
     width: 25px;
     height: 25px;
