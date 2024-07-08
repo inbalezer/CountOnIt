@@ -4,23 +4,10 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-		<Optimize>False</Optimize>
-	</PropertyGroup>
-		
-	<PropertyGroup>
-		<SatelliteResourceLanguages>he</SatelliteResourceLanguages>
-	</PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Optimize>False</Optimize>
-    <DebugType>portable</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>portable</DebugType>
-    <Optimize>False</Optimize>
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'CountOnIt' ">
+    <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Blazorise" Version="1.5.3" />
@@ -47,6 +34,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\CountOnIt.Shared.csproj" />
   </ItemGroup>
-
 
 </Project>
