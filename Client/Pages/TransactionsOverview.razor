@@ -17,7 +17,7 @@
             <button class="backArrow" @onclick="goBack"><img src="../css/images/back-repeated.svg" /></button>
             @if (isOverdraft)
             {
-                <span>@returnToMainPage > @categoryTitle > @subCategoryTitle <img src="../css/images/overdraft-warning.svg" @onclick="@(()=>checkOverdraftFunc(subCatID))" /></span>
+                <span>@returnToMainPage > @categoryTitle > @subCategoryTitle <img src="../css/images/overdraft-warning.svg" @onclick="openOverdraftPopUp" /></span>
             }
             else
             {
@@ -166,11 +166,14 @@
                             }
 
                             <div class="outerSaveBtns">
-                                @if(typeByCat){
-                                    if (titleInput.Length>=2 && titleInput.Length<=18)
+                                @if (typeByCat)
+                                {
+                                    if (titleInput.Length >= 2 && titleInput.Length <= 18)
                                     {
-                                         <button class="primery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
-                                    }else{
+                                        <button class="primery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+                                    }
+                                    else
+                                    {
                                         <button class="primery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
                                     }
                                 }
@@ -196,7 +199,7 @@
                                     }
                                     else
                                     {
-                                         <button class="secondery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
+                                        <button class="secondery-button" @onclick="saveUpdatedSubCat">שמירה וסיום</button>
                                     }
                                 }
 
@@ -468,190 +471,194 @@
         </div>
     </div>
 </div>
-@if (overdraftStatus && overdraftOverlayOpen && !noOverdraftOptions)
+@if (overdraftOverlayOpen)
 {
-    <div class="overlay">
-        <div class="outerOverdraft">
-            <div class="overdraftWindow">
+    if (!noOverdraftOptions && isOverdraft)
+    {
+        <div class="overlay">
+            <div class="outerOverdraft">
+                <div class="overdraftWindow">
 
-                <div class="outerText">
-                    <h3 class="titleText">חרגת...</h3>
+                    <div class="outerText">
+                        <h3 class="titleText">חרגת...</h3>
 
-                    <div>נראה שהוצאת ב @overDraftSubCategory.subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </div>
-                    <div>שזה <span><b>@currentGap ₪</b></span> יותר </div>
-                    <div>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </div>
-                    <div>כדאי להגדיל את התקציב.</div>
-                    <div><b>הסכום שאני רוצה להעביר:</b></div>
-                    <div class="outerCurrentGap">
-                        <input class="currentGap" type="number" @bind="currentGap" min="@currentGap" />
-                        <span class="currency-symbolOverDraft">₪</span>
-                        <div class="lineBetweenOverdraft"></div>
+                        <div>נראה שהוצאת ב @overDraftSubCategory.subCategoryTitle @closeOverdraftOpts[closeOverdraftOpts.Count-1].remainingBudget ₪ </div>
+                        <div>שזה <span><b>@currentGap ₪</b></span> יותר </div>
+                        <div>מהתקציב שהגדרת: @closeOverdraftOpts[closeOverdraftOpts.Count-1].monthlyPlannedBudget ₪ </div>
+                        <div>כדאי להגדיל את התקציב.</div>
+                        <div><b>הסכום שאני רוצה להעביר:</b></div>
+                        <div class="outerCurrentGap">
+                            <input class="currentGap" type="number" @bind="currentGap" min="@currentGap" />
+                            <span class="currency-symbolOverDraft">₪</span>
+                            <div class="lineBetweenOverdraft"></div>
+                        </div>
+
+                        <div>מאיזו תת קטגוריה יועבר הסכום?</div>
                     </div>
+                    <div class="outerTranferTable">
 
-                    <div>מאיזו תת קטגוריה יועבר הסכום?</div>
-                </div>
-                <div class="outerTranferTable">
+                        <div class="outerFromSubCats">
+                            <span style="font-weight:700;">העברה מ:</span>
+                            <div class="outerDropAndOptions">
+                                <div class="outerDropAndPoly" @onclick="()=>openSubCatsOptions =! openSubCatsOptions">
+                                    <div class="subCatsDrop">
+                                        <span>@chosenSubCategory.subCategoryTitle</span>
+                                        <span class="accordionPoly"><img style="width:7vw;" src="../css/images/arrow3.svg" /></span>
+                                    </div>
 
-                    <div class="outerFromSubCats">
-                        <span style="font-weight:700;">העברה מ:</span>
-                        <div class="outerDropAndOptions">
-                            <div class="outerDropAndPoly" @onclick="()=>openSubCatsOptions =! openSubCatsOptions">
-                                <div class="subCatsDrop">
-                                    <span>@chosenSubCategory.subCategoryTitle</span>
-                                    <span class="accordionPoly"><img style="width:7vw;" src="../css/images/arrow3.svg" /></span>
                                 </div>
-
-                            </div>
-                            @if (openSubCatsOptions)
-                            {
-                                <div class="subCatsDropDown">
-                                    @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
-                                    {
-
-                                        @if (subcategoryOpt.id != overDraftSubCategory.id)
+                                @if (openSubCatsOptions)
+                                {
+                                    <div class="subCatsDropDown">
+                                        @foreach (OverBudgetToShow subcategoryOpt in closeOverdraftOpts)
                                         {
-                                            <div @onclick="()=>HandleChange(subcategoryOpt)">
-                                                @subcategoryOpt.subCategoryTitle
-                                            </div>
+
+                                            @if (subcategoryOpt.id != overDraftSubCategory.id)
+                                            {
+                                                <div @onclick="()=>HandleChange(subcategoryOpt)">
+                                                    @subcategoryOpt.subCategoryTitle
+                                                </div>
+                                            }
                                         }
-                                    }
-                                </div>
+                                    </div>
 
-                            }
-                        </div>
-                        <div class="outerBudgets">
-                            <div class="outerBudgetTitle">
-                                <div style="font-weight: 600;">תקציב:</div>
-                                <div class="titleDivder"></div>
+                                }
                             </div>
-                            @if (string.IsNullOrEmpty(chosenSubCategory.subCategoryTitle))
-                            {
-                                <div>
-                                    נוכחי: 0 <span>₪</span>
-
+                            <div class="outerBudgets">
+                                <div class="outerBudgetTitle">
+                                    <div style="font-weight: 600;">תקציב:</div>
+                                    <div class="titleDivder"></div>
                                 </div>
-                                <div>
-                                    עתידי: 0 <span>₪</span>
-                                </div>
-                            }
-                            else
-                            {
-                                <div>
-                                    נוכחי: @chosenSubCategory.monthlyPlannedBudget
-                                    <span>₪</span>
-                                </div>
-                                <div>
-                                    עתידי: @(
-                                 chosenSubCategory.monthlyPlannedBudget - currentGap
-                                 )
-                                    <span>₪</span>
-                                </div>
-                            }
-                        </div>
+                                @if (string.IsNullOrEmpty(chosenSubCategory.subCategoryTitle))
+                                {
+                                    <div>
+                                        נוכחי: 0 <span>₪</span>
 
-                    </div>
-                    <div class="outerToSubCat">
-
-                        <span style="font-weight:700;">העברה ל:</span>
-                        <div class="outerDropAndOptions">
-                            <div class="outerDropAndPoly">
-                                <div class="subCatsDrop" style="justify-content: center;">
-                                    @(
-                                        overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
-                                        )
-
-                                </div>
-
+                                    </div>
+                                    <div>
+                                        עתידי: 0 <span>₪</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>
+                                        נוכחי: @chosenSubCategory.monthlyPlannedBudget
+                                        <span>₪</span>
+                                    </div>
+                                    <div>
+                                        עתידי: @(
+                                     chosenSubCategory.monthlyPlannedBudget - currentGap
+                                     )
+                                        <span>₪</span>
+                                    </div>
+                                }
                             </div>
-                        </div>
 
-                        <div class="outerBudgets">
-                            <div class="outerBudgetTitle">
-                                <div style="font-weight: 600;">תקציב:</div>
-                                <div class="titleDivder"></div>
+                        </div>
+                        <div class="outerToSubCat">
+
+                            <span style="font-weight:700;">העברה ל:</span>
+                            <div class="outerDropAndOptions">
+                                <div class="outerDropAndPoly">
+                                    <div class="subCatsDrop" style="justify-content: center;">
+                                        @(
+                                            overDraftSubCategory.subCategoryTitle = closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle
+                                            )
+
+                                    </div>
+
+                                </div>
                             </div>
-                            @if (string.IsNullOrEmpty(chosenSubCategory.subCategoryTitle))
-                            {
-                                <div>
-                                    נוכחי: @(
-                                 closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)
-                                    <span>₪</span>
-                                </div>
-                                <div>
-                                    עתידי: 0 <span>₪</span>
-                                </div>
-                            }
-                            else
-                            {
-                                <div>
-                                    נוכחי: @(
-                                 closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)
-                                    <span>₪</span>
-                                </div>
-                                <div>
-                                    עתידי: @(
-                                 closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap)
-                                    <span>₪</span>
-                                </div>
 
-                            }
+                            <div class="outerBudgets">
+                                <div class="outerBudgetTitle">
+                                    <div style="font-weight: 600;">תקציב:</div>
+                                    <div class="titleDivder"></div>
+                                </div>
+                                @if (string.IsNullOrEmpty(chosenSubCategory.subCategoryTitle))
+                                {
+                                    <div>
+                                        נוכחי: @(
+                                     closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)
+                                        <span>₪</span>
+                                    </div>
+                                    <div>
+                                        עתידי: 0 <span>₪</span>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>
+                                        נוכחי: @(
+                                     closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget)
+                                        <span>₪</span>
+                                    </div>
+                                    <div>
+                                        עתידי: @(
+                                     closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget + currentGap)
+                                        <span>₪</span>
+                                    </div>
+
+                                }
+                            </div>
+
                         </div>
 
                     </div>
-
-                </div>
-                <div class="outerBtns">
-                    @if (chosenSubCategory == null)
-                    {
-                        <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer" disabled>העברה</button>
-                    }
-                    else
-                    {
-                        <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
-                    }
-
-                    <button class="thirdBtn" @onclick="NotTreatedOverdraft">אטפל בהמשך</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-}
-else if (noOverdraftOptions)
-{
-    <div class="overlay">
-        <div class="outerOverdraft">
-            <div class="overdraftWindow">
-
-                <div class="outerText">
-                    <div class="outerCloseBtn">
-                        <button class="modal-close-btn" @onclick="()=>noOverdraftOptions = false"><img src="../css/images/close x.svg" /></button>
-                    </div>
-
-                    <h3 class="titleText">חרגת...</h3>
-
-                    <div>
-                        אין תתי קטגוריות בעלות תקציב
-                        פנוי להעברה.
-
-                    </div>
-                    <div>
-                        <span><b>טיפ מאיתנו-</b></span>
-                        לקראת החודש הבא,
-                        כדאי להעריך מחדש את התקציב של
-                        תתי הקטגוריות השונות.
-                    </div>
-
-
                     <div class="outerBtns">
-                        <img style="height: 31vh;" src="../css/images/no-overdraft-options.svg" />
-                    </div>
-                </div>
+                        @if (chosenSubCategory == null)
+                        {
+                            <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer" disabled>העברה</button>
+                        }
+                        else
+                        {
+                            <button class="primery-buttonOverDraft" @onclick="manageBudgetsToTranfer">העברה</button>
+                        }
 
+                        <button class="thirdBtn" @onclick="NotTreatedOverdraft">אטפל בהמשך</button>
+                    </div>
+
+                </div>
             </div>
         </div>
-    </div>
+    }
+    else if (noOverdraftOptions && isOverdraft)
+    {
+        <div class="overlay">
+            <div class="outerOverdraft">
+                <div class="overdraftWindow">
+
+                    <div class="outerText">
+                        <div class="outerCloseBtn">
+                            <button class="modal-close-btn" @onclick="()=>overdraftOverlayOpen = false"><img src="../css/images/close x.svg" /></button>
+                        </div>
+
+                        <h3 class="titleText">חרגת...</h3>
+
+                        <div>
+                            אין תתי קטגוריות בעלות תקציב
+                            פנוי להעברה.
+
+                        </div>
+                        <div>
+                            <span><b>טיפ מאיתנו-</b></span>
+                            לקראת החודש הבא,
+                            כדאי להעריך מחדש את התקציב של
+                            תתי הקטגוריות השונות.
+                        </div>
+
+
+                        <div class="outerBtns">
+                            <img style="height: 31vh;" src="../css/images/no-overdraft-options.svg" />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    }
 }
+
 
 @code {
     [Parameter]
@@ -742,7 +749,7 @@ else if (noOverdraftOptions)
     protected override async Task OnInitializedAsync()
     {
 
-        var getUserIcon = await Http.GetAsync("api/Present/getUserIcon/"+userID);
+        var getUserIcon = await Http.GetAsync("api/Present/getUserIcon/" + userID);
         if (getUserIcon.IsSuccessStatusCode)
         {
             string iconCheck = await getUserIcon.Content.ReadAsStringAsync();
@@ -851,7 +858,7 @@ else if (noOverdraftOptions)
                             if (totalSpendings > budget)
                             {
                                 Console.WriteLine("איןןןןןןן תתיייייי קטגוריותתתתתתת");
-                                overdraftStatus = true;
+                                //overdraftStatus = true;
                                 isOverdraft = true; //triggers the warning button in the breadcrumbs
                                 var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
                                 if (overdraftRes.IsSuccessStatusCode)
@@ -872,6 +879,7 @@ else if (noOverdraftOptions)
                             {
                                 overdraftStatus = false;
                                 isOverdraft = false;
+                                noOverdraftOptions = false;
                             }
                             await getSubCatTags();
                         }
@@ -991,17 +999,17 @@ else if (noOverdraftOptions)
             {
                 checkOverdraft -= allTransactions[i].transValue;
                 allTransactions.Remove(allTransactions[i]);
-                Console.WriteLine("transaction id- " + allTransactions[i].id + " deleted");
+                //Console.WriteLine("transaction id- " + allTransactions[i].id + " deleted");
             }
         }
 
         if (checkOverdraft > budget)
         {
-            overdraftStatus = true;
-            if (!isOverdraft)
-            {
-                isOverdraft = true;
-            }
+            //overdraftStatus = true;
+            //if (!isOverdraft)
+            //{
+            //    isOverdraft = true;
+            //}
             await checkOverdraftFunc(subCatID);
         }
         else
@@ -1086,7 +1094,7 @@ else if (noOverdraftOptions)
             }
             if (checkOverdraft > budget)
             {
-                overdraftStatus = true;
+                //overdraftStatus = true;
                 await checkOverdraftFunc(subCatID);
             }
             else
@@ -1499,6 +1507,13 @@ else if (noOverdraftOptions)
     bool openSubCatsOptions = false;
     bool overdraftNotTreated = false;
 
+
+
+    public async Task openOverdraftPopUp()
+    {
+        overdraftOverlayOpen = true;
+        await checkOverdraftFunc(subCatID);
+    }
     public async Task checkOverdraftFunc(int subCatID)
     {
         //if (overDraftSubCategory==null)
@@ -1523,7 +1538,7 @@ else if (noOverdraftOptions)
                 {
                     overdraftStatus = true;
                     isOverdraft = true;
-                    overdraftOverlayOpen = true;
+                    //overdraftOverlayOpen = true;
 
                     closeOverdraftOpts = new List<OverBudgetToShow>();
                     closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
@@ -1532,10 +1547,16 @@ else if (noOverdraftOptions)
                     overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
                     overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
                     chosenSubCategory = new OverBudgetToShow();
-
-                    if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[closeOverdraftOpts[closeOverdraftOpts.Count - 1]].id == subCatID)
+                    Console.WriteLine("overDraftSubCategory- " + closeOverdraftOpts.Count);
+                    Console.WriteLine("overDraftSubCategory- " + closeOverdraftOpts[closeOverdraftOpts.Count - 1].subCategoryTitle);
+                    int lastItem = closeOverdraftOpts.IndexOf(closeOverdraftOpts[closeOverdraftOpts.Count - 1]);
+                    if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[lastItem].id == subCatID)
                     {
                         noOverdraftOptions = true;
+                    }
+                    else
+                    {
+                        noOverdraftOptions = false;
                     }
                 }
                 else
@@ -1611,7 +1632,7 @@ else if (noOverdraftOptions)
     public void NotTreatedOverdraft()
     {
         overdraftStatus = false;
-        overdraftNotTreated = true;
+        overdraftOverlayOpen = false;
     }
 
 
