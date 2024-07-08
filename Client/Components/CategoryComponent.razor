@@ -630,6 +630,7 @@
             Console.WriteLine("new sub category added");
 
             newSubCategory = new SubCategoryToAdd();
+            titleInput = "";
             isSubCategoryAddOverlayOpen = false;
         }
         else
@@ -674,6 +675,7 @@
             Console.WriteLine("New sub-category added, ID: " + newSubCatID);
 
             // Reset the newSubCategory object for a new entry.
+            titleInput = "";
             newSubCategory = new SubCategoryToAdd();
 
             // Close the sub-category add overlay and open the transaction overlay.
