@@ -74,9 +74,7 @@
                                 <div class="subCatLine">
                                 </div>
                             </div>
-                            <div class="outerPlusBtn">
-                                <div class="btn-icon"><img src="../css/images/+.svg" /></div>
-                            </div>
+                            <div class="btn-icon"><img src="../css/images/+.svg" /></div>
                         </div>
                     </button>
                 }
@@ -274,7 +272,7 @@
     getSearchedSubCat();
 }
 
-@if (overdraftDetected && !noOverdraftOptions)
+@if (overdraftDetected)
 {
     <div class="overlay">
         <div class="outerOverdraft">
@@ -423,42 +421,6 @@
     </div>
 }
 
-@if (noOverdraftOptions)
-{
-    <div class="overlay">
-        <div class="outerOverdraft">
-            <div class="overdraftWindow">
-
-                <div class="outerText">
-                    <div class="outerCloseBtn">
-                        <button class="modal-close-btn" @onclick="()=>noOverdraftOptions = false"><img src="../css/images/close x.svg" /></button>
-                    </div>
-
-                    <h3 class="titleText">חרגת...</h3>
-
-                    <div>
-                        אין תתי קטגוריות בעלות תקציב
-                        פנוי להעברה.
-
-                    </div>
-                    <div>
-                        <span><b>טיפ מאיתנו-</b></span>
-                        לקראת החודש הבא,
-                        כדאי להעריך מחדש את התקציב של
-                        תתי הקטגוריות השונות.
-                    </div>
-
-
-                    <div class="outerBtns">
-                        <img style="height: 31vh;" src="../css/images/no-overdraft-options.svg" />
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-}
-
 @code {
 
     [Parameter]
@@ -541,7 +503,6 @@
     string msg = "";
     string popupTitle = "מחיקת קטגוריה";
     string popupBodyText = "אתה עומד למחוק את קטגוריית ";
-    bool noOverdraftOptions = false;
 
 
     int newSubCatID = 0;
@@ -667,7 +628,7 @@
             newSubCatToShow = new SubCategoryToShow();
             // להפעיל מחדש פונקציה שמושכת את האלמנטים בדף הבית
             Console.WriteLine("new sub category added");
-            titleInput = "";
+
             newSubCategory = new SubCategoryToAdd();
             titleInput = "";
             isSubCategoryAddOverlayOpen = false;
@@ -712,7 +673,7 @@
 
 
             Console.WriteLine("New sub-category added, ID: " + newSubCatID);
-            titleInput = "";
+
             // Reset the newSubCategory object for a new entry.
             titleInput = "";
             newSubCategory = new SubCategoryToAdd();
@@ -823,18 +784,18 @@
 
                 if (!categoryTypeIndicator)
                 {
-                    double? tempBudget = 0;
+                    double? tempBudget=0;
                     if (subcategory.monthlyPlannedBudget > editedSubCat.monthlyPlannedBudget)
                     {
-                        tempBudget = (subcategory.monthlyPlannedBudget - editedSubCat.monthlyPlannedBudget) * -1;
+                        tempBudget = (subcategory.monthlyPlannedBudget - editedSubCat.monthlyPlannedBudget)*-1;
                     }
                     else if (subcategory.monthlyPlannedBudget < editedSubCat.monthlyPlannedBudget)
                     {
-                        tempBudget = (editedSubCat.monthlyPlannedBudget - subcategory.monthlyPlannedBudget);
+                        tempBudget = (editedSubCat.monthlyPlannedBudget- subcategory.monthlyPlannedBudget);
                     }
 
                     subcategory.monthlyPlannedBudget = editedSubCat.monthlyPlannedBudget;
-                    if (tempBudget != null)
+                    if (tempBudget!=null)
                     {
                         updateBudget.InvokeAsync(tempBudget);
                     }
@@ -939,7 +900,7 @@
 
     public async Task checkOverdraft(int subCatID)
     {
-        var getOverdraftDetails = await Http.GetAsync("api/Present/GetSubCategory/" + subCatID);
+        var getOverdraftDetails= await Http.GetAsync("api/Present/GetSubCategory/"+subCatID);
         if (getOverdraftDetails.IsSuccessStatusCode)
         {
             SubCategoryToShow tempSub = await getOverdraftDetails.Content.ReadFromJsonAsync<SubCategoryToShow>();
@@ -955,7 +916,7 @@
                 }
             }
         }
-
+        
         var overdraftRes = await Http.GetAsync("api/Transactions/showOverdraft/" + subCatID + "/" + userID);
         if (overdraftRes.IsSuccessStatusCode)
         {
@@ -968,11 +929,6 @@
             overDraftSubCategory.id = closeOverdraftOpts[closeOverdraftOpts.Count - 1].id;
             overDraftSubCategory.monthlyPlannedBudget = closeOverdraftOpts[closeOverdraftOpts.Count - 1].monthlyPlannedBudget;
             chosenSubCategory = new OverBudgetToShow();
-
-            if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[0].id == subCatID)
-            {
-                noOverdraftOptions = true;
-            }
         }
         else
         {
@@ -1046,8 +1002,8 @@
 
     public void NotTreatedOverdraft()
     {
-        overdraftDetected = false;
-        overdraftNotTreated = true;
+        overdraftDetected=false;
+        overdraftNotTreated=true;
     }
 
     public void updateTransSumInStatTable(double trans)
