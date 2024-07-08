@@ -107,7 +107,7 @@
                                     }
                                     else
                                     {
-                                        <span style="color:red">@newFirstNameLength/15</span>
+                                        <span>@newFirstNameLength/15</span>
                                     }
                                 </div>
                             </div>
@@ -125,7 +125,7 @@
                                     }
                                     else
                                     {
-                                        <span style="color:red">@newLastNameLength/15</span>
+                                        <span>@newLastNameLength/15</span>
                                     }
                                 </div>
                             </div>
@@ -400,7 +400,7 @@
                 <div class="BgOverlay"> </div>
                 <div class="overlay">
                     <div class="paddingDiv">
-                        @if (tagToEdit.id > 0)
+                        @if (isEdit)
                         {
                             ogTagColor = chosenTag.tagColor;
                             if (isTagColor)
@@ -416,17 +416,12 @@
                             <div class="outerTitleAndCounter">
                                 <div class="input-container">
                                     <div>שם התגית:</div>
-                                    <input type="text" class="catTitle" value="@chosenTag.tagTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
+                                    <input type="text" class="catTitle" value="@tagToEdit.tagTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
                                     <div class="counter">
 
-                                        @if (tagTitleInputLength == 0)
-                                        {
-                                            <span>@chosenTag.tagTitle.Length/8</span>
-                                        }
-                                        else
-                                        {
-                                            <span>@tagTitleInputLength/8</span>
-                                        }
+                                        
+                                             <span>@tagTitleInputLength/8</span>
+                                       
 
                                     </div>
                                 </div>
@@ -488,7 +483,7 @@
                             <br />
                         </div>
 
-                        @if (tagToEdit.id > 0)
+                        @if (isEdit)
                         {
                             <div class="outerSaveBtns">
                                 @if (tagToEdit.tagTitle != "" && tagToEdit.tagColor != "")
@@ -507,7 +502,7 @@
                         {
 
                             <div class="outerSaveBtns">
-                                @if ((tagToEdit.tagTitle != "" || tagToEdit.tagTitle != null) && (tagToEdit.tagColor != "" || tagToEdit.tagTitle != null))
+                                @if ((tagToEdit.tagTitle != "" || tagToEdit.tagTitle != null) && (tagToEdit.tagColor != ""))
                                 {
                                     <button class="primery-button" @onclick="addTag">שמירה וסיום</button>
                                 }
@@ -516,8 +511,6 @@
                                     <button class="primery-button" @onclick="addTag" disabled>שמירה וסיום</button>
                                 }
                             </div>
-
-
 
                         }
                     </div>
@@ -570,6 +563,7 @@
     bool isTagChosen = false;
     bool openStartOptions = false;
     bool isTagColor = true;
+    bool isEdit = false;
     string disBtnStyle => disBtn ? "disBtn" : "";
     string disNextBtnStyle => disNextBtn ? "disBtn" : "";
     string chosenTagStyle => isTagChosen ? "chosenTag" : "";
@@ -582,6 +576,8 @@
     private bool isVisible = false;
     bool isCancleBtnClicked = false;
     string hideBtn = "";
+    string currentTagColor = "";
+    string currentTagName = "";
     bool noEmojiBtn = false;
     private Dictionary<string, List<string>> emojiCategories = new Dictionary<string, List<string>>
     {
@@ -835,6 +831,7 @@
     public void openEditOrAddTagOverlay()
     {
         editTag = !editTag;
+        isEdit = true;
         tagToEdit = chosenTag;
         Console.WriteLine(chosenTag.tagColor + "!!!!!!!!!!!");
     }
@@ -863,21 +860,23 @@
         else
         {
             // Otherwise, update to the new selected color
-            tagToEdit.tagColor = color;
+            currentTagColor = color;
             selectedClass = color;
         }
     }
 
     public void updateTag()
     {
+        tagToEdit.tagColor = currentTagColor;
+        tagToEdit.tagTitle = currentTagName;
         int editedTag = currentUser.userTags.IndexOf(chosenTag);
         currentUser.userTags[editedTag].id = tagToEdit.id;
         currentUser.userTags[editedTag].tagTitle = tagToEdit.tagTitle;
         currentUser.userTags[editedTag].tagColor = tagToEdit.tagColor;
-        tagToEdit = new TagsToShow();
         chosenTag = new TagsToShow();
         selectedClass = "";
         editTag = false;
+        isEdit = false;
 
     }
 
@@ -924,7 +923,7 @@
 
     private void tagTitleLengthCheck(ChangeEventArgs e)
     {
-        tagToEdit.tagTitle = e.Value.ToString();
+        currentTagName = e.Value.ToString();
         tagTitleInputLength = tagToEdit.tagTitle.Length;
 
     }
@@ -1041,7 +1040,6 @@
     void closeTagsOverlay()
     {
         editTag = !editTag;
-
         if (selectedClass == null || selectedClass == "")
         {
             selectedClass = ogTagColor;
@@ -1051,12 +1049,15 @@
             isTagColor = true;
         }
 
+        isEdit = false;
+
         if (tagToEdit.id == 0)
         {
             tagToEdit.tagTitle = "";
             tagToEdit.tagColor = "";
         }
 
+        
     }
 
 }
