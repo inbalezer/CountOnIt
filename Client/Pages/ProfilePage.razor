@@ -403,9 +403,13 @@
                         @if (isEdit)
                         {
                             ogTagColor = chosenTag.tagColor;
+                            
                             if (isTagColor)
                             {
-                                convertTagColors(chosenTag.tagColor);
+                                
+                                    convertTagColors(chosenTag.tagColor);
+                                
+                                
                             }
 
                             <div class="outerTitleAndIcon">
@@ -419,9 +423,9 @@
                                     <input type="text" class="catTitle" value="@tagToEdit.tagTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
                                     <div class="counter">
 
-                                        
-                                             <span>@tagTitleInputLength/8</span>
-                                       
+
+                                        <span>@tagTitleInputLength/8</span>
+
 
                                     </div>
                                 </div>
@@ -486,13 +490,13 @@
                         @if (isEdit)
                         {
                             <div class="outerSaveBtns">
-                                @if (tagToEdit.tagTitle != "" && tagToEdit.tagColor != "")
+                                @if (tagToEdit.tagTitle != "")
                                 {
                                     <button class="primery-button" @onclick="updateTag">שמירה וסיום</button>
                                 }
                                 else
                                 {
-                                    <button class="primery-button" @onclick="updateTag" disabled>שמירה וסיום</button>
+                                    <button class="primery-button" style="opacity:60%" @onclick="updateTag" disabled>שמירה וסיום</button>
                                 }
                             </div>
 
@@ -502,13 +506,13 @@
                         {
 
                             <div class="outerSaveBtns">
-                                @if ((tagToEdit.tagTitle != "" || tagToEdit.tagTitle != null) && (tagToEdit.tagColor != ""))
+                                @if ((tagToEdit.tagTitle != "" || tagToEdit.tagTitle != null))
                                 {
                                     <button class="primery-button" @onclick="addTag">שמירה וסיום</button>
                                 }
                                 else
                                 {
-                                    <button class="primery-button" @onclick="addTag" disabled>שמירה וסיום</button>
+                                    <button class="primery-button" style="opacity:60%" @onclick="addTag" disabled>שמירה וסיום</button>
                                 }
                             </div>
 
@@ -564,6 +568,7 @@
     bool openStartOptions = false;
     bool isTagColor = true;
     bool isEdit = false;
+    bool isColorClicked = false;
     string disBtnStyle => disBtn ? "disBtn" : "";
     string disNextBtnStyle => disNextBtn ? "disBtn" : "";
     string chosenTagStyle => isTagChosen ? "chosenTag" : "";
@@ -653,7 +658,7 @@
                         startMonthDate = 15;
                         break;
                     default:
-                        startMonthDate=1;
+                        startMonthDate = 1;
                         break;
                 }
             }
@@ -690,7 +695,7 @@
     {
         goingBackDisabled = false;
 
-        if (currentUser.monthStartDate.HasValue && currentUser.monthStartDate.Value>0 )
+        if (currentUser.monthStartDate.HasValue && currentUser.monthStartDate.Value > 0)
         {
             startMonthDate = currentUser.monthStartDate.Value;
         }
@@ -846,35 +851,56 @@
         tagToEdit.id = 0;
         tagTitleInputLength = 0;
         ogTagColor = "";
+        currentTagColor = "";
+        selectedClass = "";
     }
 
     private void UpdateColor(string color)
     {
+        isColorClicked = true;
 
         if (selectedClass == color)
         {
             // If the color is already selected, unselect it
             selectedClass = ""; // Reset the selected color
             tagToEdit.tagColor = ""; // Assuming you want to clear the selected color
+
         }
         else
         {
+            Console.WriteLine(color + "color");
             // Otherwise, update to the new selected color
             currentTagColor = color;
             selectedClass = color;
+            convertTagColors(color);
         }
     }
 
     public void updateTag()
     {
+        if (currentTagColor == "")
+        {
+            currentTagColor = "#AEA2F9";
+        }
+
         tagToEdit.tagColor = currentTagColor;
-        tagToEdit.tagTitle = currentTagName;
+        if (currentTagName == "")
+        {
+            tagToEdit.tagTitle = chosenTag.tagTitle;
+        }
+        else
+        {
+            tagToEdit.tagTitle = currentTagName;
+        }
+
         int editedTag = currentUser.userTags.IndexOf(chosenTag);
         currentUser.userTags[editedTag].id = tagToEdit.id;
         currentUser.userTags[editedTag].tagTitle = tagToEdit.tagTitle;
         currentUser.userTags[editedTag].tagColor = tagToEdit.tagColor;
         chosenTag = new TagsToShow();
         selectedClass = "";
+        currentTagColor = "";
+        currentTagName = "";
         editTag = false;
         isEdit = false;
 
@@ -882,10 +908,25 @@
 
     public void addTag()
     {
+        if (currentTagColor == "")
+        {
+            currentTagColor = "#AEA2F9";
+        }
 
+        tagToEdit.tagColor = currentTagColor;
+        if (currentTagName == "")
+        {
+            tagToEdit.tagTitle = chosenTag.tagTitle;
+        }
+        else
+        {
+            tagToEdit.tagTitle = currentTagName;
+        }
         currentUser.userTags.Add(tagToEdit);
         tagToEdit = new TagsToShow();
         tagToEdit.tagTitle = "";
+        currentTagColor = "";
+        currentTagName = "";
         tagToEdit.tagColor = "";
         tagTitleInputLength = 0;
         chosenTag = new TagsToShow();
@@ -924,7 +965,7 @@
     private void tagTitleLengthCheck(ChangeEventArgs e)
     {
         currentTagName = e.Value.ToString();
-        tagTitleInputLength = tagToEdit.tagTitle.Length;
+        //tagTitleInputLength = tagToEdit.tagTitle.Length;
 
     }
 
@@ -961,80 +1002,93 @@
 
     public void convertTagColors(string tagColor)
     {
-        Console.WriteLine(tagColor);
+        Console.WriteLine(tagColor + "tagColor");
         string convertedColor = "";
         string outlineColor = "";
-        switch (tagColor)
+        if (tagColor.Contains('#'))
         {
-            case "rgba(244, 179, 103, 0.4)": //mustard
-                convertedColor = "rgba(244, 179, 103, 0.13)";
-                outlineColor = "#F4B367";
-                Console.WriteLine("cat color is mustard");
-                break;
-            case "rgba(174, 162, 249, 0.4)": //purple
-                convertedColor = "rgba(174, 162, 249, 0.13)";
-                outlineColor = "#AEA2F9";
-                Console.WriteLine("cat color is dark purple");
-                break;
-            case "rgba(244, 103, 171, 0.4)": //dark pink
-                convertedColor = "rgba(244, 103, 171, 0.13)";
-                outlineColor = "#F467AB";
-                Console.WriteLine("cat color is dark pink");
-                break;
-            case "rgba(244, 120, 103, 0.4)": //salmon pink
-                convertedColor = "rgba(244, 120, 103, 0.13)";
-                outlineColor = "#F47867";
-                Console.WriteLine("cat color is salmon pink");
-                break;
-            case "rgba(103, 142, 244, 0.4)": //defualt
-                convertedColor = "rgba(103, 142, 244, 0.13)";
-                outlineColor = "#678EF4";
-                Console.WriteLine("cat color is default");
-                break;
-            case "rgba(141, 228, 191, 0.4)": //light green
-                convertedColor = "rgba(141, 228, 191, 0.13)";
-                outlineColor = "#8DE4BF";
-                Console.WriteLine("cat color is light green");
-                break;
-            case "rgba(103, 202, 244, 0.4)": //light blue
-                convertedColor = "rgba(103, 202, 244, 0.13)";
-                outlineColor = "#67CAF4";
-                Console.WriteLine("cat color is light blue");
-                break;
-            case "rgba(255, 239, 157, 0.4)": //banana
-                convertedColor = "rgba(255, 239, 157, 0.13)";
-                outlineColor = "#FCE884";
-                Console.WriteLine("cat color is banana");
-                break;
-            case "rgba(249, 211, 194, 0.4)": //cream
-                convertedColor = "rgba(249, 211, 194, 0.13)";
-                outlineColor = "#F9D3C2";
-                Console.WriteLine("cat color is cream");
-                break;
-            case "rgba(9, 174, 115, 0.4)": //dark green
-                convertedColor = "rgba(9, 174, 115, 0.13)";
-                outlineColor = "#09AE73";
-                Console.WriteLine("cat color is dark green");
-                break;
-            case "rgba(140, 139, 139, 0.4)": //dark gray
-                convertedColor = "rgba(140, 139, 139, 0.25)";
-                outlineColor = "#8C8B8B";
-                Console.WriteLine("cat color is dark gray");
-                break;
-            case "rgba(218, 218, 218, 0.4)": //gray
-                convertedColor = "rgba(218, 218, 218, 0.13)";
-                outlineColor = "#DADADA";
-                Console.WriteLine("cat color is light gray");
-                break;
-            default:
-                convertedColor = "rgba(103, 142, 244, 0.13)";
-                outlineColor = "#AEA2F9";
-                Console.WriteLine("cat color is default");
-                break;
-        };
+            selectedClass = tagColor;
+        }
+        else
+        {
 
-        selectedClass = outlineColor;
-        isTagColor = false;
+            switch (tagColor)
+            {
+                case "rgba(244, 179, 103, 0.4)": //mustard
+                    convertedColor = "rgba(244, 179, 103, 0.13)";
+                    outlineColor = "#F4B367";
+                    Console.WriteLine("cat color is mustard");
+                    break;
+                case "rgba(174, 162, 249, 0.4)": //purple
+                    convertedColor = "rgba(174, 162, 249, 0.13)";
+                    outlineColor = "#AEA2F9";
+                    Console.WriteLine("cat color is dark purple");
+                    break;
+                case "rgba(244, 103, 171, 0.4)": //dark pink
+                    convertedColor = "rgba(244, 103, 171, 0.13)";
+                    outlineColor = "#F467AB";
+                    Console.WriteLine("cat color is dark pink");
+                    break;
+                case "rgba(244, 120, 103, 0.4)": //salmon pink
+                    convertedColor = "rgba(244, 120, 103, 0.13)";
+                    outlineColor = "#F47867";
+                    Console.WriteLine("cat color is salmon pink");
+                    break;
+                case "rgba(103, 142, 244, 0.4)": //defualt
+                    convertedColor = "rgba(103, 142, 244, 0.13)";
+                    outlineColor = "#678EF4";
+                    Console.WriteLine("cat color is default");
+                    break;
+                case "rgba(141, 228, 191, 0.4)": //light green
+                    convertedColor = "rgba(141, 228, 191, 0.13)";
+                    outlineColor = "#8DE4BF";
+                    Console.WriteLine("cat color is light green");
+                    break;
+                case "rgba(103, 202, 244, 0.4)": //light blue
+                    convertedColor = "rgba(103, 202, 244, 0.13)";
+                    outlineColor = "#67CAF4";
+                    Console.WriteLine("cat color is light blue");
+                    break;
+                case "rgba(255, 239, 157, 0.4)": //banana
+                    convertedColor = "rgba(255, 239, 157, 0.13)";
+                    outlineColor = "#FCE884";
+                    Console.WriteLine("cat color is banana");
+                    break;
+                case "rgba(249, 211, 194, 0.4)": //cream
+                    convertedColor = "rgba(249, 211, 194, 0.13)";
+                    outlineColor = "#F9D3C2";
+                    Console.WriteLine("cat color is cream");
+                    break;
+                case "rgba(9, 174, 115, 0.4)": //dark green
+                    convertedColor = "rgba(9, 174, 115, 0.13)";
+                    outlineColor = "#09AE73";
+                    Console.WriteLine("cat color is dark green");
+                    break;
+                case "rgba(140, 139, 139, 0.4)": //dark gray
+                    convertedColor = "rgba(140, 139, 139, 0.25)";
+                    outlineColor = "#8C8B8B";
+                    Console.WriteLine("cat color is dark gray");
+                    break;
+                case "rgba(218, 218, 218, 0.4)": //gray
+                    convertedColor = "rgba(218, 218, 218, 0.13)";
+                    outlineColor = "#DADADA";
+                    Console.WriteLine("cat color is light gray");
+                    break;
+                default:
+                    convertedColor = "rgba(103, 142, 244, 0.13)";
+                    outlineColor = "#AEA2F9";
+                    Console.WriteLine("cat color is default");
+                    break;
+            };
+            
+                selectedClass = outlineColor;
+            
+             
+        }
+
+       
+        Console.WriteLine(selectedClass + "צבע תגית");
+        //isTagColor = false;
     }
 
     void closeTagsOverlay()
@@ -1046,18 +1100,18 @@
         }
         else
         {
-            isTagColor = true;
+            //isTagColor = true;
         }
 
         isEdit = false;
 
-        if (tagToEdit.id == 0)
-        {
-            tagToEdit.tagTitle = "";
-            tagToEdit.tagColor = "";
-        }
+        //if (tagToEdit.id == 0)
+        //{
+        //    tagToEdit.tagTitle = "";
+        //    tagToEdit.tagColor = "";
+        //}
 
-        
+
     }
 
 }
