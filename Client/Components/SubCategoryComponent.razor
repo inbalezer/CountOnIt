@@ -70,7 +70,6 @@
                     @Math.Round(totalSpendings,2) ₪
                 </button>
 
-
             }
         </div>
     </div>
@@ -221,12 +220,15 @@
                 <div class="outerSaveBtns">
                     @if (!categoryTypeIndicator)
                     {
-                        if (titleInput == null || titleInput == "" || titleInput.Length <= 0)
+                        if (titleInput == null || titleInput == "" || titleInput.Length <= 0 || subCatToEdit.subCategoryTitle.Length <= 0)
                         {
-                            <button class="primery-button" @onclick="EditSubCategoryAndTransaction" disabled>שמירה ויצירת הזנה</button>
-                            <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
-                            <br />
-                            <span>לא ניתן לשמור תת קטגוריה ללא שם.</span>
+                          
+                                <button class="primery-button" @onclick="EditSubCategoryAndTransaction" disabled>שמירה ויצירת הזנה</button>
+                                <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
+                                <br />
+                                <span>לא ניתן לשמור תת קטגוריה ללא שם.</span>
+                            
+                            
                         }
                         else if (subCatToEdit.monthlyPlannedBudget <= 0 || subCatToEdit.monthlyPlannedBudget == null)
                         {
@@ -251,7 +253,7 @@
                     }
                     else
                     {
-                        if (titleInput == null || titleInput == "" || titleInput.Length <= 0)
+                        if (titleInput == null || titleInput == "" || titleInput.Length <= 0 || subCatToEdit.subCategoryTitle.Length <= 0)
                         {
                             <button class="primery-button" @onclick="EditSubCategoryAndTransaction" disabled>שמירה ויצירת הזנה</button>
                             <button class="secondery-button" @onclick="saveUpdatedSubCat" disabled>שמירה וסיום</button>
@@ -336,6 +338,9 @@
 
     [Parameter]
     public EventCallback<double> updateTransactionSum { get; set; }
+
+    //[Parameter]
+    //public EventCallback<int> subCatIDtoUpdate { get; set; }
 
     SubCategoryToEdit subCatToEdit = new SubCategoryToEdit();
     SubCategoryToEdit ogSubCat = new SubCategoryToEdit();
@@ -617,11 +622,14 @@
 
     public void addNewTransToTotalSpendings(double transactionValue)
     {
+
+
         totalSpendings += transactionValue;
 
 
-        Console.WriteLine(subCategoryTitle + ": " + totalSpendings);
-        updateTransactionSum.InvokeAsync(totalSpendings);
+        Console.WriteLine(subCategoryTitle + ": " + totalSpendings + ", latest trans value- " + transactionValue);
+        updateTransactionSum.InvokeAsync(transactionValue);
+       
 
     }
 

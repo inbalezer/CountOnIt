@@ -809,7 +809,7 @@
                             {
                                 typeByCat = true;
 
-                                var getAllIncomeTransactions = await Http.GetAsync("api/Transactions/getAllIncomeTransactions/" + subCatID);
+                                var getAllIncomeTransactions = await Http.GetAsync("api/Transactions/getAllIncomeTransactions/" +userID+"/"+ subCatID);
                                 if (getAllIncomeTransactions.IsSuccessStatusCode)
                                 {
                                     var checkTransList = getAllIncomeTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
@@ -840,7 +840,7 @@
                 }
                 else
                 {
-                    var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactions/" + subCatID);
+                    var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactionsByDate/" +userID+"/"+subCatID);
                     if (getAllTransactions.IsSuccessStatusCode)
                     {
                         var checkTransList = getAllTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
@@ -1310,7 +1310,7 @@
     public async Task undoFilterAndSort()
     {
         allTransactions = new List<TransactionOverviewToShow>();
-        var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactions/" + subCatID);
+        var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactionsByDate/" + userID + "/" + subCatID);
         if (getAllTransactions.IsSuccessStatusCode)
         {
             var checkTransList = getAllTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;

@@ -66,7 +66,7 @@ namespace CountOnIt.Server.Controllers
                 ID = subCatID
             };
 
-            string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE());";
+            string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(t.transValue), 0)  FROM transactions t JOIN subcategories sc ON sc.id = t.subCategoryID JOIN categories c ON c.id = sc.categoryID JOIN users u ON u.id = c.userID WHERE sc.id=@ID AND (t.transType = 1 OR t.transType = 3) AND t.transDate >= DATE_FORMAT(CASE WHEN DAY(CURRENT_DATE) >= u.monthStartDate THEN CONCAT(YEAR(CURRENT_DATE), '-', LPAD(MONTH(CURRENT_DATE), 2, '0'), '-', LPAD(u.monthStartDate, 2, '0')) ELSE CONCAT(YEAR(CURRENT_DATE - INTERVAL 1 MONTH), '-', LPAD(MONTH(CURRENT_DATE - INTERVAL 1 MONTH), 2, '0'), '-', LPAD(u.monthStartDate, 2, '0')) END, '%Y-%m-%d') AND YEAR(t.transDate) = YEAR(CURRENT_DATE()) AND MONTH(t.transDate) = MONTH(CURRENT_DATE());";
             var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetCategoryCurrentSumQuery, param);
             if (recordSubCatCurrentSum != null)
             {
@@ -191,37 +191,79 @@ namespace CountOnIt.Server.Controllers
             return BadRequest("Couldn't find this sub cat's budget");
         }
 
-        [HttpGet("getAllTransactions/{subCatID}")] 
-        public async Task<IActionResult> getAllTransactions(int subCatID)
+//        [HttpGet("getAllTransactions/{subCatID}")]
+//        public async Task<IActionResult> getAllTransactions(int userID, int subCatID)
+//        {
+
+//            object param = new
+//            {
+//                ID = subCatID,
+//                StartOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
+//                EndOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month))
+//            };
+
+//            string getAllSubCatTransactionsQuery = @"
+//        SELECT 
+//    transactions.id, 
+//    transactions.transType, 
+//    transactions.transValue, 
+//    transactions.valueType, 
+//    DATE_FORMAT(transactions.transDate, '%d/%m/%Y') AS transDate, 
+//    transactions.description, 
+//    transactions.fixedMonthly, 
+//    transactions.tagID, 
+//    transactions.transTitle, 
+//    transactions.parentTransID,
+//    transactions.splitPayment,
+//    tags.tagTitle,
+//    tags.tagColor
+//FROM transactions 
+//LEFT JOIN tags ON transactions.tagID = tags.id
+//WHERE transactions.subCategoryID = @ID
+//AND transactions.transDate >= @StartOfMonth
+//AND transactions.transDate <= @EndOfMonth
+//AND (transactions.transType = 1 OR transactions.transType = 3)
+//ORDER BY transactions.transDate DESC;";
+
+//            var recordSubCatCurrentTrans = await _db.GetRecordsAsync<TransactionOverviewToShow>(getAllSubCatTransactionsQuery, param);
+//            var subCatTransactions = recordSubCatCurrentTrans.ToList();
+
+//            if (subCatTransactions != null)
+//            {
+//                return Ok(subCatTransactions);
+//            }
+
+//            return BadRequest("Couldn't find this sub cat's transactions");
+//        }
+
+        [HttpGet("getAllTransactionsByDate/{userID}/{subCatID}")]
+        public async Task<IActionResult> getAllTransactionsByDate(int userID, int subCatID)
         {
+
             object param = new
             {
-                ID = subCatID,
-                StartOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
-                EndOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month))
+                ID = userID,
+                subCategoryID = subCatID,
             };
 
             string getAllSubCatTransactionsQuery = @"
-        SELECT 
-    transactions.id, 
-    transactions.transType, 
-    transactions.transValue, 
-    transactions.valueType, 
-    DATE_FORMAT(transactions.transDate, '%d/%m/%Y') AS transDate, 
-    transactions.description, 
-    transactions.fixedMonthly, 
-    transactions.tagID, 
-    transactions.transTitle, 
-    transactions.parentTransID,
-    transactions.splitPayment,
-    tags.tagTitle,
-    tags.tagColor
+SELECT transactions.id, transactions.transType, transactions.transValue, transactions.valueType, DATE_FORMAT(transactions.transDate, '%d/%m/%Y') AS transDate, transactions.description, transactions.fixedMonthly, transactions.tagID, transactions.transTitle, transactions.parentTransID, transactions.splitPayment, tags.tagTitle, tags.tagColor
 FROM transactions 
-LEFT JOIN tags ON transactions.tagID = tags.id
-WHERE transactions.subCategoryID = @ID
-AND transactions.transDate >= @StartOfMonth
-AND transactions.transDate <= @EndOfMonth
-AND (transactions.transType = 1 OR transactions.transType = 3)
+LEFT JOIN tags ON transactions.tagID = tags.id 
+WHERE transactions.subCategoryID = @subCategoryID 
+AND transactions.transDate >= (
+    SELECT 
+        CASE 
+            WHEN DAY(CURRENT_DATE()) >= u.monthStartDate 
+            THEN CONCAT(YEAR(CURRENT_DATE()), '-', LPAD(MONTH(CURRENT_DATE()), 2, '0'), '-', LPAD(u.monthStartDate, 2, '0')) 
+            ELSE CONCAT(YEAR(CURRENT_DATE() - INTERVAL 1 MONTH), '-', LPAD(MONTH(CURRENT_DATE() - INTERVAL 1 MONTH), 2, '0'), '-', LPAD(u.monthStartDate, 2, '0')) 
+        END 
+    AS StartOfMonth 
+    FROM users u 
+    WHERE u.id = @ID
+)
+AND transactions.transDate <= CURRENT_DATE() 
+AND (transactions.transType = 1 OR transactions.transType = 3) 
 ORDER BY transactions.transDate DESC;";
 
             var recordSubCatCurrentTrans = await _db.GetRecordsAsync<TransactionOverviewToShow>(getAllSubCatTransactionsQuery, param);
@@ -235,37 +277,32 @@ ORDER BY transactions.transDate DESC;";
             return BadRequest("Couldn't find this sub cat's transactions");
         }
 
-        [HttpGet("getAllIncomeTransactions/{subCatID}")] 
-        public async Task<IActionResult> getAllIncomeTransactions(int subCatID)
+        [HttpGet("getAllIncomeTransactions/{userID}/{subCatID}")]
+        public async Task<IActionResult> getAllIncomeTransactions(int userID, int subCatID)
         {
             object param = new
             {
-                ID = subCatID,
-                StartOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1),
-                EndOfMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month))
+                ID = userID,
+                subCategoryID = subCatID,
             };
 
-            string getAllSubCatTransactionsQuery = @"
-        SELECT 
-    transactions.id, 
-    transactions.transType, 
-    transactions.transValue, 
-    transactions.valueType, 
-    transactions.transDate, 
-    transactions.description, 
-    transactions.fixedMonthly, 
-    transactions.tagID, 
-    transactions.transTitle, 
-    transactions.parentTransID,
-transactions.splitPayment,
-    tags.tagTitle,
-    tags.tagColor
+            string getAllSubCatTransactionsQuery = @"SELECT transactions.id, transactions.transType, transactions.transValue, transactions.valueType, DATE_FORMAT(transactions.transDate, '%d/%m/%Y') AS transDate, transactions.description, transactions.fixedMonthly, transactions.tagID, transactions.transTitle, transactions.parentTransID, transactions.splitPayment, tags.tagTitle, tags.tagColor
 FROM transactions 
-LEFT JOIN tags ON transactions.tagID = tags.id
-WHERE transactions.subCategoryID = @ID
-AND transactions.transDate >= @StartOfMonth
-AND transactions.transDate <= @EndOfMonth
-AND transactions.transType = 2 
+LEFT JOIN tags ON transactions.tagID = tags.id 
+WHERE transactions.subCategoryID = @subCategoryID 
+AND transactions.transDate >= (
+    SELECT 
+        CASE 
+            WHEN DAY(CURRENT_DATE()) >= u.monthStartDate 
+            THEN CONCAT(YEAR(CURRENT_DATE()), '-', LPAD(MONTH(CURRENT_DATE()), 2, '0'), '-', LPAD(u.monthStartDate, 2, '0')) 
+            ELSE CONCAT(YEAR(CURRENT_DATE() - INTERVAL 1 MONTH), '-', LPAD(MONTH(CURRENT_DATE() - INTERVAL 1 MONTH), 2, '0'), '-', LPAD(u.monthStartDate, 2, '0')) 
+        END 
+    AS StartOfMonth 
+    FROM users u 
+    WHERE u.id = @ID
+)
+AND transactions.transDate <= CURRENT_DATE() 
+AND transactions.transType = 2
 ORDER BY transactions.transDate DESC;";
 
             var recordSubCatCurrentTrans = await _db.GetRecordsAsync<TransactionOverviewToShow>(getAllSubCatTransactionsQuery, param);
@@ -372,12 +409,12 @@ ORDER BY transactions.transDate DESC;";
             string GetSubCatTagsQuery = "select distinct tagID from transactions where subCategoryID=@ID";
             var recordSubCatTags = await _db.GetRecordsAsync<int?>(GetSubCatTagsQuery, param);
             List<int?> TagsIDList = recordSubCatTags.ToList();
-            if (TagsIDList.Count>0)
+            if (TagsIDList.Count > 0)
             {
                 List<TagsToShow> subCatTagList = new List<TagsToShow>();
-                for (int i=0; i< TagsIDList.Count; i++)
+                for (int i = 0; i < TagsIDList.Count; i++)
                 {
-                    if (TagsIDList[i]>0)
+                    if (TagsIDList[i] > 0)
                     {
                         object tagIdParam = new
                         {

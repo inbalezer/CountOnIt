@@ -69,15 +69,83 @@ namespace CountOnIt.Server.Controllers
                             foreach (int subCatID in subCatsList)
                             {
                                 user.spendingValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = subCatID, TransType = 1 })).FirstOrDefault();
+                                var overdraftTrans= (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = subCatID, TransType = 3 })).FirstOrDefault();
                                 totalSpendings += user.spendingValueFullList;
+                                totalSpendings += overdraftTrans;
                                 user.incomeValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = subCatID, TransType = 2 })).FirstOrDefault();
                                 totalIncome += user.incomeValueFullList;
                             }
                         }
 
+                    }
 
+                    // Calculate the budget usage percentage
+                    user.budgetFullValue = CalculateBudgetPercentage(totalBudget, totalSpendings);
+                    user.spendingValueFullList = totalSpendings;
+                    user.incomeValueFullList = totalIncome;
+                }
 
-                        //}
+                return Ok(user);
+            }
+
+        }
+
+        [HttpGet("userToShowByDate/{userGoogleID}")] // שליפה של התצוגה הראשונית בסביבה השניה לפני לחיצות על כפתורים
+        public async Task<IActionResult> GetUserDataByDate(string userGoogleID)
+        {
+            // Initialize the SQL queries
+            var userQuery = "SELECT id, firstName, profilePicOrIcon, streakStatus FROM users WHERE googleID = @ID";
+            var categoryQuery = "SELECT id, categroyTitle, icon, color FROM categories WHERE userID = @ID";
+            var subCategoryBudgetQuery = "SELECT COALESCE(SUM(monthlyPlannedBudget), 0) FROM subcategories WHERE categoryID = @ID";
+
+            var transactionSumQuery = "SELECT COALESCE(SUM(t.transValue), 0) as transactionSum FROM transactions t JOIN subcategories sc ON t.subCategoryID = sc.id JOIN categories c ON sc.categoryID = c.id JOIN users u ON c.userID = u.id WHERE u.id = @ID AND sc.id = @subCatID AND ((MONTH(CURRENT_DATE()) = MONTH(DATE_ADD(CURRENT_DATE(), INTERVAL 1 MONTH)) AND t.transDate >= DATE_FORMAT(CONCAT(YEAR(CURRENT_DATE()), '-', MONTH(CURRENT_DATE()), '-', u.monthStartDate), '%Y-%m-%d') AND t.transDate <= CURRENT_DATE()) OR (MONTH(CURRENT_DATE()) <> MONTH(DATE_ADD(CURRENT_DATE(), INTERVAL 1 MONTH)) AND t.transDate >= DATE_FORMAT(CONCAT(YEAR(DATE_ADD(CURRENT_DATE(), INTERVAL -1 MONTH)), '-', MONTH(DATE_ADD(CURRENT_DATE(), INTERVAL -1 MONTH)), '-', u.monthStartDate), '%Y-%m-%d') AND t.transDate <= CURRENT_DATE())) AND t.transType = @TransType GROUP BY u.id;";
+
+            // Get user details
+            var user = (await _db.GetRecordsAsync<userToShow>(userQuery, new { ID = userGoogleID })).FirstOrDefault();
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+            else
+            {
+                // Get categories for the user
+                var categories = (await _db.GetRecordsAsync<CategoryToShow>(categoryQuery, new { ID = user.id })).ToList();
+                if (categories.Any())
+                {
+                    user.categoriesFullList = categories;
+
+                    double totalBudget = 0;
+                    double totalSpendings = 0;
+                    double totalIncome = 0;
+                    foreach (var category in categories)
+                    {
+                        // Get total budget for each category
+                        double categoryBudget = (await _db.GetRecordsAsync<double>(subCategoryBudgetQuery, new { ID = category.id })).FirstOrDefault();
+                        totalBudget += categoryBudget;
+
+                        // Calculate transaction sums for a category
+                        object param = new
+                        {
+                            ID = category.id
+                        };
+
+                        string getSubCategoriesQuery = "select id from subcategories where categoryID=@ID";
+                        var subCatsListRes = await _db.GetRecordsAsync<int>(getSubCategoriesQuery, param);
+                        List<int> subCatsList = subCatsListRes.ToList();
+                        if (subCatsList.Count > 0)
+                        {
+
+                            foreach (int subCatID in subCatsList)
+                            {
+                                user.spendingValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = user.id, subCatID= subCatID, TransType = 1 })).FirstOrDefault();
+                                var overdraftTrans = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = user.id, subCatID = subCatID, TransType = 3 })).FirstOrDefault();
+                                totalSpendings += user.spendingValueFullList + overdraftTrans;
+                                //totalSpendings += overdraftTrans;
+                                user.incomeValueFullList = (await _db.GetRecordsAsync<double>(transactionSumQuery, new { ID = user.id, subCatID = subCatID, TransType = 2 })).FirstOrDefault();
+                                totalIncome += user.incomeValueFullList;
+                            }
+                        }
+
                     }
 
                     // Calculate the budget usage percentage
@@ -263,37 +331,44 @@ namespace CountOnIt.Server.Controllers
                 ID = categoryID
             };
 
-
-            string GetSubCategoriesQuery = "SELECT id, subCategoryTitle, monthlyPlannedBudget FROM subcategories WHERE categoryID = @ID";
-            var recordsubCategories = await _db.GetRecordsAsync<SubCategoryToShow>(GetSubCategoriesQuery, param);
-            List<SubCategoryToShow> subCategories = recordsubCategories.ToList();
-
-            if (subCategories.Count > 0)
+            string getStartMonthDateQuery = "SELECT u.monthStartDate FROM users u JOIN categories c ON u.id = c.userID WHERE c.id = @ID;";
+            var getStartMonthDateRes= await _db.GetRecordsAsync<int> (getStartMonthDateQuery, param);
+            int userStartMonthDate= getStartMonthDateRes.FirstOrDefault();
+            if (userStartMonthDate>0)
             {
-                foreach (var subCategory in subCategories)
+                string GetSubCategoriesQuery = "SELECT id, subCategoryTitle, monthlyPlannedBudget FROM subcategories WHERE categoryID = @ID";
+                var recordsubCategories = await _db.GetRecordsAsync<SubCategoryToShow>(GetSubCategoriesQuery, param);
+                List<SubCategoryToShow> subCategories = recordsubCategories.ToList();
+
+                if (subCategories.Count > 0)
                 {
-                    if (subCategory.id != null)
+                    foreach (var subCategory in subCategories)
                     {
-                        object subParam = new
+                        if (subCategory.id != null)
                         {
-                            ID = subCategory.id
-                        };
+                            object subParam = new
+                            {
+                                ID = subCategory.id, 
+                                startMonthDate= userStartMonthDate
+                            };
 
-                        string GetTransactionValueQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND (transType = 1 OR transType = 3) and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE()); ";
+                            string GetTransactionValueQuery = "SELECT COALESCE(SUM(t.transValue), 0)  FROM transactions t JOIN subcategories sc ON t.subCategoryID = sc.id WHERE sc.id = @ID AND t.transDate >= DATE_FORMAT(CONCAT(YEAR(CURRENT_DATE()), '-', MONTH(CURRENT_DATE()), '-', @startMonthDate), '%Y-%m-%d') AND t.transDate <= CURRENT_DATE() and (transType=1 or transType=3)";
 
-                        var recordsTransValue = await _db.GetRecordsAsync<double>(GetTransactionValueQuery, subParam);
-                        subCategory.transactionsValue = recordsTransValue.FirstOrDefault();
+                            var recordsTransValue = await _db.GetRecordsAsync<double>(GetTransactionValueQuery, subParam);
+                            subCategory.transactionsValue = recordsTransValue.FirstOrDefault();
+                        }
+                        else
+                        {
+                            return BadRequest("no transaction in sub category");
+                        }
+
                     }
-                    else
-                    {
-                        return BadRequest("no transaction in sub category");
-                    }
 
+                    return Ok(subCategories);
                 }
-
-                return Ok(subCategories);
+                return BadRequest("no subcategories found");
             }
-
+            
             return BadRequest("user not found");
         }
 
@@ -305,39 +380,45 @@ namespace CountOnIt.Server.Controllers
                 ID = categoryID
             };
 
-            // צריך להוסיף שאילתה שמושכת את הצבע מהקטגוריה בשביל להציג גם בתתי קטגוריות אם בחר צבע.
-
-            string GetSubCategoriesQuery = "SELECT id, subCategoryTitle, monthlyPlannedBudget FROM subcategories WHERE categoryID = @ID";
-            var recordsubCategories = await _db.GetRecordsAsync<SubCategoryToShow>(GetSubCategoriesQuery, param);
-            List<SubCategoryToShow> subCategories = recordsubCategories.ToList();
-
-            if (subCategories.Count > 0)
+            string getStartMonthDateQuery = "SELECT u.monthStartDate FROM users u JOIN categories c ON u.id = c.userID WHERE c.id = @ID;";
+            var getStartMonthDateRes = await _db.GetRecordsAsync<int>(getStartMonthDateQuery, param);
+            int userStartMonthDate = getStartMonthDateRes.FirstOrDefault();
+            if (userStartMonthDate > 0)
             {
-                foreach (var subCategory in subCategories)
+                string GetSubCategoriesQuery = "SELECT id, subCategoryTitle, monthlyPlannedBudget FROM subcategories WHERE categoryID = @ID";
+                var recordsubCategories = await _db.GetRecordsAsync<SubCategoryToShow>(GetSubCategoriesQuery, param);
+                List<SubCategoryToShow> subCategories = recordsubCategories.ToList();
+
+                if (subCategories.Count > 0)
                 {
-                    if (subCategory.id != null)
+                    foreach (var subCategory in subCategories)
                     {
-                        object subParam = new
+                        if (subCategory.id != null)
                         {
-                            ID = subCategory.id
-                        };
+                            object subParam = new
+                            {
+                                ID = subCategory.id,
+                                startMonthDate = userStartMonthDate
+                            };
 
-                        string GetTransactionValueQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND transType = 2 and MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE());";
+                            string GetTransactionValueQuery = "SELECT COALESCE(SUM(t.transValue), 0)  FROM transactions t JOIN subcategories sc ON t.subCategoryID = sc.id WHERE sc.id = @ID AND t.transDate >= DATE_FORMAT(CONCAT(YEAR(CURRENT_DATE()), '-', MONTH(CURRENT_DATE()), '-', @startMonthDate), '%Y-%m-%d') AND t.transDate <= CURRENT_DATE() and transType=2";
 
-                        var recordsTransValue = await _db.GetRecordsAsync<double>(GetTransactionValueQuery, subParam);
-                        subCategory.transactionsValue = recordsTransValue.FirstOrDefault();
+                            var recordsTransValue = await _db.GetRecordsAsync<double>(GetTransactionValueQuery, subParam);
+                            subCategory.transactionsValue = recordsTransValue.FirstOrDefault();
+                        }
+                        else
+                        {
+                            return BadRequest("no transaction in sub category");
+                        }
+
                     }
-                    else
-                    {
-                        return BadRequest("no transaction in sub category");
-                    }
 
+                    return Ok(subCategories);
                 }
-
-                return Ok(subCategories);
+                return BadRequest("no subcategories found");
             }
 
-            return BadRequest("no sub categories found");
+            return BadRequest("user not found");
         }
 
         [HttpGet("GetCategoryToEdit/{CategoryId}")] // שליפת קטגוריה לעריכה
@@ -486,48 +567,50 @@ namespace CountOnIt.Server.Controllers
 
             List<CategoriesOverviewToShow> categoriesOverviewToShowList = new List<CategoriesOverviewToShow>();
 
-            foreach (int catID in recordCategoryOverviewID)
+            string getUserMonthStartDateQuery = "select monthStartDate from users where ID=@ID ";
+            var getStartMonthDateRes = await _db.GetRecordsAsync<int>(getUserMonthStartDateQuery, param);
+            int userStartMonthDate = getStartMonthDateRes.FirstOrDefault();
+            if (userStartMonthDate>0 )
             {
-                double subCatSum = 0;  // Reset sum for each category
-
-                object categoryParam = new { ID = catID };
-
-
-                string GetSubCategoryIDQuery = "SELECT id FROM subcategories WHERE categoryID = @ID";
-                var recordSubCategoryID = await _db.GetRecordsAsync<int>(GetSubCategoryIDQuery, categoryParam);
-
-                if (recordSubCategoryID != null)
+                foreach (int catID in recordCategoryOverviewID)
                 {
-                    foreach (int subCatID in recordSubCategoryID)
+                    double subCatSum = 0;  // Reset sum for each category
+
+                    object categoryParam = new { ID = catID };
+
+
+
+                    string GetSubCategoryIDQuery = "SELECT id FROM subcategories WHERE categoryID = @ID";
+                    var recordSubCategoryID = await _db.GetRecordsAsync<int>(GetSubCategoryIDQuery, categoryParam);
+
+                    if (recordSubCategoryID != null)
                     {
-                        object subCatIDParam = new { ID = subCatID };
+                        foreach (int subCatID in recordSubCategoryID)
+                        {
+                            object subCatIDParam = new { ID = subCatID, startMonthDate= userStartMonthDate };
 
-                        // Expenses:
-                        string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND MONTH(transDate) = MONTH(CURRENT_DATE()) AND YEAR(transDate) = YEAR(CURRENT_DATE())";
-                        var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetCategoryCurrentSumQuery, subCatIDParam);
-                        subCatSum += recordSubCatCurrentSum.FirstOrDefault();
+                            // Expenses:
+                            string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(t.transValue), 0)  FROM transactions t JOIN subcategories sc ON t.subCategoryID = sc.id WHERE sc.id = @ID AND t.transDate >= DATE_FORMAT(CONCAT(YEAR(CURRENT_DATE()), '-', MONTH(CURRENT_DATE()), '-', @startMonthDate), '%Y-%m-%d') AND t.transDate <= CURRENT_DATE()";
+                            var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetCategoryCurrentSumQuery, subCatIDParam);
+                            subCatSum += recordSubCatCurrentSum.FirstOrDefault();
+                        }
+                        string GetCategoryTitleOverviewQuery = "SELECT categroyTitle FROM categories WHERE id = @ID";
+                        var getCategoryTitle = await _db.GetRecordsAsync<string>(GetCategoryTitleOverviewQuery, categoryParam);
+                        CategoriesOverviewToShow currentCategoryStats = new CategoriesOverviewToShow();
 
-                        //    // Income:
-                        //    string GetIncomesQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND transType = 2";
-                        //    var recordSubCatCurrentSumIncome = await _db.GetRecordsAsync<double>(GetIncomesQuery, subCatIDParam);
-                        //    subCatSum += recordSubCatCurrentSumIncome.FirstOrDefault();
-                        //}
+                        if (getCategoryTitle != null)
+                        {
+                            currentCategoryStats.categroyTitle = getCategoryTitle.FirstOrDefault(); 
+                            currentCategoryStats.currentCategorySum = subCatSum;
+                        }
 
+                        categoriesOverviewToShowList.Add(currentCategoryStats);
                     }
-                    string GetCategoryTitleOverviewQuery = "SELECT categroyTitle FROM categories WHERE id = @ID";
-                    var getCategoryTitle = await _db.GetRecordsAsync<string>(GetCategoryTitleOverviewQuery, categoryParam);
-                    CategoriesOverviewToShow currentCategoryStats = new CategoriesOverviewToShow();
-
-                    if (getCategoryTitle != null)
-                    {
-                        currentCategoryStats.categroyTitle = getCategoryTitle.FirstOrDefault(); // Also corrected the property name if typo existed
-                        currentCategoryStats.currentCategorySum = subCatSum;
-                    }
-
-                    categoriesOverviewToShowList.Add(currentCategoryStats);
                 }
+                return Ok(categoriesOverviewToShowList);
             }
-            return Ok(categoriesOverviewToShowList);
+
+            return BadRequest("couldn't find user start month date");
         }
 
 
