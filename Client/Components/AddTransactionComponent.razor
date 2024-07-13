@@ -195,7 +195,7 @@
                                         <div class="outerRepetedTrans" style="@hiddenReOverlay">
                                             <div class="innerTransOverlay">
                                                 <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
-                                                <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
+                                                <h4>הגדרת '@newTransaction.transTitle' כהוצאה חוזרת על עצמה</h4>
                                                 <div class="reText">במידה והפעולה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</div>
                                                 <div class="outerMonths">
                                                     @if (resetMonthValues == false)
@@ -245,7 +245,7 @@ resetMonthValues = !resetMonthValues">
                                                             }
                                                         }
 
-                                                        @foreach (string month in months)
+                                                        foreach (string month in months)
                                                         {
                                                             <div class="monthValueInput @thisMonthDivStyle">
                                                                 <label>@GetHebrewMonthName(month)</label>
@@ -262,12 +262,12 @@ resetMonthValues = !resetMonthValues">
                                                                     else
                                                                     {
                                                                         thisMonthDivStyle = "thisMonthBorder";
-                                                                        @* <div class="outerValue">*@
+                                                                         <div class="outerValue">
 
                                                                         <input class="thisMonth" type="text"
                                                    value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
                                                                         <span class="ShekelSign">₪</span>
-
+                                                                        </div>
                                                                     }
 
                                                                 </div>
@@ -371,7 +371,6 @@ resetMonthValues = !resetMonthValues">
                                                    disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
                                                                         <span class="ShekelSign">₪</span>
                                                                     }
-
                                                                     else
                                                                     {
                                                                         <div class="thisOuterValue">
