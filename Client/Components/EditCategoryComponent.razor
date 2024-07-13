@@ -285,6 +285,11 @@
         newCategory.icon = categoryToEdit.icon;
         newCategory.userID = userID;
 
+        if (categoryToEdit.color == "" || categoryToEdit.color == null)
+        {
+            newCategory.color = "#6775F4";
+        }
+
         var CatToAddRes = await Http.PostAsJsonAsync("api/Present/AddCategory/" + userID, newCategory);
         if (CatToAddRes.IsSuccessStatusCode)
         {
