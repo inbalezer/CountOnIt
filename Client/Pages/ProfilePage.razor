@@ -262,7 +262,23 @@
 
         <div class="outerDay">
             <div class="outerTagsProfile">
+                @if(currentUser.userTags.Count == 0)
+                {
                 <div>
+                     
+                      <button class="addTagBtn" @onclick="addNewTag">
+                            <div class="addTagText">
+                                הוספת תגית
+                            </div>
+                            <img class="addTagImg" src="../css/images/add-new-tag (1).svg" />
+                        </button>
+                
+                
+                </div>
+                }
+                else
+                {
+                    <div>
                     @if (editBtnClicked)
                     {
                         <button class="addTagBtn" @onclick="addNewTag">
@@ -387,6 +403,10 @@
                     </div>
                    
                 </div>
+                }
+               
+              
+                
             </div>
         </div>
     </div>
@@ -864,10 +884,13 @@
             int deletedTagsCounter = 0;
             foreach (int tagIDtoDelete in tagsToDeleteRes)
             {
+                Console.WriteLine(tagIDtoDelete + "אידי");
+
                 var deleteTagsRec = await Http.DeleteAsync("api/Present/deleteTags/" + tagIDtoDelete);
                 if (deleteTagsRec.IsSuccessStatusCode)
                 {
                     deletedTagsCounter++;
+                     Console.WriteLine("הצלחתי");
                 }
             }
             if (deletedTagsCounter == tagsToDeleteRes.Count)
@@ -877,6 +900,8 @@
             else
             {
                 Console.WriteLine("not all tags were successfully deleted");
+                Console.WriteLine(deletedTagsCounter + "קאונטר תגיות");
+                Console.WriteLine(tagsToDeleteRes.Count + "כמות");
             }
         }
     }

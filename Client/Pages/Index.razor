@@ -136,11 +136,12 @@ else
             </table>
             @if(tagsSpendingsList.Count == 0 && subCatsTotalsStory.Count == 0)
             {
-                <button class="primery-button" @onclick="getSubCatTotalsForStory">מצב החודש כרגע</button>
+                
+                <button class="primery-button" style="opacity:0.6">מצב החודש כרגע</button>
             }
             else
             {
-                <button class="primery-button" style="opacity:0.6">מצב החודש כרגע</button>
+                <button class="primery-button" @onclick="getSubCatTotalsForStory">מצב החודש כרגע</button>
             }
             
 
@@ -339,7 +340,7 @@ else
 
         @if (userIncomeCat != null && isChecked)
         {
-            <CategoryComponent Category="@userIncomeCat" categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryTypeIndicator="true" updateBudget="refreshBudgetsOfSubCats"updateTransSum="refreshTransSumTotals"></CategoryComponent>
+            <CategoryComponent Category="@userIncomeCat" categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="@userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryTypeIndicator="true" updateBudget="refreshBudgetsOfSubCats"updateTransSum="refreshTransSumTotals"></CategoryComponent>
         }
         @if (!isChecked) // עובר להוצאות
         {
@@ -1148,7 +1149,7 @@ else
     new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "#6775F4" },
     new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "#6775F4" },
     new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "#6775F4" },
-    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "🪙", color = "#6775F4" }
+    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "💵", color = "#6775F4" }
     };
 
                 foreach (CategoryToAdd defualtCategory in defualtCategoriesList)

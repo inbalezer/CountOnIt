@@ -400,8 +400,7 @@
 
     public void convertCatColors(string? catColor)
     {
-        //string convertedColor = "";
-        //string outlineColor = "";
+
         switch (catColor)
         {
             case "#F4B367": //mustard
@@ -466,6 +465,11 @@
                 Console.WriteLine("cat color is light gray");
                 break;
             case null: //defualt
+                convertedColor = "#678ef421";
+                outlineColor = "rgba(103, 142, 244, 1)";
+                Console.WriteLine("cat color is default");
+                break;
+            case "": //defualt
                 convertedColor = "#678ef421";
                 outlineColor = "rgba(103, 142, 244, 1)";
                 Console.WriteLine("cat color is default");
