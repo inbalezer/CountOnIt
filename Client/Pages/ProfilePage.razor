@@ -393,6 +393,7 @@
 
 @if (editTag)
 {
+    
     OptionsBtnClicked = false;
     <div>
         <div class="megaOuterLay">
@@ -404,10 +405,12 @@
                         {
                             ogTagColor = chosenTag.tagColor;
                             
+                            
                             if (isTagColor)
                             {
                                 
                                     convertTagColors(chosenTag.tagColor);
+                                    Console.WriteLine("אני בפונקציה הראשונה");
                                 
                                 
                             }
@@ -569,9 +572,11 @@
     bool isTagColor = true;
     bool isEdit = false;
     bool isColorClicked = false;
+    string OgColor = "";
     string disBtnStyle => disBtn ? "disBtn" : "";
     string disNextBtnStyle => disNextBtn ? "disBtn" : "";
     string chosenTagStyle => isTagChosen ? "chosenTag" : "";
+    int editedTag = 0;
 
     private int currentPage = 0;
     private int pageSize = 6;
@@ -836,6 +841,10 @@
     public void openEditOrAddTagOverlay()
     {
         editTag = !editTag;
+        if(!isEdit)
+        {
+            OgColor = chosenTag.tagColor;
+        }
         isEdit = true;
         tagToEdit = chosenTag;
         Console.WriteLine(chosenTag.tagColor + "!!!!!!!!!!!");
@@ -872,6 +881,7 @@
             // Otherwise, update to the new selected color
             currentTagColor = color;
             selectedClass = color;
+            chosenTag.tagColor = color;
             convertTagColors(color);
         }
     }
@@ -893,7 +903,7 @@
             tagToEdit.tagTitle = currentTagName;
         }
 
-        int editedTag = currentUser.userTags.IndexOf(chosenTag);
+        editedTag = currentUser.userTags.IndexOf(chosenTag);
         currentUser.userTags[editedTag].id = tagToEdit.id;
         currentUser.userTags[editedTag].tagTitle = tagToEdit.tagTitle;
         currentUser.userTags[editedTag].tagColor = tagToEdit.tagColor;
@@ -903,7 +913,6 @@
         currentTagName = "";
         editTag = false;
         isEdit = false;
-
     }
 
     public void addTag()
@@ -1080,13 +1089,13 @@
                     Console.WriteLine("cat color is default");
                     break;
             };
-            
-                selectedClass = outlineColor;
-            
-             
+
+            selectedClass = outlineColor;
+
+
         }
 
-       
+
         Console.WriteLine(selectedClass + "צבע תגית");
         //isTagColor = false;
     }
@@ -1094,16 +1103,20 @@
     void closeTagsOverlay()
     {
         editTag = !editTag;
+
         if (selectedClass == null || selectedClass == "")
         {
             selectedClass = ogTagColor;
         }
         else
         {
-            //isTagColor = true;
+            editedTag = currentUser.userTags.IndexOf(chosenTag);
+            currentUser.userTags[editedTag].tagColor = OgColor;
+           
         }
 
         isEdit = false;
+        
 
         //if (tagToEdit.id == 0)
         //{
