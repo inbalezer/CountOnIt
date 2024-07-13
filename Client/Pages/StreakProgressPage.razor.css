@@ -33,6 +33,10 @@
     border-radius: 50%;
     font-size: 1.8rem;
     display: inline-block;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .rankTxt {

@@ -581,12 +581,14 @@
         var deleteRes = await Http.DeleteAsync("api/Present/deleteCategory/" + Category.id);
         if (deleteRes.IsSuccessStatusCode)
         {
+            
             deleteCat.InvokeAsync(Category);
         }
         else
         {
             Console.WriteLine(" בעיה במחיקת קטגוריה");
         }
+        deleteBtnClicked = false;
     }
 
     public async void updateTakenSubCatBudget(List<OverDraftBudgetToEdit> subNewBudget)

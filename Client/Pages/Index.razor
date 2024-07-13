@@ -134,7 +134,16 @@ else
                     </tr>
                 </tbody>
             </table>
-            <button class="primery-button" @onclick="getSubCatTotalsForStory">מצב החודש כרגע</button>
+            @if(tagsSpendingsList.Count == 0 && subCatsTotalsStory.Count == 0)
+            {
+                
+                <button class="primery-button" style="opacity:0.6">מצב החודש כרגע</button>
+            }
+            else
+            {
+                <button class="primery-button" @onclick="getSubCatTotalsForStory">מצב החודש כרגע</button>
+            }
+            
 
             @if (storyPopUpWindow)
             {
@@ -194,6 +203,20 @@ else
                                     </div>
                                 </div>
                             }
+                            else if (storyNav == 1 && subCatsTotalsStory.Count == 0)
+                            {
+                                <div class="outerSecondStory" @onclick="NextStory">
+
+                                    <h3 class="storyTitle">לא נמצאו הוצאות או הכנסות החודש</h3>
+                                    <div class="noTagsDiv">
+                                    </div>
+                                    <div class="imgWrapper">
+
+                                        <img class="storyImg" src="../css/images/calendar2.svg" />
+                                    </div>
+                                </div>
+                            }
+
                             else if (storyNav == 2 && tagsSpendingsList.Count > 0)
                             {
                                 <div class="outerSecondStory" @onclick="NextStory">
@@ -317,7 +340,7 @@ else
 
         @if (userIncomeCat != null && isChecked)
         {
-            <CategoryComponent Category="@userIncomeCat" categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryTypeIndicator="true" updateBudget="refreshBudgetsOfSubCats" updateTransSum="refreshTransSumTotals"></CategoryComponent>
+            <CategoryComponent Category="@userIncomeCat" categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="@userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryTypeIndicator="true" updateBudget="refreshBudgetsOfSubCats"updateTransSum="refreshTransSumTotals"></CategoryComponent>
         }
         @if (!isChecked) // עובר להוצאות
         {
@@ -980,7 +1003,7 @@ else
     new CategoryToAdd{userID = userID, categroyTitle = "משק בית", icon = "🏠", color = "#6775F4" },
     new CategoryToAdd{userID = userID, categroyTitle = "רכב ותחבורה", icon = "🚗", color = "#6775F4" },
     new CategoryToAdd{userID = userID, categroyTitle = "בריאות וטיפוח", icon = "💄", color = "#6775F4" },
-    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "🪙", color = "#6775F4" }
+    new CategoryToAdd{userID = userID, categroyTitle = "הכנסות", icon = "💵", color = "#6775F4" }
     };
 
                 foreach (CategoryToAdd defualtCategory in defualtCategoriesList)
