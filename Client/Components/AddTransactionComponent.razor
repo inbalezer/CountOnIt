@@ -190,7 +190,7 @@
 
                                 @if (newTransaction.fixedMonthly == true) // עריכת הוצאה חוזרת
                                 {
-                                    @if (returningTrans)
+                                    if (returningTrans)
                                     {
                                         <div class="outerRepetedTrans" style="@hiddenReOverlay">
                                             <div class="innerTransOverlay">
@@ -200,11 +200,7 @@
                                                 <div class="outerMonths">
                                                     @if (resetMonthValues == false)
                                                     {
-                                                        @*                                                        @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-                                    {
-                                    tToCheck.transValue = newTransaction.transValue;
-                                    }*@
-                                                        @foreach (string month in months)
+                                                        foreach (string month in months)
                                                         {
                                                             <div class="monthValueInput @thisMonthDivStyle">
                                                                 <label>@GetHebrewMonthName(month)</label>
@@ -231,13 +227,13 @@
                                                                 </div>
                                                             </div>
                                                         }
-                                                        <div class="outerSaveBtns">
+@*                                                        <div class="outerSaveBtns">
                                                             <button class="primery-button">שמירה וחזרה</button>
                                                             <button class="secondery-button" @onclick="() =>
 resetMonthValues = !resetMonthValues">
                                                                 @textOnResetBtn
                                                             </button>
-                                                        </div>
+                                                        </div>*@
                                                     }
                                                     else
                                                     {
@@ -257,46 +253,52 @@ resetMonthValues = !resetMonthValues">
                                                                 <div class="thisOuterValue">
                                                                     @if (GetCurrentMonth() != month)
                                                                     {
-                                                                        <input class="month" type="text"
-                                                   disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                        <div class="outerValue">
+                                                                            <input class="month" type="text"
+                                                       disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                            <span class="ShekelSign">₪</span>
+                                                                        </div>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        thisMonthDivStyle = "thisMonthBorder";
+                                                                        @* <div class="outerValue">*@
+
+                                                                        <input class="thisMonth" type="text"
+                                                   value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
                                                                         <span class="ShekelSign">₪</span>
 
                                                                     }
-                                                                </div>
-                                                                <div class="outerValue">
-                                                                    else
-                                                                    {
-                                                                    thisMonthDivStyle = "thisMonthBorder";
-                                                                    <input class="thisMonth" type="text"
-                                                   value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                                                                    <span class="ShekelSign">₪</span>
-                                                                    }
-                                                                </div>
 
+                                                                </div>
                                                             </div>
+
+
                                                         }
 
-                                                        <div class="outerSaveBtns">
-                                                            @if (isResetBtnClicked && !isValueTypedAfterReset)
-                                                            {
 
-                                                                <button class="primery-button" disabled>שמירה וחזרה</button>
-                                                            }
-                                                            else if (isValueTyped && isResetBtnClicked)
-                                                            {
-                                                                <button class="primery-button" disabled>שמירה וחזרה</button>
-                                                            }
-                                                            else if (isValueTypedAfterReset)
-                                                            {
-                                                                <button class="primery-button">שמירה וחזרה</button>
-                                                            }
-                                                            else
-                                                            {
-                                                                <button class="primery-button">שמירה וחזרה</button>
-                                                            }
-                                                            <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
-                                                        </div>
                                                     }
+                                                </div>
+                                                <div class="outerSaveBtns">
+                                                    @if (isResetBtnClicked && !isValueTypedAfterReset)
+                                                    {
+
+                                                        <button class="primery-button" disabled>שמירה וחזרה</button>
+                                                    }
+                                                    else if (isValueTyped && isResetBtnClicked)
+                                                    {
+                                                        <button class="primery-button" disabled>שמירה וחזרה</button>
+                                                    }
+                                                    else if (isValueTypedAfterReset)
+                                                    {
+                                                        <button class="primery-button">שמירה וחזרה</button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="primery-button">שמירה וחזרה</button>
+                                                    }
+                                                    <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
+                                                    <p>כוסעמק</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -315,12 +317,8 @@ resetMonthValues = !resetMonthValues">
                                                     @if (resetMonthValues == false)
                                                     {
                                                         isResetBtnClicked = false;
-                                                        @*                                                        @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-                                    {
-                                    tToCheck.transValue = newTransaction.transValue;
-                                    }*@
 
-                                                        @foreach (string month in months)
+                                                        foreach (string month in months)
                                                         {
                                                             <div class="monthValueInput">
                                                                 @if (GetCurrentMonth() == month)
@@ -400,11 +398,11 @@ resetMonthValues = !resetMonthValues">
                                                     }
                                                     else if (isValueTypedAfterReset)
                                                     {
-                                                        <button class="primery-button">שמירה וחזרה</button>
+                                                        <button class="primery-button" @onclick="backToTrans">שמירה וחזרה</button>
                                                     }
                                                     else
                                                     {
-                                                        <button class="primery-button">שמירה וחזרה</button>
+                                                        <button class="primery-button" @onclick="backToTrans">שמירה וחזרה</button>
                                                     }
 
                                                     <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
@@ -569,23 +567,6 @@ resetMonthValues = !resetMonthValues">
                     <div class="outerSaveBtns">
                         <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
                     </div>
-                    @* @if (returningTrans)
-            {
-            <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
-            <p>במידה וההוצאה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</p>
-            @if (resetMonthValues == false)
-            {
-            @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-            {
-            if (!isValueTypedAfterReset)
-            {
-            tToCheck.transValue = newTransaction.transValue;
-            }
-
-            }
-
-            }
-            }*@
                 }
             </div>
         </div>
@@ -800,6 +781,9 @@ resetMonthValues = !resetMonthValues">
 
     [Parameter]
     public EventCallback<double> addTransactionToTotal { get; set; }
+
+    [Parameter]
+    public EventCallback<double> transValueToAdd { get; set; }
 
     //[Parameter]
     //public TransactionToAdd newTransaction { get; set; }
@@ -1034,7 +1018,7 @@ resetMonthValues = !resetMonthValues">
         if (string.IsNullOrEmpty(eventArgs.Value?.ToString()))
         {
             // If the input is empty, consider it as zero (or handle as needed)
-            eventArgs.Value = "";
+            eventArgs.Value = 0;
         }
 
         double parsedValue = 0;
@@ -1056,7 +1040,8 @@ resetMonthValues = !resetMonthValues">
             var newTrans = new RepeatedTransToShow
                 {
                     transDate = DateTime.ParseExact(month, "MMMM", CultureInfo.InvariantCulture),
-                    transValue = parsedValue // Now it will add with parsedValue which could be 0 from above
+                    //transValue = parsedValue // Now it will add with parsedValue which could be 0 from above
+                    transValue = 0
                 };
             reapeatedTransValuesList.Add(newTrans);
         }
@@ -1259,24 +1244,31 @@ resetMonthValues = !resetMonthValues">
                             }
                             Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                             addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                            transValueToAdd.InvokeAsync(newTransaction.transValue);
+                            
+
                             isTransactionOverlayOpen.InvokeAsync(false);
                         }
                     }
 
-                    if (newTransaction.fixedMonthly == true)
+                    if (i > 0)
                     {
-                        await saveRepeatedTransactions(transIDtoEdit);
+                        if (newTransaction.fixedMonthly == true)
+                        {
+                            await saveRepeatedTransactions(transIDtoEdit);
+                        }
+                        Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                        addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                        transValueToAdd.InvokeAsync(newTransaction.transValue);
+                        isTransactionOverlayOpen.InvokeAsync(false);
                     }
-                    Console.WriteLine("ההזנה נשמרה בהצלחה :)");
-                    addTransactionToTotal.InvokeAsync(newTransaction.transValue);
-                    isTransactionOverlayOpen.InvokeAsync(false);
-                    await getStreakDetails();
                 }
                 else
                 {
                     Console.WriteLine("הזנה נכשלה");
                 }
             }
+            await getStreakDetails();
         }
         else
         {
@@ -1296,17 +1288,20 @@ resetMonthValues = !resetMonthValues">
                 if (!categoryTypeIndicator)
                 {
                     await checkOverdraft();
-                }
-                if (!overdraftDetected)
-                {
-                    if (newTransaction.fixedMonthly == true)
+                    if (!overdraftDetected)
                     {
-                        await saveRepeatedTransactions(transIDtoEdit);
+                        if (newTransaction.fixedMonthly == true)
+                        {
+                            await saveRepeatedTransactions(transIDtoEdit);
+                        }
+                        Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                        addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                        transValueToAdd.InvokeAsync(newTransaction.transValue);
+
+                        isTransactionOverlayOpen.InvokeAsync(false);
                     }
-                    Console.WriteLine("ההזנה נשמרה בהצלחה :)");
-                    addTransactionToTotal.InvokeAsync(newTransaction.transValue);
-                    isTransactionOverlayOpen.InvokeAsync(false);
                 }
+
                 await getStreakDetails();
             }
             else
@@ -1370,20 +1365,31 @@ resetMonthValues = !resetMonthValues">
                             await saveRepeatedTransactions(transIDtoEdit);
                             Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                             addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                            transValueToAdd.InvokeAsync(newTransaction.transValue);
                             isTransactionOverlayOpen.InvokeAsync(false);
                         }
                     }
-                    await saveRepeatedTransactions(transIDtoEdit);
-                    Console.WriteLine("ההזנה נשמרה בהצלחה :)");
-                    addTransactionToTotal.InvokeAsync(newTransaction.transValue);
-                    isTransactionOverlayOpen.InvokeAsync(false);
-                    await getStreakDetails();
+                    if (i > 0)
+                    {
+                        if (newTransaction.fixedMonthly == true)
+                        {
+                            await saveRepeatedTransactions(transIDtoEdit);
+                        }
+                        Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                        addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                        transValueToAdd.InvokeAsync(newTransaction.transValue);
+                        isTransactionOverlayOpen.InvokeAsync(false);
+                    }
+
                 }
                 else
                 {
                     Console.WriteLine("הזנה נכשלה");
                 }
             }
+            await getStreakDetails();
+            titleInput = "";
+            titleInputLength = 0;
             newTransaction = new TransactionToAdd()
                 {
                     transDate = DateTime.Today // Set the transaction date to today
@@ -1399,18 +1405,22 @@ resetMonthValues = !resetMonthValues">
                 if (!categoryTypeIndicator)
                 {
                     await checkOverdraft();
+                    if (!overdraftDetected)
+                    {
+                        await saveRepeatedTransactions(transIDtoEdit);
+                        Console.WriteLine("ההזנה נשמרה בהצלחה :)");
+                        addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+                        transValueToAdd.InvokeAsync(newTransaction.transValue);
+                        //isTransactionOverlayOpen.InvokeAsync(false);
+                        titleInput = "";
+                        titleInputLength = 0;
+                        newTransaction = new TransactionToAdd()
+                            {
+                                transDate = DateTime.Today // Set the transaction date to today
+                            };
+                    }
                 }
-                if (!overdraftDetected)
-                {
-                    await saveRepeatedTransactions(transIDtoEdit);
-                    Console.WriteLine("ההזנה נשמרה בהצלחה :)");
-                    addTransactionToTotal.InvokeAsync(newTransaction.transValue);
-                    //isTransactionOverlayOpen.InvokeAsync(false);
-                    newTransaction = new TransactionToAdd()
-                        {
-                            transDate = DateTime.Today // Set the transaction date to today
-                        };
-                }
+
                 await getStreakDetails();
             }
             else
@@ -1464,11 +1474,12 @@ resetMonthValues = !resetMonthValues">
         if (!categoryTypeIndicator)
         {
             await checkOverdraft();
+            if (!overdraftDetected)
+            {
+                transToEdit.transType = 1;
+            }
         }
-        if (!overdraftDetected)
-        {
-            transToEdit.transType = 1;
-        }
+
 
         var transEditRes = await Http.PostAsJsonAsync("api/Transactions/editTransaction", transToEdit);
         if (transEditRes.IsSuccessStatusCode)
@@ -1477,15 +1488,16 @@ resetMonthValues = !resetMonthValues">
             if (!categoryTypeIndicator)
             {
                 await checkOverdraft();
-            }
-            if (overdraftDetected)
-            {
-                var transOverdraftRes = await Http.GetAsync("api/Transactions/updateOverDraftTrans/" + transToEdit.id); //updates the transType to 3
-                if (transOverdraftRes.IsSuccessStatusCode)
+                if (overdraftDetected)
                 {
-                    Console.WriteLine("ההזנה עודכנה לחורגת בהצלחה :)");
+                    var transOverdraftRes = await Http.GetAsync("api/Transactions/updateOverDraftTrans/" + transToEdit.id); //updates the transType to 3
+                    if (transOverdraftRes.IsSuccessStatusCode)
+                    {
+                        Console.WriteLine("ההזנה עודכנה לחורגת בהצלחה :)");
+                    }
                 }
             }
+
             TransactionToEdit postEditTrans = await transEditRes.Content.ReadFromJsonAsync<TransactionToEdit>();
             if (postEditTrans != null)
             {
@@ -1836,6 +1848,8 @@ resetMonthValues = !resetMonthValues">
 
         overdraftDetected = true;
         addTransactionToTotal.InvokeAsync(newTransaction.transValue);
+        transValueToAdd.InvokeAsync(newTransaction.transValue);
+
         isTransactionOverlayOpen.InvokeAsync(false);
 
     }
@@ -1980,7 +1994,7 @@ resetMonthValues = !resetMonthValues">
                 repT.tagTitle = newTransaction.tagTitle;
             }
 
-            if (transactionsToAdd[i].transValue <= 0)
+            if (transactionsToAdd[i].transValue <= 0 || transactionsToAdd[i].transValue == null)
             {
                 transactionsToAdd.RemoveAt(i);
             }
@@ -1995,7 +2009,7 @@ resetMonthValues = !resetMonthValues">
             }
             else
             {
-                Console.WriteLine("הזנה נכשלה");
+                Console.WriteLine("הזנה נכשלה- " + repT.transDate);
             }
         }
 

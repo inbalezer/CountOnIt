@@ -59,7 +59,7 @@
             {
 
                 <button class="budget-progress" @onclick="goToTransactionsPage">
-                    @budget /  @Math.Round(totalSpendings,2) ₪
+                    @budget /  @totalSpendings ₪
                 </button>
 
 
@@ -67,7 +67,7 @@
             else
             {
                 <button class="budget-progress" @onclick="goToTransactionsPage">
-                    @Math.Round(totalSpendings,2) ₪
+                    @totalSpendings ₪ 
                 </button>
 
             }
@@ -85,7 +85,7 @@
 
 @if (openTransOverlay)
 {
-    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionToTotal="addNewTransToTotalSpendings" categoryTypeIndicator="@categoryTypeIndicator" updatedStreak="updateStreak" closeAddTransAfterOverdraft="closeAddTrans"></AddTransactionComponent>
+    <AddTransactionComponent subCategoryTitle="@subCategoryTitle" subCategoryIDTOGet="@subCategoryIDToGet" isTransactionOverlayOpen="@openAddTransOverlay" userID="@userID" gapsToUpdateBudgets="gapsToUpdateTheBudget" addTransactionToTotal="addNewTransToTotalSpendings" categoryTypeIndicator="@categoryTypeIndicator" updatedStreak="updateStreak" closeAddTransAfterOverdraft="closeAddTrans" transValueToAdd="updateTotalsIndexTable"></AddTransactionComponent>
 
 }
 
@@ -340,10 +340,10 @@
     public EventCallback<double> updateTransactionSum { get; set; }
 
     //[Parameter]
-    //public EventCallback<int> subCatIDtoUpdate { get; set; }
+    //public EventCallback<Dictionary<int,double>> subCatIDtoUpdate { get; set; }
 
     SubCategoryToEdit subCatToEdit = new SubCategoryToEdit();
-    SubCategoryToEdit ogSubCat = new SubCategoryToEdit();
+    //SubCategoryToEdit ogSubCat = new SubCategoryToEdit();
     SubCategoryToUpdate subCategoryToUpdate = new SubCategoryToUpdate();
 
     List<AllUserCategories> userCategories = new List<AllUserCategories>();
@@ -359,7 +359,8 @@
     string? catOutlineColor = "";
 
     double ogBudget = 0;
-
+    //Dictionary<int, double> subSumToUpdate = new Dictionary<int, double>();
+    //double spendingSum = 0;
     //SubCategoryToShow currentSubCat = new SubCategoryToShow();
 
     protected override async Task OnInitializedAsync()
@@ -620,18 +621,25 @@
         }
     }
 
-    public void addNewTransToTotalSpendings(double transactionValue)
+    public async Task addNewTransToTotalSpendings(double transactionValue)
     {
 
-
         totalSpendings += transactionValue;
+        totalSpendings = Math.Round(totalSpendings, 2);
 
+       //await updateTotalsIndexTable(transactionValue);
 
         Console.WriteLine(subCategoryTitle + ": " + totalSpendings + ", latest trans value- " + transactionValue);
-        updateTransactionSum.InvokeAsync(transactionValue);
-       
+        
+
 
     }
+
+    public void updateTotalsIndexTable(double transValue)
+    {
+        updateTransactionSum.InvokeAsync(transValue);
+    }
+
 
     public void goToTransactionsPage()
     {

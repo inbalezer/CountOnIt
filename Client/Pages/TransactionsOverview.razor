@@ -776,7 +776,7 @@
             if (catColorRes.IsSuccessStatusCode)
             {
                 var colorFromDB = await catColorRes.Content.ReadAsStringAsync();
-                Console.WriteLine("cat color in db- " + colorFromDB);
+                //Console.WriteLine("cat color in db- " + colorFromDB);
 
                 if (colorFromDB != null)
                 {
@@ -789,7 +789,7 @@
             }
 
 
-            Console.WriteLine("catTitle had a successful request ");
+            //Console.WriteLine("catTitle had a successful request ");
             //get subcategory title:
             var subCatTitle = await Http.GetAsync("api/Present/GetSubCategory/" + subCatID);
             if (subCatTitle.IsSuccessStatusCode)
@@ -854,6 +854,8 @@
 
                             }
                             prefilteredTransactions = checkTransList;
+                            Console.WriteLine("total spendings- " + totalSpendings);
+
 
                             if (totalSpendings > budget)
                             {
