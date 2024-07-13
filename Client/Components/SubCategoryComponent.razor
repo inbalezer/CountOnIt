@@ -340,11 +340,25 @@
     bool isOverdraft = false;
     string popupBodyText = "";
     string titleInput = "";
+    string convertedColor = "";
+    string outlineColor = "";
     int titleInputLength = 0;
     public bool openTransOverlay = false;
     string? catOutlineColor = "";
 
     double ogBudget = 0;
+
+    private string _previousColor = "##INITIAL##";
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (_previousColor != subCatColor)
+        {
+            convertCatColors(subCatColor);
+            _previousColor = subCatColor;
+        }
+    }
 
     //SubCategoryToShow currentSubCat = new SubCategoryToShow();
 
@@ -373,15 +387,21 @@
         }
         else
         {
-            convertCatColors(subCatColor);
+            //convertCatColors(subCatColor);
+            base.OnInitialized();
+            convertCatColors(subCatColor);  // Force initial color setup
+            StateHasChanged();
+
+
+            Console.WriteLine("צבע של סאב קטגוריה" + subCatColor);
         }
         Console.WriteLine("subcat on initialized- " + subCatColor);
     }
 
     public void convertCatColors(string? catColor)
     {
-        string convertedColor = "";
-        string outlineColor = "";
+        //string convertedColor = "";
+        //string outlineColor = "";
         switch (catColor)
         {
             case "#F4B367": //mustard
@@ -451,19 +471,27 @@
                 Console.WriteLine("cat color is default");
                 break;
         };
-        subCatColor = "";
-        catOutlineColor = "";
-        for (int i = 0; i < convertedColor.Length; i++)
-        {
-            subCatColor += convertedColor[i];
-        }
 
-        for (int i = 0; i < outlineColor.Length; i++)
-        {
-            catOutlineColor += outlineColor[i];
-        }
-        //catOutlineColor = outlineColor;
-        //subCatColor = convertedColor;
+        catOutlineColor = outlineColor;
+        subCatColor = convertedColor;
+
+        Console.WriteLine(catOutlineColor + " catOutlineColorזה ה");
+        Console.WriteLine(subCatColor + "subCatColorזה ה");
+
+        //subCatColor = "";
+        //catOutlineColor = "";
+        //for (int i = 0; i < convertedColor.Length; i++)
+        //{
+        //    subCatColor += convertedColor[i];
+        //}
+
+        //for (int i = 0; i < outlineColor.Length; i++)
+        //{
+        //    catOutlineColor += outlineColor[i];
+        //}
+
+
+
     }
 
     public void openAddTransOverlay()
