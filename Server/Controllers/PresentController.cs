@@ -624,14 +624,14 @@ namespace CountOnIt.Server.Controllers
                 ID = userID
             };
 
-            string GetTagsAndSpendingsQuery = @"SELECT t.tagID, tg.tagTitle, tg.tagColor, SUM(t.transValue) as totalValue 
+            string GetTagsAndSpendingsQuery = @"
+        SELECT t.tagID, tg.tagTitle, tg.tagColor, SUM(t.transValue) as totalValue 
         FROM transactions t
         JOIN tags tg ON t.tagID = tg.id
         JOIN subcategories sc ON t.subCategoryID = sc.id
         JOIN categories c ON sc.categoryID = c.id
-        join users u ON c.userID=u.id
-        WHERE c.userID = @ID  AND ((MONTH(CURRENT_DATE()) = MONTH(DATE_ADD(CURRENT_DATE(), INTERVAL 1 MONTH)) AND t.transDate >= DATE_FORMAT(CONCAT(YEAR(CURRENT_DATE()), '-', MONTH(CURRENT_DATE()), '-', u.monthStartDate), '%Y-%m-%d') AND t.transDate <= CURRENT_DATE()) OR (MONTH(CURRENT_DATE()) <> MONTH(DATE_ADD(CURRENT_DATE(), INTERVAL 1 MONTH)) AND t.transDate >= DATE_FORMAT(CONCAT(YEAR(DATE_ADD(CURRENT_DATE(), INTERVAL -1 MONTH)), '-', MONTH(DATE_ADD(CURRENT_DATE(), INTERVAL -1 MONTH)), '-', u.monthStartDate), '%Y-%m-%d') AND t.transDate <= CURRENT_DATE()))
-    AND YEAR(t.transDate) = YEAR(CURRENT_DATE()) AND (t.transType = 1 or t.transType=3)
+        WHERE c.userID = @ID AND t.transType = 1 AND MONTH(t.transDate) = MONTH(CURRENT_DATE())
+    AND YEAR(t.transDate) = YEAR(CURRENT_DATE())
         GROUP BY t.tagID, tg.tagTitle, tg.tagColor 
         ORDER BY totalValue DESC 
         LIMIT 3";
@@ -655,7 +655,7 @@ namespace CountOnIt.Server.Controllers
                 ID = subCatID
             };
 
-            string getSubTotalsQuery = "SELECT s.subCategoryTitle AS subCategoryTitle,COALESCE(SUM(CASE WHEN MONTH(t.transDate) = MONTH(CURRENT_DATE()) THEN t.transValue ELSE 0 END), 0) AS currentMonthTotal,COALESCE(SUM(CASE WHEN MONTH(t.transDate) = MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH)) THEN t.transValue ELSE 0 END), 0) AS lastMonthTotal FROM transactions t JOIN subcategories s ON t.subCategoryID = s.id  JOIN categories c ON s.categoryID = c.id join users u ON c.userID=u.id where t.subCategoryID = s.id and s.id=@ID AND (t.transType = 1 OR t.transType = 3) GROUP BY s.subCategoryTitle;";
+            string getSubTotalsQuery = "SELECT s.subCategoryTitle AS subCategoryTitle,COALESCE(SUM(CASE WHEN MONTH(t.transDate) = MONTH(CURRENT_DATE()) THEN t.transValue ELSE 0 END), 0) AS currentMonthTotal,COALESCE(SUM(CASE WHEN MONTH(t.transDate) = MONTH(DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH)) THEN t.transValue ELSE 0 END), 0) AS lastMonthTotal FROM transactions t JOIN subcategories s ON t.subCategoryID = s.id where t.subCategoryID = s.id and s.id=@ID AND (t.transType = 1 OR t.transType = 3) GROUP BY s.subCategoryTitle;";
 
             var getTotalsRec = await _db.GetRecordsAsync<StorySubCategoryTotals>(getSubTotalsQuery, subCatIDparam);
             StorySubCategoryTotals requestedSubInfo = getTotalsRec.FirstOrDefault();
@@ -949,7 +949,7 @@ namespace CountOnIt.Server.Controllers
                     ID = subCategory.id
                 };
 
-                string GetTransactionValueQuery = "SELECT COALESCE(SUM(t.transValue), 0) FROM transactions t JOIN subcategories sc ON t.subCategoryID = sc.id JOIN categories c ON sc.categoryID = c.id JOIN users u ON c.userID = u.id WHERE t.subCategoryID = @ID AND (t.transType = 1 OR t.transType = 3) AND t.transDate >= DATE_FORMAT(CONCAT(YEAR( CASE WHEN DAY(CURRENT_DATE()) >= u.monthStartDate THEN CURRENT_DATE() ELSE DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH) END), '-',MONTH(CASE WHEN DAY(CURRENT_DATE()) >= u.monthStartDate THEN CURRENT_DATE() ELSE DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH) END), '-', u.monthStartDate), '%Y-%m-%d') AND t.transDate <= CURRENT_DATE();";
+                string GetTransactionValueQuery = "SELECT COALESCE(SUM(transValue), 0) FROM transactions WHERE subCategoryID = @ID AND (transType = 1 OR transType = 3) ";
 
                 var recordsTransValue = await _db.GetRecordsAsync<double>(GetTransactionValueQuery, subParam);
 
@@ -1026,7 +1026,7 @@ namespace CountOnIt.Server.Controllers
                 currentCat.id = catID;
                 object categoryParam = new { ID = catID };
 
-                string GetSubCategoryIDbudget = "SELECT COALESCE(SUM(sc.monthlyPlannedBudget), 0) FROM subcategories sc JOIN transactions t ON t.subCategoryID = sc.id JOIN categories c ON sc.categoryID = c.id JOIN users u ON c.userID = u.id WHERE c.id = @ID AND (t.transType = 1 OR t.transType = 3) AND t.transDate >= DATE_FORMAT(CONCAT(YEAR(CASE WHEN DAY(CURRENT_DATE()) >= u.monthStartDate THEN CURRENT_DATE() ELSE DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH) END), '-', MONTH(CASE WHEN DAY(CURRENT_DATE()) >= u.monthStartDate THEN CURRENT_DATE() ELSE DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH) END), '-', u.monthStartDate), '%Y-%m-%d') AND t.transDate <= CURRENT_DATE();";
+                string GetSubCategoryIDbudget = "SELECT COALESCE(SUM(monthlyPlannedBudget), 0) FROM subcategories sc JOIN transactions t ON t.subCategoryID = sc.id JOIN categories c ON sc.categoryID = c.id WHERE c.id = @ID AND MONTH(t.transDate) = MONTH(CURRENT_DATE()) AND YEAR(t.transDate) = YEAR(CURRENT_DATE()) AND (t.transType = 1 OR t.transType = 3);";
                 var recordSubCategoryID = await _db.GetRecordsAsync<double>(GetSubCategoryIDbudget, categoryParam);
                 var subCatBudgetsRec = recordSubCategoryID.FirstOrDefault();
 
@@ -1036,7 +1036,7 @@ namespace CountOnIt.Server.Controllers
                     currentCat.monthlyPlannedBudget = subCatBudgetsRec;
 
                     // Expenses:
-                    string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(t.transValue),0) FROM transactions t JOIN subcategories sc ON t.subCategoryID = sc.id JOIN categories c ON sc.categoryID = c.id WHERE c.id = @ID AND JOIN users u ON c.userID = u.id AND t.transDate >= DATE_FORMAT(CONCAT(YEAR(CASE WHEN DAY(CURRENT_DATE()) >= u.monthStartDate THEN CURRENT_DATE() ELSE DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH) END), '-', MONTH(CASE WHEN DAY(CURRENT_DATE()) >= u.monthStartDate THEN CURRENT_DATE() ELSE DATE_SUB(CURRENT_DATE(), INTERVAL 1 MONTH) END), '-', u.monthStartDate), '%Y-%m-%d') AND t.transDate <= CURRENT_DATE() AND (t.transType = 1 or t.transType=3);";
+                    string GetCategoryCurrentSumQuery = "SELECT COALESCE(SUM(t.transValue),0) FROM transactions t JOIN subcategories sc ON t.subCategoryID = sc.id JOIN categories c ON sc.categoryID = c.id WHERE c.id = @ID AND MONTH(t.transDate) = MONTH(CURRENT_DATE()) AND YEAR(t.transDate) = YEAR(CURRENT_DATE()) AND (t.transType = 1 or t.transType=3)";
                     var recordSubCatCurrentSum = await _db.GetRecordsAsync<double>(GetCategoryCurrentSumQuery, categoryParam);
                     subCatSum = recordSubCatCurrentSum.FirstOrDefault();
 
