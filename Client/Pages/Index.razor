@@ -317,7 +317,7 @@ else
 
         @if (userIncomeCat != null && isChecked)
         {
-            <CategoryComponent Category="@userIncomeCat" categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryTypeIndicator="true" updateBudget="refreshBudgetsOfSubCats" updateTransSum="refreshTransSumTotals"></CategoryComponent>
+            <CategoryComponent Category="@userIncomeCat" categoryTitle="userIncomeCat.categroyTitle" icon="userIncomeCat.icon" categoryColor="userIncomeCat.color" doRefresh="@doRefresh" userID="@userID" deleteCat="removeCat" subCatRefreshed="@accordionRefresh" givingSubCatBudget="changeGivingSubCatBudget" givingSubCat="givingSubCatToUpdate" closeOverlay="openEditCategoryOverlay" closeEdit="closeEdit" closeDelete="closeDelete" updatedStreakStat="updateStreak" categoryTypeIndicator="true" updateBudget="refreshBudgetsOfSubCats"updateTransSum="refreshTransSumTotals"></CategoryComponent>
         }
         @if (!isChecked) // עובר להוצאות
         {
@@ -741,7 +741,7 @@ else
             userGoogleId = user.FindFirst("sub")?.Value;
             isOnInitializedOver = true;
 
-            var userRes = await Http.GetAsync("api/Present/userToShowByDate/" + userGoogleId);
+            var userRes = await Http.GetAsync("api/Present/userToShow/" + userGoogleId);
 
             if (userRes.IsSuccessStatusCode)
             {
@@ -936,7 +936,7 @@ else
         if (!isChecked)
         {
             currentUser.spendingValueFullList += transValue;
-            //Console.WriteLine("isChecked- " + isChecked + ", transValue- " + transValue);
+            Console.WriteLine("isChecked- " + isChecked + ", transValue- " + transValue);
 
             //refreshing the budget accordingly:
             double budgetPercentage = 0;
@@ -949,9 +949,8 @@ else
         else
         {
             currentUser.incomeValueFullList += transValue;
-            //Console.WriteLine("isChecked- " + isChecked + ", transValue- " + transValue);
         }
-        Console.WriteLine("isChecked- " + isChecked + ", transValue- " + transValue);
+
 
     }
 

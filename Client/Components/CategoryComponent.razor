@@ -31,7 +31,7 @@
         @foreach (SubCategoryToShow overDraftsubcategory in subCategories)
         {
 
-            if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget && categoryTypeIndicator==false)
+            if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget)
             {
                 <div class="overdraftBtn">
                     <span>חריגה</span>
@@ -117,7 +117,7 @@
                         }
 
                         <div class="budget-card @(isFirstItem ? "first" : "")">
-                            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="@categoryColor" updateTransactionSum="updatePresentTable" ></SubCategoryComponent>
+                            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="@categoryColor"></SubCategoryComponent>
                         </div>
 
                         isFirstItem = false;
@@ -180,52 +180,52 @@
                         </div>
                     </div>
 
-                    @if (!categoryTypeIndicator)
-                    {
-                        <label class="titleName" for="description">מה התקציב החודשי שלך עבור @newSubCategory.subCategoryTitle? </label>
 
-                        <div class="outerBudget">
-                            <input class="budgetBox" type="number" id="description" placeholder="0" @bind="newSubCategory.monthlyPlannedBudget" />
-                            <span class="currency-symbol">₪</span>
-                            <div class="lineBetween"></div>
-                        </div>
 
-                        <div class="outerImportance">
-                            <label class="titleName" for="importance">עדיפות תת הקטגוריה</label>
-                            <div class="outerBtns">
-                                <div class="importanceBtns">
-                                    <input type="radio" id="wants" name="importance" @onchange="@(() => newSubCategory.importance = 0)" />
-                                    <label for="wants">רצון</label>
-                                    <span class="divider"></span>
 
-                                    <input type="radio" id="needs" name="importance" @onchange="@(() => newSubCategory.importance = 1)" />
-                                    <label for="needs">צורך</label>
-                                    <span class="divider"></span>
 
-                                    <input type="radio" id="must" name="importance" @onchange="@(() => newSubCategory.importance = 2)" />
-                                    <label for="must">חובה</label>
-                                </div>
+
+
+
+                    <label class="titleName" for="description">מה התקציב החודשי שלך עבור @newSubCategory.subCategoryTitle? </label>
+
+                    <div class="outerBudget">
+                        <input class="budgetBox" type="number" id="description" placeholder="0" @bind="newSubCategory.monthlyPlannedBudget" />
+                        <span class="currency-symbol">₪</span>
+                        <div class="lineBetween"></div>
+                    </div>
+
+                    <div class="outerImportance">
+                        <label class="titleName" for="importance">עדיפות תת הקטגוריה</label>
+                        <div class="outerBtns">
+                            <div class="importanceBtns">
+                                <input type="radio" id="wants" name="importance" @onchange="@(() => newSubCategory.importance = 0)" />
+                                <label for="wants">רצון</label>
+                                <span class="divider"></span>
+
+                                <input type="radio" id="needs" name="importance" @onchange="@(() => newSubCategory.importance = 1)" />
+                                <label for="needs">צורך</label>
+                                <span class="divider"></span>
+
+                                <input type="radio" id="must" name="importance" @onchange="@(() => newSubCategory.importance = 2)" />
+                                <label for="must">חובה</label>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="outerExample">
-                            <div>
-                                <span class="example">לדוגמה:</span>
-                                לק - רוצה, דלק - צריך, שכ״ד- חייב. העדיפות משפיעה על הטיפים לייעול התקציב.
-                            </div>
+                    <div class="outerExample">
+                        <div>
+                            <span class="example">לדוגמה:</span>
+                            לק - רוצה, דלק - צריך, שכ״ד- חייב. העדיפות משפיעה על הטיפים לייעול התקציב.
                         </div>
-                    }
-                   
-                    @if (titleInput.Length >= 2 && titleInput.Length < 19 && newSubCategory.monthlyPlannedBudget > 0)
+                    </div>
+                    @if (titleInput.Length >= 2 && titleInput.Length < 19 && newSubCategory.monthlyPlannedBudget > 0 && newSubCategory.importance >= 0 && newSubCategory.importance < 3)
                     {
-                        if (!categoryTypeIndicator && newSubCategory.importance >= 0 || !categoryTypeIndicator && newSubCategory.importance < 3  )
-                        {
-                             <div class="outerSaveBtns">
+
+                        <div class="outerSaveBtns">
                             <button class="primery-button" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
                             <button class="secondery-button" @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
                         </div>
-                        }
-                       
                     }
                     else
                     {
@@ -242,7 +242,7 @@
                         {
                             <span>תקציב תת קטגוריה צריך להיות גדול מאפס.</span>
                         }
-                        else if (newSubCategory.importance < 0 && !categoryTypeIndicator || newSubCategory.importance > 2 && !categoryTypeIndicator)
+                        else if (newSubCategory.importance < 0 || newSubCategory.importance > 2)
                         {
                             <span>בחרו עדיפות לתת קטגוריה זו.</span>
 
@@ -725,23 +725,4 @@
 
     OverBudgetToShow overDraftSubCategory = new OverBudgetToShow();
 
-    private async void updatePresentTable(double transValue)
-    {
-        
-        updateTransSum.InvokeAsync(transValue);
-
-        //await getSubCategories(); 
-        Console.WriteLine("trans reached cat component");
-    }
-
-    //private void updateSubCatSum(int subIDtoUpdate)
-    //{
-    //    foreach (SubCategoryToShow sub in subCategories)
-    //    {
-    //        if ()
-    //        {
-                
-    //        }
-    //    }
-    //}
 }

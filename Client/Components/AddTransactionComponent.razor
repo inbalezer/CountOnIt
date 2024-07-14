@@ -200,10 +200,10 @@
                                                 <div class="outerMonths">
                                                     @if (resetMonthValues == false)
                                                     {
-                                                        @*                                                        @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-                                    {
-                                    tToCheck.transValue = newTransaction.transValue;
-                                    }*@
+@*                                                        @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                                                        {
+                                                            tToCheck.transValue = newTransaction.transValue;
+                                                        }*@
                                                         @foreach (string month in months)
                                                         {
                                                             <div class="monthValueInput @thisMonthDivStyle">
@@ -315,10 +315,10 @@ resetMonthValues = !resetMonthValues">
                                                     @if (resetMonthValues == false)
                                                     {
                                                         isResetBtnClicked = false;
-                                                        @*                                                        @foreach (TransactionToAdd tToCheck in transactionsToAdd)
-                                    {
-                                    tToCheck.transValue = newTransaction.transValue;
-                                    }*@
+@*                                                        @foreach (TransactionToAdd tToCheck in transactionsToAdd)
+                                                        {
+                                                            tToCheck.transValue = newTransaction.transValue;
+                                                        }*@
 
                                                         @foreach (string month in months)
                                                         {
@@ -474,11 +474,44 @@ resetMonthValues = !resetMonthValues">
 
                                             </button>
                                         }
+                                        @*<div class="outerGalleryAndNav">
+                                            <div class="outerGallery">
+
+                                                @foreach (TagsToShow tag in GetCurrentPageTags())
+                                                {
+                                                    Console.WriteLine(tag +"לפני");
+                                                    string buttonStyle = "background-color:" + tag.tagColor + ";";
+
+                                                    var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
+                                                    <button class="tag"
+                                            @onclick="(() => ChooseTagForTrans(tag))"
+                                            style="background-color:@tag.tagColor; @fontWeight @buttonStyle">
+                                                        @tag.tagTitle
+                                                    </button>
+                                                    @if (tag.id == newTransaction.tagID)
+                                                    {
+                                                        chosenTag = tag;
+                                                    }
+
+                                                }
+                                            </div>
+                                            <div class="outerBtnAndDots">
+                                                <button class="galleryArrow @disBtnStyle" @onclick="PreviousPage"><img src="../css/images/arrow-back.svg" /></button>
+                                                <div class="pageDots">
+                                                    @for (int i = 0; i < totalPages; i++)
+                                                    {
+                                                        <span class="dot @(i == currentPage ? "active" : "")"></span>
+                                                    }
+                                                </div>
+                                                <button class="galleryArrow @disNextBtnStyle" @onclick="NextPage"><img src="../css/images/arrow-next.svg" /></button>
+
+                                            </div>
+                                        </div>*@
                                     }
 
                                     @if (openTagsMenu)
                                     {
-
+                                        
                                         <div class="outerGalleryAndNav">
                                             <div class="outerGallery">
                                                 @foreach (var tag in GetCurrentPageTags())
@@ -592,7 +625,7 @@ resetMonthValues = !resetMonthValues">
     </div>
 
 
-    @if (overdraftDetected && closeOverdraftOpts.Count > 1 && closeOverdraftOpts[closeOverdraftOpts.Count - 1].id != subCategoryIDTOGet)
+    @if (overdraftDetected && closeOverdraftOpts.Count>1 && closeOverdraftOpts[closeOverdraftOpts.Count-1].id!=subCategoryIDTOGet )
     {
         <div class="overlay">
             <div class="outerOverdraft">
@@ -1019,12 +1052,12 @@ resetMonthValues = !resetMonthValues">
             if (repeatedTrans.transDate == date)
             {
                 repeatedTrans.transValue = double.Parse(newValue);
-
+              
                 Console.WriteLine("trans month- " + repeatedTrans.transDate + ", value- " + repeatedTrans.transValue);
             }
 
         }
-
+       
     }
 
 
@@ -1092,11 +1125,11 @@ resetMonthValues = !resetMonthValues">
                             splitPayment = ogTransaction.splitPayment
                         };
 
-                    if (newTransaction.tagID > 0)
+                    if(newTransaction.tagID >0)
                     {
                         //chosenTag.id = newTransaction.tagID;
-                        chosenTag.tagTitle = newTransaction.tagTitle;
-                        chosenTag.tagColor = newTransaction.tagColor;
+                        chosenTag.tagTitle =newTransaction.tagTitle;
+                        chosenTag.tagColor =newTransaction.tagColor;
                     }
 
                     Console.WriteLine(newTransaction.tagID + "התגית שלי היא");
@@ -1286,7 +1319,7 @@ resetMonthValues = !resetMonthValues">
                 transIDtoEdit = await transToSaveRes.Content.ReadFromJsonAsync<int>();
                 if (tempChildrenList.Count > 0)
                 {
-
+                  
                     transactionsToAdd.Clear();
                     foreach (TransactionToAdd t in tempChildrenList)
                     {
@@ -1384,10 +1417,7 @@ resetMonthValues = !resetMonthValues">
                     Console.WriteLine("הזנה נכשלה");
                 }
             }
-            newTransaction = new TransactionToAdd()
-                {
-                    transDate = DateTime.Today // Set the transaction date to today
-                };
+            newTransaction = new TransactionToAdd();
 
         }
         else
@@ -1862,14 +1892,14 @@ resetMonthValues = !resetMonthValues">
             {
                 allUserTags = await allTagsRes.Content.ReadFromJsonAsync<List<TagsToShow>>();
 
-                if (allUserTags.Count > 0)
+                if(allUserTags.Count > 0)
                 {
-                    foreach (TagsToShow tag in allUserTags)
+                    foreach(TagsToShow tag in allUserTags)
                     {
-                        if (newTransaction.tagID == tag.id)
+                        if(newTransaction.tagID == tag.id)
                         {
                             chosenTag = tag;
-                        }
+                        }                      
                     }
                 }
             }
