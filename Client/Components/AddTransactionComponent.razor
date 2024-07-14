@@ -200,6 +200,7 @@
                                                 <div class="outerMonths">
                                                     @if (resetMonthValues == false)
                                                     {
+                                                        isResetBtnClicked = false;
                                                         foreach (string month in months)
                                                         {
                                                             <div class="monthValueInput">
@@ -245,6 +246,9 @@
                                                     }
                                                     else
                                                     {
+                                                        isResetBtnClicked = true;
+                                                        isValueTyped = false;
+
                                                         @if (!isValueTypedAfterReset)
                                                         {
                                                             @foreach (TransactionToAdd tToCheck in transactionsToAdd)
