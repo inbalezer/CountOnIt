@@ -202,7 +202,7 @@
                                                     {
                                                         foreach (string month in months)
                                                         {
-                                                            <div class="monthValueInput @thisMonthDivStyle">
+                                                            <div class="monthValueInput">
                                                                 <label>@GetHebrewMonthName(month)</label>
 
                                                                 @{
@@ -217,23 +217,31 @@
                                                                 @if (GetCurrentMonth() == month)
                                                                 {
                                                                     inputValue = newTransaction.transValue.ToString();
-                                                                    thisMonthDivStyle = "thisMonthBorder";
-                                                                }
-                                                                <div class="thisOuterValue">
-                                                                    <input id="this" class="thisMonth" type="text"
-                                                   value="@inputValue"
+                                                                    <div class="thisOuterValue">
+                                                                        <input id="this" class="thisMonth" type="text" value="@inputValue"
                                                    @oninput="eventArgs => HandleRepeatedInput(eventArgs, month, matchingTrans)" />
-                                                                    <span class="ShekelSign">₪</span>
-                                                                </div>
+                                                                        <span class="ShekelSign">₪</span>
+                                                                    </div>
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="outerValue">
+                                                                        <input class="month" type="text" disabled="@IsPastMonth(month)" value="@inputValue"
+                                                   @oninput="eventArgs => HandleRepeatedInput(eventArgs, month, matchingTrans)" />
+                                                                        <span class="ShekelSign">₪</span>
+                                                                    </div>
+                                                                }
+
                                                             </div>
                                                         }
-@*                                                        <div class="outerSaveBtns">
-                                                            <button class="primery-button">שמירה וחזרה</button>
-                                                            <button class="secondery-button" @onclick="() =>
-resetMonthValues = !resetMonthValues">
-                                                                @textOnResetBtn
-                                                            </button>
-                                                        </div>*@
+                                                        @*                                                        <div class="outerSaveBtns">
+                                    <button class="primery-button">שמירה וחזרה</button>
+                                    <button class="secondery-button" @onclick="() =>
+                                    resetMonthValues = !resetMonthValues">
+                                    @textOnResetBtn
+                                    </button>
+                                    </div>*@
                                                     }
                                                     else
                                                     {
@@ -247,102 +255,100 @@ resetMonthValues = !resetMonthValues">
 
                                                         foreach (string month in months)
                                                         {
-                                                            <div class="monthValueInput @thisMonthDivStyle">
+                                                            <div class="monthValueInput">
                                                                 <label>@GetHebrewMonthName(month)</label>
-                                                                <div class="monthDivider"></div>
-                                                                <div class="thisOuterValue">
-                                                                    @if (GetCurrentMonth() != month)
-                                                                    {
+                                                                @if (GetCurrentMonth() != month)
+                                                                {
+                                                                   
+                                                                    <div class="monthDivider"></div>
                                                                         <div class="outerValue">
                                                                             <input class="month" type="text"
                                                        disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
                                                                             <span class="ShekelSign">₪</span>
                                                                         </div>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        thisMonthDivStyle = "thisMonthBorder";
-                                                                         <div class="outerValue">
+                                                                    
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="monthDivider"></div>
+                                                                    <div class="thisOuterValue">
+                                                                    
 
                                                                         <input class="thisMonth" type="text"
                                                    value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
                                                                         <span class="ShekelSign">₪</span>
-                                                                        </div>
-                                                                    }
+                                                                    
+                                                                    </div>
+                                                                }
 
-                                                                </div>
-                                                            </div>
-
-
+                                                            </div>                                                       
                                                         }
-
-
                                                     }
-                                                </div>
-                                                <div class="outerSaveBtns">
+                                            </div>
+                                            <div class="outerSaveBtns">
                                                     @if (isResetBtnClicked && !isValueTypedAfterReset)
                                                     {
 
-                                                        <button class="primery-button" disabled>שמירה וחזרה</button>
+                                                    <button class="primery-button" disabled>שמירה וחזרה</button>
                                                     }
                                                     else if (isValueTyped && isResetBtnClicked)
                                                     {
-                                                        <button class="primery-button" disabled>שמירה וחזרה</button>
+                                                    <button class="primery-button" disabled>שמירה וחזרה</button>
                                                     }
                                                     else if (isValueTypedAfterReset)
                                                     {
-                                                        <button class="primery-button">שמירה וחזרה</button>
+                                                    <button class="primery-button">שמירה וחזרה</button>
                                                     }
                                                     else
                                                     {
-                                                        <button class="primery-button">שמירה וחזרה</button>
+                                                    <button class="primery-button">שמירה וחזרה</button>
                                                     }
-                                                    <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
-                                                   
-                                                </div>
+                                                <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
+
                                             </div>
                                         </div>
+                                    </div>
                                     }
                                 }
                                 else
                                 {
-                                    <div class="outerRepetedTrans" style="@hiddenReOverlay">
-                                        <div class="innerTransOverlay">
+                                <div class="outerRepetedTrans" style="@hiddenReOverlay">
+                                    <div class="innerTransOverlay">
                                             @if (returningTrans)
                                             {
-                                                <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
-                                                <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
-                                                <div class="reText">במידה והפעולה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</div>
-                                                <div class="outerMonths">
+                                            <button class="modal-close-btn" @onclick="backToTrans"><img src="../css/images/back-repeated.svg" /></button>
+                                            <h4>הגדרת @newTransaction.transTitle כהוצאה חוזרת על עצמה</h4>
+                                            <div class="reText">במידה והפעולה חוזרת בסכום שונה, יש להזין את הסכום הרצוי. בחודש בו אינה חוזרת, יש להזין 0.</div>
+                                            <div class="outerMonths">
                                                     @if (resetMonthValues == false)
                                                     {
                                                         isResetBtnClicked = false;
 
                                                         foreach (string month in months)
                                                         {
-                                                            <div class="monthValueInput">
+                                                        <div class="monthValueInput">
                                                                 @if (GetCurrentMonth() == month)
                                                                 {
-                                                                    <label>@GetHebrewMonthName(month)</label>
-                                                                    <div class="monthDivider"></div>
-                                                                    <div class="thisOuterValue">
-                                                                        <input class="thisMonth" type="text"
-                                                   value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                                                                        <span class="ShekelSign">₪</span>
-                                                                    </div>
+                                                                <label>@GetHebrewMonthName(month)</label>
+                                                                <div class="monthDivider"></div>
+                                                                <div class="thisOuterValue">
+                                                                    <input class="thisMonth" type="text"
+                                               value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                    <span class="ShekelSign">₪</span>
+                                                                </div>
                                                                 }
                                                                 else
                                                                 {
-                                                                    <label>@GetHebrewMonthName(month)</label>
-                                                                    <div class="monthDivider"></div>
-                                                                    <div class="outerValue">
-                                                                        <input class="months" type="text"
-                                                   disabled="@IsPastMonth(month)" value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                                                                        <span class="ShekelSign">₪</span>
-                                                                    </div>
+                                                                <label>@GetHebrewMonthName(month)</label>
+                                                                <div class="monthDivider"></div>
+                                                                <div class="outerValue">
+                                                                    <input class="months" type="text"
+                                               disabled="@IsPastMonth(month)" value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                    <span class="ShekelSign">₪</span>
+                                                                </div>
                                                                 }
 
-                                                            </div>
+                                                        </div>
                                                         }
 
                                                     }
@@ -361,215 +367,215 @@ resetMonthValues = !resetMonthValues">
 
                                                         @foreach (string month in months)
                                                         {
-                                                            <div class="monthValueInput">
-                                                                <label>@GetHebrewMonthName(month)</label> @*/סקשן איפוס!!!*@
-                                                                <div class="monthDivider"></div>
-                                                                <div class="outerValue">
+                                                        <div class="monthValueInput">
+                                                            <label>@GetHebrewMonthName(month)</label> @*/סקשן איפוס!!!*@
+                                                            <div class="monthDivider"></div>
+                                                            <div class="outerValue">
                                                                     @if (GetCurrentMonth() != month)
                                                                     {
-                                                                        <input class="months" type="text"
-                                                   disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                                                                        <span class="ShekelSign">₪</span>
+                                                                    <input class="months" type="text"
+                                               disabled="@IsPastMonth(month)" value="0" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                    <span class="ShekelSign">₪</span>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <div class="thisOuterValue">
-                                                                            <input class="thisMonth" type="text"
-                                                       value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
-                                                                            <span class="ShekelSign">₪</span>
-                                                                        </div>
+                                                                    <div class="thisOuterValue">
+                                                                        <input class="thisMonth" type="text"
+                                                   value="@GetDefaultValue(month)" @oninput="eventArgs => HandleInput(eventArgs, month)" />
+                                                                        <span class="ShekelSign">₪</span>
+                                                                    </div>
                                                                     }
-                                                                </div>
                                                             </div>
+                                                        </div>
                                                         }
                                                     }
 
-                                                </div>
-                                                <div class="outerSaveBtns">
+                                            </div>
+                                            <div class="outerSaveBtns">
                                                     @if (isResetBtnClicked && !isValueTypedAfterReset)
                                                     {
 
-                                                        <button class="primery-button" disabled>שמירה וחזרה</button>
+                                                    <button class="primery-button" disabled>שמירה וחזרה</button>
                                                     }
                                                     else if (isValueTyped && isResetBtnClicked)
                                                     {
-                                                        <button class="primery-button" disabled>שמירה וחזרה</button>
+                                                    <button class="primery-button" disabled>שמירה וחזרה</button>
                                                     }
                                                     else if (isValueTypedAfterReset)
                                                     {
-                                                        <button class="primery-button" @onclick="backToTrans">שמירה וחזרה</button>
+                                                    <button class="primery-button" @onclick="backToTrans">שמירה וחזרה</button>
                                                     }
                                                     else
                                                     {
-                                                        <button class="primery-button" @onclick="backToTrans">שמירה וחזרה</button>
+                                                    <button class="primery-button" @onclick="backToTrans">שמירה וחזרה</button>
                                                     }
 
-                                                    <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
-                                                </div>
+                                                <button class="secondery-button" @onclick="() => resetMonthValues = !resetMonthValues">@textOnResetBtn</button>
+                                            </div>
 
                                             }
-                                        </div>
                                     </div>
+                                </div>
                                 }
-                            </div>
                         </div>
+                    </div>
                     }
 
+            </div>
+
+
+            <div>
+
+                <div class="transDetailsAccordion" @onclick="@(async () => await getAllUserTags())">
+
+                    <span class="accordionText">הגדרות מתקדמות</span>
+                    <span class="accordionPoly"><img src="../css/images/arrow3.svg" /></span>
                 </div>
-
-
-                <div>
-
-                    <div class="transDetailsAccordion" @onclick="@(async () => await getAllUserTags())">
-
-                        <span class="accordionText">הגדרות מתקדמות</span>
-                        <span class="accordionPoly"><img src="../css/images/arrow3.svg" /></span>
-                    </div>
 
 
                     @if (isButtomDropDownOpen)
                     {
-                        <div class="outerDetails">
-                            <div class="innerPaddingDiv">
-                                <div class="outerTitleAndDateAndName">
+                    <div class="outerDetails">
+                        <div class="innerPaddingDiv">
+                            <div class="outerTitleAndDateAndName">
 
-                                    <span class="titleName">תגית</span>
+                                <span class="titleName">תגית</span>
                                     @if (isItAnewTrans || newTransaction.tagID == null)
                                     {
-                                        <button class="addTagBtn" @onclick="() => openTagsMenu = !openTagsMenu">
+                                    <button class="addTagBtn" @onclick="() => openTagsMenu = !openTagsMenu">
                                             @if (chosenTag.id > 0)
                                             {
-                                                <img src="../css/images/after-tag.svg" />
-                                                <span class="tag tagLabel" style="background-color:@chosenTag.tagColor">@chosenTag.tagTitle</span>
+                                            <img src="../css/images/after-tag.svg" />
+                                            <span class="tag tagLabel" style="background-color:@chosenTag.tagColor">@chosenTag.tagTitle</span>
                                             }
                                             else
                                             {
-                                                <img src="../css/images/addtag.svg" />
+                                            <img src="../css/images/addtag.svg" />
                                             }
 
 
-                                        </button>
+                                    </button>
 
                                     }
                                     else
                                     {
                                         if (chosenTag.id > 0)
                                         {
-                                            <button class="addTagBtn" @onclick="() => openTagsMenu = !openTagsMenu">
+                                        <button class="addTagBtn" @onclick="() => openTagsMenu = !openTagsMenu">
 
-                                                <img src="../css/images/after-tag.svg" />
-                                                <span class="tag tagLabel" style="background-color:@chosenTag.tagColor">@chosenTag.tagTitle</span>
+                                            <img src="../css/images/after-tag.svg" />
+                                            <span class="tag tagLabel" style="background-color:@chosenTag.tagColor">@chosenTag.tagTitle</span>
 
-                                            </button>
+                                        </button>
                                         }
                                         else
                                         {
 
-                                            <button class="addTagBtn" @onclick="() => openTagsMenu = !openTagsMenu">
+                                        <button class="addTagBtn" @onclick="() => openTagsMenu = !openTagsMenu">
 
-                                                <img src="../css/images/addtag.svg" />
+                                            <img src="../css/images/addtag.svg" />
 
-                                            </button>
+                                        </button>
                                         }
                                     }
 
                                     @if (openTagsMenu)
                                     {
 
-                                        <div class="outerGalleryAndNav">
-                                            <div class="outerGallery">
+                                    <div class="outerGalleryAndNav">
+                                        <div class="outerGallery">
                                                 @foreach (var tag in GetCurrentPageTags())
                                                 {
                                                     Console.WriteLine(tag);
                                                     var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
-                                                    <button class="tag"
-                                            @onclick="(() => ChooseTagForTrans(tag))"
-                                            style="background-color:@tag.tagColor; @fontWeight">
+                                                <button class="tag"
+                                        @onclick="(() => ChooseTagForTrans(tag))"
+                                        style="background-color:@tag.tagColor; @fontWeight">
                                                         @tag.tagTitle
-                                                    </button>
+                                                </button>
                                                 }
 
-                                            </div>
-                                            <div class="outerBtnAndDots">
-                                                <button class="galleryArrow @disBtnStyle" @onclick="PreviousPage"><img src="../css/images/arrow-back.svg" /></button>
-                                                <div class="pageDots">
+                                        </div>
+                                        <div class="outerBtnAndDots">
+                                            <button class="galleryArrow @disBtnStyle" @onclick="PreviousPage"><img src="../css/images/arrow-back.svg" /></button>
+                                            <div class="pageDots">
                                                     @for (int i = 0; i < totalPages; i++)
                                                     {
-                                                        <span class="dot @(i == currentPage ? "active" : "")"></span>
+                                                    <span class="dot @(i == currentPage ? "active" : "")"></span>
                                                     }
-                                                </div>
-                                                <button class="galleryArrow @disNextBtnStyle" @onclick="NextPage"><img src="../css/images/arrow-next.svg" /></button>
-
                                             </div>
-                                        </div>
-                                    }
-                                </div>
+                                            <button class="galleryArrow @disNextBtnStyle" @onclick="NextPage"><img src="../css/images/arrow-next.svg" /></button>
 
-                                <div class="outerTitleAndDateAndName">
-                                    <span class="titleName">פירוט:</span>
-                                    <textarea class="description" @bind="newTransaction.description" maxlength="60" @oninput="TransDescLengthCounter"></textarea>
+                                        </div>
+                                    </div>
+                                    }
+                            </div>
+
+                            <div class="outerTitleAndDateAndName">
+                                <span class="titleName">פירוט:</span>
+                                <textarea class="description" @bind="newTransaction.description" maxlength="60" @oninput="TransDescLengthCounter"></textarea>
                                     @if (descLength > 0)
                                     {
-                                        <span>@descLength/60</span>
+                                    <span>@descLength/60</span>
                                     }
                                     else
                                     {
-                                        <span>0/60</span>
+                                    <span>0/60</span>
                                     }
-                                </div>
-
                             </div>
+
                         </div>
+                    </div>
 
                     }
 
-                </div>
+            </div>
 
                 @if (isItAnewTrans)
                 {
                     if (titleInput.Length >= 2 && titleInput.Length < 19 && newTransaction.transValue > 0 && newTransaction.transDate != null && newTransaction.valueType != null)
                     {
-                        <div class="outerSaveBtns">
-                            <button class="primery-button" @onclick="saveAndRepeatTransactions">שמירה והזנה נוספת</button>
-                            <button class="secondery-button" @onclick="saveAndEndTransactions">שמירה וסיום</button>
-                        </div>
+                    <div class="outerSaveBtns">
+                        <button class="primery-button" @onclick="saveAndRepeatTransactions">שמירה והזנה נוספת</button>
+                        <button class="secondery-button" @onclick="saveAndEndTransactions">שמירה וסיום</button>
+                    </div>
                     }
                     else if (titleInput.Length < 2)
                     {
-                        <div class="outerSaveBtns">
-                            <button class="primery-button" @onclick="saveAndRepeatTransactions" disabled>שמירה והזנה נוספת</button>
-                            <button class="secondery-button" @onclick="saveAndEndTransactions" disabled>שמירה וסיום</button>
-                            <span>אורך שם ההזנה לא תקין.</span>
-                        </div>
+                    <div class="outerSaveBtns">
+                        <button class="primery-button" @onclick="saveAndRepeatTransactions" disabled>שמירה והזנה נוספת</button>
+                        <button class="secondery-button" @onclick="saveAndEndTransactions" disabled>שמירה וסיום</button>
+                        <span>אורך שם ההזנה לא תקין.</span>
+                    </div>
                     }
                     else if (newTransaction.transValue <= 0)
                     {
-                        <div class="outerSaveBtns">
-                            <button class="primery-button" @onclick="saveAndRepeatTransactions" disabled>שמירה והזנה נוספת</button>
-                            <button class="secondery-button" @onclick="saveAndEndTransactions" disabled>שמירה וסיום</button>
-                            <span>סך ההזנה לא תקין.</span>
-                        </div>
+                    <div class="outerSaveBtns">
+                        <button class="primery-button" @onclick="saveAndRepeatTransactions" disabled>שמירה והזנה נוספת</button>
+                        <button class="secondery-button" @onclick="saveAndEndTransactions" disabled>שמירה וסיום</button>
+                        <span>סך ההזנה לא תקין.</span>
+                    </div>
                     }
                     else if (newTransaction.valueType == "" || newTransaction.valueType == null)
                     {
-                        <div class="outerSaveBtns">
-                            <button class="primery-button" @onclick="saveAndRepeatTransactions" disabled>שמירה והזנה נוספת</button>
-                            <button class="secondery-button" @onclick="saveAndEndTransactions" disabled>שמירה וסיום</button>
-                            <span>לא נבחר אמצעי תשלום.</span>
-                        </div>
+                    <div class="outerSaveBtns">
+                        <button class="primery-button" @onclick="saveAndRepeatTransactions" disabled>שמירה והזנה נוספת</button>
+                        <button class="secondery-button" @onclick="saveAndEndTransactions" disabled>שמירה וסיום</button>
+                        <span>לא נבחר אמצעי תשלום.</span>
+                    </div>
                     }
 
 
                 }
                 else
                 {
-                    <div class="outerSaveBtns">
-                        <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
-                    </div>
+                <div class="outerSaveBtns">
+                    <button class="primery-button" @onclick="updateExistingTrans">שמירה וסיום</button>
+                </div>
                 }
-            </div>
         </div>
     </div>
+        </div>
 
 
     @if (overdraftDetected && closeOverdraftOpts.Count > 1 && closeOverdraftOpts[closeOverdraftOpts.Count - 1].id != subCategoryIDTOGet)
@@ -1244,7 +1250,7 @@ resetMonthValues = !resetMonthValues">
                             Console.WriteLine("ההזנה נשמרה בהצלחה :)");
                             addTransactionToTotal.InvokeAsync(newTransaction.transValue);
                             transValueToAdd.InvokeAsync(newTransaction.transValue);
-                            
+
 
                             isTransactionOverlayOpen.InvokeAsync(false);
                         }

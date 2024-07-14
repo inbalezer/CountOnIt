@@ -688,6 +688,27 @@ input:checked + .slider:before {
     opacity:50%;
 }
 
+.month {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    width: 100%;
+    border: none;
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    width: 100%;
+    border: none;
+    width: 100%;
+    border-radius: 0.25rem;
+    border: none;
+    padding: 1vh 0;
+    text-align: center;
+    background: var(--BG-color, #EDEFF7);
+}
+
 input:disabled, button:disabled {
     opacity: 50%;
 }
