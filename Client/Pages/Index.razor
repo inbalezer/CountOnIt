@@ -588,8 +588,10 @@ else
                                 </div>
                                 <div class="outerDaysOptions" @onclick="()=>openDaysOptions =! openDaysOptions">
 
-                                    @if (newUser.monthStartDate != null || newUser.monthStartDate != 0)
+                                    
+                                    @if (newUser.monthStartDate != null && newUser.monthStartDate != 0)
                                     {
+                                        Console.WriteLine(newUser.monthStartDate);
                                         <div class="dropDownTitle">
                                             ה- @newUser.monthStartDate לחודש
                                             <span class="accordionPoly"><img src="../css/images/arrow3.svg" /></span>
@@ -1036,11 +1038,11 @@ else
 
                                     if (defaultCategories.IsSuccessStatusCode)
                                     {
-                                        msg = "ווהוו לא מעניין את מלכית";
+                                        msg = "יוזר נוצר בהצלחה";
                                     }
                                     else
                                     {
-                                        msg = "לא ווהו, כן מעניין את מלכית";
+                                        msg = "יצירת יוזר נכשלה";
                                     }
                                 }
                                 // Code for when number is 1
@@ -1059,11 +1061,11 @@ else
 
                                     if (defaultCategories.IsSuccessStatusCode)
                                     {
-                                        msg = "ווהוו לא מעניין את מלכית";
+                                        msg = "יוזר נוצר בהצלחה";
                                     }
                                     else
                                     {
-                                        msg = "לא ווהו, כן מעניין את מלכית";
+                                        msg = "יצירת יוזר נכשלה";
                                     }
                                 }
                                 break;
@@ -1080,11 +1082,11 @@ else
 
                                     if (defaultCategories.IsSuccessStatusCode)
                                     {
-                                        msg = "ווהוו לא מעניין את מלכית";
+                                        msg = "יוזר נוצר בהצלחה";
                                     }
                                     else
                                     {
-                                        msg = "לא ווהו, כן מעניין את מלכית";
+                                        msg = "יצירת יוזר נכשלה";
                                     }
                                 }
                                 break;
@@ -1100,11 +1102,11 @@ else
 
                                     if (defaultCategories.IsSuccessStatusCode)
                                     {
-                                        msg = "ווהוו לא מעניין את מלכית";
+                                        msg = "יוזר נוצר בהצלחה";
                                     }
                                     else
                                     {
-                                        msg = "לא ווהו, כן מעניין את מלכית";
+                                        msg = "יצירת יוזר נכשלה";
                                     }
                                 }
                                 break;
@@ -1114,7 +1116,8 @@ else
                                 break;
                         }
 
-                        Navigation.NavigateTo("/homePage");
+                        //Navigation.NavigateTo("/homePage");
+                        await OnInitializedAsync();
                     }
 
                     else

@@ -162,7 +162,7 @@ namespace CountOnIt.Server.Controllers
 
         private double CalculateBudgetPercentage(double budget, double spending)
         {
-            if (spending == 0)
+            if (spending == 0 || budget == 0)
                 return 0;
             return Math.Round((spending / budget) * 100, 2);
         }

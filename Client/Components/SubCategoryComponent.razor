@@ -97,7 +97,7 @@
         <div class="outerSubCatOverlay">
 
             <div class="innerSubCatOverlay">
-                <button class="modal-close-btn" @onclick="() => editSubCatBtnClicked = !editSubCatBtnClicked"><img src="../css/images/close x.svg" /></button>
+                <button class="modal-close-btn" @onclick="closeEditSubCatOverlay"><img src="../css/images/close x.svg" /></button>
                 <h2 class="subCatTitle">עריכת תת קטגוריה</h2>
 
                 @if (!categoryTypeIndicator)
@@ -127,6 +127,7 @@
                         <div class="input-container">
                             <label class="titleName" for="amount">שם תת קטגוריה</label>
                             <input class="titleBox" type="text" id="amount" placeholder="שם תת הקטגוריה" @bind="titleInput" @oninput="SubCatTitleLengthCounter" maxlength="18" minlength="2" />
+                            
                         </div>
                     </div>
 
@@ -356,6 +357,7 @@
     string titleInput = "";
     string convertedColor = "";
     string outlineColor = "";
+    string OgsubCatTitle = "";
     int titleInputLength = 0;
     public bool openTransOverlay = false;
     string? catOutlineColor = "";
@@ -660,10 +662,10 @@
         totalSpendings += transactionValue;
         totalSpendings = Math.Round(totalSpendings, 2);
 
-       //await updateTotalsIndexTable(transactionValue);
+        //await updateTotalsIndexTable(transactionValue);
 
         Console.WriteLine(subCategoryTitle + ": " + totalSpendings + ", latest trans value- " + transactionValue);
-        
+
 
 
     }
@@ -728,5 +730,14 @@
     {
         titleInput = e.Value.ToString();
         titleInputLength = titleInput.Length;
+    }
+
+    void closeEditSubCatOverlay()
+    {
+        Console.WriteLine("לחצו על האיקס");
+        Console.WriteLine(OgsubCatTitle + "OgsubCatTitle");
+        editSubCatBtnClicked = !editSubCatBtnClicked;
+        titleInput = subCategoryTitle;
+
     }
 }

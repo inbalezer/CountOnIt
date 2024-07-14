@@ -31,7 +31,7 @@
         @foreach (SubCategoryToShow overDraftsubcategory in subCategories)
         {
 
-            if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget && categoryTypeIndicator==false)
+            if (overDraftsubcategory.transactionsValue > overDraftsubcategory.monthlyPlannedBudget && categoryTypeIndicator == false)
             {
                 <div class="overdraftBtn">
                     <span>חריגה</span>
@@ -139,7 +139,7 @@
         <div class="overlay">
             <div class="outerSubCatOverlay">
                 <div class="innerSubCatOverlay">
-                    <button class="modal-close-btn" @onclick="() => isSubCategoryAddOverlayOpen = !isSubCategoryAddOverlayOpen"><img src="../css/images/close x.svg" /></button>
+                    <button class="modal-close-btn" @onclick= "closeAddSubCatOverlay"><img src="../css/images/close x.svg" /></button>
                     <h2>הוספת תת קטגוריה</h2>
 
                     <div class="editAndAddSubCat">
@@ -215,17 +215,29 @@
                             </div>
                         </div>
                     }
-                   
+
                     @if (titleInput.Length >= 2 && titleInput.Length < 19 && newSubCategory.monthlyPlannedBudget > 0)
                     {
-                        if (!categoryTypeIndicator && newSubCategory.importance >= 0 || !categoryTypeIndicator && newSubCategory.importance < 3  )
-                        {
-                             <div class="outerSaveBtns">
-                            <button class="primery-button" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
+                        Console.WriteLine(titleInput.Length + " titleInput.Length");
+                        Console.WriteLine(newSubCategory.monthlyPlannedBudget + " newSubCategory.monthlyPlannedBudget");
+                        <div class="outerSaveBtns">
+                            @if (!categoryTypeIndicator && newSubCategory.importance >= 0 || !categoryTypeIndicator && newSubCategory.importance < 3)
+                            {
+
+                    <button class="primery-button" @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
                             <button class="secondery-button" @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
+
+                            }
+                            else
+                            {
+                                <div class="outerSaveBtns">
+                                    <button class="primery-button" disabled @onclick="addSubCategoryAndTransaction">שמירה ויצירת הזנה</button>
+                                    <button class="secondery-button" disabled @onclick="addSubCategoryAndEnd">שמירה וסיום</button>
+
+                                </div>
+                            }
                         </div>
-                        }
-                       
+
                     }
                     else
                     {
@@ -581,7 +593,7 @@
         var deleteRes = await Http.DeleteAsync("api/Present/deleteCategory/" + Category.id);
         if (deleteRes.IsSuccessStatusCode)
         {
-            
+
             deleteCat.InvokeAsync(Category);
         }
         else
@@ -631,18 +643,18 @@
 
                 if (!categoryTypeIndicator)
                 {
-                    double? tempBudget=0;
+                    double? tempBudget = 0;
                     if (subcategory.monthlyPlannedBudget > editedSubCat.monthlyPlannedBudget)
                     {
-                        tempBudget = (subcategory.monthlyPlannedBudget - editedSubCat.monthlyPlannedBudget)*-1;
+                        tempBudget = (subcategory.monthlyPlannedBudget - editedSubCat.monthlyPlannedBudget) * -1;
                     }
                     else if (subcategory.monthlyPlannedBudget < editedSubCat.monthlyPlannedBudget)
                     {
-                        tempBudget = (editedSubCat.monthlyPlannedBudget- subcategory.monthlyPlannedBudget);
+                        tempBudget = (editedSubCat.monthlyPlannedBudget - subcategory.monthlyPlannedBudget);
                     }
 
                     subcategory.monthlyPlannedBudget = editedSubCat.monthlyPlannedBudget;
-                    if (tempBudget!=null)
+                    if (tempBudget != null)
                     {
                         updateBudget.InvokeAsync(tempBudget);
                     }
@@ -732,7 +744,7 @@
 
         updateTransSum.InvokeAsync(transValue);
 
-        //await getSubCategories(); 
+        //await getSubCategories();
         Console.WriteLine("trans reached cat component");
     }
 
@@ -746,4 +758,14 @@
     //        }
     //    }
     //}
+
+
+    void closeAddSubCatOverlay()
+    {
+        isSubCategoryAddOverlayOpen = !isSubCategoryAddOverlayOpen;
+        titleInput = "";
+        newSubCategory.monthlyPlannedBudget = null;
+        newSubCategory.subCategoryTitle = "";
+
+    }
 }
