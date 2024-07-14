@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using TriangleDbRepository;
 
-
 namespace CountOnIt.Server.Controllers
 {
     [Route("api/[controller]")]
@@ -1182,7 +1181,7 @@ namespace CountOnIt.Server.Controllers
             return await _db.InsertReturnId(insertTagQuery, new { tagTitle = tag.tagTitle, tagColor = tag.tagColor, userID = userId });
         }
 
-        [HttpDelete("deleteTags/{tagToDelete}")]
+        [HttpDelete("deleteTags/tagToDelete")]
         public async Task<IActionResult> deleteTags(int tagToDelete)
         {
 
@@ -1194,21 +1193,7 @@ namespace CountOnIt.Server.Controllers
             bool didTransUpdate = await _db.SaveDataAsync(updateTransTagQuery, tagParam);
             if (!didTransUpdate)
             {
-                string tagInTrans = "Select tagID From transactions where tagID=@tagID";
-                var TagInTransRes = await _db.GetRecordsAsync<int>(tagInTrans, tagParam);
-                int tagId = TagInTransRes.FirstOrDefault();
-
-                Console.WriteLine("נכשלתי בראשון");
-                if(tagId != 0)
-                {
-                    return BadRequest("failed to update tagID to null of transactions with the tagID- " + tagToDelete);
-                }
-              
-               
-            }
-            else
-            {
-                Console.WriteLine("אני באלס");
+                return BadRequest("failed to update tagID to null of transactions with the tagID- " + tagToDelete);
             }
 
             string deleteTagQuery = "delete from tags where id=@tagID";
@@ -1217,10 +1202,8 @@ namespace CountOnIt.Server.Controllers
             {
                 return Ok("tag deleted successfully");
             }
-            Console.WriteLine("נכשלתי בשני");
             return BadRequest("tag wasn't deleted successfully");
         }
-
 
 
         [HttpPost("updateTag")]

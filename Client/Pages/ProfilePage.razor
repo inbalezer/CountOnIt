@@ -107,7 +107,7 @@
                                     }
                                     else
                                     {
-                                        <span>@newFirstNameLength/15</span>
+                                        <span style="color:red">@newFirstNameLength/15</span>
                                     }
                                 </div>
                             </div>
@@ -125,7 +125,7 @@
                                     }
                                     else
                                     {
-                                        <span>@newLastNameLength/15</span>
+                                        <span style="color:red">@newLastNameLength/15</span>
                                     }
                                 </div>
                             </div>
@@ -262,23 +262,7 @@
 
         <div class="outerDay">
             <div class="outerTagsProfile">
-                @if(currentUser.userTags.Count == 0)
-                {
                 <div>
-                     
-                      <button class="addTagBtn" @onclick="addNewTag">
-                            <div class="addTagText">
-                                הוספת תגית
-                            </div>
-                            <img class="addTagImg" src="../css/images/add-new-tag (1).svg" />
-                        </button>
-                
-                
-                </div>
-                }
-                else
-                {
-                    <div>
                     @if (editBtnClicked)
                     {
                         <button class="addTagBtn" @onclick="addNewTag">
@@ -297,9 +281,9 @@
                         {
                             if (editBtnClicked)
                             {
+
                                 foreach (TagsToShow tag in GetCurrentPageTags())
                                 {
-
                                     if (!editBtnClicked)
                                     {
                                         var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
@@ -317,45 +301,20 @@
                                 style="background-color:@tag.tagColor; @fontWeight">
                                                 @tag.tagTitle
 
-                                                <div class="options-container">
-                                                    <button class="options"><img style="height:1rem;" src="../css/images/option menu.svg" /></button>
-                                                </div>
+                                                <button class="options"><img style="height:1rem;" src="../css/images/option menu.svg" /></button>
+
 
                                             </button>
+
                                         </div>
                                     }
                                 }
-                               @* @if (OptionsBtnClicked)
+                                @if (OptionsBtnClicked)
                                 {
                                     <div class="outerOptions">
-                                         <OptionsMenuComponent editBtnClicked="openEditOrAddTagOverlay" deleteBtnClicked="callDeleteWarning" closeOverlay="()=>openDeleteTagWarning(true)"></OptionsMenuComponent>
-
-                                        <div class="outerOptions">
-                                            <button class="optionButton editButton" @onclick="(() => iseditBtnClicked = !iseditBtnClicked)">
-                                                <img src="../css/images/edit_pencil.svg" class="icon" />
-                                                עריכה
-                                            </button>
-                                            <div class="lineBetween"> </div>
-                                            <button class="optionButton deleteButton" @onclick="(() => isdeleteBtnClicked = !isdeleteBtnClicked)">
-                                                <img src="../css/images/trash.svg" class="icon" />
-                                                מחיקה
-                                            </button>
-                                        </div>
+                                        <OptionsMenuComponent editBtnClicked="openEditOrAddTagOverlay" deleteBtnClicked="callDeleteWarning" closeOverlay="()=>openDeleteTagWarning(true)"></OptionsMenuComponent>
                                     </div>
-                                }*@
-
-                                @if (iseditBtnClicked)
-                                {
-                                   openEditOrAddTagOverlay();
-                                    iseditBtnClicked = !iseditBtnClicked;
                                 }
-
-                                @if (isdeleteBtnClicked)
-                                {
-                                    callDeleteWarning();
-                                    isdeleteBtnClicked = !isdeleteBtnClicked;
-                                }
-
                             }
                             else
                             {
@@ -372,24 +331,6 @@
 
                         }
                     </div>
-                    @if (OptionsBtnClicked)
-                    {
-                        <div class="megaTagsOuterOptions">
-                            @* <OptionsMenuComponent editBtnClicked="openEditOrAddTagOverlay" deleteBtnClicked="callDeleteWarning" closeOverlay="()=>openDeleteTagWarning(true)"></OptionsMenuComponent>*@
-
-                            <div class="tagsOuterOptions">
-                                <button class="optionButton editButton" @onclick="(() => iseditBtnClicked = !iseditBtnClicked)">
-                                    <img src="../css/images/edit_pencil.svg" class="icon" />
-                                    עריכה
-                                </button>
-                                <div class="lineBetween"> </div>
-                                <button class="optionButton deleteButton" @onclick="(() => isdeleteBtnClicked = !isdeleteBtnClicked)">
-                                    <img src="../css/images/trash.svg" class="icon" />
-                                    מחיקה
-                                </button>
-                            </div>
-                        </div>
-                    }
                     <div class="outerBtnAndDots">
                         <button class="galleryArrow @disBtnStyle" @onclick="PreviousPage"><img src="../css/images/arrow-back.svg" /></button>
                         <div class="pageDots">
@@ -401,12 +342,8 @@
                         <button class="galleryArrow @disNextBtnStyle" @onclick="NextPage"><img src="../css/images/arrow-next.svg" /></button>
 
                     </div>
-                   
+
                 </div>
-                }
-               
-              
-                
             </div>
         </div>
     </div>
@@ -456,7 +393,6 @@
 
 @if (editTag)
 {
-
     OptionsBtnClicked = false;
     <div>
         <div class="megaOuterLay">
@@ -464,18 +400,12 @@
                 <div class="BgOverlay"> </div>
                 <div class="overlay">
                     <div class="paddingDiv">
-                        @if (isEdit)
+                        @if (tagToEdit.id > 0)
                         {
                             ogTagColor = chosenTag.tagColor;
-
-
                             if (isTagColor)
                             {
-
                                 convertTagColors(chosenTag.tagColor);
-                                Console.WriteLine("אני בפונקציה הראשונה");
-
-
                             }
 
                             <div class="outerTitleAndIcon">
@@ -486,12 +416,17 @@
                             <div class="outerTitleAndCounter">
                                 <div class="input-container">
                                     <div>שם התגית:</div>
-                                    <input type="text" class="catTitle" value="@tagToEdit.tagTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
+                                    <input type="text" class="catTitle" value="@chosenTag.tagTitle" @oninput="tagTitleLengthCheck" maxlength="8" />
                                     <div class="counter">
 
-
-                                        <span>@tagTitleInputLength/8</span>
-
+                                        @if (tagTitleInputLength == 0)
+                                        {
+                                            <span>@chosenTag.tagTitle.Length/8</span>
+                                        }
+                                        else
+                                        {
+                                            <span>@tagTitleInputLength/8</span>
+                                        }
 
                                     </div>
                                 </div>
@@ -553,16 +488,16 @@
                             <br />
                         </div>
 
-                        @if (isEdit)
+                        @if (tagToEdit.id > 0)
                         {
                             <div class="outerSaveBtns">
-                                @if (tagToEdit.tagTitle != "")
+                                @if (tagToEdit.tagTitle != "" && tagToEdit.tagColor != "")
                                 {
                                     <button class="primery-button" @onclick="updateTag">שמירה וסיום</button>
                                 }
                                 else
                                 {
-                                    <button class="primery-button" style="opacity:60%" @onclick="updateTag" disabled>שמירה וסיום</button>
+                                    <button class="primery-button" @onclick="updateTag" disabled>שמירה וסיום</button>
                                 }
                             </div>
 
@@ -572,15 +507,17 @@
                         {
 
                             <div class="outerSaveBtns">
-                                @if ((tagToEdit.tagTitle != "" || tagToEdit.tagTitle != null))
+                                @if ((tagToEdit.tagTitle != "" || tagToEdit.tagTitle != null) && (tagToEdit.tagColor != "" || tagToEdit.tagTitle != null))
                                 {
                                     <button class="primery-button" @onclick="addTag">שמירה וסיום</button>
                                 }
                                 else
                                 {
-                                    <button class="primery-button" style="opacity:60%" @onclick="addTag" disabled>שמירה וסיום</button>
+                                    <button class="primery-button" @onclick="addTag" disabled>שמירה וסיום</button>
                                 }
                             </div>
+
+
 
                         }
                     </div>
@@ -633,13 +570,9 @@
     bool isTagChosen = false;
     bool openStartOptions = false;
     bool isTagColor = true;
-    bool isEdit = false;
-    bool isColorClicked = false;
-    string OgColor = "";
     string disBtnStyle => disBtn ? "disBtn" : "";
     string disNextBtnStyle => disNextBtn ? "disBtn" : "";
     string chosenTagStyle => isTagChosen ? "chosenTag" : "";
-    int editedTag = 0;
 
     private int currentPage = 0;
     private int pageSize = 6;
@@ -649,8 +582,6 @@
     private bool isVisible = false;
     bool isCancleBtnClicked = false;
     string hideBtn = "";
-    string currentTagColor = "";
-    string currentTagName = "";
     bool noEmojiBtn = false;
     private Dictionary<string, List<string>> emojiCategories = new Dictionary<string, List<string>>
     {
@@ -726,7 +657,7 @@
                         startMonthDate = 15;
                         break;
                     default:
-                        startMonthDate = 1;
+                        startMonthDate=1;
                         break;
                 }
             }
@@ -763,7 +694,7 @@
     {
         goingBackDisabled = false;
 
-        if (currentUser.monthStartDate.HasValue && currentUser.monthStartDate.Value > 0)
+        if (currentUser.monthStartDate.HasValue && currentUser.monthStartDate.Value>0 )
         {
             startMonthDate = currentUser.monthStartDate.Value;
         }
@@ -884,13 +815,10 @@
             int deletedTagsCounter = 0;
             foreach (int tagIDtoDelete in tagsToDeleteRes)
             {
-                Console.WriteLine(tagIDtoDelete + "אידי");
-
                 var deleteTagsRec = await Http.DeleteAsync("api/Present/deleteTags/" + tagIDtoDelete);
                 if (deleteTagsRec.IsSuccessStatusCode)
                 {
                     deletedTagsCounter++;
-                     Console.WriteLine("הצלחתי");
                 }
             }
             if (deletedTagsCounter == tagsToDeleteRes.Count)
@@ -900,8 +828,6 @@
             else
             {
                 Console.WriteLine("not all tags were successfully deleted");
-                Console.WriteLine(deletedTagsCounter + "קאונטר תגיות");
-                Console.WriteLine(tagsToDeleteRes.Count + "כמות");
             }
         }
     }
@@ -909,11 +835,6 @@
     public void openEditOrAddTagOverlay()
     {
         editTag = !editTag;
-        if (!isEdit)
-        {
-            OgColor = chosenTag.tagColor;
-        }
-        isEdit = true;
         tagToEdit = chosenTag;
         Console.WriteLine(chosenTag.tagColor + "!!!!!!!!!!!");
     }
@@ -928,82 +849,44 @@
         tagToEdit.id = 0;
         tagTitleInputLength = 0;
         ogTagColor = "";
-        currentTagColor = "";
-        selectedClass = "";
     }
 
     private void UpdateColor(string color)
     {
-        isColorClicked = true;
 
         if (selectedClass == color)
         {
             // If the color is already selected, unselect it
             selectedClass = ""; // Reset the selected color
             tagToEdit.tagColor = ""; // Assuming you want to clear the selected color
-
         }
         else
         {
-            Console.WriteLine(color + "color");
             // Otherwise, update to the new selected color
-            currentTagColor = color;
+            tagToEdit.tagColor = color;
             selectedClass = color;
-            chosenTag.tagColor = color;
-            convertTagColors(color);
         }
     }
 
     public void updateTag()
     {
-        if (currentTagColor == "")
-        {
-            currentTagColor = "#AEA2F9";
-        }
-
-        tagToEdit.tagColor = currentTagColor;
-        if (currentTagName == "")
-        {
-            tagToEdit.tagTitle = chosenTag.tagTitle;
-        }
-        else
-        {
-            tagToEdit.tagTitle = currentTagName;
-        }
-
-        editedTag = currentUser.userTags.IndexOf(chosenTag);
+        int editedTag = currentUser.userTags.IndexOf(chosenTag);
         currentUser.userTags[editedTag].id = tagToEdit.id;
         currentUser.userTags[editedTag].tagTitle = tagToEdit.tagTitle;
         currentUser.userTags[editedTag].tagColor = tagToEdit.tagColor;
+        tagToEdit = new TagsToShow();
         chosenTag = new TagsToShow();
         selectedClass = "";
-        currentTagColor = "";
-        currentTagName = "";
         editTag = false;
-        isEdit = false;
+
     }
 
     public void addTag()
     {
-        if (currentTagColor == "")
-        {
-            currentTagColor = "#AEA2F9";
-        }
 
-        tagToEdit.tagColor = currentTagColor;
-        if (currentTagName == "")
-        {
-            tagToEdit.tagTitle = chosenTag.tagTitle;
-        }
-        else
-        {
-            tagToEdit.tagTitle = currentTagName;
-        }
         currentUser.userTags.Add(tagToEdit);
         tagToEdit = new TagsToShow();
         tagToEdit.tagTitle = "";
-        currentTagColor = "";
-        currentTagName = "";
         tagToEdit.tagColor = "";
         tagTitleInputLength = 0;
         chosenTag = new TagsToShow();
@@ -1041,8 +924,8 @@
 
     private void tagTitleLengthCheck(ChangeEventArgs e)
     {
-        currentTagName = e.Value.ToString();
-        //tagTitleInputLength = tagToEdit.tagTitle.Length;
+        tagToEdit.tagTitle = e.Value.ToString();
+        tagTitleInputLength = tagToEdit.tagTitle.Length;
 
     }
 
@@ -1079,93 +962,80 @@
 
     public void convertTagColors(string tagColor)
     {
-        Console.WriteLine(tagColor + "tagColor");
+        Console.WriteLine(tagColor);
         string convertedColor = "";
         string outlineColor = "";
-        if (tagColor.Contains('#'))
+        switch (tagColor)
         {
-            selectedClass = tagColor;
-        }
-        else
-        {
+            case "rgba(244, 179, 103, 0.4)": //mustard
+                convertedColor = "rgba(244, 179, 103, 0.13)";
+                outlineColor = "#F4B367";
+                Console.WriteLine("cat color is mustard");
+                break;
+            case "rgba(174, 162, 249, 0.4)": //purple
+                convertedColor = "rgba(174, 162, 249, 0.13)";
+                outlineColor = "#AEA2F9";
+                Console.WriteLine("cat color is dark purple");
+                break;
+            case "rgba(244, 103, 171, 0.4)": //dark pink
+                convertedColor = "rgba(244, 103, 171, 0.13)";
+                outlineColor = "#F467AB";
+                Console.WriteLine("cat color is dark pink");
+                break;
+            case "rgba(244, 120, 103, 0.4)": //salmon pink
+                convertedColor = "rgba(244, 120, 103, 0.13)";
+                outlineColor = "#F47867";
+                Console.WriteLine("cat color is salmon pink");
+                break;
+            case "rgba(103, 142, 244, 0.4)": //defualt
+                convertedColor = "rgba(103, 142, 244, 0.13)";
+                outlineColor = "#678EF4";
+                Console.WriteLine("cat color is default");
+                break;
+            case "rgba(141, 228, 191, 0.4)": //light green
+                convertedColor = "rgba(141, 228, 191, 0.13)";
+                outlineColor = "#8DE4BF";
+                Console.WriteLine("cat color is light green");
+                break;
+            case "rgba(103, 202, 244, 0.4)": //light blue
+                convertedColor = "rgba(103, 202, 244, 0.13)";
+                outlineColor = "#67CAF4";
+                Console.WriteLine("cat color is light blue");
+                break;
+            case "rgba(255, 239, 157, 0.4)": //banana
+                convertedColor = "rgba(255, 239, 157, 0.13)";
+                outlineColor = "#FCE884";
+                Console.WriteLine("cat color is banana");
+                break;
+            case "rgba(249, 211, 194, 0.4)": //cream
+                convertedColor = "rgba(249, 211, 194, 0.13)";
+                outlineColor = "#F9D3C2";
+                Console.WriteLine("cat color is cream");
+                break;
+            case "rgba(9, 174, 115, 0.4)": //dark green
+                convertedColor = "rgba(9, 174, 115, 0.13)";
+                outlineColor = "#09AE73";
+                Console.WriteLine("cat color is dark green");
+                break;
+            case "rgba(140, 139, 139, 0.4)": //dark gray
+                convertedColor = "rgba(140, 139, 139, 0.25)";
+                outlineColor = "#8C8B8B";
+                Console.WriteLine("cat color is dark gray");
+                break;
+            case "rgba(218, 218, 218, 0.4)": //gray
+                convertedColor = "rgba(218, 218, 218, 0.13)";
+                outlineColor = "#DADADA";
+                Console.WriteLine("cat color is light gray");
+                break;
+            default:
+                convertedColor = "rgba(103, 142, 244, 0.13)";
+                outlineColor = "#AEA2F9";
+                Console.WriteLine("cat color is default");
+                break;
+        };
 
-            switch (tagColor)
-            {
-                case "rgba(244, 179, 103, 0.4)": //mustard
-                    convertedColor = "rgba(244, 179, 103, 0.13)";
-                    outlineColor = "#F4B367";
-                    Console.WriteLine("cat color is mustard");
-                    break;
-                case "rgba(174, 162, 249, 0.4)": //purple
-                    convertedColor = "rgba(174, 162, 249, 0.13)";
-                    outlineColor = "#AEA2F9";
-                    Console.WriteLine("cat color is dark purple");
-                    break;
-                case "rgba(244, 103, 171, 0.4)": //dark pink
-                    convertedColor = "rgba(244, 103, 171, 0.13)";
-                    outlineColor = "#F467AB";
-                    Console.WriteLine("cat color is dark pink");
-                    break;
-                case "rgba(244, 120, 103, 0.4)": //salmon pink
-                    convertedColor = "rgba(244, 120, 103, 0.13)";
-                    outlineColor = "#F47867";
-                    Console.WriteLine("cat color is salmon pink");
-                    break;
-                case "rgba(103, 142, 244, 0.4)": //defualt
-                    convertedColor = "rgba(103, 142, 244, 0.13)";
-                    outlineColor = "#678EF4";
-                    Console.WriteLine("cat color is default");
-                    break;
-                case "rgba(141, 228, 191, 0.4)": //light green
-                    convertedColor = "rgba(141, 228, 191, 0.13)";
-                    outlineColor = "#8DE4BF";
-                    Console.WriteLine("cat color is light green");
-                    break;
-                case "rgba(103, 202, 244, 0.4)": //light blue
-                    convertedColor = "rgba(103, 202, 244, 0.13)";
-                    outlineColor = "#67CAF4";
-                    Console.WriteLine("cat color is light blue");
-                    break;
-                case "rgba(255, 239, 157, 0.4)": //banana
-                    convertedColor = "rgba(255, 239, 157, 0.13)";
-                    outlineColor = "#FCE884";
-                    Console.WriteLine("cat color is banana");
-                    break;
-                case "rgba(249, 211, 194, 0.4)": //cream
-                    convertedColor = "rgba(249, 211, 194, 0.13)";
-                    outlineColor = "#F9D3C2";
-                    Console.WriteLine("cat color is cream");
-                    break;
-                case "rgba(9, 174, 115, 0.4)": //dark green
-                    convertedColor = "rgba(9, 174, 115, 0.13)";
-                    outlineColor = "#09AE73";
-                    Console.WriteLine("cat color is dark green");
-                    break;
-                case "rgba(140, 139, 139, 0.4)": //dark gray
-                    convertedColor = "rgba(140, 139, 139, 0.25)";
-                    outlineColor = "#8C8B8B";
-                    Console.WriteLine("cat color is dark gray");
-                    break;
-                case "rgba(218, 218, 218, 0.4)": //gray
-                    convertedColor = "rgba(218, 218, 218, 0.13)";
-                    outlineColor = "#DADADA";
-                    Console.WriteLine("cat color is light gray");
-                    break;
-                default:
-                    convertedColor = "rgba(103, 142, 244, 0.13)";
-                    outlineColor = "#AEA2F9";
-                    Console.WriteLine("cat color is default");
-                    break;
-            };
-
-            selectedClass = outlineColor;
-
-
-        }
-
-
-        Console.WriteLine(selectedClass + "צבע תגית");
-        //isTagColor = false;
+        selectedClass = outlineColor;
+        isTagColor = false;
     }
 
     void closeTagsOverlay()
@@ -1178,33 +1048,15 @@
         }
         else
         {
-            editedTag = currentUser.userTags.IndexOf(chosenTag);
-            currentUser.userTags[editedTag].tagColor = OgColor;
-
+            isTagColor = true;
         }
 
-        isEdit = false;
+        if (tagToEdit.id == 0)
+        {
+            tagToEdit.tagTitle = "";
+            tagToEdit.tagColor = "";
+        }
 
-
-        //if (tagToEdit.id == 0)
-        //{
-        //    tagToEdit.tagTitle = "";
-        //    tagToEdit.tagColor = "";
-        //}
-
-
-    }
-
-
-    bool deleteBtnClicked;
-
-   
-    public bool iseditBtnClicked;
-    public bool isdeleteBtnClicked;
-
-    void closeDeleteOverLay()
-    {
-        openDeleteTagWarning(true);
     }
 
 }
