@@ -117,7 +117,7 @@
                         }
 
                         <div class="budget-card @(isFirstItem ? "first" : "")">
-                            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="@categoryColor" updateTransactionSum="updatePresentTable"></SubCategoryComponent>
+                            <SubCategoryComponent subCategoryTitle="@subcategory.subCategoryTitle" totalSpendings="@subcategory.transactionsValue" budget="@subcategory.monthlyPlannedBudget" subCategoryIDToGet="@subcategory.id" userID="@userID" subCatTakenBudget="updateTakenSubCatBudget" refreshSubCats="getSubCategories" updateEditedSubCat="updateEditedSubCat" categoryID="@Category.id" subCatDeleted="deleteSubCat" categoryTitle="@Category.categroyTitle" categoryTypeIndicator="@categoryTypeIndicator" updatedStreakStat="updateStreak" subCatColor="@categoryColor" updateTransactionSum="updatePresentTable" ></SubCategoryComponent>
                         </div>
 
                         isFirstItem = false;
@@ -727,20 +727,20 @@
 
     private async void updatePresentTable(double transValue)
     {
-
+        
         updateTransSum.InvokeAsync(transValue);
 
         //await getSubCategories(); 
         Console.WriteLine("trans reached cat component");
     }
 
-    //public void updateTransSumTotal(Dictionary<int,double> subcatToUpdate)
+    //private void updateSubCatSum(int subIDtoUpdate)
     //{
     //    foreach (SubCategoryToShow sub in subCategories)
     //    {
-    //        if (sub.id==subcatToUpdate[0])
+    //        if ()
     //        {
-    //            sub.transactionsValue += subcatToUpdate[1];
+                
     //        }
     //    }
     //}

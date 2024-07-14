@@ -96,7 +96,7 @@
                             <span><img src="../css/images/repeat iconrestart.svg" /></span>
                         </div>
                     }
-                    else if (transaction.splitPayment == true || childOfSplit == true)
+                    @if (transaction.splitPayment == true || childOfSplit == true)
                     {
                         <div class="paymentMethod">
                             <span><img src="../css/images/payments.svg" /></span>
@@ -200,19 +200,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        //Console.WriteLine("transaction- "+transaction.transTitle+", id- "+transaction.id+", transIDtoEdit- "+transIDtoEdit);
-        if (transaction.parentTransID.HasValue) //checking if the transaction is part of a repeated/split payment
+        if (transaction.parentTransID.HasValue)
         {
             if (transaction.parentTransID.Value > 0)
             {
                 var findParentRes = await Http.GetAsync("api/Transactions/identifyParent/" + transaction.parentTransID.Value);
-                if (findParentRes.IsSuccessStatusCode) //means the trans is a child of splitParent
+                if (findParentRes.IsSuccessStatusCode)
                 {
-                    //Console.WriteLine("transaction: " + transaction.transTitle + " is a part of a split payment");
+                    Console.WriteLine("transaction: " + transaction.transTitle + " is a part of a split payment");
                     transIDtoEdit = transaction.parentTransID.Value;
-
-
-
                 }
                 else
                 {
@@ -229,35 +225,39 @@
             Console.WriteLine("transaction isn't a child");
 
             transIDtoEdit = transaction.id;
-
-            if (transaction.splitPayment==true)
+        }
+        if (transaction.parentTransID.HasValue)
+        {
+            if (transaction.parentTransID.Value > 0)
             {
-                var repeatedTransValuesRes = await Http.GetAsync("api/Transactions/getPaymentTransToEdit/" + transIDtoEdit);
-                if (repeatedTransValuesRes.IsSuccessStatusCode)
+                if (transIDtoEdit == transaction.parentTransID.Value)
                 {
-                    reapeatedTransValuesList = repeatedTransValuesRes.Content.ReadFromJsonAsync<List<RepeatedTransToShow>>().Result;
-                    foreach (RepeatedTransToShow repeatedT in reapeatedTransValuesList)
+                    var repeatedTransValuesRes = await Http.GetAsync("api/Transactions/getPaymentTransToEdit/" + transIDtoEdit);
+                    if (repeatedTransValuesRes.IsSuccessStatusCode)
                     {
-                        if (repeatedT.id == transaction.id)
+                        reapeatedTransValuesList = repeatedTransValuesRes.Content.ReadFromJsonAsync<List<RepeatedTransToShow>>().Result;
+                        foreach (RepeatedTransToShow repeatedT in reapeatedTransValuesList)
                         {
-                            transIndexInPayments = reapeatedTransValuesList.IndexOf(repeatedT) + 1;
+                            if (repeatedT.id == transaction.id)
+                            {
+                                transIndexInPayments = reapeatedTransValuesList.IndexOf(repeatedT) + 1;
+                            }
                         }
+
+                        totalPayments = reapeatedTransValuesList.Count;
+                        childOfSplit = true;
+
                     }
-
-                    totalPayments = reapeatedTransValuesList.Count;
-                    Console.WriteLine(totalPayments);
-                    //childOfSplit = true;
-
-                }
-                else
-                {
-                    Console.WriteLine("finding split trans values failed");
+                    else
+                    {
+                        Console.WriteLine("finding split trans values failed");
+                    }
                 }
             }
         }
 
-        //if (typeByCat)
-        //{
+        if (typeByCat)
+        {
             Console.WriteLine("trans date pre switch- " + transaction.transDate);
             bool convertingDate = DateTime.TryParse(transaction.transDate, out date);
             string convertedDate = "";
@@ -267,7 +267,7 @@
                 transaction.transDate = convertedDate;
                 Console.WriteLine("trans date format- " + date + " , trans date as string- " + convertedDate);
             }
-        //}
+        }
 
 
     }
@@ -434,15 +434,6 @@
 
     public void updateTranPostEdit(TransactionOverviewToShow editedTransaction)
     {
-        bool convertingDate = DateTime.TryParse(editedTransaction.transDate, out date);
-        string convertedDate = "";
-        if (convertingDate)
-        {
-            convertedDate = date.ToString("dd/MM/yyyy");
-            editedTransaction.transDate = convertedDate;
-            Console.WriteLine("trans date format- " + date + " , trans date as string- " + convertedDate);
-        }
-
         transaction = editedTransaction;
     }
 
