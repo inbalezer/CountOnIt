@@ -134,16 +134,15 @@ else
                     </tr>
                 </tbody>
             </table>
-@*            @if(tagsSpendingsList.Count == 0 && subCatsTotalsStory.Count == 0)
+            @if(tagsSpendingsList.Count == 0 && subCatsTotalsStory.Count == 0)
             {
                 
                 <button class="primery-button" style="opacity:0.6">מצב החודש כרגע</button>
             }
             else
-            {*@
+            {
                 <button class="primery-button" @onclick="getSubCatTotalsForStory">מצב החודש כרגע</button>
-           @* }*@
-
+            }
             
 
             @if (storyPopUpWindow)
@@ -220,7 +219,6 @@ else
 
                             else if (storyNav == 2 && tagsSpendingsList.Count > 0)
                             {
-                                tagCounter = 0;
                                 <div class="outerSecondStory" @onclick="NextStory">
 
                                     <h3 class="storyTitle">התגיות עם הכי הרבה הוצאות</h3>
@@ -251,7 +249,6 @@ else
                             }
                             else if (storyNav == 2 && tagsSpendingsList.Count == 0)
                             {
-
                                 <div class="outerSecondStory" @onclick="NextStory">
 
                                     <h3 class="storyTitle">לא נמצאו הזנות עם תגיות החודש</h3>
@@ -264,7 +261,6 @@ else
                             }
                             else if (storyNav == 3)
                             {
-                                tagCounter = 0;
                                 <div class="outerThirdStory" @onclick="NextStory">
                                     <h3 class="storyTitle">התזרים שלי עד כה החודש</h3>
                                     <div class="titleFirstStory">פילוח ההוצאות שלך לפי קטגוריות</div>
