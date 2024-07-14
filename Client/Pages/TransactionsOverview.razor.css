@@ -931,8 +931,15 @@
 }
 
 .divider {
-    height: 5vh;
-    width: 1px;
+    
+    height: 0.15vh;
+    width: 41vw;
+    background-color: #D6D9F1;
+}
+
+.filterDivider {
+    height: 0.15vh;
+    width: 27vw;
     background-color: #EDEFF7;
 }
 

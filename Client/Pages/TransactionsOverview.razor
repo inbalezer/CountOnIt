@@ -252,11 +252,11 @@
 
                                 <div class="filterOptions">
                                     <button class="dropDownOptionBtn" @onclick="filterByTransTypeOverlayControl">אמצעי תשלום</button>
-                                    <div class="divider"></div>
+                                    <div class="filterDivider"></div>
                                     <button class="dropDownOptionBtn" @onclick="filterByTagsOverlayControl">תגית</button>
-                                    <div class="divider"></div>
+                                    <div class="filterDivider"></div>
                                     <button class="dropDownOptionBtn" @onclick="filterByRepeatedTrans">הוצאה חוזרת</button>
-                                    <div class="divider"></div>
+                                    <div class="filterDivider"></div>
                                     <button class="dropDownOptionBtn" @onclick="filterBySplitPayment">תשלומים</button>
                                 </div>
                             </div>
@@ -264,6 +264,7 @@
                         }
                         @if (filterByTransTypeOverlay)
                         {
+                            ;
                             <div class="outerPaymentMethod">
                                 <div class="PaymentMethods">
                                     <div class="outerLay">
@@ -312,6 +313,8 @@
                         }
                         @if (filterByTagOverlay)
                         {
+                            
+                           Console.WriteLine(filterBtnClicked + "filterBtnClicked");
                             <div class="outerPaymentMethod">
                                 <div class="PaymentMethods">
                                     <div class="outerLay">
@@ -339,6 +342,7 @@
                                                             <div class="outerGalleryAndNav">
                                                                 <div class="outerGallery">
 
+
                                                                     @foreach (TagsToShow tag in subCatTagsList)
                                                                     {
                                                                         var fontWeight = (chosenTag == tag) ? "font-weight: 600;" : "";
@@ -364,6 +368,19 @@
                                                             </div>
                                                             <button class="primery-button" @onclick="(()=>filterByTags(filterByTag))">סינון הוצאות</button>
                                                         </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="straightDiv">
+
+
+                                                            <button class="modal-close-btn" @onclick="() => filterByTagOverlay = false"><img src="../css/images/close x.svg" /></button>
+                                                            <div class="patmentsTitle">
+                                                                <p>אין לך תגיות עדיין.. .</p>
+                                                                <p>ניתן ליצור תגיות חדשות בעמוד הפרופיל.</p>
+                                                            </div>
+                                                        </div>
+
                                                     }
                                                 </div>
                                             </div>
@@ -809,7 +826,7 @@
                             {
                                 typeByCat = true;
 
-                                var getAllIncomeTransactions = await Http.GetAsync("api/Transactions/getAllIncomeTransactions/" +userID+"/"+ subCatID);
+                                var getAllIncomeTransactions = await Http.GetAsync("api/Transactions/getAllIncomeTransactions/" + userID + "/" + subCatID);
                                 if (getAllIncomeTransactions.IsSuccessStatusCode)
                                 {
                                     var checkTransList = getAllIncomeTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
@@ -840,7 +857,7 @@
                 }
                 else
                 {
-                    var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactionsByDate/" +userID+"/"+subCatID);
+                    var getAllTransactions = await Http.GetAsync("api/Transactions/getAllTransactionsByDate/" + userID + "/" + subCatID);
                     if (getAllTransactions.IsSuccessStatusCode)
                     {
                         var checkTransList = getAllTransactions.Content.ReadFromJsonAsync<List<TransactionOverviewToShow>>().Result;
@@ -868,7 +885,7 @@
                                     Console.WriteLine("איןןןןןןן תתיייייי קטגוריותתתתתתת");
                                     closeOverdraftOpts = await overdraftRes.Content.ReadFromJsonAsync<List<OverBudgetToShow>>();
 
-                                    if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[closeOverdraftOpts.Count-1].id == subCatID)
+                                    if (closeOverdraftOpts.Count <= 1 && closeOverdraftOpts[closeOverdraftOpts.Count - 1].id == subCatID)
                                     {
 
                                         noOverdraftOptions = true;
@@ -1187,11 +1204,13 @@
     public void filterByTransTypeOverlayControl()
     {
         filterByTransTypeOverlay = !filterByTransTypeOverlay;
+        filterBtnClicked = false;
     }
 
     public void filterByTagsOverlayControl()
     {
         filterByTagOverlay = !filterByTagOverlay;
+        filterBtnClicked = false;
     }
 
     public async Task filterByTransType(string selectedType)
